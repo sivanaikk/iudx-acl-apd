@@ -1,0 +1,1320 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: IUDX-ACL-APD
+  description: API specification for ACL APD. These APIs are used by users manage policy. These APIs requires valid token for authentication.
+  contact:
+    name: For support contact IUDX Team at
+    email: support@iudx.org.in
+  license:
+    name: MIT
+servers:
+  - url: ''
+    description: Production
+  - url: ''
+    description: Development
+paths:
+  /policies:
+    get:
+      tags:
+        - Policies APIs
+      summary: Get Policies
+      description: |
+        Get policies related to a particular user. The response depends on the roles the user has
+        - `provider` : returns all policies created by the provider/delegate of the provider.
+        - `delegate` : returns all policies set by the delegate for the provider or set for the consumer the delegate is acting on behalf off.
+        - `consumer` : returns the policies set for the consumer
+      operationId: get-auth-v1-policies
+      parameters:
+        - name: Authorization
+          in: header
+          description: AAA issued token
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 4000
+            example: Bearer <JWT>
+      responses:
+        '200':
+          description: |-
+            Successfully lists the policies
+
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        policyId:
+                          type: string
+                        itemType:
+                          type: string
+                        expiryTime:
+                          type: string
+                        constraints:
+                          type: object
+                          properties:
+                            access:
+                              type: array
+                              items:
+                                type: string
+                        itemId:
+                          type: string
+                        user:
+                          type: object
+                          properties:
+                            email:
+                              type: string
+                            name:
+                              type: object
+                              properties:
+                                firstName:
+                                  type: string
+                                lastName:
+                                  type: string
+                            id:
+                              type: string
+                        owner:
+                          type: object
+                          properties:
+                            email:
+                              type: string
+                            name:
+                              type: object
+                              properties:
+                                firstName:
+                                  type: string
+                                lastName:
+                                  type: string
+                            id:
+                              type: string
+                x-examples:
+                  Example 1:
+                    type: 'urn:acl:as:Success'
+                    title: policy read
+                    results:
+                      - policyId: 5055ca31-937b-4a5e-b301-449ca35c123b
+                        itemType: resource_group
+                        expiryTime: '2022-09-09T04:22:36'
+                        constraints:
+                          access:
+                            - sub
+                        itemId: pune-env-flood
+                        user:
+                          email: vasanth.rajaraman@datakaveri.org
+                          name:
+                            firstName: Vasanth
+                            lastName: Rajaraman
+                          id: 15c7506f-c800-48d6-adeb-0542b03947c6
+                        owner:
+                          email: bob_provider@iisc.ac.in
+                          name:
+                            firstName: Bob
+                            lastName: Provider
+                          id: 844e251b-574b-46e6-9247-f76f1f70a637
+              examples:
+                Listing of policies set for a resource group:
+                  value:
+                    type: 'urn:acl:as:Success'
+                    title: policy read
+                    results:
+                      - policyId: 5055ca31-937b-4a5e-b301-449ca35c123b
+                        itemType: resource_group
+                        expiryTime: '2022-09-09T04:22:36'
+                        constraints:
+                          access:
+                            - sub
+                        itemId: 5055ca31-937b-4a5e-b301-449ca35c121
+                        user:
+                          email: vasanth.rajaraman@datakaveri.org
+                          name:
+                            firstName: Vasanth
+                            lastName: Rajaraman
+                          id: 15c7506f-c800-48d6-adeb-0542b03947c6
+                        owner:
+                          email: bob_provider@iisc.ac.in
+                          name:
+                            firstName: Bob
+                            lastName: Provider
+                          id: 844e251b-574b-46e6-9247-f76f1f70a637
+                Listing of policies set for a resource:
+                  value:
+                    type: 'urn:acl:as:Success'
+                    title: policy read
+                    results:
+                      - policyId: 5055ca31-937b-4a5e-b301-449ca35c123b
+                        itemType: resource
+                        expiryTime: '2022-09-09T04:22:36'
+                        constraints:
+                          access:
+                            - sub
+                        itemId: 5055ca31-937b-4a5e-b301-449ca35c121
+                        user:
+                          email: vasanth.rajaraman@datakaveri.org
+                          name:
+                            firstName: Vasanth
+                            lastName: Rajaraman
+                          id: 15c7506f-c800-48d6-adeb-0542b03947c6
+                        owner:
+                          email: bob_provider@iisc.ac.in
+                          name:
+                            firstName: Bob
+                            lastName: Provider
+                          id: 844e251b-574b-46e6-9247-f76f1f70a637
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '401':
+          description: '- Unauthorized - `token` invalid/expired'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+      security:
+        - authorization: []
+      servers:
+        - url: ''
+          description: Production
+        - url: ''
+          description: Development
+    delete:
+      tags:
+        - Policies APIs
+      summary: Delete Policies
+      description: |-
+        Delete policies created by a user. User policies can be deleted.
+        The request would contain objects with a key `id`, i.e. the ID of the user policy or APD policy that the user wants to delete. The user can use the List Policy API to get the policy IDs.
+        ## delegate
+         - A delegate may use the API to view policies on behalf of their provider. This is done by passing the userInfo of the delegator must be present in the token issued by the AAA
+      operationId: delete-auth-v1-policies
+      parameters:
+        - name: Authorization
+          in: header
+          description: AAA issued token
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 4000
+            example: Bearer <JWT>
+      requestBody:
+        description: Request body is a JsonObject containing a JsonArray having one or multiple ID Objects to delete policies.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                request:
+                  type: array
+                  minItems: 1
+                  uniqueItems: true
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
+                        minLength: 36
+                        maxLength: 36
+                    required:
+                      - id
+              required:
+                - request
+              x-examples:
+                example-1:
+                  request:
+                    - id: ''
+                    - id: ''
+            examples:
+              Delete Policies:
+                value:
+                  request:
+                    - id: 231f6eca-6276-4993-bfeb-53cbbbba6f06
+                    - id: 231f6eca-6276-4993-bfeb-53cbbbba6f0b
+      responses:
+        '200':
+          description: Successfully deleted the User Policies
+          content:
+            application/json:
+              schema:
+                type: object
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '400':
+          description: |-
+            Bad Request- Error or exceptions
+            -id is not a valid a policyId
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '401':
+          description: '- Unauthorized - `token` invalid/expired'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '403':
+          description: |-
+            Forbidden
+            -User does not own the policy or is not a delegate to the owner of the policy
+        '404':
+          description: If the requested policies not exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+      security:
+        - authorization: []
+      servers:
+        - url: ''
+          description: Production
+        - url: ''
+          description: Development
+    post:
+      tags:
+        - Policies APIs
+      summary: Create Policies
+      description: |-
+        Allows users to create policies to allow a particular user to get token for a resource.
+        `providers` can create policy for any resource that they own.
+        `delegates` can create policy on behalf of a provider who owns the resource.
+
+        ## Policies created by provider
+
+        ### User Policies
+        - Valid item types - `resource`, `resource_group`
+        - A `provider` can set **user policies** for a `consumer` for the resources owned by the `provider`.
+
+
+        ## Policies created by delegate
+        - A delegate may use the API to view policies on behalf of their provider. This is done by passing the userInfo of the delegator must be present in the token issued by the AAA.
+
+        ### User Policies
+        - Valid item types - `resource`, `resource_group`
+        - A `delegate` can set **user policies** for other `delegate` or `consumer` for the resources owned by the `provider`
+      operationId: post-auth-v1-policies
+      parameters:
+        - name: Authorization
+          in: header
+          description: AAA issued token
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 4000
+            example: Bearer <JWT>
+      requestBody:
+        description: |
+          Request body will be an JsonObject containing JsonArray of requests. The requests can be either for user policies or APD policies.
+          ### User Policy Request :
+          - `userId` : emailId of the user for whom policy is to be set.
+          - `itemId` : UUID value of the item for which policy is to be set
+          - `itemType` : Enum value of the item type
+          - `expiryTime` : ISO8601 compatible time in UTC(yyyy-MM-dd'T'HH:mm:ss). optional field, if not sent default expiry is set for the policy
+          - `constraints` : JsonObject of the constraints that the resource server can recognize.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                request:
+                  type: array
+                  minItems: 1
+                  uniqueItems: true
+                  items:
+                    type: object
+                    anyOf:
+                      - type: object
+                        additionalProperties: false
+                        properties:
+                          userId:
+                            type: string
+                            format: uuid
+                            pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
+                            minLength: 36
+                            maxLength: 36
+                          itemId:
+                            type: string
+                            pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
+                            minLength: 1
+                            maxLength: 512
+                          itemType:
+                            enum:
+                              - resource
+                              - resource_group
+                              - resource_server
+                              - apd
+                            minLength: 1
+                          expiryTime:
+                            type: string
+                            pattern: '^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$'
+                            minLength: 1
+                          constraints:
+                            type: object
+                        required:
+                          - userId
+                          - itemId
+                          - itemType
+                          - constraints
+              required:
+                - request
+              x-examples:
+                example-1:
+                  request:
+                    - userId: 89bbe934-5f18-4f57-b68e-fb821ba77291
+                      itemId: example-resource-group
+                      itemType: resource_group
+                      expiryTime: '2023-08-30T21:10:06.834292'
+                      constraints: {}
+                    - userId: 89bbe934-5f18-4f57-b68e-fb821ba77292
+                      itemId: example-resource-group
+                      itemType: resource_group
+                      expiryTime: '2023-08-30T21:10:06.834292'
+                      constraints: {}
+            examples:
+              Single request for resource group user policy:
+                value:
+                  request:
+                    - userId: abc@xyz.com
+                      itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
+                      itemType: resource_group
+                      expiryTime: '2022-08-04T20:00:19'
+                      constraints:
+                        access:
+                          - sub
+              Single request for resource user policy:
+                value:
+                  request:
+                    - userId: abc@xyz.com
+                      itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
+                      itemType: resource
+                      expiryTime: '2022-10-10T04:00:19'
+                      constraints:
+                        access:
+                          - api
+                          - sub
+              Multiple user policy requests:
+                value:
+                  request:
+                    - userId: xyz@abx.com
+                      itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
+                      itemType: resource_group
+                      expiryTime: '2022-08-04T20:00:19'
+                      constraints: {}
+                    - userId: aaa@yun.com
+                      itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
+                      itemType: resource
+                      expiryTime: '2022-10-10T04:00:19'
+                      constraints:
+                        access:
+                          - api
+                          - sub
+          application/xml:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: 'The policies have been created successfully.Must return the details of the policy created like policy Id,ItemId etc.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  '':
+                    type: string
+        '400':
+          description: |-
+            - Missing or malformed data
+            - Invalid expiry - dateTime in the past or invalid format
+            - Invalid user - UserId is not present in db
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '401':
+          description: '- Unauthorized - `token` invalid/expired'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '403':
+          description: |-
+            - If the user trying to set a policy does not have an  `provider` or `delegate` role
+            - If the user is neither the owner of the resource item/group or a delegate to the owner of the resource
+            - If a valid policy already exists
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - authorization: []
+      servers:
+        - url: ''
+          description: Production
+        - url: ''
+          description: Development
+  /policies/requests:
+    get:
+      tags:
+        - Notifications APIs
+      summary: List Access Requests
+      description: |-
+        Lists all the access requests of the user calling the API. The response depends on the roles the user has
+
+        - `provider` : The requests that are present for the items owned by a provider are returned.
+        - `consumer` : The requests which are created by the consumer are returned.
+
+        ## delegate
+        A delegate may use the API to view policies on behalf of their provider. This is done by passing the userInfo of the delegator must be present in the token issued by the AAA
+      operationId: get-auth-v1-policies-requests
+      parameters:
+        - name: Authorization
+          in: header
+          description: AAA issued token
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 4000
+            example: Bearer <JWT>
+      responses:
+        '200':
+          description: Successfully listing all the requests of a Consumer or of a providers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessRequest'
+              examples:
+                ListResults:
+                  value:
+                    type: 'urn:acl:as:Success'
+                    title: Access requests
+                    results:
+                      - requestId: ea48d233-5d3b-4bdb-9545-691680c99cee
+                        itemId: pune-env-flood-FWR056"
+                        itemType: resource
+                        status: pending
+                        expiryDuration: P1Y2M10DT2H30M
+                        constraints:
+                          access:
+                            - api
+                            - sub
+                            - file
+                        user:
+                          email: someone@example.com
+                          name:
+                            firstName: Someone
+                            lastName: Person
+                          id: a13eb955-c691-4fd3-b200-f18bc78810b5
+                        owner:
+                          email: bob_provider@iisc.ac.in
+                          name:
+                            firstName: Bob
+                            lastName: Provider
+                          id: 844e251b-574b-46e6-9247-f76f1f70a637
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '401':
+          description: '- Unauthorized - `token` invalid/expired'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+              examples:
+                example-1:
+                  value:
+                    type: string
+                    title: string
+                    detail: string
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+      security:
+        - authorization: []
+      servers:
+        - url: ''
+          description: Production
+        - url: ''
+          description: Development
+    post:
+      tags:
+        - Notifications APIs
+      summary: Create Access Requests
+      description: |-
+        Access requests are made by consumers to request a provider to grant access to the provider's resources. Providers or their associated delegates may choose to approve or reject the request. On approval, a policy is written for the consumer for said resource. On rejection, no policy is written.
+
+        Users with the `consumer` role can request access for a resource/resource group:
+        - With the expiry time they desire for the associated policy (in case the provider chooses to approve the request)
+        - With the constraints they desire for the associated policy (in case the provider chooses to approve the request)
+
+        Users may make multiple access requests with a single API call.
+      operationId: post-auth-v1-policies-requests
+      parameters:
+        - name: Authorization
+          in: header
+          description: AAA Issued token
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 4000
+            example: Bearer <JWT>
+      requestBody:
+        description: |
+          - `itemId` : The catalogue ID of the item for which the request is to be created.(UUID)
+          - `itemType` : 'resource' or 'resource_group'.
+          - `expiryDuration` : Duration for the policy expiry in the ISO-8601 format.
+          - `constraints` : The constraints that will be included in the policy that will be created.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                request:
+                  type: array
+                  minItems: 1
+                  uniqueItems: true
+                  items:
+                    type: object
+                    properties:
+                      itemId:
+                        type: string
+                        pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
+                        minLength: 1
+                        maxLength: 512
+                      itemType:
+                        enum:
+                          - resource_group
+                          - resource
+                        minLength: 1
+                      expiryDuration:
+                        type: string
+                        pattern: '^(-?)P(?=\d|T\d)(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)([DW]))?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$'
+                        minLength: 1
+                        example: P1Y2M10DT2H30M
+                      constraints:
+                        type: object
+                    required:
+                      - itemId
+                      - itemType
+                      - expiryDuration
+                      - constraints
+              required:
+                - request
+              x-examples:
+                example-1:
+                  request:
+                    - itemId: iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood/FWR03
+                      itemType: resource
+                      expiryDuration: P1Y2M10DT2H30M
+                      constraints: {}
+            examples:
+              Create:
+                value:
+                  request:
+                    - itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
+                      itemType: resource
+                      expiryDuration: P1Y2M10DT2H30M
+                      constraints:
+                        access:
+                          - api
+                          - sub
+                          - file
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessRequest'
+              examples:
+                Example:
+                  value:
+                    type: 'urn:acl:as:Success'
+                    title: Access requests
+                    results:
+                      - requestId: bd5f0bb3-c02c-4e3d-b75c-a6eb8144bddc
+                        itemId: iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood/FWR056
+                        itemType: resource
+                        status: pending
+                        expiryDuration: P1Y2M10DT2H30M
+                        constraints:
+                          access:
+                            - api
+                            - sub
+                            - file
+                        user:
+                          email: someone@example.com
+                          name:
+                            firstName: Someone
+                            lastName: Person
+                          id: a13eb955-c691-4fd3-b200-f18bc78810b5
+                        owner:
+                          email: bob_provider@iisc.ac.in
+                          name:
+                            firstName: Bob
+                            lastName: Provider
+                          id: 844e251b-574b-46e6-9247-f76f1f70a637
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '400':
+          description: 'Bad Request- Schema validation, missing or incorrect fields & values'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example:
+                  value:
+                    type: string
+                    title: string
+                    detail: string
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '401':
+          description: '- Unauthorized - `token` invalid/expired'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+              examples:
+                Example:
+                  value:
+                    type: string
+                    title: string
+                    detail: string
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+      security:
+        - authorization: []
+      servers:
+        - url: ''
+          description: Production
+        - url: ''
+          description: Development
+    put:
+      tags:
+        - Notifications APIs
+      summary: Update Access Requests
+      description: |
+        Providers or delegates can choose to approve or reject **pending** access requests associated with their resources.
+
+        If the request is approved
+        - The request is modified to the `approved` state
+        - A policy is created corresponding to the requested resource with the applicable expiry time and constraints.
+
+        If the request is rejected
+        - The request is modified to the `rejected` state
+
+        ##delegate
+        A delegate may use the API to view policies on behalf of their provider. This is done by passing the userInfo of the delegator which must be present in the token issued by the AAA.
+      operationId: put-auth-v1-policies-requests
+      parameters:
+        - name: Authorization
+          in: header
+          description: AAA Issued token
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 4000
+            example: Bearer <JWT>
+      requestBody:
+        description: |-
+          - `requestId` :  ID of the request. Can get this Id by using the list policy API.
+          - `status` : The `provider` or `Auth delegate` can update the status to `approved` or `rejected`.
+          - `expiryDuration` : duration of the policy that will be created (Only present for the approved requests).
+          - `constraints` :  constraints for the policy if request is approved.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                request:
+                  type: array
+                  minItems: 1
+                  uniqueItems: true
+                  items:
+                    type: object
+                    properties:
+                      requestId:
+                        type: string
+                        format: uuid
+                        minLength: 36
+                        maxLength: 36
+                      status:
+                        enum:
+                          - approved
+                          - rejected
+                        minLength: 1
+                      expiryDuration:
+                        type: string
+                        pattern: '^(-?)P(?=\d|T\d)(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)([DW]))?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$'
+                        minLength: 1
+                        example: P1Y2M10DT2H30M
+                      constraints:
+                        type: object
+                    required:
+                      - requestId
+                      - status
+              required:
+                - request
+              x-examples:
+                example-1:
+                  request:
+                    - requestId: bca11712-f381-46a5-afa3-a29b00568ace
+                      status: approved
+                      expiryDuration: P1Y2M10DT2H30M
+                      constraints:
+                        access:
+                          - api
+                          - sub
+                          - file
+            examples:
+              Update:
+                value:
+                  request:
+                    - requestId: bca11712-f381-46a5-afa3-a29b00568ace
+                      status: approved
+                      expiryDuration: P1Y2M10DT2H30M
+                      constraints:
+                        access:
+                          - api
+                          - sub
+                          - file
+              Update-Rejected:
+                value:
+                  request:
+                    - requestId: bca11712-f381-46a5-afa3-a29b00568ace
+                      status: rejected
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessRequest'
+              examples:
+                Update:
+                  value:
+                    type: 'urn:acl:as:Success'
+                    title: Access requests
+                    results:
+                      - requestId: bd5f0bb3-c02c-4e3d-b75c-a6eb8144bddc
+                        itemId: pune-env-flood-FWR056
+                        itemType: resource
+                        status: approved
+                        expiryDuration: P1Y2M10DT2H30M
+                        constraints:
+                          access:
+                            - api
+                            - sub
+                            - file
+                        user:
+                          email: someone@example.com
+                          name:
+                            firstName: Someone
+                            lastName: Person
+                          id: a13eb955-c691-4fd3-b200-f18bc78810b5
+                        owner:
+                          email: bob_provider@iisc.ac.in
+                          name:
+                            firstName: Bob
+                            lastName: Provider
+                          id: 844e251b-574b-46e6-9247-f76f1f70a637
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '400':
+          description: 'Bad Request- Schema validation, missing or incorrect fields & values'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '401':
+          description: '- Unauthorized - `token` invalid/expired'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+      security:
+        - authorization: []
+      servers:
+        - url: ''
+          description: Production
+        - url: ''
+          description: Development
+    delete:
+      tags:
+        - Notifications APIs
+      summary: Withdraw Access Requests
+      description: |-
+        A consumer may choose to withdraw access requests they have created, **as long as they are still in the pending state**. A withdrawn request  cannot be approved or rejected by the concerned provider.
+
+        Only users with `consumer` role can call this API.
+      operationId: delete-auth-v1-policies-requests
+      parameters:
+        - name: Authorization
+          in: header
+          description: AAA Issued token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: |-
+          - `id` : the UUID of the request that are to be deleted.
+
+          Consumers can get the ids of the requests they want to delete using the list notifications API.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                request:
+                  type: array
+                  minItems: 1
+                  uniqueItems: true
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
+                        minLength: 36
+                        maxLength: 36
+                    required:
+                      - id
+              required:
+                - request
+              x-examples:
+                example-1:
+                  request:
+                    - id: 6c61b9c7-6cfd-4d2a-bfc1-217fd56bb8e3
+            examples:
+              single delete request:
+                value:
+                  request:
+                    - id: 6c61b9c7-6cfd-4d2a-bfc1-217fd56bb8e3
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        requestId:
+                          type: string
+                        itemId:
+                          type: string
+                        itemType:
+                          type: string
+                        status:
+                          type: string
+                        expiryDuration:
+                          type: string
+                        constraints:
+                          type: object
+                          properties:
+                            access:
+                              type: array
+                              items:
+                                type: string
+                        user:
+                          type: object
+                          properties:
+                            email:
+                              type: string
+                            name:
+                              type: object
+                              properties:
+                                firstName:
+                                  type: string
+                                lastName:
+                                  type: string
+                            id:
+                              type: string
+                        owner:
+                          type: object
+                          properties:
+                            email:
+                              type: string
+                            name:
+                              type: object
+                              properties:
+                                firstName:
+                                  type: string
+                                lastName:
+                                  type: string
+                            id:
+                              type: string
+                x-examples:
+                  example-1:
+                    type: 'urn:acl:as:Success'
+                    title: deleted requests
+                    results:
+                      - requestId: 383ea497-0de9-4d6f-94c1-e3dd1328d944
+                        itemId: iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/integration-test
+                        itemType: resource_group
+                        status: withdrawn
+                        expiryDuration: '1 year 2 mons 10 days 02:30:00'
+                        constraints:
+                          access:
+                            - api
+                            - sub
+                            - file
+                        user:
+                          email: alice_consumer@iisc.ac.in
+                          name:
+                            firstName: Alice
+                            lastName: Consumer
+                          id: fdfb2eb0-f11e-43cb-a737-d17ed592e948
+                        owner:
+                          email: bob_provider@iisc.ac.in
+                          name:
+                            firstName: Bob
+                            lastName: Provider
+                          id: 844e251b-574b-46e6-9247-f76f1f70a637
+              examples:
+                successful deletion:
+                  value:
+                    type: 'urn:acl:as:Success'
+                    title: deleted requests
+                    results:
+                      - requestId: 383ea497-0de9-4d6f-94c1-e3dd1328d944
+                        itemId: integration-test
+                        itemType: resource_group
+                        status: withdrawn
+                        expiryDuration: '1 year 2 mons 10 days 02:30:00'
+                        constraints:
+                          access:
+                            - api
+                            - sub
+                            - file
+                        user:
+                          email: alice_consumer@iisc.ac.in
+                          name:
+                            firstName: Alice
+                            lastName: Consumer
+                          id: fdfb2eb0-f11e-43cb-a737-d17ed592e948
+                        owner:
+                          email: bob_provider@iisc.ac.in
+                          name:
+                            firstName: Bob
+                            lastName: Provider
+                          id: 844e251b-574b-46e6-9247-f76f1f70a637
+        '400':
+          description: The Id does not exist or was not created by the user calling the API or is no longer in the `pending` status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  detail:
+                    type: string
+                x-examples:
+                  example-1:
+                    type: 'urn:acl:as:InvalidInput'
+                    title: requestId does not exists
+                    detail: '[6c61b9c7-6cfd-4d2a-bfc1-217fd56bb8e3]'
+              examples:
+                item does not es:
+                  value:
+                    type: 'urn:acl:as:InvalidInput'
+                    title: requestId does not exists
+                    detail: '[6c61b9c7-6cfd-4d2a-bfc1-217fd56bb8e3]'
+        '401':
+          description: User with non consumer role trying to call the API
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  detail:
+                    type: string
+                x-examples:
+                  example-1:
+                    type: 'urn:acl:as:InvalidRole'
+                    title: User does not have roles to use API
+                    detail: User with consumer role may call the API
+              examples:
+                example-1:
+                  value:
+                    type: 'urn:acl:as:InvalidRole'
+                    title: User does not have roles to use API
+                    detail: User with consumer role may call the API
+      security:
+        - authorization: []
+      servers:
+        - url: ''
+          description: Production
+        - url: ''
+          description: Development
+components:
+  securitySchemes:
+    authorization:
+      type: http
+      scheme: bearer
+  schemas:
+    Unauthorized:
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        detail:
+          type: string
+          minLength: 1
+      required:
+        - type
+        - title
+        - detail
+      x-examples:
+        example-1:
+          value:
+            type: 'urn:acl:as:MissingAuthenticationToken'
+            title: Missing auth details
+            detail: Missing auth details
+    ErrorResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        detail:
+          type: string
+          minLength: 1
+        context:
+          type: object
+          description: Any additional information required
+      required:
+        - type
+        - title
+        - detail
+      x-examples:
+        Example:
+          type: string
+          title: string
+          detail: string
+    AccessRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        results:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              requestId:
+                type: string
+                format: uuid
+                minLength: 1
+              itemId:
+                type: string
+                minLength: 1
+              itemType:
+                type: string
+                minLength: 1
+              status:
+                type: string
+                minLength: 1
+              expiryDuration:
+                type: string
+                minLength: 1
+              constraints:
+                type: object
+              user:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    minLength: 1
+                  email:
+                    type: string
+                    minLength: 1
+                  name:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                        minLength: 1
+                      lastName:
+                        type: string
+                        minLength: 1
+                    required:
+                      - firstName
+                      - lastName
+                required:
+                  - id
+                  - email
+                  - name
+              owner:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    minLength: 1
+                  email:
+                    type: string
+                    minLength: 1
+                  name:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                        minLength: 1
+                      lastName:
+                        type: string
+                        minLength: 1
+                    required:
+                      - firstName
+                      - lastName
+                required:
+                  - id
+                  - email
+                  - name
+            required:
+              - requestId
+              - itemId
+              - itemType
+              - status
+              - expiryDuration
+      required:
+        - type
+        - title
+        - results
+      x-examples:
+        Example:
+          type: 'urn:acl:as:Success'
+          title: User permission requests
+          results:
+            - requestId: e4619679-f5d9-4eff-9f79-bbded6130bb1
+              itemId: string
+              itemType: resource_server
+              status: pending
+              expiryDuration: string
+              constraints:
+                access:
+                  - api
+                  - sub
+                  - file
+              user:
+                id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+                email: user@example.com
+                name:
+                  firstName: string
+                  lastName: string
+              owner:
+                id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+                email: user@example.com
+                name:
+                  firstName: string
+                  lastName: string
