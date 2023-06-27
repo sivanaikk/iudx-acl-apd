@@ -26,8 +26,8 @@ import org.apache.logging.log4j.Logger;
  *
  * <h1>ACL-APD Server API Verticle</h1>
  *
- * <p>The API Server verticle implements the IUDX ACL-APD Server APIs. It handles the API
- * requests from the clients and interacts with the associated Service to respond.
+ * <p>The API Server verticle implements the IUDX ACL-APD Server APIs. It handles the API requests
+ * from the clients and interacts with the associated Service to respond.
  *
  * @see io.vertx.core.Vertx
  * @see AbstractVerticle
@@ -83,7 +83,6 @@ public class ApiServerVerticle extends AbstractVerticle {
     router.post(api.getRequestPoliciesUrl()).handler(this::postAccessRequestHandler);
     router.put(api.getRequestPoliciesUrl()).handler(this::putAccessRequestHandler);
 
-
     /* Read ssl configuration. */
     HttpServerOptions serverOptions = new HttpServerOptions();
     setServerOptions(serverOptions);
@@ -95,26 +94,21 @@ public class ApiServerVerticle extends AbstractVerticle {
     LOGGER.info("API server deployed on: " + port);
   }
 
-  private void putAccessRequestHandler(RoutingContext routingContext) {
-  }
+  private void putAccessRequestHandler(RoutingContext routingContext) {}
 
-  private void postAccessRequestHandler(RoutingContext routingContext) {
-  }
+  private void postAccessRequestHandler(RoutingContext routingContext) {}
 
-  private void deleteAccessRequestHandler(RoutingContext routingContext) {
-  }
+  private void deleteAccessRequestHandler(RoutingContext routingContext) {}
 
-  private void getAccessRequestHandler(RoutingContext routingContext) {
-  }
+  private void getAccessRequestHandler(RoutingContext routingContext) {}
 
-  private void postPoliciesHandler(RoutingContext routingContext) {
-  }
+  private void postPoliciesHandler(RoutingContext routingContext) {}
 
   private void deletePoliciesHandler(RoutingContext routingContext) {
+
   }
 
-  private void getPoliciesHandler(RoutingContext routingContext) {
-  }
+  private void getPoliciesHandler(RoutingContext routingContext) {}
 
   /**
    * Configures the CORS handler on the provided router.
@@ -122,11 +116,12 @@ public class ApiServerVerticle extends AbstractVerticle {
    * @param router The router instance to configure the CORS handler on.
    */
   private void configureCorsHandler(Router router) {
-    router.route().handler(
-      CorsHandler.create("*")
-        .allowedHeaders(ALLOWED_HEADERS)
-        .allowedMethods(ALLOWED_METHODS)
-    );
+    router
+        .route()
+        .handler(
+            CorsHandler.create("*")
+                .allowedHeaders(ALLOWED_HEADERS)
+                .allowedMethods(ALLOWED_METHODS));
   }
 
   /**
@@ -136,44 +131,50 @@ public class ApiServerVerticle extends AbstractVerticle {
    */
   private void configureErrorHandlers(Router router) {
     HttpStatusCode[] statusCodes = HttpStatusCode.values();
-    Stream.of(statusCodes).forEach(code -> {
-      router.errorHandler(code.getValue(), errorHandler -> {
-        HttpServerResponse response = errorHandler.response();
-        if (response.headWritten()) {
-          try {
-            response.close();
-          } catch (RuntimeException e) {
-            LOGGER.error("Error: " + e);
-          }
-          return;
-        }
-        response.putHeader(CONTENT_TYPE, APPLICATION_JSON)
-          .setStatusCode(code.getValue())
-          .end(errorResponse(code));
-      });
-    });
+    Stream.of(statusCodes)
+        .forEach(
+            code -> {
+              router.errorHandler(
+                  code.getValue(),
+                  errorHandler -> {
+                    HttpServerResponse response = errorHandler.response();
+                    if (response.headWritten()) {
+                      try {
+                        response.close();
+                      } catch (RuntimeException e) {
+                        LOGGER.error("Error: " + e);
+                      }
+                      return;
+                    }
+                    response
+                        .putHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .setStatusCode(code.getValue())
+                        .end(errorResponse(code));
+                  });
+            });
   }
 
-  /**
-   * Sets common response headers to be included in HTTP responses.
-   */
+  /** Sets common response headers to be included in HTTP responses. */
   private void putCommonResponseHeaders() {
-    router.route().handler(requestHandler -> {
-      requestHandler
-        .response()
-        .putHeader("Cache-Control", "no-cache, no-store,  must-revalidate,max-age=0")
-        .putHeader("Pragma", "no-cache")
-        .putHeader("Expires", "0")
-        .putHeader("X-Content-Type-Options", "nosniff");
-      requestHandler.next();
-    });
+    router
+        .route()
+        .handler(
+            requestHandler -> {
+              requestHandler
+                  .response()
+                  .putHeader("Cache-Control", "no-cache, no-store,  must-revalidate,max-age=0")
+                  .putHeader("Pragma", "no-cache")
+                  .putHeader("Expires", "0")
+                  .putHeader("X-Content-Type-Options", "nosniff");
+              requestHandler.next();
+            });
   }
 
   /**
-   * Sets the server options based on the configuration settings.
-   * If SSL is enabled, starts an HTTPS server with the specified HTTP port.
-   * If SSL is disabled, starts an HTTP server with the specified HTTP port.
-   * If the HTTP port is not specified in the configuration, default ports (8080 for HTTP and 8443 for HTTPS) will be used.
+   * Sets the server options based on the configuration settings. If SSL is enabled, starts an HTTPS
+   * server with the specified HTTP port. If SSL is disabled, starts an HTTP server with the
+   * specified HTTP port. If the HTTP port is not specified in the configuration, default ports
+   * (8080 for HTTP and 8443 for HTTPS) will be used.
    *
    * @param serverOptions The server options to be configured.
    */
@@ -188,5 +189,4 @@ public class ApiServerVerticle extends AbstractVerticle {
       port = config().getInteger("httpPort") == null ? 8080 : config().getInteger("httpPort");
     }
   }
-
 }
