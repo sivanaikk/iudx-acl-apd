@@ -1,9 +1,6 @@
 package iudx.apd.acl.server.apiserver;
 
-import static iudx.apd.acl.server.apiserver.util.Constants.ALLOWED_HEADERS;
-import static iudx.apd.acl.server.apiserver.util.Constants.ALLOWED_METHODS;
-import static iudx.apd.acl.server.apiserver.util.Constants.APPLICATION_JSON;
-import static iudx.apd.acl.server.apiserver.util.Constants.CONTENT_TYPE;
+import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.apiserver.util.Util.errorResponse;
 
 import io.vertx.core.AbstractVerticle;
@@ -84,6 +81,26 @@ public class ApiServerVerticle extends AbstractVerticle {
     router.post(api.getRequestPoliciesUrl()).handler(this::postAccessRequestHandler);
     router.put(api.getRequestPoliciesUrl()).handler(this::putAccessRequestHandler);
 
+    /* Documentation routes */
+    /* Static Resource Handler */
+    /* Get openapiv3 spec */
+    router
+        .get(ROUTE_STATIC_SPEC)
+        .produces(MIME_APPLICATION_JSON)
+        .handler(
+            routingContext -> {
+              HttpServerResponse response = routingContext.response();
+              response.sendFile("docs/openapi.yaml");
+            });
+    /* Get redoc */
+    router
+        .get(ROUTE_DOC)
+        .produces(MIME_TEXT_HTML)
+        .handler(
+            routingContext -> {
+              HttpServerResponse response = routingContext.response();
+              response.sendFile("docs/apidoc.html");
+            });
     /* Read ssl configuration. */
     HttpServerOptions serverOptions = new HttpServerOptions();
     setServerOptions(serverOptions);
