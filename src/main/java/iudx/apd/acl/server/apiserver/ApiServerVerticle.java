@@ -46,8 +46,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   private HttpServer server;
   private Router router;
   private int port;
-  private boolean isSSL;
+  private boolean isSsl;
   private String dxApiBasePath;
+  private Api api;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, reads the
@@ -60,7 +61,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   public void start() throws Exception {
 
     /* Define the APIs, methods, endpoints and associated methods. */
-    Api api = Api.getInstance();
+    api = Api.getInstance();
 
     router = Router.router(vertx);
     configureCorsHandler(router);
@@ -104,9 +105,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
   private void postPoliciesHandler(RoutingContext routingContext) {}
 
-  private void deletePoliciesHandler(RoutingContext routingContext) {
-
-  }
+  private void deletePoliciesHandler(RoutingContext routingContext) {}
 
   private void getPoliciesHandler(RoutingContext routingContext) {}
 
@@ -179,8 +178,8 @@ public class ApiServerVerticle extends AbstractVerticle {
    * @param serverOptions The server options to be configured.
    */
   private void setServerOptions(HttpServerOptions serverOptions) {
-    isSSL = config().getBoolean("ssl");
-    if (isSSL) {
+    isSsl = config().getBoolean("ssl");
+    if (isSsl) {
       LOGGER.debug("Info: Starting HTTPs server");
       port = config().getInteger("httpPort") == null ? 8443 : config().getInteger("httpPort");
     } else {
