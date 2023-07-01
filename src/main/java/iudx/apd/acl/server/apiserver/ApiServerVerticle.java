@@ -12,9 +12,14 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.TimeoutHandler;
+import iudx.apd.acl.server.apiserver.util.RequestType;
 import iudx.apd.acl.server.common.Api;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import java.util.stream.Stream;
+
+import iudx.apd.acl.server.validation.FailureHandler;
+import iudx.apd.acl.server.validation.ValidationHandler;
+import iudx.apd.acl.server.validation.ValidationHandlerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -72,8 +77,13 @@ public class ApiServerVerticle extends AbstractVerticle {
     router.route().handler(TimeoutHandler.create(10000, 408));
 
     /* Api endpoints */
+    ValidationHandler policyHandler = new ValidationHandler(vertx, RequestType.POLICY,new ValidationHandlerFactory());
+    FailureHandler policyFailureHandler = new FailureHandler();
     router.get(api.getPoliciesUrl()).handler(this::getPoliciesHandler);
-    router.delete(api.getPoliciesUrl()).handler(this::deletePoliciesHandler);
+    router.delete(api.getPoliciesUrl())
+            .handler(policyHandler)
+            .handler(this::deletePoliciesHandler)
+            .handler(policyFailureHandler);
     router.post(api.getPoliciesUrl()).handler(this::postPoliciesHandler);
 
     router.get(api.getRequestPoliciesUrl()).handler(this::getAccessRequestHandler);
@@ -122,7 +132,9 @@ public class ApiServerVerticle extends AbstractVerticle {
 
   private void postPoliciesHandler(RoutingContext routingContext) {}
 
-  private void deletePoliciesHandler(RoutingContext routingContext) {}
+  private void deletePoliciesHandler(RoutingContext routingContext) {
+
+  }
 
   private void getPoliciesHandler(RoutingContext routingContext) {}
 

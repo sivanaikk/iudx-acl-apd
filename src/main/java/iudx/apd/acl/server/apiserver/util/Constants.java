@@ -44,6 +44,7 @@ public class Constants {
   public static final String MIME_APPLICATION_JSON = "application/json";
   public static final String ROUTE_DOC = "/apis";
   public static final String MIME_TEXT_HTML = "text/html";
+  public static final String MSG_BAD_QUERY = "Bad query";
 
 
 
