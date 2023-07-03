@@ -96,7 +96,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     /* Get openapiv3 spec */
     router
         .get(ROUTE_STATIC_SPEC)
-        .produces(MIME_APPLICATION_JSON)
+        .produces(APPLICATION_JSON)
         .handler(
             routingContext -> {
               HttpServerResponse response = routingContext.response();
