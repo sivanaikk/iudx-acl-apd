@@ -3,33 +3,33 @@ package iudx.apd.acl.server.common;
 import java.util.stream.Stream;
 
 public enum ResponseUrn {
-    SUCCESS_URN("urn:dx:rs:success", "Success"),
-    INVALID_PARAM_URN("urn:dx:rs:invalidParameter", "Invalid parameter passed"),
-    INVALID_PARAM_VALUE_URN("urn:dx:rs:invalidParameterValue", "Invalid parameter value passed"),
+    SUCCESS_URN("urn:dx:acl:success", "Success"),
+    INVALID_PARAM_URN("urn:dx:acl:invalidParameter", "Invalid parameter passed"),
+    INVALID_PARAM_VALUE_URN("urn:dx:acl:invalidParameterValue", "Invalid parameter value passed"),
 
-    INVALID_ATTR_VALUE_URN("urn:dx:rs:invalidAttributeValue", "Invalid attribute value"),
+    INVALID_ATTR_VALUE_URN("urn:dx:acl:invalidAttributeValue", "Invalid attribute value"),
 
-    INVALID_ATTR_PARAM_URN("urn:dx:rs:invalidAttributeParam", "Invalid attribute param"),
+    INVALID_ATTR_PARAM_URN("urn:dx:acl:invalidAttributeParam", "Invalid attribute param"),
 
-    INVALID_OPERATION_URN("urn:dx:rs:invalidOperation", "Invalid operation"),
+    INVALID_OPERATION_URN("urn:dx:acl:invalidOperation", "Invalid operation"),
     UNAUTHORIZED_ENDPOINT_URN(
-            "urn:dx:rs:unauthorizedEndpoint", "Access to endpoint is not available"),
+            "urn:dx:acl:unauthorizedEndpoint", "Access to endpoint is not available"),
     UNAUTHORIZED_RESOURCE_URN(
             "urn,dx:rs:unauthorizedResource", "Access to resource is not available"),
-    EXPIRED_TOKEN_URN("urn:dx:rs:expiredAuthorizationToken", "Token has expired"),
-    MISSING_TOKEN_URN("urn:dx:rs:missingAuthorizationToken", "Token needed and not present"),
-    INVALID_TOKEN_URN("urn:dx:rs:invalidAuthorizationToken", "Token is invalid"),
-    RESOURCE_NOT_FOUND_URN("urn:dx:rs:resourceNotFound", "Document of given id does not exist"),
+    EXPIRED_TOKEN_URN("urn:dx:acl:expiredAuthorizationToken", "Token has expired"),
+    MISSING_TOKEN_URN("urn:dx:acl:missingAuthorizationToken", "Token needed and not present"),
+    INVALID_TOKEN_URN("urn:dx:acl:invalidAuthorizationToken", "Token is invalid"),
+    RESOURCE_NOT_FOUND_URN("urn:dx:acl:resourceNotFound", "Document of given id does not exist"),
     LIMIT_EXCEED_URN(
-            "urn:dx:rs:requestLimitExceeded", "Operation exceeds the default value of limit"),
-    INVALID_ID_VALUE_URN("urn:dx:rs:invalidIdValue", "Invalid id"),
+            "urn:dx:acl:requestLimitExceeded", "Operation exceeds the default value of limit"),
+    INVALID_ID_VALUE_URN("urn:dx:acl:invalidIdValue", "Invalid id"),
     INVALID_PAYLOAD_FORMAT_URN(
-            "urn:dx:rs:invalidPayloadFormat", "Invalid json format in post request [schema mismatch]"),
-    BAD_REQUEST_URN("urn:dx:rs:badRequest", "bad request parameter"),
-    INVALID_HEADER_VALUE_URN("urn:dx:rs:invalidHeaderValue", "Invalid header value"),
-    NOT_YET_IMPLEMENTED_URN("urn:dx:rs:general", "urn not yet implemented in backend verticle."),
+            "urn:dx:acl:invalidPayloadFormat", "Invalid json format in post request [schema mismatch]"),
+    BAD_REQUEST_URN("urn:dx:acl:badRequest", "bad request parameter"),
+    INVALID_HEADER_VALUE_URN("urn:dx:acl:invalidHeaderValue", "Invalid header value"),
+    NOT_YET_IMPLEMENTED_URN("urn:dx:acl:general", "urn not yet implemented in backend verticle."),
 
-    DB_ERROR_URN("urn:dx:rs:DatabaseError", "Database error");
+    DB_ERROR_URN("urn:dx:acl:DatabaseError", "Database error");
 
     ResponseUrn(String urn,String message){
         this.urn = urn;
