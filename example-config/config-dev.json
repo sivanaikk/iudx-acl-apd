@@ -30,6 +30,11 @@
       "poolSize": 25
     },
     {
+      "id": "iudx.apd.acl.server.database.PolicyVerticle",
+      "isWorkerVerticle": false,
+      "verticleInstances": 1
+    },
+    {
       "id": "iudx.apd.acl.server.authentication.AuthenticationVerticle",
       "isWorkerVerticle": false,
       "verticleInstances": 1
