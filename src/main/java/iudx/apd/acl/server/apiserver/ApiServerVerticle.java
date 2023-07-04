@@ -1,9 +1,6 @@
 package iudx.apd.acl.server.apiserver;
 
-import static iudx.apd.acl.server.apiserver.util.Constants.ALLOWED_HEADERS;
-import static iudx.apd.acl.server.apiserver.util.Constants.ALLOWED_METHODS;
-import static iudx.apd.acl.server.apiserver.util.Constants.APPLICATION_JSON;
-import static iudx.apd.acl.server.apiserver.util.Constants.CONTENT_TYPE;
+import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.apiserver.util.Util.errorResponse;
 
 import io.vertx.core.AbstractVerticle;
@@ -15,9 +12,14 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.TimeoutHandler;
+import iudx.apd.acl.server.apiserver.util.RequestType;
 import iudx.apd.acl.server.common.Api;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import java.util.stream.Stream;
+
+import iudx.apd.acl.server.validation.FailureHandler;
+import iudx.apd.acl.server.validation.ValidationHandler;
+import iudx.apd.acl.server.validation.ValidationHandlerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,8 +28,8 @@ import org.apache.logging.log4j.Logger;
  *
  * <h1>ACL-APD Server API Verticle</h1>
  *
- * <p>The API Server verticle implements the IUDX ACL-APD Server APIs. It handles the API
- * requests from the clients and interacts with the associated Service to respond.
+ * <p>The API Server verticle implements the IUDX ACL-APD Server APIs. It handles the API requests
+ * from the clients and interacts with the associated Service to respond.
  *
  * @see io.vertx.core.Vertx
  * @see AbstractVerticle
@@ -46,8 +48,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   private HttpServer server;
   private Router router;
   private int port;
-  private boolean isSSL;
+  private boolean isSsl;
   private String dxApiBasePath;
+  private Api api;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, reads the
@@ -60,7 +63,8 @@ public class ApiServerVerticle extends AbstractVerticle {
   public void start() throws Exception {
 
     /* Define the APIs, methods, endpoints and associated methods. */
-    Api api = Api.getInstance();
+    dxApiBasePath = config().getString("dxApiBasePath");
+    api = Api.getInstance(dxApiBasePath);
 
     router = Router.router(vertx);
     configureCorsHandler(router);
@@ -74,8 +78,13 @@ public class ApiServerVerticle extends AbstractVerticle {
     router.route().handler(TimeoutHandler.create(10000, 408));
 
     /* Api endpoints */
+    ValidationHandler policyHandler = new ValidationHandler(vertx, RequestType.POLICY,new ValidationHandlerFactory());
+    FailureHandler policyFailureHandler = new FailureHandler();
     router.get(api.getPoliciesUrl()).handler(this::getPoliciesHandler);
-    router.delete(api.getPoliciesUrl()).handler(this::deletePoliciesHandler);
+    router.delete(api.getPoliciesUrl())
+            .handler(policyHandler)
+            .handler(this::deletePoliciesHandler)
+            .handler(policyFailureHandler);
     router.post(api.getPoliciesUrl()).handler(this::postPoliciesHandler);
 
     router.get(api.getRequestPoliciesUrl()).handler(this::getAccessRequestHandler);
@@ -83,7 +92,26 @@ public class ApiServerVerticle extends AbstractVerticle {
     router.post(api.getRequestPoliciesUrl()).handler(this::postAccessRequestHandler);
     router.put(api.getRequestPoliciesUrl()).handler(this::putAccessRequestHandler);
 
-
+    /* Documentation routes */
+    /* Static Resource Handler */
+    /* Get openapiv3 spec */
+    router
+        .get(ROUTE_STATIC_SPEC)
+        .produces(APPLICATION_JSON)
+        .handler(
+            routingContext -> {
+              HttpServerResponse response = routingContext.response();
+              response.sendFile("docs/openapi.yaml");
+            });
+    /* Get redoc */
+    router
+        .get(ROUTE_DOC)
+        .produces(MIME_TEXT_HTML)
+        .handler(
+            routingContext -> {
+              HttpServerResponse response = routingContext.response();
+              response.sendFile("docs/apidoc.html");
+            });
     /* Read ssl configuration. */
     HttpServerOptions serverOptions = new HttpServerOptions();
     setServerOptions(serverOptions);
@@ -95,26 +123,21 @@ public class ApiServerVerticle extends AbstractVerticle {
     LOGGER.info("API server deployed on: " + port);
   }
 
-  private void putAccessRequestHandler(RoutingContext routingContext) {
-  }
+  private void putAccessRequestHandler(RoutingContext routingContext) {}
 
-  private void postAccessRequestHandler(RoutingContext routingContext) {
-  }
+  private void postAccessRequestHandler(RoutingContext routingContext) {}
 
-  private void deleteAccessRequestHandler(RoutingContext routingContext) {
-  }
+  private void deleteAccessRequestHandler(RoutingContext routingContext) {}
 
-  private void getAccessRequestHandler(RoutingContext routingContext) {
-  }
+  private void getAccessRequestHandler(RoutingContext routingContext) {}
 
-  private void postPoliciesHandler(RoutingContext routingContext) {
-  }
+  private void postPoliciesHandler(RoutingContext routingContext) {}
 
   private void deletePoliciesHandler(RoutingContext routingContext) {
+
   }
 
-  private void getPoliciesHandler(RoutingContext routingContext) {
-  }
+  private void getPoliciesHandler(RoutingContext routingContext) {}
 
   /**
    * Configures the CORS handler on the provided router.
@@ -122,11 +145,12 @@ public class ApiServerVerticle extends AbstractVerticle {
    * @param router The router instance to configure the CORS handler on.
    */
   private void configureCorsHandler(Router router) {
-    router.route().handler(
-      CorsHandler.create("*")
-        .allowedHeaders(ALLOWED_HEADERS)
-        .allowedMethods(ALLOWED_METHODS)
-    );
+    router
+        .route()
+        .handler(
+            CorsHandler.create("*")
+                .allowedHeaders(ALLOWED_HEADERS)
+                .allowedMethods(ALLOWED_METHODS));
   }
 
   /**
@@ -136,50 +160,56 @@ public class ApiServerVerticle extends AbstractVerticle {
    */
   private void configureErrorHandlers(Router router) {
     HttpStatusCode[] statusCodes = HttpStatusCode.values();
-    Stream.of(statusCodes).forEach(code -> {
-      router.errorHandler(code.getValue(), errorHandler -> {
-        HttpServerResponse response = errorHandler.response();
-        if (response.headWritten()) {
-          try {
-            response.close();
-          } catch (RuntimeException e) {
-            LOGGER.error("Error: " + e);
-          }
-          return;
-        }
-        response.putHeader(CONTENT_TYPE, APPLICATION_JSON)
-          .setStatusCode(code.getValue())
-          .end(errorResponse(code));
-      });
-    });
+    Stream.of(statusCodes)
+        .forEach(
+            code -> {
+              router.errorHandler(
+                  code.getValue(),
+                  errorHandler -> {
+                    HttpServerResponse response = errorHandler.response();
+                    if (response.headWritten()) {
+                      try {
+                        response.close();
+                      } catch (RuntimeException e) {
+                        LOGGER.error("Error: " + e);
+                      }
+                      return;
+                    }
+                    response
+                        .putHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .setStatusCode(code.getValue())
+                        .end(errorResponse(code));
+                  });
+            });
   }
 
-  /**
-   * Sets common response headers to be included in HTTP responses.
-   */
+  /** Sets common response headers to be included in HTTP responses. */
   private void putCommonResponseHeaders() {
-    router.route().handler(requestHandler -> {
-      requestHandler
-        .response()
-        .putHeader("Cache-Control", "no-cache, no-store,  must-revalidate,max-age=0")
-        .putHeader("Pragma", "no-cache")
-        .putHeader("Expires", "0")
-        .putHeader("X-Content-Type-Options", "nosniff");
-      requestHandler.next();
-    });
+    router
+        .route()
+        .handler(
+            requestHandler -> {
+              requestHandler
+                  .response()
+                  .putHeader("Cache-Control", "no-cache, no-store,  must-revalidate,max-age=0")
+                  .putHeader("Pragma", "no-cache")
+                  .putHeader("Expires", "0")
+                  .putHeader("X-Content-Type-Options", "nosniff");
+              requestHandler.next();
+            });
   }
 
   /**
-   * Sets the server options based on the configuration settings.
-   * If SSL is enabled, starts an HTTPS server with the specified HTTP port.
-   * If SSL is disabled, starts an HTTP server with the specified HTTP port.
-   * If the HTTP port is not specified in the configuration, default ports (8080 for HTTP and 8443 for HTTPS) will be used.
+   * Sets the server options based on the configuration settings. If SSL is enabled, starts an HTTPS
+   * server with the specified HTTP port. If SSL is disabled, starts an HTTP server with the
+   * specified HTTP port. If the HTTP port is not specified in the configuration, default ports
+   * (8080 for HTTP and 8443 for HTTPS) will be used.
    *
    * @param serverOptions The server options to be configured.
    */
   private void setServerOptions(HttpServerOptions serverOptions) {
-    isSSL = config().getBoolean("ssl");
-    if (isSSL) {
+    isSsl = config().getBoolean("ssl");
+    if (isSsl) {
       LOGGER.debug("Info: Starting HTTPs server");
       port = config().getInteger("httpPort") == null ? 8443 : config().getInteger("httpPort");
     } else {
@@ -188,5 +218,4 @@ public class ApiServerVerticle extends AbstractVerticle {
       port = config().getInteger("httpPort") == null ? 8080 : config().getInteger("httpPort");
     }
   }
-
 }
