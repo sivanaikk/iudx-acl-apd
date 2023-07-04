@@ -3,7 +3,7 @@ package iudx.apd.acl.server.policy;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.pgclient.PgPool;
-import jakarta.json.JsonObject;
+import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -5,8 +5,7 @@ import io.vertx.codegen.annotations.ProxyGen;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.Vertx;
 import jakarta.json.JsonArray;
-import jakarta.json.JsonObject;
-
+import io.vertx.core.json.JsonObject;
 import java.util.concurrent.Future;
 
 @VertxGen
