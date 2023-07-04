@@ -3,8 +3,9 @@ package iudx.apd.acl.server.policy;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.serviceproxy.ServiceBinder;
 
+import static iudx.apd.acl.server.common.Constants.POLICY_SERVICE_ADDRESS;
+
 public class PolicyVerticle extends AbstractVerticle {
-    private static final String POLICY_SERVICE_ADDRESS = "iudx.acl.apd.server.policy.service";
 
     @Override
     public void start(){
