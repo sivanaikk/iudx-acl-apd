@@ -30,7 +30,7 @@
       "poolSize": 25
     },
     {
-      "id": "iudx.apd.acl.server.database.PolicyVerticle",
+      "id": "iudx.apd.acl.server.policy.PolicyVerticle",
       "isWorkerVerticle": false,
       "verticleInstances": 1
     },
