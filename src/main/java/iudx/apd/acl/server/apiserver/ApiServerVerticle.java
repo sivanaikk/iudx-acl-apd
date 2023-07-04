@@ -63,7 +63,8 @@ public class ApiServerVerticle extends AbstractVerticle {
   public void start() throws Exception {
 
     /* Define the APIs, methods, endpoints and associated methods. */
-    api = Api.getInstance();
+    dxApiBasePath = config().getString("dxApiBasePath");
+    api = Api.getInstance(dxApiBasePath);
 
     router = Router.router(vertx);
     configureCorsHandler(router);
