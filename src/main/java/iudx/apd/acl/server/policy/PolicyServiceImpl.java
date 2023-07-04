@@ -18,7 +18,7 @@ public class PolicyServiceImpl implements PolicyService{
     }
 
     @Override
-    public Future<JsonObject> deletePolicy(jakarta.json.JsonArray policyList) {
+    public Future<JsonObject> deletePolicy(JsonObject policyList) {
         //        Promise promise = Promise.promise();
 //        String query = "";
 //        PgPool pgPool = PgPool.pool();
