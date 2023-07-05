@@ -1,7 +1,6 @@
 package iudx.apd.acl.server.apiserver.response;
 
 import io.vertx.core.json.JsonObject;
-import org.apache.zookeeper.server.quorum.ReadOnlyZooKeeperServer;
 
 public class RestResponse {
     private final String type;
