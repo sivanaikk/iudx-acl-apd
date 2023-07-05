@@ -15,13 +15,7 @@ public class PolicyServiceImpl implements PolicyService {
 
   @Override
   public Future<JsonObject> deletePolicy(JsonObject policyList) {
-    //        Promise promise = Promise.promise();
-    //        String query = "";
-    //        PgPool pgPool = PgPool.pool();
-    //        pgPool.
-    //                withConnection(connection -> {
-    //                    connection.query(query).collecting()
-    //                })
+
     return null;
   }
 

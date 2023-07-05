@@ -2,6 +2,7 @@ package iudx.apd.acl.server.apiserver;
 
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.apiserver.util.Util.errorResponse;
+import static iudx.apd.acl.server.common.Constants.*;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
@@ -13,13 +14,15 @@ import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.TimeoutHandler;
 import iudx.apd.acl.server.apiserver.util.RequestType;
+import iudx.apd.acl.server.authentication.AuthenticationService;
 import iudx.apd.acl.server.common.Api;
 import iudx.apd.acl.server.common.HttpStatusCode;
-import java.util.stream.Stream;
-
+import iudx.apd.acl.server.database.PostgresService;
+import iudx.apd.acl.server.policy.PolicyService;
 import iudx.apd.acl.server.validation.FailureHandler;
 import iudx.apd.acl.server.validation.ValidationHandler;
 import iudx.apd.acl.server.validation.ValidationHandlerFactory;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -51,6 +54,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   private boolean isSsl;
   private String dxApiBasePath;
   private Api api;
+  private PostgresService postgresService;
+  private PolicyService policyService;
+  private AuthenticationService authenticationService;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, reads the
@@ -66,6 +72,10 @@ public class ApiServerVerticle extends AbstractVerticle {
     dxApiBasePath = config().getString("dxApiBasePath");
     api = Api.getInstance(dxApiBasePath);
 
+    postgresService = PostgresService.createProxy(vertx, PG_SERVICE_ADDRESS);
+    policyService = PolicyService.createProxy(vertx, POLICY_SERVICE_ADDRESS);
+    authenticationService = AuthenticationService.createProxy(vertx, AUTH_SERVICE_ADDRESS);
+
     router = Router.router(vertx);
     configureCorsHandler(router);
 
@@ -78,13 +88,15 @@ public class ApiServerVerticle extends AbstractVerticle {
     router.route().handler(TimeoutHandler.create(10000, 408));
 
     /* Api endpoints */
-    ValidationHandler policyHandler = new ValidationHandler(vertx, RequestType.POLICY,new ValidationHandlerFactory());
+    ValidationHandler policyHandler =
+        new ValidationHandler(vertx, RequestType.POLICY, new ValidationHandlerFactory());
     FailureHandler policyFailureHandler = new FailureHandler();
     router.get(api.getPoliciesUrl()).handler(this::getPoliciesHandler);
-    router.delete(api.getPoliciesUrl())
-            .handler(policyHandler)
-            .handler(this::deletePoliciesHandler)
-            .handler(policyFailureHandler);
+    router
+        .delete(api.getPoliciesUrl())
+        .handler(policyHandler)
+        .handler(this::deletePoliciesHandler)
+        .handler(policyFailureHandler);
     router.post(api.getPoliciesUrl()).handler(this::postPoliciesHandler);
 
     router.get(api.getRequestPoliciesUrl()).handler(this::getAccessRequestHandler);
@@ -133,9 +145,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
   private void postPoliciesHandler(RoutingContext routingContext) {}
 
-  private void deletePoliciesHandler(RoutingContext routingContext) {
-
-  }
+  private void deletePoliciesHandler(RoutingContext routingContext) {}
 
   private void getPoliciesHandler(RoutingContext routingContext) {}
 

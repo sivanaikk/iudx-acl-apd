@@ -76,8 +76,7 @@ public final class PostgresServiceImpl implements PostgresService {
   }
 
   @Override
-  public PostgresService executeDbQuery(
-      String query, Handler<AsyncResult<JsonObject>> handler) {
+  public PostgresService executeDbQuery(String query, Handler<AsyncResult<JsonObject>> handler) {
     this.client
         .getConnection()
         .onFailure(
