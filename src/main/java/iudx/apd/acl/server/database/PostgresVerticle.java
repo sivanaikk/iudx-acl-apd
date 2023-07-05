@@ -41,21 +41,19 @@ public class PostgresVerticle extends AbstractVerticle {
     databaseUserName = config().getString("databaseUserName");
     databasePassword = config().getString("databasePassword");
     poolSize = config().getInteger("poolSize");
-
     this.connectOptions =
-        new PgConnectOptions()
-            .setPort(databasePort)
-            .setHost(databaseIp)
-            .setDatabase(databaseName)
-            .setUser(databaseUserName)
-            .setPassword(databasePassword)
-            .setReconnectAttempts(2)
-            .setReconnectInterval(1000L);
+            new PgConnectOptions()
+                    .setPort(databasePort)
+                    .setHost(databaseIp)
+                    .setDatabase(databaseName)
+                    .setUser(databaseUserName)
+                    .setPassword(databasePassword)
+                    .setReconnectAttempts(2)
+                    .setReconnectInterval(1000L);
 
     this.poolOptions = new PoolOptions().setMaxSize(poolSize);
     this.pool = PgPool.pool(vertx, connectOptions, poolOptions);
 
-    pgService = new PostgresServiceImpl(this.pool);
 
     binder = new ServiceBinder(vertx);
     consumer = binder.setAddress(PG_SERVICE_ADDRESS).register(PostgresService.class, pgService);
