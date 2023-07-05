@@ -100,7 +100,7 @@ pipeline {
           node('built-in') {
             script{
               archiveZap failHighAlerts: 1, failMediumAlerts: 1, failLowAlerts: 1
-            }  
+            }
             publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true, reportDir: '/var/lib/jenkins/iudx/fs/Newman/report/', reportFiles: 'report.html', reportTitles: '', reportName: 'Integration Test Report'])
           }
         }
@@ -110,7 +110,7 @@ pipeline {
         cleanup{
           script{
             sh 'docker compose -f docker-compose.test.yml down --remove-orphans'
-          } 
+          }
         }
       }
     }
@@ -152,7 +152,7 @@ pipeline {
             failure{
               error "Failed to deploy image in Docker Swarm"
             }
-          }          
+          }
         }
         stage('Integration test on swarm deployment') {
           steps {
