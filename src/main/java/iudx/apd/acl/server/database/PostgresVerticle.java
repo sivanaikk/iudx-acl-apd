@@ -41,7 +41,6 @@ public class PostgresVerticle extends AbstractVerticle {
     databaseUserName = config().getString("databaseUserName");
     databasePassword = config().getString("databasePassword");
     poolSize = config().getInteger("poolSize");
-
     this.connectOptions =
         new PgConnectOptions()
             .setPort(databasePort)
@@ -54,7 +53,6 @@ public class PostgresVerticle extends AbstractVerticle {
 
     this.poolOptions = new PoolOptions().setMaxSize(poolSize);
     this.pool = PgPool.pool(vertx, connectOptions, poolOptions);
-
     pgService = new PostgresServiceImpl(this.pool);
 
     binder = new ServiceBinder(vertx);

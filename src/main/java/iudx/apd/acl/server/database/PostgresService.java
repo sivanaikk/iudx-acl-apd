@@ -20,4 +20,6 @@ public interface PostgresService {
 
   @Fluent
   PostgresService executeQuery(final String query, Handler<AsyncResult<JsonObject>> handler);
+  @Fluent
+  PostgresService executeDbQuery(final String query, Handler<AsyncResult<JsonObject>> handler);
 }
