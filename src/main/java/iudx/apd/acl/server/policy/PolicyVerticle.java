@@ -13,7 +13,9 @@ private PostgresService postgresService;
   public void start() {
 
     postgresService = PostgresService.createProxy(vertx,PG_SERVICE_ADDRESS);
-    PolicyService policyService = new PolicyServiceImpl(postgresService);
+    PolicyService policyService =
+        new PolicyServiceImpl(
+            new DeletePolicy(postgresService), new CreatePolicy());
     new ServiceBinder(vertx)
         .setAddress(POLICY_SERVICE_ADDRESS)
         .register(PolicyService.class, policyService);

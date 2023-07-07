@@ -63,11 +63,15 @@ public final class PostgresServiceImpl implements PostgresService {
                   .onSuccess(
                       rows -> {
                         LOGGER.info("Successfully executed query");
-                        for (Row row : rows) {
+                          int count = 0;
+                          for (Row row : rows) {
                           // some logic
+                            count = row.getInteger("count");
                         }
                         JsonObject response =
-                            new JsonObject().put("result", "Successfully executed query");
+                            new JsonObject()
+                                    .put("result", "Successfully executed query")
+                                    .put("count",count);
                         handler.handle(Future.succeededFuture(response));
                         connectionHandler.close();
                       });

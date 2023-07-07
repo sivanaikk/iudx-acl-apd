@@ -8,6 +8,8 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -19,6 +21,7 @@ import iudx.apd.acl.server.common.Api;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.database.PostgresService;
 import iudx.apd.acl.server.policy.PolicyService;
+import iudx.apd.acl.server.policy.PolicyServiceImpl;
 import iudx.apd.acl.server.validation.FailureHandler;
 import iudx.apd.acl.server.validation.ValidationHandler;
 import iudx.apd.acl.server.validation.ValidationHandlerFactory;
@@ -145,7 +148,23 @@ public class ApiServerVerticle extends AbstractVerticle {
 
   private void postPoliciesHandler(RoutingContext routingContext) {}
 
-  private void deletePoliciesHandler(RoutingContext routingContext) {}
+  private void deletePoliciesHandler(RoutingContext routingContext) {
+    JsonObject bodyAsJsonObject = routingContext.body().asJsonObject();
+    JsonArray policyList = bodyAsJsonObject.getJsonArray("request");
+
+    policyService
+        .deletePolicy(policyList)
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                System.out.println("success 111");
+                routingContext.response().end(handler.result().getString("result"));
+              } else {
+                System.out.println("failure 222");
+                routingContext.response().end(handler.cause().getMessage());
+              }
+            });
+  }
 
   private void getPoliciesHandler(RoutingContext routingContext) {}
 
