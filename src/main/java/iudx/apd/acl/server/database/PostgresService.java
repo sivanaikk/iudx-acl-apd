@@ -8,6 +8,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import io.vertx.sqlclient.Tuple;
 
 @VertxGen
 @ProxyGen
@@ -19,7 +20,9 @@ public interface PostgresService {
   }
 
   @Fluent
-  PostgresService executeQuery(final String query, Handler<AsyncResult<JsonObject>> handler);
+  PostgresService executeQueryWithParams(
+      final String query, final JsonObject params, Handler<AsyncResult<JsonObject>> handler);
+
   @Fluent
-  PostgresService executeDbQuery(final String query, Handler<AsyncResult<JsonObject>> handler);
+  PostgresService executeQuery(final String query, Handler<AsyncResult<JsonObject>> handler);
 }

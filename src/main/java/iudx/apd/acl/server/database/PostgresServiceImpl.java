@@ -23,8 +23,8 @@ public final class PostgresServiceImpl implements PostgresService {
 
   private final PgPool client;
 
-  public PostgresServiceImpl(final PgPool pgclient) {
-    this.client = pgclient;
+  public PostgresServiceImpl(final PgPool client) {
+    this.client = client;
   }
 
   /**
@@ -36,18 +36,23 @@ public final class PostgresServiceImpl implements PostgresService {
    * @return PostgresService object
    */
   @Override
-  public PostgresService executeQuery(
-      String query, Tuple params, Handler<AsyncResult<JsonObject>> handler) {
+  public PostgresService executeQueryWithParams(
+      String query, JsonObject params, Handler<AsyncResult<JsonObject>> handler) {
     Collector<Row, ?, List<JsonObject>> rowListCollector =
         Collectors.mapping(row -> row.toJson(), Collectors.toList());
-
+    UUID[] policyUuid =
+        params.stream()
+            .map(e -> e.getValue())
+            .map(s -> UUID.fromString((String) s))
+            .toArray(UUID[]::new);
+    Tuple tuple = Tuple.of(policyUuid);
     client
         .withConnection(
             sqlConnection ->
                 sqlConnection
                     .preparedQuery(query)
                     .collecting(rowListCollector)
-                    .execute(params)
+                    .execute(tuple)
                     .map(rows -> rows.value()))
         .onSuccess(
             successHandler -> {
@@ -82,7 +87,7 @@ public final class PostgresServiceImpl implements PostgresService {
 
     Collector<Row, ?, List<JsonObject>> rowCollector =
         Collectors.mapping(row -> row.toJson(), Collectors.toList());
-    this.client
+    client
         .getConnection()
         .onFailure(
             failureHandler -> {
