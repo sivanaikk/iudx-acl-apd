@@ -31,7 +31,7 @@
         <maven-surefire-report-plugin.version>3.0.0-M7</maven-surefire-report-plugin.version>
         <junit-jupiter.params>5.8.2</junit-jupiter.params>
         <testcontainer.params>1.17.3</testcontainer.params>
-        <testcontainer-postgres.version>1.17.3</testcontainer-postgres.version>
+        <testcontainer-postgresService.version>1.17.3</testcontainer-postgresService.version>
         <jts2geojson.version>0.17.0</jts2geojson.version>
         <elasticsearch-rest-client.version>8.3.3</elasticsearch-rest-client.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -185,6 +185,11 @@
             <artifactId>vertx-pg-client</artifactId>
         </dependency>
 
+      <dependency>
+        <groupId>com.ongres.scram</groupId>
+        <artifactId>client</artifactId>
+        <version>2.1</version>
+      </dependency>
         <!-- log4j2 logging dependencies-->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
