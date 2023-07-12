@@ -1,5 +1,7 @@
 package iudx.apd.acl.server.validation;
 
+import static iudx.apd.acl.server.apiserver.util.Constants.*;
+
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
@@ -9,8 +11,6 @@ import iudx.apd.acl.server.validation.exceptions.DxRuntimeException;
 import org.apache.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import static iudx.apd.acl.server.apiserver.util.Constants.*;
 
 public class FailureHandler implements Handler<RoutingContext> {
 
@@ -43,12 +43,11 @@ public class FailureHandler implements Handler<RoutingContext> {
 
     if (failure instanceof RuntimeException) {
 
-      String validationErrorMessage = MSG_BAD_QUERY;
       routingContext
           .response()
           .putHeader(CONTENT_TYPE, APPLICATION_JSON)
           .setStatusCode(HttpStatus.SC_BAD_REQUEST)
-          .end(validationFailureResponse(validationErrorMessage).toString());
+          .end(validationFailureResponse(MSG_BAD_QUERY).toString());
     }
 
     if (routingContext.response().ended()) {

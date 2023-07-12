@@ -4,6 +4,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import iudx.apd.acl.server.authentication.JwtAuthenticationServiceImpl;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,10 +14,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith({MockitoExtension.class, VertxExtension.class})
 public class TestJwtAuthenticationServiceImpl {
-    private JwtAuthenticationServiceImpl jwtAuth;
+    private static final Logger LOGGER = LogManager.getLogger(JwtAuthenticationServiceImpl.class);
     @Mock
     JsonObject jsonObject;
-
+    private JwtAuthenticationServiceImpl jwtAuth;
 
     @BeforeEach
     public void init(VertxTestContext vertxTestContext)
@@ -30,10 +32,10 @@ public class TestJwtAuthenticationServiceImpl {
         jwtAuth.tokenIntrospect(jsonObject,jsonObject,handler -> {
             if(handler.succeeded())
             {
-                System.out.println("Success");
+                LOGGER.info("Success");
             }
             else {
-                System.out.println("failed");
+                LOGGER.error("failed");
             }
         });
         vertxTestContext.completeNow();

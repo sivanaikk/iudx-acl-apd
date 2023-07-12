@@ -1,13 +1,16 @@
 package iudx.apd.acl.server.apiserver;
 
+import static iudx.apd.acl.server.apiserver.response.ResponseUtil.generateResponse;
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.apiserver.util.Util.errorResponse;
 import static iudx.apd.acl.server.common.Constants.*;
+import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
@@ -19,9 +22,9 @@ import iudx.apd.acl.server.apiserver.util.RequestType;
 import iudx.apd.acl.server.authentication.AuthenticationService;
 import iudx.apd.acl.server.common.Api;
 import iudx.apd.acl.server.common.HttpStatusCode;
+import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.database.PostgresService;
 import iudx.apd.acl.server.policy.PolicyService;
-import iudx.apd.acl.server.policy.PolicyServiceImpl;
 import iudx.apd.acl.server.validation.FailureHandler;
 import iudx.apd.acl.server.validation.ValidationHandler;
 import iudx.apd.acl.server.validation.ValidationHandlerFactory;
@@ -60,6 +63,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   private PostgresService postgresService;
   private PolicyService policyService;
   private AuthenticationService authenticationService;
+  private String detail;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, reads the
@@ -157,11 +161,17 @@ public class ApiServerVerticle extends AbstractVerticle {
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
-                System.out.println("success 111");
-                routingContext.response().end(handler.result().getString("result"));
+                LOGGER.info("Delete policy succeeded : " + handler.result().encode());
+                JsonObject response =
+                    new JsonObject()
+                        .put(TYPE, handler.result().getString(TYPE))
+                        .put(TITLE, handler.result().getString(TITLE))
+                        .put(RESULT, handler.result().getValue(RESULT));
+                handleSuccessResponse(
+                    routingContext, handler.result().getInteger(STATUS_CODE), response.toString());
               } else {
-                System.out.println("failure 222");
-                routingContext.response().end(handler.cause().getMessage());
+                LOGGER.error("Delete policy failed : " + handler.cause().getMessage());
+                handleFailureResponse(routingContext, handler.cause().getMessage());
               }
             });
   }
@@ -246,5 +256,78 @@ public class ApiServerVerticle extends AbstractVerticle {
       serverOptions.setSsl(false);
       port = config().getInteger("httpPort") == null ? 8080 : config().getInteger("httpPort");
     }
+  }
+
+  /**
+   * Handles HTTP Success response from the server
+   *
+   * @param routingContext Routing context object
+   * @param statusCode statusCode to respond with
+   * @param result respective result returned from the service
+   */
+  private void handleSuccessResponse(RoutingContext routingContext, int statusCode, String result) {
+    HttpServerResponse response = routingContext.response();
+    response.putHeader(CONTENT_TYPE, APPLICATION_JSON).setStatusCode(statusCode).end(result);
+  }
+
+  /**
+   * Handles Failed HTTP Response
+   *
+   * @param routingContext Routing context object
+   * @param failureMessage Failure message for response
+   */
+  private void handleFailureResponse(RoutingContext routingContext, String failureMessage) {
+    HttpServerResponse response = routingContext.response();
+    LOGGER.debug("Failure Message : " + failureMessage);
+
+    try {
+      JsonObject jsonObject = new JsonObject(failureMessage);
+      int type = jsonObject.getInteger(TYPE);
+      String title = jsonObject.getString(TITLE);
+
+      HttpStatusCode status = HttpStatusCode.getByValue(type);
+
+      ResponseUrn urn;
+
+      // get the urn by either type or title
+      if (title != null) {
+        urn = ResponseUrn.fromCode(title);
+      } else {
+
+        urn = ResponseUrn.fromCode(String.valueOf(type));
+      }
+      if (jsonObject.getString(DETAIL) != null) {
+        detail = jsonObject.getString(DETAIL);
+        response
+            .putHeader(CONTENT_TYPE, APPLICATION_JSON)
+            .setStatusCode(type)
+            .end(generateResponse(status, urn, detail).toString());
+      } else {
+        response
+            .putHeader(CONTENT_TYPE, APPLICATION_JSON)
+            .setStatusCode(type)
+            .end(generateResponse(status, urn).toString());
+      }
+
+    } catch (DecodeException exception) {
+      LOGGER.error("Error : Expecting JSON from backend service [ jsonFormattingException ] ");
+      handleResponse(response, BAD_REQUEST, ResponseUrn.BACKING_SERVICE_FORMAT_URN);
+    }
+  }
+
+  private void handleResponse(
+      HttpServerResponse response, HttpStatusCode statusCode, ResponseUrn urn) {
+    handleResponse(response, statusCode, urn, statusCode.getDescription());
+  }
+
+  private void handleResponse(
+      HttpServerResponse response,
+      HttpStatusCode statusCode,
+      ResponseUrn urn,
+      String failureMessage) {
+    response
+        .putHeader(CONTENT_TYPE, APPLICATION_JSON)
+        .setStatusCode(statusCode.getValue())
+        .end(generateResponse(statusCode, urn, failureMessage).toString());
   }
 }

@@ -57,7 +57,11 @@ public final class PostgresServiceImpl implements PostgresService {
         .onSuccess(
             successHandler -> {
               JsonArray response = new JsonArray(successHandler);
-              JsonObject responseJson = new JsonObject().put("result", response);
+              JsonObject responseJson =
+                  new JsonObject()
+                      .put("type", ResponseUrn.SUCCESS_URN.getUrn())
+                      .put("title", ResponseUrn.SUCCESS_URN.getMessage())
+                      .put("result", response);
               handler.handle(Future.succeededFuture(responseJson));
             })
         .onFailure(
@@ -128,7 +132,11 @@ public final class PostgresServiceImpl implements PostgresService {
                       successHandler -> {
                         LOGGER.info("Successfully executed query");
                         handler.handle(
-                            Future.succeededFuture(new JsonObject().put("result", successHandler)));
+                            Future.succeededFuture(
+                                new JsonObject()
+                                    .put("type", ResponseUrn.SUCCESS_URN.getUrn())
+                                    .put("title", ResponseUrn.SUCCESS_URN.getMessage())
+                                    .put("result", successHandler)));
                         connectionHandler.close();
                       });
             });

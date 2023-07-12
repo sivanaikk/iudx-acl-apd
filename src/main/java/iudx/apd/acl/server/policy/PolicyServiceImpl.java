@@ -26,15 +26,15 @@ public class PolicyServiceImpl implements PolicyService {
   public Future<JsonObject> deletePolicy(JsonArray policyList) {
     Promise<JsonObject> promise = Promise.promise();
     this.deletePolicy
-        .deletePolicy(policyList, "some-owner-id")
+        .initiateDeletePolicy(policyList, "some-owner-id")
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
-                System.out.println("Successfully deleted the policy");
-                promise.complete(new JsonObject().put("result", "success"));
+                LOG.info("Successfully deleted the policy");
+                promise.complete(handler.result());
               } else {
-                System.out.println("Failed to delete the policy");
-                promise.fail("failed to delete the policy");
+                LOG.error("Failed to delete the policy");
+                promise.fail(handler.cause().getMessage());
               }
             });
     return promise.future();
