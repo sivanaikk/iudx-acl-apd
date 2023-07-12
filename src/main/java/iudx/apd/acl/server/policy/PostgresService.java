@@ -10,9 +10,9 @@ import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.PoolOptions;
 
 
-public class Postgres {
+public class PostgresService {
   private final PgPool pool;
-  public Postgres(JsonObject config, Vertx vertx){
+  public PostgresService(JsonObject config, Vertx vertx){
     /* Database Properties */
     String databaseIP = config.getString("databaseIP");
     int databasePort = config.getInteger("databasePort");

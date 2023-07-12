@@ -57,7 +57,7 @@ public class PostgresVerticle extends AbstractVerticle {
 
     binder = new ServiceBinder(vertx);
     consumer = binder.setAddress(PG_SERVICE_ADDRESS).register(PostgresService.class, pgService);
-    LOGGER.info("Postgres verticle started.");
+    LOGGER.info("PostgresService verticle started.");
   }
 
   @Override

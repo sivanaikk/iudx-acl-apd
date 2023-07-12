@@ -2,9 +2,9 @@ package iudx.apd.acl.server.policy;
 
 public class DeletePolicy {
 
-  Postgres postgres;
+  PostgresService postgresService;
 
-  public DeletePolicy(Postgres postgres) {
-    this.postgres = postgres;
+  public DeletePolicy(PostgresService postgresService) {
+    this.postgresService = postgresService;
   }
 }
