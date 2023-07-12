@@ -9,5 +9,4 @@ public class Constants {
   private static final String COUNT_QUERY = "SELECT COUNT(*) FROM $0 ";
   public static final String COUNT_OF_ACTIVE_POLICIES =
           COUNT_QUERY + "WHERE _id = ANY($1::uuid[]) AND owner_id='$2'::uuid AND status='ACTIVE' AND expiry_at > NOW()";
-
 }
