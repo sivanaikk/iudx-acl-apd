@@ -8,12 +8,12 @@ import io.vertx.serviceproxy.ServiceBinder;
 import iudx.apd.acl.server.database.PostgresService;
 
 public class PolicyVerticle extends AbstractVerticle {
-private PostgresService postgresService;
+  private Postgres postgres;
+
   @Override
   public void start() {
-
-    postgresService = PostgresService.createProxy(vertx,PG_SERVICE_ADDRESS);
-    PolicyService policyService = new PolicyServiceImpl(postgresService);
+    postgres = new Postgres(config(), vertx);
+    PolicyService policyService = new PolicyServiceImpl(postgres);
     new ServiceBinder(vertx)
         .setAddress(POLICY_SERVICE_ADDRESS)
         .register(PolicyService.class, policyService);

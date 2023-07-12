@@ -1,3 +1,9 @@
 package iudx.apd.acl.server.policy;
 
-public class CreatePolicy {}
+public class CreatePolicy {
+  Postgres postgres;
+
+  public CreatePolicy(Postgres postgres) {
+    this.postgres = postgres;
+  }
+}
