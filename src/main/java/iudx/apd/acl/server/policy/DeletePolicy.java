@@ -2,7 +2,6 @@ package iudx.apd.acl.server.policy;
 
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
-import static iudx.apd.acl.server.policy.Constants.*;
 import static iudx.apd.acl.server.policy.util.Constants.*;
 
 import io.vertx.core.*;
