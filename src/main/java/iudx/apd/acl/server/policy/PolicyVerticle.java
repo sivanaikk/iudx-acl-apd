@@ -11,12 +11,14 @@ public class PolicyVerticle extends AbstractVerticle {
   private DeletePolicy deletePolicy;
   private CreatePolicy createPolicy;
 
+
   @Override
   public void start() {
     postgresService = new PostgresService(config(), vertx);
     deletePolicy = new DeletePolicy(postgresService);
     createPolicy = new CreatePolicy(postgresService);
     policyService = new PolicyServiceImpl(deletePolicy, createPolicy);
+    PolicyService policyService = new PolicyServiceImpl(postgresService);
     new ServiceBinder(vertx)
         .setAddress(POLICY_SERVICE_ADDRESS)
         .register(PolicyService.class, policyService);
