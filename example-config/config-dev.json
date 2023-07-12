@@ -32,7 +32,14 @@
     {
       "id": "iudx.apd.acl.server.policy.PolicyVerticle",
       "isWorkerVerticle": false,
-      "verticleInstances": 1
+      "verticleInstances": 1,
+      "databaseIp": "localhost",
+      "databasePort": 5432,
+      "databaseName": "",
+      "databaseUserName": "",
+      "databasePassword": "",
+      "poolSize": 25,
+      "defaultExpiryDays": 12
     },
     {
       "id": "iudx.apd.acl.server.authentication.AuthenticationVerticle",
