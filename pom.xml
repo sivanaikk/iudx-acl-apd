@@ -6,7 +6,7 @@
 
     <groupId>datakaveri.org</groupId>
     <artifactId>iudx.acl-apd.server</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
