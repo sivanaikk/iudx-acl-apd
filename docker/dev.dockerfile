@@ -28,7 +28,7 @@ COPY --from=builder /usr/share/app/target/${JAR} ./fatjar.jar
 
 EXPOSE 8080 8443
 # Creating a non-root user
-RUN useradd -r -u 1001 -g root rs-user
+RUN useradd -r -u 1001 -g root acl-apd-user
 # Create storage directory and make rs-user as owner
 RUN mkdir -p /usr/share/app/storage/temp-dir && chown rs-user /usr/share/app/storage/temp-dir
 # hint for volume mount 
