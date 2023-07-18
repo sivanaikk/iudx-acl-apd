@@ -28,7 +28,8 @@ public enum ResponseUrn {
     BAD_REQUEST_URN("urn:dx:acl:badRequest", "bad request parameter"),
     INVALID_HEADER_VALUE_URN("urn:dx:acl:invalidHeaderValue", "Invalid header value"),
     NOT_YET_IMPLEMENTED_URN("urn:dx:acl:general", "urn not yet implemented in backend verticle."),
-
+    BACKING_SERVICE_FORMAT_URN(
+    "urn:dx:acl:backend", "format error from backing service [cat,auth etc.]"),
     DB_ERROR_URN("urn:dx:acl:DatabaseError", "Database error");
 
     ResponseUrn(String urn,String message){
