@@ -68,7 +68,7 @@ ALTER TABLE resource_entity OWNER TO ${flyway:user};
 CREATE TABLE IF NOT EXISTS policy
 (
    _id uuid DEFAULT uuid_generate_v4 () NOT NULL,
-   user_emailid varchar NOT NULL,  --replace with user_email consumer
+   user_emailid varchar NOT NULL,
    item_id uuid NOT NULL,
    item_type _item_type NOT NULL,
    owner_id uuid NOT NULL,
