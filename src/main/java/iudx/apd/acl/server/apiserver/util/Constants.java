@@ -54,8 +54,6 @@ public class Constants {
   // endpoints
   public static final String POLICIES_API = "/policies";
   public static final String REQUEST_POLICY_API = "/policies/requests";
-<<<<<<< HEAD
-=======
 
 
   // validation
@@ -65,5 +63,4 @@ public class Constants {
                   "[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$");
 
   //
->>>>>>> b6e0fcb (Resolve conflicts)
 }
