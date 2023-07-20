@@ -173,8 +173,9 @@ public class DeletePolicy {
   public Future<JsonObject> initiateDeletePolicy(JsonArray policyList, User user) {
     policyIdSet = new HashSet<>();
     Promise<JsonObject> promise = Promise.promise();
-    for (int index = 0; index < policyList.size(); index++) {
-      JsonObject policy = policyList.getJsonObject(index);
+    int index = 0;
+    for (var value : policyList) {
+      JsonObject policy = policyList.getJsonObject(index++);
       if (policyIdSet.contains(UUID.fromString(policy.getString("id")))) {
         LOG.error("Duplicate policy Ids");
         return Future.failedFuture(
