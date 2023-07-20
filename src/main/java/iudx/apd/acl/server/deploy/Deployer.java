@@ -54,7 +54,6 @@ import org.apache.logging.log4j.core.LoggerContext;
  * </ul>
  *
  * <p>e.g. <i>java -jar ./fatjar.jar --host $(hostname) -c configs/config.json -m
- * iudx.apd.acl.server.database.PostgresVerticle,
  * iudx.apd.acl.server.authenticator.JwtAuthenticationVerticle
  * ,iudx.apd.acl.server.apiserver.ApiServerVerticle</i>
  */

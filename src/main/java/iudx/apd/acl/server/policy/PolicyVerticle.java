@@ -6,21 +6,21 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.serviceproxy.ServiceBinder;
 
 public class PolicyVerticle extends AbstractVerticle {
-  private PostgresService postgresService;
-  private PolicyServiceImpl policyService;
-  private DeletePolicy deletePolicy;
-  private CreatePolicy createPolicy;
+    private PostgresService postgresService;
+    private PolicyServiceImpl policyService;
+    private DeletePolicy deletePolicy;
+    private CreatePolicy createPolicy;
+    private GetPolicy getPolicy;
 
-
-  @Override
-  public void start() {
-    postgresService = new PostgresService(config(), vertx);
-    deletePolicy = new DeletePolicy(postgresService);
-    createPolicy = new CreatePolicy(postgresService);
-    policyService = new PolicyServiceImpl(deletePolicy, createPolicy);
-    PolicyService policyService = new PolicyServiceImpl(postgresService);
-    new ServiceBinder(vertx)
-        .setAddress(POLICY_SERVICE_ADDRESS)
-        .register(PolicyService.class, policyService);
-  }
+    @Override
+    public void start() {
+        postgresService = new PostgresService(config(), vertx);
+        deletePolicy = new DeletePolicy(postgresService);
+        createPolicy = new CreatePolicy(postgresService);
+        getPolicy = new GetPolicy(postgresService);
+        policyService = new PolicyServiceImpl(deletePolicy, createPolicy, getPolicy);
+        new ServiceBinder(vertx)
+                .setAddress(POLICY_SERVICE_ADDRESS)
+                .register(PolicyService.class, policyService);
+    }
 }

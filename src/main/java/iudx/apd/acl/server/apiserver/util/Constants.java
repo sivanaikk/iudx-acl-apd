@@ -4,6 +4,7 @@ import io.vertx.core.http.HttpMethod;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class Constants {
 
@@ -53,4 +54,16 @@ public class Constants {
   // endpoints
   public static final String POLICIES_API = "/policies";
   public static final String REQUEST_POLICY_API = "/policies/requests";
+<<<<<<< HEAD
+=======
+
+
+  // validation
+  public static final int POLICY_ID_MAX_LENGTH = 4000;
+  public static final Pattern POLICY_ID_PATTERN =
+          Pattern.compile(
+                  "[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$");
+
+  //
+>>>>>>> b6e0fcb (Resolve conflicts)
 }

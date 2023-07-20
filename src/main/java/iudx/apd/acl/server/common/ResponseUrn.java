@@ -13,25 +13,25 @@ public enum ResponseUrn {
 
   INVALID_OPERATION_URN("urn:dx:acl:invalidOperation", "Invalid operation"),
   UNAUTHORIZED_ENDPOINT_URN(
-      "urn:dx:acl:unauthorizedEndpoint", "Access to endpoint is not available"),
+          "urn:dx:acl:unauthorizedEndpoint", "Access to endpoint is not available"),
   UNAUTHORIZED_RESOURCE_URN(
-      "urn,dx:rs:unauthorizedResource", "Access to resource is not available"),
+          "urn,dx:rs:unauthorizedResource", "Access to resource is not available"),
   EXPIRED_TOKEN_URN("urn:dx:acl:expiredAuthorizationToken", "Token has expired"),
   MISSING_TOKEN_URN("urn:dx:acl:missingAuthorizationToken", "Token needed and not present"),
   INVALID_TOKEN_URN("urn:dx:acl:invalidAuthorizationToken", "Token is invalid"),
   RESOURCE_NOT_FOUND_URN("urn:dx:acl:resourceNotFound", "Document of given id does not exist"),
   LIMIT_EXCEED_URN(
-      "urn:dx:acl:requestLimitExceeded", "Operation exceeds the default value of limit"),
+          "urn:dx:acl:requestLimitExceeded", "Operation exceeds the default value of limit"),
   INVALID_ID_VALUE_URN("urn:dx:acl:invalidIdValue", "Invalid id"),
   INVALID_PAYLOAD_FORMAT_URN(
-      "urn:dx:acl:invalidPayloadFormat", "Invalid json format in post request [schema mismatch]"),
+          "urn:dx:acl:invalidPayloadFormat", "Invalid json format in post request [schema mismatch]"),
   BAD_REQUEST_URN("urn:dx:acl:badRequest", "bad request parameter"),
   INVALID_HEADER_VALUE_URN("urn:dx:acl:invalidHeaderValue", "Invalid header value"),
   NOT_YET_IMPLEMENTED_URN("urn:dx:acl:general", "urn not yet implemented in backend verticle."),
   BACKING_SERVICE_FORMAT_URN(
-      "urn:dx:acl:backend", "format error from backing service [cat,auth etc.]"),
-  DB_ERROR_URN("urn:dx:acl:DatabaseError", "Database error");
-
+          "urn:dx:acl:backend", "format error from backing service [cat,auth etc.]"),
+  DB_ERROR_URN("urn:dx:acl:DatabaseError", "Database error"),
+  ROLE_NOT_FOUND("urn:dx:acl:invalidRole", "Role does not exist");
   private final String urn;
   private final String message;
 
@@ -42,9 +42,9 @@ public enum ResponseUrn {
 
   public static ResponseUrn fromCode(final String urn) {
     return Stream.of(values())
-        .filter(v -> v.urn.equalsIgnoreCase(urn))
-        .findAny()
-        .orElse(NOT_YET_IMPLEMENTED_URN);
+            .filter(v -> v.urn.equalsIgnoreCase(urn))
+            .findAny()
+            .orElse(NOT_YET_IMPLEMENTED_URN);
   }
 
   public String getUrn() {

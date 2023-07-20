@@ -13,10 +13,6 @@ public class PostgresService {
   private final PgPool pool;
 
   public PostgresService(JsonObject config, Vertx vertx) {
-
-public class PostgresService {
-  private final PgPool pool;
-  public PostgresService(JsonObject config, Vertx vertx){
     /* Database Properties */
     String databaseIP = config.getString("databaseIP");
     int databasePort = config.getInteger("databasePort");
@@ -27,18 +23,14 @@ public class PostgresService {
 
     /* Set Connection Object and schema */
     PgConnectOptions connectOptions =
-        new PgConnectOptions()
-            .setPort(databasePort)
-            .setHost(databaseIP)
-            .setDatabase(databaseName)
-            .setUser(databaseUserName)
-            .setPassword(databasePassword)
-            .setReconnectAttempts(DB_RECONNECT_ATTEMPTS)
-            .setReconnectInterval(DB_RECONNECT_INTERVAL_MS);
-      new PgConnectOptions().setPort(databasePort).setHost(databaseIP).setDatabase(databaseName)
-        .setUser(databaseUserName).setPassword(databasePassword)
-        .setReconnectAttempts(DB_RECONNECT_ATTEMPTS)
-        .setReconnectInterval(DB_RECONNECT_INTERVAL_MS);
+            new PgConnectOptions()
+                    .setPort(databasePort)
+                    .setHost(databaseIP)
+                    .setDatabase(databaseName)
+                    .setUser(databaseUserName)
+                    .setPassword(databasePassword)
+                    .setReconnectAttempts(DB_RECONNECT_ATTEMPTS)
+                    .setReconnectInterval(DB_RECONNECT_INTERVAL_MS);
 
     /* Pool options */
     PoolOptions poolOptions = new PoolOptions().setMaxSize(poolSize);
@@ -46,7 +38,6 @@ public class PostgresService {
     /* Create the client pool */
     this.pool = PgPool.pool(vertx, connectOptions, poolOptions);
   }
-
 
   public PgPool getPool() {
     return pool;
