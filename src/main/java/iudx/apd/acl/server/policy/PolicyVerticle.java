@@ -8,9 +8,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class PolicyVerticle extends AbstractVerticle {
-
-  private static final Logger LOGGER = LogManager.getLogger(PolicyVerticle.class);
   private PostgresService postgresService;
+  private static final Logger LOGGER = LogManager.getLogger(PolicyVerticle.class);
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
@@ -20,7 +19,7 @@ public class PolicyVerticle extends AbstractVerticle {
   @Override
     public void start(){
     /* Read the configuration and set the postgres client properties. */
-    LOGGER.debug("Info : " + LOGGER.getName() + " : Reading config file "+config());
+    LOGGER.debug("Info : " + LOGGER.getName());
 
     postgresService = new PostgresService(config(),vertx);
     PolicyService policyService = new PolicyServiceImpl(postgresService,config());

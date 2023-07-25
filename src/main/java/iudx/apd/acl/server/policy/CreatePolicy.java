@@ -3,14 +3,13 @@ package iudx.apd.acl.server.policy;
 import static iudx.apd.acl.server.apiserver.util.Constants.DETAIL;
 import static iudx.apd.acl.server.apiserver.util.Constants.TITLE;
 import static iudx.apd.acl.server.apiserver.util.Constants.TYPE;
-import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
-import static iudx.apd.acl.server.policy.util.Constants.CHECK_EXISTING_APD_POLICY;
-import static iudx.apd.acl.server.policy.util.Constants.CHECK_OWNERSHIP;
-import static iudx.apd.acl.server.policy.util.Constants.CHECK_RESOURCE_ENTITY_TABLE;
+import static iudx.apd.acl.server.common.HttpStatusCode.CONFLICT;
+import static iudx.apd.acl.server.common.HttpStatusCode.FORBIDDEN;
+import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
+import static iudx.apd.acl.server.policy.util.Constants.CHECK_EXISTING_POLICY;
 import static iudx.apd.acl.server.policy.util.Constants.CREATE_POLICY_QUERY;
-import static iudx.apd.acl.server.policy.util.Constants.RETRIEVE_POLICY_CREATED;
+import static iudx.apd.acl.server.policy.util.Constants.ENTITY_TABLE_CHECK;
 
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
@@ -18,14 +17,14 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
 import io.vertx.sqlclient.Tuple;
-import iudx.apd.acl.server.apiserver.response.RestResponse;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.policy.util.Status;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,10 +32,8 @@ import org.apache.logging.log4j.Logger;
 public class CreatePolicy {
   private static final Logger LOGGER = LogManager.getLogger(CreatePolicy.class);
   private final PostgresService postgresService;
-  private final JsonObject responseJson;
 
   public CreatePolicy(PostgresService postgresService) {
-    this.responseJson = new JsonObject();
     this.postgresService = postgresService;
   }
 
@@ -47,142 +44,79 @@ public class CreatePolicy {
     List<CreatePolicyRequest> createPolicyRequestList =
         CreatePolicyRequest.jsonArrayToList(policyList, request.getLong("defaultExpiryDays"));
 
+    Future<Set<UUID>> checkIfItemPresent = checkForItemsDb(createPolicyRequestList);
+
+    Future<Boolean> isPolicyAlreadyExist =
+        checkIfItemPresent.compose(
+            providerIdSet -> {
+              if (providerIdSet.size() == 1 && providerIdSet.contains(userId)) {
+                return checkExistingPoliciesForId(createPolicyRequestList, userId);
+              } else {
+                LOGGER.error("Item does not belong to the policy creator.");
+                return Future.failedFuture(generateErrorResponse(FORBIDDEN, "Ownership Error."));
+              }
+            });
+
+    Future<JsonObject> insertPolicy =
+        isPolicyAlreadyExist.compose(
+            policyDoesNotExist -> {
+              return createPolicy(createPolicyRequestList, userId)
+                  .compose(
+                      createPolicySuccessHandler -> {
+                        JsonArray responseArray = createResponseArray(createPolicySuccessHandler);
+                        JsonObject responseJson =
+                            new JsonObject()
+                                .put("type", ResponseUrn.SUCCESS_URN.getUrn())
+                                .put("title", ResponseUrn.SUCCESS_URN.getMessage())
+                                .put("result", responseArray);
+                        return Future.succeededFuture(responseJson);
+                      });
+            });
+
+    insertPolicy.onSuccess(promise::complete).onFailure(promise::fail);
+    return promise.future();
+  }
+
+  private Future<Set<UUID>> checkForItemsDb(List<CreatePolicyRequest> createPolicyRequestList) {
+    Promise<Set<UUID>> promise = Promise.promise();
     Set<UUID> itemIdList =
         createPolicyRequestList.stream()
             .map(CreatePolicyRequest::getItemId)
             .collect(Collectors.toSet());
 
-    Future<Boolean> checkIfItemPresent = checkForItemsInDb(itemIdList);
-    Future<Boolean> checkForOwnershipOfItem = checkForOwnershipOfItem(itemIdList, userId);
-    Future<Boolean> isPolicyAlreadyExist =
-        checkExistingPoliciesForId(createPolicyRequestList, userId);
-
-    CompositeFuture.all(checkIfItemPresent, checkForOwnershipOfItem, isPolicyAlreadyExist)
-        .onSuccess(
-            successHandler -> {
-              boolean itemPresent = successHandler.resultAt(0);
-              boolean ownershipCheck = successHandler.resultAt(1);
-              boolean policyExists = successHandler.resultAt(2);
-
-              if (itemPresent && ownershipCheck && !policyExists) {
-                LOGGER.info("Trying to create policy");
-                createPolicy(createPolicyRequestList, userId)
-                    .onSuccess(
-                        createPolicySuccessHandler -> {
-                          JsonArray responseArray = createResponseArray(createPolicySuccessHandler);
-                          JsonObject responseJson =
-                              new JsonObject()
-                                  .put("type", ResponseUrn.SUCCESS_URN.getUrn())
-                                  .put("title", ResponseUrn.SUCCESS_URN.getMessage())
-                                  .put("result", responseArray);
-                          LOGGER.info("Policy created successfully ");
-                          promise.complete(responseJson);
-                        })
-                    .onFailure(
-                        createPolicyFailureHandler -> {
-                          LOGGER.error(
-                              "Failed to create policy: "
-                                  + createPolicyFailureHandler.getLocalizedMessage());
-                          RestResponse response =
-                              new RestResponse.Builder()
-                                  .build(
-                                      HttpStatusCode.INTERNAL_SERVER_ERROR.getValue(),
-                                      ResponseUrn.DB_ERROR_URN.getUrn(),
-                                      HttpStatusCode.INTERNAL_SERVER_ERROR.getDescription(),
-                                      createPolicyFailureHandler.getMessage());
-                          promise.fail(response.toString());
-                        });
-              } else {
-                LOGGER.info("Policy cannot be created");
-                promise.fail("Policy cannot be created");
-              }
-            })
-        .onFailure(
-            failureHandler -> {
-              LOGGER.error(
-                  "Failed to check policy conditions: " + failureHandler.getLocalizedMessage());
-              promise.fail(failureHandler.getLocalizedMessage());
-            });
-
-    return promise.future();
-  }
-
-  private Future<Boolean> checkForItemsInDb(Set<UUID> itemIdList) {
-    Promise<Boolean> promise = Promise.promise();
-    LOGGER.info("Trying to get rs from item ids");
-
-    Collector<Row, ?, List<UUID>> itemIdCollector =
-        Collectors.mapping(row -> row.getUUID("_id"), Collectors.toList());
-
     postgresService
         .getPool()
         .withConnection(
             sqlConnection ->
                 sqlConnection
-                    .preparedQuery(CHECK_RESOURCE_ENTITY_TABLE)
-                    .collecting(itemIdCollector)
+                    .preparedQuery(ENTITY_TABLE_CHECK)
                     .execute(Tuple.of(itemIdList.toArray(UUID[]::new)))
                     .onFailure(
                         obj -> {
-                          LOGGER.error("checkUserExist db fail :: " + obj.getLocalizedMessage());
+                          LOGGER.error("checkUserExist db fail {}", obj.getLocalizedMessage());
                           promise.fail(
-                              getFailureResponse(
-                                  responseJson,
-                                  "check user in db failed because " + obj.getLocalizedMessage()));
+                              generateErrorResponse(
+                                  INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR.getDescription()));
                         })
                     .onSuccess(
                         successHandler -> {
-                          List<UUID> existingItemIds = successHandler.value();
-                          LOGGER.info("Item ids from db {}", existingItemIds);
-                          existingItemIds.forEach(itemIdList::remove);
-                          if (!itemIdList.isEmpty()) {
-                            LOGGER.info("Remaining items in list: " + itemIdList);
-                            // TODO: call for catalogue to check for the remaining item id
-                            // below promise will depend on the result we get from cat PASSING it
-                            // for NOW
-                            promise.complete(true);
-                          } else {
-                            LOGGER.info("All items are present");
-                            promise.complete(true);
+                          Set<UUID> providerIdSet = new HashSet<>();
+                          Set<UUID> existingItemIds = new HashSet<>();
+                          if (successHandler.size() > 0) {
+                            for (Row row : successHandler) {
+                              providerIdSet.add(row.getUUID("provider_id"));
+                              existingItemIds.add(row.getUUID("_id"));
+                            }
+                            // TODO: this check will be done after calling catalogue
+                            itemIdList.removeAll(existingItemIds);
                           }
-                        }));
-    return promise.future();
-  }
-
-  Future<Boolean> checkForOwnershipOfItem(Set<UUID> itemIdList, UUID userId) {
-    Promise<Boolean> promise = Promise.promise();
-    LOGGER.info("Trying to check ownership of items");
-    Collector<Row, ?, Set<UUID>> providerIdCollector =
-        Collectors.mapping(row -> row.getUUID("provider_id"), Collectors.toSet());
-
-    postgresService
-        .getPool()
-        .withConnection(
-            sqlConnection ->
-                sqlConnection
-                    .preparedQuery(CHECK_OWNERSHIP)
-                    .collecting(providerIdCollector)
-                    .execute(Tuple.of(itemIdList.toArray(UUID[]::new)))
-                    .onFailure(
-                        obj -> {
-                          LOGGER.error(
-                              "checkForOwnerShipOfItem db fail :: " + obj.getLocalizedMessage());
-                          promise.fail(
-                              getFailureResponse(
-                                  responseJson,
-                                  "checkForOwnerShipOfItem in db failed because "
-                                      + obj.getLocalizedMessage()));
-                        })
-                    .onSuccess(
-                        successHandler -> {
-                          Set<UUID> providerIds = successHandler.value();
-                          LOGGER.info("Provider ids from db {}", providerIds);
-                          if (providerIds.size() == 1 && providerIds.contains(userId)) {
-                            LOGGER.info("OwnerShip Check: True");
-                            promise.complete(true);
+                          if (!itemIdList.isEmpty()) {
+                            // TODO: call for catalogue to check for the remaining item id
+                            // below promise will depend on the result we get from cat,PASSING it
+                            // for NOW
+                            promise.complete(providerIdSet);
                           } else {
-                            LOGGER.info("Ownership Error");
-                            promise.fail("Item does not belongs to the policy creator.");
+                            promise.complete(providerIdSet);
                           }
                         }));
     return promise.future();
@@ -190,7 +124,6 @@ public class CreatePolicy {
 
   private Future<Boolean> checkExistingPoliciesForId(
       List<CreatePolicyRequest> createPolicyRequestList, UUID providerId) {
-    LOGGER.info("Checking for existing policies");
 
     List<Tuple> selectTuples =
         createPolicyRequestList.stream()
@@ -203,32 +136,37 @@ public class CreatePolicy {
                         Status.ACTIVE,
                         createPolicyRequest.getUserEmail()))
             .collect(Collectors.toList());
-
     Promise<Boolean> promise = Promise.promise();
     postgresService
         .getPool()
         .withTransaction(
             conn ->
-                conn.preparedQuery(CHECK_EXISTING_APD_POLICY)
+                conn.preparedQuery(CHECK_EXISTING_POLICY)
                     .executeBatch(selectTuples)
-                    .map(rows -> rows.size() > 0)
                     .onFailure(
                         failureHandler -> {
                           LOGGER.error(
                               "isPolicyForIdExist fail :: " + failureHandler.getLocalizedMessage());
                           promise.fail(
-                              getFailureResponse(
-                                  responseJson,
-                                  "isPolicyForIdExist in db failed because "
-                                      + failureHandler.getLocalizedMessage()));
+                              generateErrorResponse(
+                                  INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR.getDescription()));
                         })
                     .onSuccess(
                         policyExists -> {
-                          if (policyExists) {
+                          if (policyExists.size() > 0) {
+                            List<UUID> responseArray = new ArrayList<>();
+                            for (RowSet<Row> rowSet = policyExists;
+                                rowSet != null;
+                                rowSet = rowSet.next()) {
+                              rowSet.forEach(row -> responseArray.add(row.getUUID("_id")));
+                            }
                             LOGGER.error("Policy already Exist.");
-                            promise.fail("Policy already Exist.");
+                            promise.fail(
+                                generateErrorResponse(
+                                    CONFLICT,
+                                    "Policy already exist for some of the request objects "
+                                        + responseArray));
                           } else {
-                            LOGGER.info("Policy does not Exist.");
                             promise.complete(false);
                           }
                         }));
@@ -252,87 +190,59 @@ public class CreatePolicy {
                         createPolicyRequest.getConstraints()))
             .collect(Collectors.toList());
 
-    Set<String> userEmailid =
-        createPolicyRequestList.stream()
-            .map(CreatePolicyRequest::getUserEmail)
-            .collect(Collectors.toSet());
-    Set<UUID> itemid =
-        createPolicyRequestList.stream()
-            .map(CreatePolicyRequest::getItemId)
-            .collect(Collectors.toSet());
-
-    Tuple retrivePolicyTuple =
-        Tuple.of(userEmailid.toArray(String[]::new), itemid.toArray(UUID[]::new), userId);
-
     postgresService
         .getPool()
         .withTransaction(
-            conn ->
-                conn.preparedQuery(CREATE_POLICY_QUERY)
-                    .executeBatch(createPolicyTuple)
-                    .onFailure(
-                        failureHandler -> {
-                          LOGGER.error(
-                              "createPolicy fail :: " + failureHandler.getLocalizedMessage());
-                          promise.fail(
-                              getFailureResponse(
-                                  responseJson,
-                                  "createPolicy in db failed because "
-                                      + failureHandler.getLocalizedMessage()));
-                        })
-                    .onSuccess(
-                        successHandler -> {
-                          conn.preparedQuery(RETRIEVE_POLICY_CREATED)
-                              .execute(retrivePolicyTuple)
-                              .onFailure(
-                                  queryFailureHandler -> {
-                                    LOGGER.error(
-                                        "Failed to retrieve inserted rows: "
-                                            + queryFailureHandler.getLocalizedMessage());
-                                    promise.fail(
-                                        "Failed to retrieve inserted rows: "
-                                            + queryFailureHandler.getLocalizedMessage());
-                                  })
-                              .onSuccess(
-                                  querySuccessHandler -> {
-                                    LOGGER.info(
-                                        "Inserted rows retrieved. Count: "
-                                            + querySuccessHandler.size());
-                                    promise.complete(querySuccessHandler);
-                                  });
-                        }));
+            conn -> {
+              // Execute the batch query to create policies
+              return conn.preparedQuery(CREATE_POLICY_QUERY)
+                  .executeBatch(createPolicyTuple)
+                  .onFailure(
+                      failureHandler -> {
+                        LOGGER.error(
+                            "createPolicy fail :: " + failureHandler.getLocalizedMessage());
+                        // Fail the promise with an error response
+                        promise.fail(
+                            generateErrorResponse(
+                                INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR.getDescription()));
+                      })
+                  .onSuccess(promise::complete);
+            });
 
     return promise.future();
   }
 
-  private String getFailureResponse(JsonObject response, String detail) {
-    return response
-        .put(TYPE, BAD_REQUEST.getValue())
-        .put(TITLE, BAD_REQUEST.getUrn())
-        .put(DETAIL, detail)
+  private String generateErrorResponse(HttpStatusCode httpStatusCode, String errorMessage) {
+    return new JsonObject()
+        .put(TYPE, httpStatusCode.getValue())
+        .put(TITLE, httpStatusCode.getUrn())
+        .put(DETAIL, errorMessage)
         .encode();
   }
 
   private JsonArray createResponseArray(RowSet<Row> rows) {
     JsonArray response = new JsonArray();
-    JsonObject ownerJsonObject = null;
+    final JsonObject[] ownerJsonObject = {null};
 
-    for (Row row : rows) {
-      JsonObject jsonObject =
-          new JsonObject()
-              .put("policy_id", row.getValue("_id").toString())
-              .put("user_emailId", row.getString("user_emailid"))
-              .put("item_id", row.getValue("item_id").toString())
-              .put("expiry_at", row.getValue("expiry_at").toString());
+    for (RowSet<Row> rowSet = rows; rowSet != null; rowSet = rowSet.next()) {
+      rowSet.forEach(
+          row -> {
+            JsonObject jsonObject =
+                new JsonObject()
+                    .put("policy_id", row.getUUID("_id").toString())
+                    .put("user_emailId", row.getString("user_emailid"))
+                    .put("item_id", row.getUUID("item_id").toString())
+                    .put("expiry_at", row.getLocalDateTime("expiry_at").toString());
 
-      if (ownerJsonObject == null) {
-        ownerJsonObject = new JsonObject().put("owner_id", row.getValue("owner_id").toString());
-      }
-
-      response.add(jsonObject);
+            if (ownerJsonObject[0] == null) {
+              ownerJsonObject[0] =
+                  new JsonObject().put("owner_id", row.getValue("owner_id").toString());
+            }
+            response.add(jsonObject);
+          });
     }
 
-    response.add(ownerJsonObject);
+    response.add(ownerJsonObject[0]);
     return response;
   }
 }

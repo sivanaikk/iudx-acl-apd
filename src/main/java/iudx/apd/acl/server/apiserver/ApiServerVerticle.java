@@ -3,8 +3,8 @@ package iudx.apd.acl.server.apiserver;
 import static iudx.apd.acl.server.apiserver.response.ResponseUtil.generateResponse;
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.apiserver.util.Util.errorResponse;
-import static iudx.apd.acl.server.common.Constants.POLICY_SERVICE_ADDRESS;
 import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
+import static iudx.apd.acl.server.common.Constants.*;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
@@ -18,9 +18,11 @@ import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.TimeoutHandler;
 import iudx.apd.acl.server.apiserver.util.RequestType;
+import iudx.apd.acl.server.authentication.AuthenticationService;
 import iudx.apd.acl.server.common.Api;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
+import iudx.apd.acl.server.database.PostgresService;
 import iudx.apd.acl.server.policy.PolicyService;
 import iudx.apd.acl.server.validation.FailureHandler;
 import iudx.apd.acl.server.validation.ValidationHandler;
@@ -59,6 +61,8 @@ public class ApiServerVerticle extends AbstractVerticle {
   private Api api;
   private PolicyService policyService;
   private String detail;
+  private PostgresService postgresService;
+  private AuthenticationService authenticationService;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, reads the
@@ -74,6 +78,10 @@ public class ApiServerVerticle extends AbstractVerticle {
     /* Define the APIs, methods, endpoints and associated methods. */
     dxApiBasePath = config().getString("dxApiBasePath");
     api = Api.getInstance(dxApiBasePath);
+
+    postgresService = PostgresService.createProxy(vertx, PG_SERVICE_ADDRESS);
+    policyService = PolicyService.createProxy(vertx, POLICY_SERVICE_ADDRESS);
+    authenticationService = AuthenticationService.createProxy(vertx, AUTH_SERVICE_ADDRESS);
 
     router = Router.router(vertx);
     configureCorsHandler(router);
@@ -144,25 +152,21 @@ public class ApiServerVerticle extends AbstractVerticle {
 
   private void postPoliciesHandler(RoutingContext routingContext) {
     JsonObject bodyAsJsonObject = routingContext.body().asJsonObject();
-
+    bodyAsJsonObject.put("userId","4e563a5f-35f0-4f32-92be-8830775a1c5e");
     // TODO: to add user object in the bodyAsJsonObject before calling createPolicy method
     policyService
-        .createPolicy(bodyAsJsonObject)
-        .onComplete(
-            handler -> {
-              if (handler.succeeded()) {
-                LOGGER.info("Policy created successfully ");
-                JsonObject response =
-                    new JsonObject()
-                        .put(TYPE, handler.result().getString(TYPE))
-                        .put(TITLE, handler.result().getString(TITLE))
-                        .put(RESULT, handler.result().getValue(RESULT));
-                handleSuccessResponse(routingContext, 200, response.toString());
-              } else {
-                LOGGER.info("Policy could not be created " + handler.cause());
-                handleFailureResponse(routingContext, handler.cause().getMessage());
-              }
-            });
+      .createPolicy(bodyAsJsonObject)
+      .onComplete(
+        handler -> {
+          if (handler.succeeded()) {
+            LOGGER.info("Policy created successfully ");
+            handleSuccessResponse(
+              routingContext, HttpStatusCode.SUCCESS.getValue(), handler.result().toString());
+          } else {
+            LOGGER.error("Policy could not be created");
+            handleFailureResponse(routingContext, handler.cause().getMessage());
+          }
+        });
   }
 
   private void deletePoliciesHandler(RoutingContext routingContext) {}
@@ -269,7 +273,7 @@ public class ApiServerVerticle extends AbstractVerticle {
    */
   private void handleFailureResponse(RoutingContext routingContext, String failureMessage) {
     HttpServerResponse response = routingContext.response();
-    LOGGER.debug("Failure Message : " + failureMessage);
+    LOGGER.error("Failure Message {}",failureMessage);
 
     try {
       JsonObject jsonObject = new JsonObject(failureMessage);
@@ -281,12 +285,8 @@ public class ApiServerVerticle extends AbstractVerticle {
       ResponseUrn urn;
 
       // get the urn by either type or title
-      if (title != null) {
-        urn = ResponseUrn.fromCode(title);
-      } else {
 
-        urn = ResponseUrn.fromCode(String.valueOf(type));
-      }
+      urn = (title != null) ? ResponseUrn.fromCode(title) :ResponseUrn.fromCode(String.valueOf(type));
       if (jsonObject.getString(DETAIL) != null) {
         detail = jsonObject.getString(DETAIL);
         response
