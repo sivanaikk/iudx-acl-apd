@@ -4,6 +4,8 @@ import static iudx.apd.acl.server.common.ResponseUrn.ROLE_NOT_FOUND;
 
 import iudx.apd.acl.server.validation.exceptions.DxRuntimeException;
 
+import java.util.stream.Stream;
+
 public enum Role {
     PROVIDER("provider"),
     CONSUMER_DELEGATE("consumerDelegate"),
@@ -16,16 +18,13 @@ public enum Role {
         role = value;
     }
 
-    public static Role fromString(String value)
+    public static Role fromString(String roleValue)
     {
-        for(Role val : Role.values())
-        {
-            if(val.getRole().equalsIgnoreCase(value))
-            {
-                return val;
-            }
-        }
-        throw new DxRuntimeException(404, ROLE_NOT_FOUND);
+        return Stream
+                .of(values())
+                .filter(element -> element.role.equalsIgnoreCase(roleValue))
+                .findAny()
+                .orElseThrow(() -> new DxRuntimeException(404, ROLE_NOT_FOUND));
     }
 
     public String getRole() {

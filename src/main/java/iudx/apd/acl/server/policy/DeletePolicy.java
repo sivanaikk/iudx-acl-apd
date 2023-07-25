@@ -76,7 +76,7 @@ public class DeletePolicy {
    * Executes the respective queries
    *
    * @param query SQL Query to be executed
-   * @param tuple exchangeables for the query
+   * @param tuple exchangeable(s) for the query
    * @param handler Result of the query execution is sent as Json Object in a handler
    */
   private void executeQuery(String query, Tuple tuple, Handler<AsyncResult<JsonObject>> handler) {
@@ -173,16 +173,17 @@ public class DeletePolicy {
   public Future<JsonObject> initiateDeletePolicy(JsonArray policyList, User user) {
     policyIdSet = new HashSet<>();
     Promise<JsonObject> promise = Promise.promise();
-    int index = 0;
-    for (var value : policyList) {
-      JsonObject policy = policyList.getJsonObject(index++);
-      if (policyIdSet.contains(UUID.fromString(policy.getString("id")))) {
+
+    policyIdSet = policyList.stream()
+            .map(val -> UUID.fromString(JsonObject.mapFrom(val).getString("id")))
+            .collect(Collectors.toSet());
+    if(policyIdSet.size() != policyList.size())
+    {
         LOG.error("Duplicate policy Ids");
         return Future.failedFuture(
-            getFailureResponse(new JsonObject(), "Duplicate policy Ids present in the request"));
-      }
-      policyIdSet.add(UUID.fromString(policy.getString("id")));
+                getFailureResponse(new JsonObject(), "Duplicate policy Ids present in the request"));
     }
+
     query = COUNT_OF_ACTIVE_POLICIES;
     finalQuery = DELETE_POLICY_QUERY;
     UUID[] policyUuid = policyIdSet.toArray(UUID[]::new);
