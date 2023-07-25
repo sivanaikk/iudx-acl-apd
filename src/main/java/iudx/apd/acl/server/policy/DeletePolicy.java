@@ -13,7 +13,6 @@ import io.vertx.sqlclient.Tuple;
 import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -26,7 +25,6 @@ public class DeletePolicy {
   private static final Logger LOG = LoggerFactory.getLogger(DeletePolicy.class);
   private static final String FAILURE_MESSAGE = "Policy could not be deleted";
   private final PostgresService postgresService;
-  private Set<UUID> policyIdSet;
   private String query;
   private String finalQuery;
   private PgPool pool;
@@ -171,9 +169,8 @@ public class DeletePolicy {
    * @return result of the execution as Json Object
    */
   public Future<JsonObject> initiateDeletePolicy(JsonArray policyList, User user) {
-    policyIdSet = new HashSet<>();
     Promise<JsonObject> promise = Promise.promise();
-    policyIdSet = policyList.stream()
+      Set<UUID> policyIdSet = policyList.stream()
             .map(val -> UUID.fromString(JsonObject.mapFrom(val).getString("id")))
             .collect(Collectors.toSet());
     if(policyIdSet.size() != policyList.size())
