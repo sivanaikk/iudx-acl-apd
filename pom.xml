@@ -31,7 +31,7 @@
         <maven-surefire-report-plugin.version>3.0.0-M7</maven-surefire-report-plugin.version>
         <junit-jupiter.params>5.8.2</junit-jupiter.params>
         <testcontainer.params>1.17.3</testcontainer.params>
-        <testcontainer-postgresService.version>1.17.3</testcontainer-postgresService.version>
+        <testcontainer-postgres.version>1.17.3</testcontainer-postgres.version>
         <jts2geojson.version>0.17.0</jts2geojson.version>
         <elasticsearch-rest-client.version>8.3.3</elasticsearch-rest-client.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -142,6 +142,11 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-junit5</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>9.21.0</version>
+        </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -185,11 +190,6 @@
             <artifactId>vertx-pg-client</artifactId>
         </dependency>
 
-      <dependency>
-        <groupId>com.ongres.scram</groupId>
-        <artifactId>client</artifactId>
-        <version>2.1</version>
-      </dependency>
         <!-- log4j2 logging dependencies-->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -351,22 +351,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>${maven-pmd-plugin.version}</version>
-                <configuration>
-                    <targetJdk>${openjdk.version}</targetJdk>
-                    <rulesets>
-                        <ruleset>./iudx-pmd-ruleset.xml</ruleset>
-                    </rulesets>
-                    <printFailingErrors>true</printFailingErrors>
-                    <!--<maxAllowedViolations>622</maxAllowedViolations>-->
-                    <excludeRoots>
-                        <excludeRoot>target/generated-sources</excludeRoot>
-                    </excludeRoots>
-                </configuration>
-            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -388,90 +372,6 @@
                         <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                     </sourceDirectories>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>${maven-shade-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>dev</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/maven/**</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.SF</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                            <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <manifestEntries>
-                                        <Main-Class>${exec.mainClassDev}</Main-Class>
-                                    </manifestEntries>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/services/io.vertx.core.spi.VerticleFactory
-                                    </resource>
-                                    <resource>META-INF/services/io.vertx.core.spi.VertxServiceProvider
-                                    </resource>
-                                </transformer>
-                            </transformers>
-                            <artifactSet></artifactSet>
-                            <outputFile>${project.build.directory}/${project.artifactId}-dev-${project.version}-fat.jar
-                            </outputFile>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>cluster</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/maven/**</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.SF</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                            <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <manifestEntries>
-                                        <Main-Class>${exec.mainClass}</Main-Class>
-                                    </manifestEntries>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/services/io.vertx.core.spi.VerticleFactory
-                                    </resource>
-                                    <resource>META-INF/services/io.vertx.core.spi.VertxServiceProvider
-                                    </resource>
-                                </transformer>
-                            </transformers>
-                            <artifactSet></artifactSet>
-                            <outputFile>
-                                ${project.build.directory}/${project.artifactId}-cluster-${project.version}-fat.jar
-                            </outputFile>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
@@ -526,27 +426,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${maven-checkstyle-plugin-google.version}</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.puppycrawl.tools</groupId>
-                        <artifactId>checkstyle</artifactId>
-                        <version>${checkstyle.version}</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <!-- <violationSeverity>warning</violationSeverity> -->
-                    <consoleOutput>true</consoleOutput>
-                    <encoding>UTF-8</encoding>
-                    <configLocation>./google_checks.xml</configLocation>
-                    <sourceDirectories>
-                        <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
-                    </sourceDirectories>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
