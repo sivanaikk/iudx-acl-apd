@@ -4,6 +4,7 @@ import io.vertx.core.http.HttpMethod;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class Constants {
 
@@ -17,26 +18,26 @@ public class Constants {
   public static final String HEADER_REFERER = "Referer";
   public static final String HEADER_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
   public static final Set<String> ALLOWED_HEADERS =
-      new HashSet<>(
-          Arrays.asList(
-              HEADER_ACCEPT,
-              HEADER_TOKEN,
-              HEADER_CONTENT_LENGTH,
-              HEADER_CONTENT_TYPE,
-              HEADER_HOST,
-              HEADER_ORIGIN,
-              HEADER_REFERER,
-              HEADER_ALLOW_ORIGIN));
+          new HashSet<>(
+                  Arrays.asList(
+                          HEADER_ACCEPT,
+                          HEADER_TOKEN,
+                          HEADER_CONTENT_LENGTH,
+                          HEADER_CONTENT_TYPE,
+                          HEADER_HOST,
+                          HEADER_ORIGIN,
+                          HEADER_REFERER,
+                          HEADER_ALLOW_ORIGIN));
 
   public static final Set<HttpMethod> ALLOWED_METHODS =
-      new HashSet<>(
-          Arrays.asList(
-              HttpMethod.GET,
-              HttpMethod.POST,
-              HttpMethod.OPTIONS,
-              HttpMethod.DELETE,
-              HttpMethod.PATCH,
-              HttpMethod.PUT));
+          new HashSet<>(
+                  Arrays.asList(
+                          HttpMethod.GET,
+                          HttpMethod.POST,
+                          HttpMethod.OPTIONS,
+                          HttpMethod.DELETE,
+                          HttpMethod.PATCH,
+                          HttpMethod.PUT));
   // request/response params
   public static final String CONTENT_TYPE = "content-type";
   public static final String APPLICATION_JSON = "application/json";
@@ -44,10 +45,22 @@ public class Constants {
   public static final String ROUTE_DOC = "/apis";
   public static final String MIME_TEXT_HTML = "text/html";
   public static final String MSG_BAD_QUERY = "Bad query";
-
-
+  public static final String TYPE = "type";
+  public static final String TITLE = "title";
+  public static final String STATUS_CODE = "statusCode";
+  public static final String RESULT = "result";
+  public static final String DETAIL = "detail";
 
   // endpoints
   public static final String POLICIES_API = "/policies";
   public static final String REQUEST_POLICY_API = "/policies/requests";
+
+
+  // validation
+  public static final int POLICY_ID_MAX_LENGTH = 4000;
+  public static final Pattern POLICY_ID_PATTERN =
+          Pattern.compile(
+                  "[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$");
+
+  //
 }
