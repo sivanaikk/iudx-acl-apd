@@ -36,7 +36,6 @@ public class CreatePolicy {
   public CreatePolicy(PostgresService postgresService) {
     this.postgresService = postgresService;
   }
-
   public Future<JsonObject> initiateCreatePolicy(JsonObject request) {
     Promise<JsonObject> promise = Promise.promise();
     JsonArray policyList = request.getJsonArray("request");

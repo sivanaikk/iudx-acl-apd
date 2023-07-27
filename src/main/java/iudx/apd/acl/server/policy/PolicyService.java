@@ -5,7 +5,9 @@ import io.vertx.codegen.annotations.ProxyGen;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import iudx.apd.acl.server.apiserver.util.User;
 
 @VertxGen
 @ProxyGen
@@ -19,9 +21,9 @@ public interface PolicyService {
 
   /* service operation */
 
-  Future<JsonObject> createPolicy(JsonObject request);
+  Future<JsonObject> createPolicy(JsonObject request, User user);
 
-  Future<JsonObject> deletePolicy(JsonObject policyList);
+  Future<JsonObject> deletePolicy(JsonArray policyList, User user);
 
-  Future<JsonObject> getPolicy(JsonObject request);
+  Future<JsonObject> getPolicy(User user);
 }

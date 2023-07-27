@@ -16,8 +16,6 @@ import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 public class CreatePolicyRequest {
-  private static final Logger LOGGER = LogManager.getLogger(CreatePolicyRequest.class);
-
   private static long defaultExpiryDays;
   private String userEmail;
   private UUID itemId;
@@ -38,7 +36,7 @@ public class CreatePolicyRequest {
   }
 
   public static List<CreatePolicyRequest> jsonArrayToList(
-    JsonArray jsonArray, long defaultExpiryDays) {
+      JsonArray jsonArray, long defaultExpiryDays) {
     CreatePolicyRequest.defaultExpiryDays = defaultExpiryDays;
     List<CreatePolicyRequest> createPolicyRequestList = new ArrayList<>();
 
