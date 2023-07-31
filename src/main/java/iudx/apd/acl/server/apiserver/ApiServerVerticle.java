@@ -3,8 +3,8 @@ package iudx.apd.acl.server.apiserver;
 import static iudx.apd.acl.server.apiserver.response.ResponseUtil.generateResponse;
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.apiserver.util.Util.errorResponse;
-import static iudx.apd.acl.server.common.Constants.*;
 import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
+import static iudx.apd.acl.server.common.Constants.*;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
@@ -170,7 +170,24 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     private void getAccessRequestHandler(RoutingContext routingContext) {}
 
-    private void postPoliciesHandler(RoutingContext routingContext) {}
+    private void postPoliciesHandler(RoutingContext routingContext) {
+                      JsonObject bodyAsJsonObject = routingContext.body().asJsonObject();
+                      // TODO: to add user object in the bodyAsJsonObject before calling createPolicy method
+                      policyService
+                        .createPolicy(bodyAsJsonObject,getProvider())
+                        .onComplete(
+                          handler -> {
+                            if (handler.succeeded()) {
+                              LOGGER.info("Policy created successfully ");
+                              handleSuccessResponse(
+                                routingContext, HttpStatusCode.SUCCESS.getValue(), handler.result().toString());
+                            } else {
+                              LOGGER.error("Policy could not be created");
+                              handleFailureResponse(routingContext, handler.cause().getMessage());
+                            }
+                          });
+    }
+
 
     private void deletePoliciesHandler(RoutingContext routingContext) {
         JsonObject bodyAsJsonObject = routingContext.body().asJsonObject();
@@ -367,5 +384,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                 .putHeader(CONTENT_TYPE, APPLICATION_JSON)
                 .setStatusCode(statusCode.getValue())
                 .end(generateResponse(statusCode, urn, failureMessage).toString());
-    }
+    };
+
 }
+

@@ -18,7 +18,7 @@ public class PolicyVerticle extends AbstractVerticle {
         deletePolicy = new DeletePolicy(postgresService);
         createPolicy = new CreatePolicy(postgresService);
         getPolicy = new GetPolicy(postgresService);
-        policyService = new PolicyServiceImpl(deletePolicy, createPolicy, getPolicy);
+        policyService = new PolicyServiceImpl(deletePolicy, createPolicy, getPolicy,config());
         new ServiceBinder(vertx)
                 .setAddress(POLICY_SERVICE_ADDRESS)
                 .register(PolicyService.class, policyService);

@@ -15,11 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-// @DataObject(generateConverter = true)
 public class CreatePolicyRequest {
-  private static final Logger LOGGER = LogManager.getLogger(CreatePolicyRequest.class);
-
   private static long defaultExpiryDays;
   private String userEmail;
   private UUID itemId;
@@ -34,7 +30,7 @@ public class CreatePolicyRequest {
     createPolicyRequest.setUserEmail(jsonObject.getString("userEmail"));
     createPolicyRequest.setItemId(jsonObject.getString("itemId"));
     createPolicyRequest.setItemType(
-        ItemType.valueOf(jsonObject.getString("itemType").toUpperCase()));
+      ItemType.valueOf(jsonObject.getString("itemType").toUpperCase()));
     createPolicyRequest.setExpiryTime(jsonObject.getString("expiryTime"));
     return createPolicyRequest;
   }
@@ -45,9 +41,9 @@ public class CreatePolicyRequest {
     List<CreatePolicyRequest> createPolicyRequestList = new ArrayList<>();
 
     List<JsonObject> jsonObjectList =
-        IntStream.range(0, jsonArray.size())
-            .mapToObj(jsonArray::getJsonObject)
-            .collect(Collectors.toList());
+      IntStream.range(0, jsonArray.size())
+        .mapToObj(jsonArray::getJsonObject)
+        .collect(Collectors.toList());
 
     for (JsonObject jsonObject : jsonObjectList) {
       createPolicyRequestList.add(fromJsonToCreatePolicy(jsonObject));
@@ -81,15 +77,15 @@ public class CreatePolicyRequest {
         this.itemType = itemType;
       } else {
         throw new IllegalArgumentException(
-            "Invalid item type. Allowed values are 'RESOURCE' and 'RESOURCE_GROUP'.");
+          "Invalid item type. Allowed values are 'RESOURCE' and 'RESOURCE_GROUP'.");
       }
     } else {
       throw new IllegalArgumentException("Item type cannot be null.");
     }
   }
 
-  public String getExpiryTime() {
-    return expiryTime.toString();
+  public LocalDateTime getExpiryTime() {
+    return expiryTime;
   }
 
   public void setExpiryTime(String expiryTime) {
@@ -121,17 +117,17 @@ public class CreatePolicyRequest {
   @Override
   public String toString() {
     return "userEmail="
-        + userEmail
-        + ", itemId='"
-        + itemId
-        + '\''
-        + ", itemType='"
-        + itemType
-        + '\''
-        + ", expiryTime='"
-        + expiryTime
-        + '\''
-        + ", constraints="
-        + constraints;
+      + userEmail
+      + ", itemId='"
+      + itemId
+      + '\''
+      + ", itemType='"
+      + itemType
+      + '\''
+      + ", expiryTime='"
+      + expiryTime
+      + '\''
+      + ", constraints="
+      + constraints;
   }
 }

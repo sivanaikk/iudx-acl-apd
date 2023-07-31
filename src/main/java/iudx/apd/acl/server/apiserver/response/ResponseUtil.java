@@ -10,14 +10,14 @@ public class ResponseUtil {
   }
 
   public static JsonObject generateResponse(
-      HttpStatusCode statusCode, ResponseUrn urn, String message) {
+    HttpStatusCode statusCode, ResponseUrn urn, String message) {
     String type = urn.getUrn();
 
     return new RestResponse.Builder()
-        .withMessage(message)
-        .withType(type)
-        .withTitle(statusCode.getDescription())
-        .build()
-        .toJson();
+      .withMessage(message)
+      .withType(type)
+      .withTitle(statusCode.getDescription())
+      .build()
+      .toJson();
   }
 }
