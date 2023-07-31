@@ -170,7 +170,24 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     private void getAccessRequestHandler(RoutingContext routingContext) {}
 
-    private void postPoliciesHandler(RoutingContext routingContext) {}
+    private void postPoliciesHandler(RoutingContext routingContext) {
+        JsonObject bodyAsJsonObject = routingContext.body().asJsonObject();
+        // TODO: to add user object in the bodyAsJsonObject before calling createPolicy method
+        policyService
+                .createPolicy(bodyAsJsonObject,getProvider())
+                .onComplete(
+                        handler -> {
+                            if (handler.succeeded()) {
+                                LOGGER.info("Policy created successfully ");
+                                handleSuccessResponse(
+                                        routingContext, HttpStatusCode.SUCCESS.getValue(), handler.result().toString());
+                            } else {
+                                LOGGER.error("Policy could not be created");
+                                handleFailureResponse(routingContext, handler.cause().getMessage());
+                            }
+                        });
+    }
+
 
     private void deletePoliciesHandler(RoutingContext routingContext) {
         JsonObject bodyAsJsonObject = routingContext.body().asJsonObject();

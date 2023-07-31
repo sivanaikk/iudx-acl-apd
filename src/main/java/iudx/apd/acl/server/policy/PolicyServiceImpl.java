@@ -14,17 +14,33 @@ public class PolicyServiceImpl implements PolicyService {
     private final GetPolicy getPolicy;
     private final CreatePolicy createPolicy;
 
+    JsonObject config ;
     public PolicyServiceImpl(
-            DeletePolicy deletePolicy, CreatePolicy createPolicy, GetPolicy getPolicy) {
+            DeletePolicy deletePolicy, CreatePolicy createPolicy, GetPolicy getPolicy,JsonObject config) {
         this.deletePolicy = deletePolicy;
         this.createPolicy = createPolicy;
         this.getPolicy = getPolicy;
+        this.config = config;
     }
 
     @Override
     public Future<JsonObject> createPolicy(JsonObject request, User user) {
-        return null;
+        Promise<JsonObject> promise = Promise.promise();
+
+        request.put("defaultExpiryDays", config.getLong("defaultExpiryDays"));
+        createPolicy
+                .initiateCreatePolicy(request,user)
+                .onComplete(
+                        handler -> {
+                            if (handler.succeeded()) {
+                                promise.complete(handler.result());
+                            } else {
+                                promise.fail(handler.cause().getMessage());
+                            }
+                        });
+        return promise.future();
     }
+
 
     @Override
     public Future<JsonObject> deletePolicy(JsonArray policyList, User user) {
