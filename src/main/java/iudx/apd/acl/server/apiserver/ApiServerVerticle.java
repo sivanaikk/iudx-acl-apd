@@ -171,10 +171,10 @@ public class ApiServerVerticle extends AbstractVerticle {
     private void getAccessRequestHandler(RoutingContext routingContext) {}
 
     private void postPoliciesHandler(RoutingContext routingContext) {
-                      JsonObject bodyAsJsonObject = routingContext.body().asJsonObject();
-                      // TODO: to add user object in the bodyAsJsonObject before calling createPolicy method
+                      JsonObject requestBody = routingContext.body().asJsonObject();
+                      // TODO: to add user object in the requestBody before calling createPolicy method
                       policyService
-                        .createPolicy(bodyAsJsonObject,getProvider())
+                        .createPolicy(requestBody,getProvider())
                         .onComplete(
                           handler -> {
                             if (handler.succeeded()) {
