@@ -1300,9 +1300,9 @@ components:
         - title
         - detail
       example:
-        type: urn:dx:acl:resourceNotFound
-        title: Not Found
-        detail: Resource Not Found
+          type: urn:dx:acl:resourceNotFound
+          title: Not Found
+          detail: Resource Not Found
     deletePolicyErrorResponse:
       title: deletePolicyErrorResponse
       type: object
@@ -1318,9 +1318,9 @@ components:
         - title
         - detail
       example:
-        type: urn:dx:acl:badRequest
-        title: Bad Request
-        detail: Policy could not be deleted, count not equal to list of policies to be deleted
+          type: urn:dx:acl:badRequest
+          title: Bad Request
+          detail: Policy could not be deleted, count not equal to list of policies to be deleted
     Unauthorized:
       type: object
       properties:
@@ -1338,9 +1338,9 @@ components:
         - title
         - detail
       example:
-        type: urn:dx:acl:MissingAuthenticationToken
-        title: Missing auth details
-        detail: Missing auth details
+          type: urn:dx:acl:MissingAuthenticationToken
+          title: Missing auth details
+          detail: Missing auth details
     ErrorResponse:
       type: object
       properties:
