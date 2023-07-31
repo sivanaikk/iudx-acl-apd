@@ -29,7 +29,7 @@ public class PolicyServiceImpl implements PolicyService {
 
       request.put("defaultExpiryDays", config.getLong("defaultExpiryDays"));
       createPolicy
-        .initiateCreatePolicy(request)
+        .initiateCreatePolicy(request,user)
         .onComplete(
           handler -> {
             if (handler.succeeded()) {

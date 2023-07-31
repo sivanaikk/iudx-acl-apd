@@ -17,6 +17,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
 import io.vertx.sqlclient.Tuple;
+import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.policy.util.Status;
@@ -36,10 +37,10 @@ public class CreatePolicy {
   public CreatePolicy(PostgresService postgresService) {
     this.postgresService = postgresService;
   }
-  public Future<JsonObject> initiateCreatePolicy(JsonObject request) {
+  public Future<JsonObject> initiateCreatePolicy(JsonObject request, User user) {
     Promise<JsonObject> promise = Promise.promise();
     JsonArray policyList = request.getJsonArray("request");
-    UUID userId = UUID.fromString(request.getString("userId"));
+    UUID userId = UUID.fromString(user.getUserId());
     List<CreatePolicyRequest> createPolicyRequestList =
         CreatePolicyRequest.jsonArrayToList(policyList, request.getLong("defaultExpiryDays"));
 
