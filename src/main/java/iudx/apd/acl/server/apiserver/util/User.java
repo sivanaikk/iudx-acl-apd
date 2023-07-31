@@ -62,6 +62,6 @@ public class User {
     return userId;
   }
   public String toString(){
-  return  "User details :: \nuserId - " + userId + ",\n emailId - " + emailId + ",\n userRole - " + userRole + ",\n firstName - " + firstName + ",\n lastName - " + lastName;
+    return  "User details :: \nuserId - " + userId + ",\n emailId - " + emailId + ",\n userRole - " + userRole + ",\n firstName - " + firstName + ",\n lastName - " + lastName;
   }
 }

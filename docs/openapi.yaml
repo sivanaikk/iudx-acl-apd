@@ -195,6 +195,19 @@ paths:
               schema:
                 type: string
               description: application/json
+        '403':
+          description: |-
+            Forbidden
+            - User does not own the policy or is not a delegate to the owner of the policy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getPolicyInvalidUserResponse'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
       security:
         - authorization: []
       servers:
@@ -918,6 +931,19 @@ paths:
               schema:
                 type: string
               description: application/json
+        '403':
+          description: |-
+            Forbidden
+            - User does not own the policy or is not a delegate to the owner of the policy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/updateNotificationInvalidUserResponse'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
       security:
         - authorization: []
       servers:
@@ -1143,6 +1169,19 @@ paths:
                     type: 'urn:acl:as:InvalidRole'
                     title: User does not have roles to use API
                     detail: User with consumer role may call the API
+        '403':
+          description: |-
+            Forbidden
+            - User does not own the policy or is not a delegate to the owner of the policy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/deleteNotificationInvalidUserResponse'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
       security:
         - authorization: []
       servers:
@@ -1192,6 +1231,60 @@ components:
         type: urn:dx:acl:forbidden
         title: Access Denied
         detail: Policy could not be deleted, user doesn't own the policy
+    getPolicyInvalidUserResponse:
+      title: getPolicyInvalidUserResponse
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:forbidden
+        title: Access Denied
+        detail: Policy could not be fetched, user doesn't own the policy
+    deleteNotificationInvalidUserResponse:
+      title: deleteNotificationInvalidUserResponse
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:forbidden
+        title: Access Denied
+        detail: Notification could not be deleted, notification doesn't belong to the user
+    updateNotificationInvalidUserResponse:
+      title: updateNotificationInvalidUserResponse
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:forbidden
+        title: Access Denied
+        detail: Notification could not be updated, notification doesn't belong to the user
     policyNotFound:
       title: policyNotFound
       type: object
@@ -1207,9 +1300,9 @@ components:
         - title
         - detail
       example:
-          type: urn:dx:acl:resourceNotFound
-          title: Not Found
-          detail: Resource Not Found
+        type: urn:dx:acl:resourceNotFound
+        title: Not Found
+        detail: Resource Not Found
     deletePolicyErrorResponse:
       title: deletePolicyErrorResponse
       type: object
@@ -1225,9 +1318,9 @@ components:
         - title
         - detail
       example:
-          type: urn:dx:acl:badRequest
-          title: Bad Request
-          detail: Policy could not be deleted, count not equal to list of policies to be deleted
+        type: urn:dx:acl:badRequest
+        title: Bad Request
+        detail: Policy could not be deleted, count not equal to list of policies to be deleted
     Unauthorized:
       type: object
       properties:
@@ -1245,9 +1338,9 @@ components:
         - title
         - detail
       example:
-          type: urn:dx:acl:MissingAuthenticationToken
-          title: Missing auth details
-          detail: Missing auth details
+        type: urn:dx:acl:MissingAuthenticationToken
+        title: Missing auth details
+        detail: Missing auth details
     ErrorResponse:
       type: object
       properties:

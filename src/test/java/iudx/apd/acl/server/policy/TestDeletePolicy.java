@@ -102,20 +102,20 @@ public class TestDeletePolicy {
         policyList.add(new JsonObject().put("id", utility.getPolicyId()));
         policyList.add(new JsonObject().put("id", utility.getOwnerId()));
 
-    deletePolicy
-        .initiateDeletePolicy(policyList, owner)
-        .onComplete(
-            handler -> {
-              if (handler.succeeded()) {
-                vertxTestContext.failNow("Succeeded with an invalid policy in policy list");
-              } else {
-                  JsonObject result =  new JsonObject(handler.cause().getMessage());
-                  assertEquals(400, result.getInteger(TYPE));
-                  assertEquals(ResponseUrn.BAD_REQUEST_URN.getUrn(), result.getString(TITLE));
-                  assertEquals("Policy could not be deleted, count not equal to list of policies to be deleted", result.getString(DETAIL));
-                vertxTestContext.completeNow();
-              }
-            });
+        deletePolicy
+                .initiateDeletePolicy(policyList, owner)
+                .onComplete(
+                        handler -> {
+                            if (handler.succeeded()) {
+                                vertxTestContext.failNow("Succeeded with an invalid policy in policy list");
+                            } else {
+                                JsonObject result =  new JsonObject(handler.cause().getMessage());
+                                assertEquals(400, result.getInteger(TYPE));
+                                assertEquals(ResponseUrn.BAD_REQUEST_URN.getUrn(), result.getString(TITLE));
+                                assertEquals("Policy could not be deleted, count not equal to list of policies to be deleted", result.getString(DETAIL));
+                                vertxTestContext.completeNow();
+                            }
+                        });
     }
 
     @Test
@@ -282,20 +282,20 @@ public class TestDeletePolicy {
     public void testExecuteQueryWithInvalidQuery(VertxTestContext vertxTestContext)
     {
         String query = "UPDATE abcd SET status='DELETED' WHERE _id = ANY ('{shjdfgsfhguergugr}'::uuid[])";
-    deletePolicy.executeQuery(
-        query,
-        Tuple.tuple(),
-        handler -> {
-          if (handler.succeeded()) {
-            vertxTestContext.failNow("Succeeded for non-existent relation or table");
-          } else {
-              JsonObject result = new JsonObject(handler.cause().getMessage());
-              assertEquals(500, result.getInteger(TYPE));
-              assertEquals(ResponseUrn.DB_ERROR_URN.getMessage(), result.getString(TITLE));
-              assertEquals("Failure while executing query",result.getString(DETAIL));
-              vertxTestContext.completeNow();
-          }
-        });
+        deletePolicy.executeQuery(
+                query,
+                Tuple.tuple(),
+                handler -> {
+                    if (handler.succeeded()) {
+                        vertxTestContext.failNow("Succeeded for non-existent relation or table");
+                    } else {
+                        JsonObject result = new JsonObject(handler.cause().getMessage());
+                        assertEquals(500, result.getInteger(TYPE));
+                        assertEquals(ResponseUrn.DB_ERROR_URN.getMessage(), result.getString(TITLE));
+                        assertEquals("Failure while executing query",result.getString(DETAIL));
+                        vertxTestContext.completeNow();
+                    }
+                });
 
     }
 

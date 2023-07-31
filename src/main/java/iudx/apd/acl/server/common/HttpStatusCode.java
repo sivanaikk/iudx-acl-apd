@@ -21,7 +21,7 @@ public enum HttpStatusCode {
   METHOD_NOT_ALLOWED(405, "Method Not Allowed", "urn:dx:acl:methodNotAllowed"),
   NOT_ACCEPTABLE(406, "Not Acceptable", "urn:dx:acl:notAcceptable"),
   PROXY_AUTHENTICATION_REQUIRED(
-      407, "Proxy Authentication Required", "urn:dx:acl:proxyAuthenticationRequired"),
+          407, "Proxy Authentication Required", "urn:dx:acl:proxyAuthenticationRequired"),
   REQUEST_TIMEOUT(408, "Request Timeout", "urn:dx:acl:requestTimeout"),
   CONFLICT(409, "Conflict", "urn:dx:acl:conflict"),
   GONE(410, "Gone", "urn:dx:acl:gone"),
@@ -41,9 +41,9 @@ public enum HttpStatusCode {
   PRECONDITION_REQUIRED(428, "Precondition Required", "urn:dx:acl:preconditionRequired"),
   TOO_MANY_REQUESTS(429, "Too Many Requests", "urn:dx:acl:tooManyRequests"),
   REQUEST_HEADER_FIELDS_TOO_LARGE(
-      431, "Request Header Fields Too Large", "urn:dx:acl:requestHeaderFieldsTooLarge"),
+          431, "Request Header Fields Too Large", "urn:dx:acl:requestHeaderFieldsTooLarge"),
   UNAVAILABLE_FOR_LEGAL_REASONS(
-      451, "Unavailable For Legal Reasons", "urn:dx:acl:unavailableForLegalReasons"),
+          451, "Unavailable For Legal Reasons", "urn:dx:acl:unavailableForLegalReasons"),
 
   // 5xx: Server Error
   INTERNAL_SERVER_ERROR(500, "Internal Server Error", "urn:dx:acl:internalServerError"),
@@ -52,13 +52,13 @@ public enum HttpStatusCode {
   SERVICE_UNAVAILABLE(503, "Service Unavailable", "urn:dx:acl:serviceUnavailable"),
   GATEWAY_TIMEOUT(504, "Gateway Timeout", "urn:dx:acl:gatewayTimeout"),
   HTTP_VERSION_NOT_SUPPORTED(
-      505, "HTTP Version Not Supported", "urn:dx:acl:httpVersionNotSupported"),
+          505, "HTTP Version Not Supported", "urn:dx:acl:httpVersionNotSupported"),
   VARIANT_ALSO_NEGOTIATES(506, "Variant Also Negotiates", "urn:dx:acl:variantAlsoNegotiates"),
   INSUFFICIENT_STORAGE(507, "Insufficient Storage", "urn:dx:acl:insufficientStorage"),
   LOOP_DETECTED(508, "Loop Detected", "urn:dx:acl:loopDetected"),
   NOT_EXTENDED(510, "Not Extended", "urn:dx:acl:notExtended"),
   NETWORK_AUTHENTICATION_REQUIRED(
-      511, "Network Authentication Required", "urn:dx:acl:networkAuthenticationRequired");
+          511, "Network Authentication Required", "urn:dx:acl:networkAuthenticationRequired");
 
   private final int value;
   private final String description;
