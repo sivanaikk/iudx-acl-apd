@@ -52,7 +52,6 @@ ALTER TABLE user_table OWNER TO ${flyway:user};
 CREATE TABLE IF NOT EXISTS resource_entity
 (
    _id uuid NOT NULL,
-   cat_id varchar NOT NULL,
    provider_id uuid NOT NULL,
    resource_group_id uuid,
    created_at timestamp without time zone NOT NULL,
@@ -69,7 +68,7 @@ ALTER TABLE resource_entity OWNER TO ${flyway:user};
 CREATE TABLE IF NOT EXISTS policy
 (
    _id uuid DEFAULT uuid_generate_v4 () NOT NULL,
-   user_id uuid NOT NULL,
+   user_emailid varchar NOT NULL,
    item_id uuid NOT NULL,
    item_type _item_type NOT NULL,
    owner_id uuid NOT NULL,
@@ -79,7 +78,6 @@ CREATE TABLE IF NOT EXISTS policy
    updated_at timestamp without time zone NOT NULL,
    constraints json NOT NULL,
    CONSTRAINT policy_pk PRIMARY KEY (_id),
-   CONSTRAINT user_id_fk FOREIGN KEY(user_id) REFERENCES user_table(_id),
    CONSTRAINT owner_id_fk FOREIGN KEY(owner_id) REFERENCES user_table(_id),
    CONSTRAINT item_id_fk FOREIGN KEY(item_id) REFERENCES resource_entity(_id)
 );

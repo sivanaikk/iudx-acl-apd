@@ -22,7 +22,7 @@ public enum Role {
     {
         return Stream
                 .of(values())
-                .filter(element -> element.role.equalsIgnoreCase(roleValue))
+                .filter(element -> element.getRole().equalsIgnoreCase(roleValue))
                 .findAny()
                 .orElseThrow(() -> new DxRuntimeException(404, ROLE_NOT_FOUND));
     }

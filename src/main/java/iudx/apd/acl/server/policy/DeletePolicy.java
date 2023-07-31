@@ -79,7 +79,7 @@ public class DeletePolicy {
    * @param tuple exchangeable(s) for the query
    * @param handler Result of the query execution is sent as Json Object in a handler
    */
-  private void executeQuery(String query, Tuple tuple, Handler<AsyncResult<JsonObject>> handler) {
+  public void executeQuery(String query, Tuple tuple, Handler<AsyncResult<JsonObject>> handler) {
 
     pool = postgresService.getPool();
     Collector<Row, ?, List<JsonObject>> rowListCollector =
@@ -174,6 +174,7 @@ public class DeletePolicy {
     policyIdSet = new HashSet<>();
     Promise<JsonObject> promise = Promise.promise();
 
+    LOG.info("What is the policyList here : " + policyList.toString());
     policyIdSet = policyList.stream()
             .map(val -> UUID.fromString(JsonObject.mapFrom(val).getString("id")))
             .collect(Collectors.toSet());
