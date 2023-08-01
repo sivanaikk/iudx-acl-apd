@@ -32,7 +32,7 @@ services:
     ports:
       - "8443:8443"
     networks:
-      - fs-net
+      - acl-apd-net
     depends_on:
       - "zookeeper"
 
