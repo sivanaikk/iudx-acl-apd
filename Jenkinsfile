@@ -34,7 +34,7 @@ pipeline {
           thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ],
           tools: [ JUnit(pattern: 'target/surefire-reports/*.xml') ]
         )
-        jacoco classPattern: 'target/classes', execPattern: 'target/jacoco.exec', sourcePattern: 'src/main/java', exclusionPattern: 'iudx/file/server/apiserver/FileServerVerticle.class,iudx/file/server/apiserver/FileServerVerticle**,iudx/file/server/authenticator/AuthenticationService.class,iudx/file/server/database/DatabaseService.class,**/JwtDataConverter.class,**/*VertxEBProxy.class,**/Constants.class,**/*VertxProxyHandler.class,**/*Verticle.class,iudx/file/server/deploy/**,iudx/file/server/databroker/DataBrokerServiceImpl.class'
+        jacoco classPattern: 'target/classes', execPattern: 'target/jacoco.exec', sourcePattern: 'src/main/java', exclusionPattern: ''
       }
       post{
             always {
@@ -49,7 +49,7 @@ pipeline {
                         enabledForFailure: true,
                       	blameDisabled: true,
                         forensicsDisabled: true,
-                        qualityGates: [[threshold:4, type: 'TOTAL', unstable: false]],
+                        qualityGates: [[threshold:0, type: 'TOTAL', unstable: false]],
                         tool: pmdParser(pattern: 'target/pmd.xml')
                       )
                     }
