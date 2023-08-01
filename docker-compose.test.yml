@@ -1,6 +1,6 @@
 version: '3.7'
 networks:
-  fs-net:
+  acl-apd-net:
     driver: bridge
 services:
   test:
