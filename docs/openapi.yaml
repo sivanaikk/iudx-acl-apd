@@ -9,12 +9,12 @@ info:
   license:
     name: MIT
 servers:
-  - url: ''
-    description: Production
-  - url: ''
-    description: Development
+  - url: '/ngsi-ld/v1'
+    description: 'Production'
+  - url: '/ngsi-ld/v1'
+    description: 'Development'
 paths:
-  /policies:
+  /ngsi-ld/v1/policies:
     get:
       tags:
         - Policies APIs
@@ -39,153 +39,30 @@ paths:
         '200':
           description: |-
             Successfully lists the policies
-
           content:
             application/json:
               schema:
-                required:
-                  - type
-                  - title
-                  - result
-                properties:
-                  type:
-                    type: string
-                  title:
-                    type: string
-                  result:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        policyId:
-                          type: string
-                        ownerId:
-                          type: string
-                        itemId:
-                          type: string
-                        itemType:
-                          type: string
-                          enum: [ "RESOURCE_GROUP", "RESOURCE" ]
-                        consumerEmailId:
-                          type: string
-                        consumerFirstName:
-                          type: string
-                        consumerLastName:
-                          type: string
-                        status:
-                          type: string
-                          enum: [ "ACTIVE","DELETED" ]
-                        expiryAt:
-                          type: string
-                        ownerEmailId:
-                          type: string
-                        ownerFirstName:
-                          type: string
-                        ownerLastName:
-                          type: string
-                        constraints:
-                          type: object
-                        properties:
-                          access:
-                          type: array
-                x-examples:
-                  Example 1:
-                    type: 'urn:acl:as:Success'
-                    title: policy read
-                    results:
-                      - policyId: 5055ca31-937b-4a5e-b301-449ca35c123b
-                        itemType: resource_group
-                        expiryTime: '2022-09-09T04:22:36'
-                        constraints:
-                          access:
-                            - sub
-                        itemId: pune-env-flood
-                        user:
-                          email: vasanth.rajaraman@datakaveri.org
-                          name:
-                            firstName: Vasanth
-                            lastName: Rajaraman
-                          id: 15c7506f-c800-48d6-adeb-0542b03947c6
-                        owner:
-                          email: bob_provider@iisc.ac.in
-                          name:
-                            firstName: Bob
-                            lastName: Provider
-                          id: 844e251b-574b-46e6-9247-f76f1f70a637
-              examples:
-                Listing of policies set for a resource group:
-                  value:
-                    type: 'urn:dx:acl:success'
-                    title: Success
-                    result:
-                      - policyId: aaaaaaaa-6473-3546-5436-8758aaaa5897
-                        ownerId: bbbbbbbb-8958-2445-2354-7587aaaa6776
-                        itemId: cccccccc-6754-8958-2456-3452aaaa5436
-                        itemType: RESOURCE_GROUP
-                        consumerEmailId: dummyConsumerAbcd@example.com
-                        consumerFirstName: Dummy
-                        consumerLastName: Consumer
-                        status: ACTIVE
-                        expiryAt: 2024-09-05T20:00:19
-                        ownerEmailId: dummyProvider@example.com
-                        ownerFirstName: Dummy
-                        ownerLastName: Provider
-                        constraints:
-                          access:
-                            - sub
-                      - policyId: aaaaaaaa-9870-7676-7456-2454aaaa1111
-                        ownerId: bbbbbbbb-2652-1167-1766-4587aaaa2454
-                        itemId: cccccccc-2452-2455-5656-1111aaaa7878
-                        itemType: RESOURCE_GROUP
-                        consumerEmailId: dummyConsumer@example.com
-                        consumerFirstName: Dummy
-                        consumerLastName: Consumer
-                        status: ACTIVE
-                        expiryAt: 2024-08-05T20:00:29
-                        ownerEmailId: dummyProviderTwo@example.com
-                        ownerFirstName: Dummy
-                        ownerLastName: ProviderTwo
-                        constraints:
-                          access:
-                            - sub
-                Listing of policies set for a resource:
-                  value:
-                    type: "urn:dx:acl:success"
-                    title: Success
-                    result:
-                      - policyId: aaaaaaaa-1234-1234-1234-1234aaaa1234
-                        ownerId: bbbbbbbb-5678-5678-5678-5678aaaa5678
-                        itemId: cccccccc-4576-3455-5645-3565aaaa4255
-                        itemType: RESOURCE
-                        consumerEmailId: dummyConsumer@example.com
-                        consumerFirstName: Some
-                        consumerLastName: Consumer
-                        status: ACTIVE
-                        expiryAt: 2024-03-05T20:00:19
-                        ownerEmailId: someProvider@example.com
-                        ownerFirstName: Some
-                        ownerLastName: Provider
-                        constraints:
-                          access:
-                            - sub
+                oneOf:
+                  - $ref: '#/components/schemas/getPolicySuccessResponse1'
+                  - $ref: '#/components/schemas/getPolicySuccessResponse2'
           headers:
             Content-Type:
               schema:
                 type: string
               description: application/json
         '401':
-          description: '- unauthorized - `token` invalid/expired'
+          description: '- Unauthorized - `token` invalid/expired'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/unauthorized'
+                $ref: '#/components/schemas/Unauthorized'
           headers:
             Content-Type:
               schema:
                 type: string
               description: application/json
         '404':
-          description: '- unauthorized - `token` invalid/expired'
+          description: '- Unauthorized - `token` invalid/expired'
           content:
             application/json:
               schema:
@@ -210,11 +87,6 @@ paths:
               description: application/json
       security:
         - authorization: []
-      servers:
-        - url: ''
-          description: Production
-        - url: ''
-          description: Development
 
 
     delete:
@@ -290,18 +162,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/deletePolicyErrorResponse'
           headers:
             Content-Type:
               schema:
                 type: string
               description: application/json
         '401':
-          description: '- unauthorized - `token` invalid/expired'
+          description: '- Unauthorized - `token` invalid/expired'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/unauthorized'
+                $ref: '#/components/schemas/Unauthorized'
           headers:
             Content-Type:
               schema:
@@ -322,11 +194,8 @@ paths:
               description: application/json
       security:
         - authorization: []
-      servers:
-        - url: ''
-          description: Production
-        - url: ''
-          description: Development
+
+
     post:
       tags:
         - Policies APIs
@@ -364,7 +233,7 @@ paths:
         description: |
           Request body will be an JsonObject containing JsonArray of requests. The requests can be either for user policies or APD policies.
           ### User Policy Request :
-          - `userEmail` : emailId of the user for whom policy is to be set.
+          - `userId` : emailId of the user for whom policy is to be set.
           - `itemId` : UUID value of the item for which policy is to be set
           - `itemType` : Enum value of the item type
           - `expiryTime` : ISO8601 compatible time in UTC(yyyy-MM-dd'T'HH:mm:ss). optional field, if not sent default expiry is set for the policy
@@ -422,12 +291,12 @@ paths:
                     - userId: 89bbe934-5f18-4f57-b68e-fb821ba77291
                       itemId: example-resource-group
                       itemType: resource_group
-                      expiryTime: '2023-08-30T21:10:06.834292'
+                      expiryTime: '2023-08-30T21:10:06'
                       constraints: {}
                     - userId: 89bbe934-5f18-4f57-b68e-fb821ba77292
                       itemId: example-resource-group
                       itemType: resource_group
-                      expiryTime: '2023-08-30T21:10:06.834292'
+                      expiryTime: '2023-08-30T21:10:06'
                       constraints: {}
             examples:
               Single request for resource group user policy:
@@ -476,7 +345,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/createPolicySuccessResponse'
+                type: object
+                properties:
+                  '':
+                    type: string
         '400':
           description: |-
             - Missing or malformed data
@@ -492,41 +364,29 @@ paths:
                 type: string
               description: application/json
         '401':
-          description: '- unauthorized - `token` invalid/expired'
+          description: '- Unauthorized - `token` invalid/expired'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/unauthorized'
+                $ref: '#/components/schemas/Unauthorized'
           headers:
             Content-Type:
               schema:
                 type: string
               description: application/json
-        '409':
+        '403':
           description: |-
-
+            - If the user trying to set a policy does not have an  `provider` or `delegate` role
+            - If the user is neither the owner of the resource item/group or a delegate to the owner of the resource
             - If a valid policy already exists
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/conflictResponse'
-        '500':
-          description: |-
-
-            - Any kind of Database failure :
-              - Foreign key failure.
-              - Connection failure.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/internalServerErrorResponse'
+                type: object
       security:
         - authorization: []
-      servers:
-        - url: ''
-          description: Production
-        - url: ''
-          description: Development
+
+
   /policies/requests:
     get:
       tags:
@@ -557,11 +417,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/accessRequest'
+                $ref: '#/components/schemas/AccessRequest'
               examples:
                 ListResults:
                   value:
-                    type: 'urn:dx:acl:success'
+                    type: 'urn:acl:as:Success'
                     title: Access requests
                     results:
                       - requestId: ea48d233-5d3b-4bdb-9545-691680c99cee
@@ -592,11 +452,11 @@ paths:
                 type: string
               description: application/json
         '401':
-          description: '- unauthorized - `token` invalid/expired'
+          description: '- Unauthorized - `token` invalid/expired'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/unauthorized'
+                $ref: '#/components/schemas/Unauthorized'
               examples:
                 example-1:
                   value:
@@ -610,11 +470,8 @@ paths:
               description: application/json
       security:
         - authorization: []
-      servers:
-        - url: ''
-          description: Production
-        - url: ''
-          description: Development
+
+
     post:
       tags:
         - Notifications APIs
@@ -706,11 +563,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/accessRequest'
+                $ref: '#/components/schemas/AccessRequest'
               examples:
                 Example:
                   value:
-                    type: 'urn:dx:acl:success'
+                    type: 'urn:acl:as:Success'
                     title: Access requests
                     results:
                       - requestId: bd5f0bb3-c02c-4e3d-b75c-a6eb8144bddc
@@ -758,11 +615,11 @@ paths:
                 type: string
               description: application/json
         '401':
-          description: '- unauthorized - `token` invalid/expired'
+          description: '- Unauthorized - `token` invalid/expired'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/unauthorized'
+                $ref: '#/components/schemas/Unauthorized'
               examples:
                 Example:
                   value:
@@ -776,11 +633,8 @@ paths:
               description: application/json
       security:
         - authorization: []
-      servers:
-        - url: ''
-          description: Production
-        - url: ''
-          description: Development
+
+
     put:
       tags:
         - Notifications APIs
@@ -883,11 +737,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/accessRequest'
+                $ref: '#/components/schemas/AccessRequest'
               examples:
                 Update:
                   value:
-                    type: 'urn:dx:acl:success'
+                    type: 'urn:acl:as:Success'
                     title: Access requests
                     results:
                       - requestId: bd5f0bb3-c02c-4e3d-b75c-a6eb8144bddc
@@ -929,11 +783,24 @@ paths:
                 type: string
               description: application/json
         '401':
-          description: '- unauthorized - `token` invalid/expired'
+          description: '- Unauthorized - `token` invalid/expired'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/unauthorized'
+                $ref: '#/components/schemas/Unauthorized'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '403':
+          description: |-
+            Forbidden
+            - User does not own the policy or is not a delegate to the owner of the policy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/updateNotificationInvalidUserResponse'
           headers:
             Content-Type:
               schema:
@@ -941,11 +808,8 @@ paths:
               description: application/json
       security:
         - authorization: []
-      servers:
-        - url: ''
-          description: Production
-        - url: ''
-          description: Development
+
+
     delete:
       tags:
         - Notifications APIs
@@ -1063,7 +927,7 @@ paths:
                               type: string
                 x-examples:
                   example-1:
-                    type: 'urn:dx:acl:success'
+                    type: 'urn:acl:as:Success'
                     title: deleted requests
                     results:
                       - requestId: 383ea497-0de9-4d6f-94c1-e3dd1328d944
@@ -1091,7 +955,7 @@ paths:
               examples:
                 successful deletion:
                   value:
-                    type: 'urn:dx:acl:success'
+                    type: 'urn:acl:as:Success'
                     title: deleted requests
                     results:
                       - requestId: 383ea497-0de9-4d6f-94c1-e3dd1328d944
@@ -1164,32 +1028,196 @@ paths:
                     type: 'urn:acl:as:InvalidRole'
                     title: User does not have roles to use API
                     detail: User with consumer role may call the API
+        '403':
+          description: |-
+            Forbidden
+            - User does not own the policy or is not a delegate to the owner of the policy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/deleteNotificationInvalidUserResponse'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
       security:
         - authorization: []
-      servers:
-        - url: ''
-          description: Production
-        - url: ''
-          description: Development
+
+
 components:
   securitySchemes:
     authorization:
       type: http
       scheme: bearer
   schemas:
-    unauthorized:
-      title: standardInvalidTokenErrorResponse
+    getPolicySuccessResponse2:
+      title: getPolicySuccessResponse2
+      required:
+        - type
+        - title
+        - result
       properties:
         type:
           type: string
         title:
           type: string
-        detail:
-          type: string
+        result:
+          type: array
+          items:
+            type: object
+            properties:
+              policyId:
+                type: string
+              ownerId:
+                type: string
+              itemId:
+                type: string
+              itemType:
+                type: string
+                enum: [ "RESOURCE_GROUP", "RESOURCE" ]
+              consumerEmailId:
+                type: string
+              consumerFirstName:
+                type: string
+              consumerLastName:
+                type: string
+              status:
+                type: string
+                enum: [ "ACTIVE","DELETED" ]
+              expiryAt:
+                type: string
+              ownerEmailId:
+                type: string
+              ownerFirstName:
+                type: string
+              ownerLastName:
+                type: string
+              constraints:
+                type: object
+                properties:
+                  access:
+                    type: array
       example:
-        type: urn:dx:acl:notAuthorized
-        title: Invalid credentials
-        detail: Invalid credentials
+        type: "urn:dx:acl:success"
+        title: Success
+        result:
+          - policyId: aaaaaaaa-1234-1234-1234-1234aaaa1234
+            ownerId: bbbbbbbb-5678-5678-5678-5678aaaa5678
+            itemId: cccccccc-4576-3455-5645-3565aaaa4255
+            itemType: RESOURCE
+            consumerEmailId: dummyConsumer@example.com
+            consumerFirstName: Some
+            consumerLastName: Consumer
+            status: ACTIVE
+            expiryAt: '2024-03-05T20:00:19'
+            ownerEmailId: someProvider@example.com
+            ownerFirstName: Some
+            ownerLastName: Provider
+            constraints:
+              access:
+                - sub
+
+    getPolicySuccessResponse1:
+      title: getPolicySuccessResponse1
+      required:
+        - type
+        - title
+        - result
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        result:
+          type: array
+          items:
+            type: object
+            properties:
+              policyId:
+                type: string
+              ownerId:
+                type: string
+              itemId:
+                type: string
+              itemType:
+                type: string
+                enum: [ "RESOURCE_GROUP", "RESOURCE" ]
+              consumerEmailId:
+                type: string
+              consumerFirstName:
+                type: string
+              consumerLastName:
+                type: string
+              status:
+                type: string
+                enum: [ "ACTIVE","DELETED" ]
+              expiryAt:
+                type: string
+              ownerEmailId:
+                type: string
+              ownerFirstName:
+                type: string
+              ownerLastName:
+                type: string
+              constraints:
+                type: object
+                properties:
+                  access:
+                    type: array
+      example:
+        type: 'urn:dx:acl:success'
+        title: Success
+        result:
+          - policyId: aaaaaaaa-6473-3546-5436-8758aaaa5897
+            ownerId: bbbbbbbb-8958-2445-2354-7587aaaa6776
+            itemId: cccccccc-6754-8958-2456-3452aaaa5436
+            itemType: RESOURCE_GROUP
+            consumerEmailId: dummyConsumerAbcd@example.com
+            consumerFirstName: Dummy
+            consumerLastName: Consumer
+            status: ACTIVE
+            expiryAt: '2024-09-05T20:00:19'
+            ownerEmailId: dummyProvider@example.com
+            ownerFirstName: Dummy
+            ownerLastName: Provider
+            constraints:
+              access:
+                - sub
+          - policyId: aaaaaaaa-9870-7676-7456-2454aaaa1111
+            ownerId: bbbbbbbb-2652-1167-1766-4587aaaa2454
+            itemId: cccccccc-2452-2455-5656-1111aaaa7878
+            itemType: RESOURCE_GROUP
+            consumerEmailId: dummyConsumer@example.com
+            consumerFirstName: Dummy
+            consumerLastName: Consumer
+            status: ACTIVE
+            expiryAt: '2024-08-05T20:00:29'
+            ownerEmailId: dummyProviderTwo@example.com
+            ownerFirstName: Dummy
+            ownerLastName: ProviderTwo
+            constraints:
+              access:
+                - sub
+
+    deletePolicy:
+      title: deletePolicy
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        result:
+          type: string
+      required:
+        - type
+        - title
+        - result
+      example:
+        type: urn:dx:acl:success
+        title: Success
+        result: Policy deleted successfully
     deletePolicyInvalidUserResponse:
       title: deletePolicyInvalidUserResponse
       type: object
@@ -1208,77 +1236,6 @@ components:
         type: urn:dx:acl:forbidden
         title: Access Denied
         detail: Policy could not be deleted, user doesn't own the policy
-    deletePolicy:
-      title: deletePolicySuccessResponse
-      type: object
-      properties:
-        type:
-          type: string
-        title:
-          type: string
-        result:
-          type: string
-      required:
-        - type
-        - title
-        - result
-      example:
-        type: urn:dx:acl:success
-        title: Success
-        result: Policy deleted successfully
-    ErrorResponse:
-      title: standardBadRequestErrorResponse
-      properties:
-        type:
-          type: string
-        title:
-          type: string
-        detail:
-          type: string
-      example:
-        type: urn:dx:acl:badRequest
-        title: Bad Request Data
-        detail: Empty response | Missing/Invalid parameters
-      required:
-        - type
-        - title
-        - detail
-      x-examples:
-        Example:
-          type: string
-          title: string
-          detail: string
-    policyNotFound:
-      title: policyNotFound
-      type: object
-      properties:
-        type:
-          type: string
-        title:
-          type: string
-        detail:
-          type: string
-      required:
-        - type
-        - title
-        - detail
-      example:
-        type: urn:dx:acl:resourceNotFound
-        title: Not Found
-        detail: Resource Not Found
-    conflictResponse:
-      title: standardPolicyAlreadyExistErrorResponse
-      properties:
-        type:
-          type: string
-        title:
-          type: string
-        detail:
-          type: string
-      example:
-        type: urn:dx:acl:general
-        title: Conflict
-        detail: Policy already exist for some of the request objects [bf9d8f85-b7b0-40bb-8197-0046725f1ca8, 2789fa93-565a-4ea8-97f9-b64fc4863021]
     getPolicyInvalidUserResponse:
       title: getPolicyInvalidUserResponse
       type: object
@@ -1297,41 +1254,9 @@ components:
         type: urn:dx:acl:forbidden
         title: Access Denied
         detail: Policy could not be fetched, user doesn't own the policy
-    createPolicySuccessResponse:
-      title: complete
+    deleteNotificationInvalidUserResponse:
+      title: deleteNotificationInvalidUserResponse
       type: object
-      properties:
-        type:
-          type: string
-        title:
-          type: string
-        results:
-          description: An array of objects
-          type: array
-          items:
-            type: object
-      example:
-        type: urn:dx:acl:success
-        title: Success
-        results: [
-          {
-            "policy_id": "e03c2e31-910b-4dd6-b3ec-a490773b5463",
-            "user_emailId": "abc@xyz.com",
-            "item_id": "b34eb955-c691-4fd3-b200-f18bc78810a2",
-            "expiry_at": "2022-08-04T20:00:19"
-          },
-          {
-            "policy_id": "06b3ca12-de0d-4a29-bf98-074de1fa4c6b",
-            "user_emailId": "tester@example.com",
-            "item_id": "d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2",
-            "expiry_at": "2023-08-05T20:00:19"
-          },
-          {
-            "owner_id": "4e563a5f-35f0-4f32-92be-8830775a1c5e"
-          }
-        ]
-    internalServerErrorResponse:
-      title: standardDatabaseErrorResponse
       properties:
         type:
           type: string
@@ -1339,11 +1264,113 @@ components:
           type: string
         detail:
           type: string
+      required:
+        - type
+        - title
+        - detail
       example:
-        type: urn:dx:acl:general
-        title: Internal Server Error
-        detail: Internal Server Error
-    accessRequest:
+        type: urn:dx:acl:forbidden
+        title: Access Denied
+        detail: Notification could not be deleted, notification doesn't belong to the user
+    updateNotificationInvalidUserResponse:
+      title: updateNotificationInvalidUserResponse
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:forbidden
+        title: Access Denied
+        detail: Notification could not be updated, notification doesn't belong to the user
+    policyNotFound:
+      title: policyNotFound
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:resourceNotFound
+        title: Not Found
+        detail: Resource Not Found
+    deletePolicyErrorResponse:
+      title: deletePolicyErrorResponse
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:badRequest
+        title: Bad Request
+        detail: Policy could not be deleted, count not equal to list of policies to be deleted
+    Unauthorized:
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        detail:
+          type: string
+          minLength: 1
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:MissingAuthenticationToken
+        title: Missing auth details
+        detail: Missing auth details
+    ErrorResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        detail:
+          type: string
+          minLength: 1
+        context:
+          type: object
+          description: Any additional information required
+      required:
+        - type
+        - title
+        - detail
+      x-examples:
+        Example:
+          type: string
+          title: string
+          detail: string
+    AccessRequest:
       type: object
       properties:
         type:
@@ -1439,7 +1466,7 @@ components:
         - results
       x-examples:
         Example:
-          type: 'urn:dx:acl:success'
+          type: 'urn:acl:as:Success'
           title: User permission requests
           results:
             - requestId: e4619679-f5d9-4eff-9f79-bbded6130bb1
