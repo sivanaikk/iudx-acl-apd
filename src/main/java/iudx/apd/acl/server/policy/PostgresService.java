@@ -11,31 +11,31 @@ import io.vertx.sqlclient.PoolOptions;
 
 
 public class PostgresService {
-  private final PgPool pool;
+    private final PgPool pool;
 
-  public PostgresService(JsonObject config, Vertx vertx) {
-    /* Database Properties */
-    String databaseIP = config.getString("databaseIP");
-    int databasePort = config.getInteger("databasePort");
-    String databaseName = config.getString("databaseName");
-    String databaseUserName = config.getString("databaseUserName");
-    String databasePassword = config.getString("databasePassword");
-    int poolSize = config.getInteger("poolSize");
+    public PostgresService(JsonObject config, Vertx vertx) {
+        /* Database Properties */
+        String databaseIP = config.getString("databaseIP");
+        int databasePort = config.getInteger("databasePort");
+        String databaseName = config.getString("databaseName");
+        String databaseUserName = config.getString("databaseUserName");
+        String databasePassword = config.getString("databasePassword");
+        int poolSize = config.getInteger("poolSize");
 
-    /* Set Connection Object and schema */
-    PgConnectOptions connectOptions =
-      new PgConnectOptions().setPort(databasePort).setHost(databaseIP).setDatabase(databaseName)
-        .setUser(databaseUserName).setPassword(databasePassword)
-        .setReconnectAttempts(DB_RECONNECT_ATTEMPTS)
-        .setReconnectInterval(DB_RECONNECT_INTERVAL_MS);
+        /* Set Connection Object and schema */
+        PgConnectOptions connectOptions =
+                new PgConnectOptions().setPort(databasePort).setHost(databaseIP).setDatabase(databaseName)
+                        .setUser(databaseUserName).setPassword(databasePassword)
+                        .setReconnectAttempts(DB_RECONNECT_ATTEMPTS)
+                        .setReconnectInterval(DB_RECONNECT_INTERVAL_MS);
 
-    /* Pool options */
-    PoolOptions poolOptions = new PoolOptions().setMaxSize(poolSize);
+        /* Pool options */
+        PoolOptions poolOptions = new PoolOptions().setMaxSize(poolSize);
 
-    /* Create the client pool */
-    this.pool = PgPool.pool(vertx, connectOptions, poolOptions);
-  }
-  public PgPool getPool() {
-    return pool;
-  }
+        /* Create the client pool */
+        this.pool = PgPool.pool(vertx, connectOptions, poolOptions);
+    }
+    public PgPool getPool() {
+        return pool;
+    }
 }

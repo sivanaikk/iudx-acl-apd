@@ -25,20 +25,20 @@ public class PolicyServiceImpl implements PolicyService {
 
     @Override
     public Future<JsonObject> createPolicy(JsonObject request, User user) {
-      Promise<JsonObject> promise = Promise.promise();
+        Promise<JsonObject> promise = Promise.promise();
 
-      request.put("defaultExpiryDays", config.getLong("defaultExpiryDays"));
-      createPolicy
-        .initiateCreatePolicy(request,user)
-        .onComplete(
-          handler -> {
-            if (handler.succeeded()) {
-              promise.complete(handler.result());
-            } else {
-              promise.fail(handler.cause().getMessage());
-            }
-          });
-      return promise.future();
+        request.put("defaultExpiryDays", config.getLong("defaultExpiryDays"));
+        createPolicy
+                .initiateCreatePolicy(request,user)
+                .onComplete(
+                        handler -> {
+                            if (handler.succeeded()) {
+                                promise.complete(handler.result());
+                            } else {
+                                promise.fail(handler.cause().getMessage());
+                            }
+                        });
+        return promise.future();
     }
 
 
