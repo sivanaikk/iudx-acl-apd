@@ -14,4 +14,6 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
       JsonObject request, JsonObject authenticationInfo, Handler<AsyncResult<JsonObject>> handler) {
     return null;
   }
+
+  // create a user object here
 }
