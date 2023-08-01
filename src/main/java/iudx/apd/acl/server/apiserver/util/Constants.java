@@ -50,10 +50,6 @@ public class Constants {
   public static final String STATUS_CODE = "statusCode";
   public static final String RESULT = "result";
   public static final String DETAIL = "detail";
-<<<<<<< HEAD
-=======
-
->>>>>>> 9f95fcb (create-policy-flow)
 
   // endpoints
   public static final String POLICIES_API = "/policies";
