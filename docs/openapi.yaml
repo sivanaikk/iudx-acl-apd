@@ -126,7 +126,7 @@ paths:
                         consumerFirstName: Dummy
                         consumerLastName: Consumer
                         status: ACTIVE
-                        expiryAt: 2024-09-05T20:00:19
+                        expiryAt: '2024-09-05T20:00:19'
                         ownerEmailId: dummyProvider@example.com
                         ownerFirstName: Dummy
                         ownerLastName: Provider
@@ -141,7 +141,7 @@ paths:
                         consumerFirstName: Dummy
                         consumerLastName: Consumer
                         status: ACTIVE
-                        expiryAt: 2024-08-05T20:00:29
+                        expiryAt: '2024-08-05T20:00:29'
                         ownerEmailId: dummyProviderTwo@example.com
                         ownerFirstName: Dummy
                         ownerLastName: ProviderTwo
@@ -161,7 +161,7 @@ paths:
                         consumerFirstName: Some
                         consumerLastName: Consumer
                         status: ACTIVE
-                        expiryAt: 2024-03-05T20:00:19
+                        expiryAt: '2024-03-05T20:00:19'
                         ownerEmailId: someProvider@example.com
                         ownerFirstName: Some
                         ownerLastName: Provider
@@ -420,12 +420,12 @@ paths:
                     - userId: 89bbe934-5f18-4f57-b68e-fb821ba77291
                       itemId: example-resource-group
                       itemType: resource_group
-                      expiryTime: '2023-08-30T21:10:06.834292'
+                      expiryTime: '2023-08-30T21:10:06'
                       constraints: {}
                     - userId: 89bbe934-5f18-4f57-b68e-fb821ba77292
                       itemId: example-resource-group
                       itemType: resource_group
-                      expiryTime: '2023-08-30T21:10:06.834292'
+                      expiryTime: '2023-08-30T21:10:06'
                       constraints: {}
             examples:
               Single request for resource group user policy:
