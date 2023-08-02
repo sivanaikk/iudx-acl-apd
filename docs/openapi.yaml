@@ -421,7 +421,7 @@ paths:
               examples:
                 ListResults:
                   value:
-                    type: 'urn:acl:as:Success'
+                    type: 'urn:dx:acl:Success'
                     title: Access requests
                     results:
                       - requestId: ea48d233-5d3b-4bdb-9545-691680c99cee
@@ -567,7 +567,7 @@ paths:
               examples:
                 Example:
                   value:
-                    type: 'urn:acl:as:Success'
+                    type: 'urn:dx:acl:Success'
                     title: Access requests
                     results:
                       - requestId: bd5f0bb3-c02c-4e3d-b75c-a6eb8144bddc
@@ -741,7 +741,7 @@ paths:
               examples:
                 Update:
                   value:
-                    type: 'urn:acl:as:Success'
+                    type: 'urn:dx:acl:Success'
                     title: Access requests
                     results:
                       - requestId: bd5f0bb3-c02c-4e3d-b75c-a6eb8144bddc
@@ -927,7 +927,7 @@ paths:
                               type: string
                 x-examples:
                   example-1:
-                    type: 'urn:acl:as:Success'
+                    type: 'urn:dx:acl:Success'
                     title: deleted requests
                     results:
                       - requestId: 383ea497-0de9-4d6f-94c1-e3dd1328d944
@@ -955,7 +955,7 @@ paths:
               examples:
                 successful deletion:
                   value:
-                    type: 'urn:acl:as:Success'
+                    type: 'urn:dx:acl:Success'
                     title: deleted requests
                     results:
                       - requestId: 383ea497-0de9-4d6f-94c1-e3dd1328d944
@@ -995,13 +995,13 @@ paths:
                     type: string
                 x-examples:
                   example-1:
-                    type: 'urn:acl:as:InvalidInput'
+                    type: 'urn:dx:acl:InvalidInput'
                     title: requestId does not exists
                     detail: '[6c61b9c7-6cfd-4d2a-bfc1-217fd56bb8e3]'
               examples:
                 item does not es:
                   value:
-                    type: 'urn:acl:as:InvalidInput'
+                    type: 'urn:dx:acl:InvalidInput'
                     title: requestId does not exists
                     detail: '[6c61b9c7-6cfd-4d2a-bfc1-217fd56bb8e3]'
         '401':
@@ -1019,13 +1019,13 @@ paths:
                     type: string
                 x-examples:
                   example-1:
-                    type: 'urn:acl:as:InvalidRole'
+                    type: 'urn:dx:acl:InvalidRole'
                     title: User does not have roles to use API
                     detail: User with consumer role may call the API
               examples:
                 example-1:
                   value:
-                    type: 'urn:acl:as:InvalidRole'
+                    type: 'urn:dx:acl:InvalidRole'
                     title: User does not have roles to use API
                     detail: User with consumer role may call the API
         '403':
@@ -1466,7 +1466,7 @@ components:
         - results
       x-examples:
         Example:
-          type: 'urn:acl:as:Success'
+          type: 'urn:dx:acl:Success'
           title: User permission requests
           results:
             - requestId: e4619679-f5d9-4eff-9f79-bbded6130bb1
