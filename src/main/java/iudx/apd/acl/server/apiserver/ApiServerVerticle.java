@@ -150,13 +150,12 @@ public class ApiServerVerticle extends AbstractVerticle {
                                     .handler(this::deleteAccessRequestHandler)
                                     .failureHandler(failureHandler);
 
-                            routerBuilder.rootHandler(TimeoutHandler.create(1000000, 408));
-                            router = routerBuilder.createRouter();
+                            routerBuilder.rootHandler(TimeoutHandler.create(100000, 408));
                             configureCorsHandler(routerBuilder);
+                            routerBuilder.rootHandler(BodyHandler.create());
+                            router = routerBuilder.createRouter();
                             putCommonResponseHeaders();
                             configureErrorHandlers(router);
-                            routerBuilder.rootHandler(BodyHandler.create());
-
 
 
                             /* Documentation routes */
@@ -341,6 +340,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                                         handler.result().getInteger(STATUS_CODE),
                                         handler.result().getString(RESULT));
                             } else {
+                                handler.cause().printStackTrace();
                                 handleFailureResponse(routingContext, handler.cause().getMessage());
                             }
                         });
