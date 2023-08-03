@@ -1,11 +1,5 @@
 package iudx.apd.acl.server.apiserver;
 
-import static iudx.apd.acl.server.apiserver.response.ResponseUtil.generateResponse;
-import static iudx.apd.acl.server.apiserver.util.Constants.*;
-import static iudx.apd.acl.server.apiserver.util.Util.errorResponse;
-import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
-import static iudx.apd.acl.server.common.Constants.*;
-
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
@@ -13,6 +7,7 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -24,13 +19,21 @@ import iudx.apd.acl.server.authentication.AuthenticationService;
 import iudx.apd.acl.server.common.Api;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
+import iudx.apd.acl.server.notification.NotificationService;
 import iudx.apd.acl.server.policy.PolicyService;
 import iudx.apd.acl.server.validation.FailureHandler;
 import iudx.apd.acl.server.validation.ValidationHandler;
 import iudx.apd.acl.server.validation.ValidationHandlerFactory;
-import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.stream.Stream;
+
+import static iudx.apd.acl.server.apiserver.response.ResponseUtil.generateResponse;
+import static iudx.apd.acl.server.apiserver.util.Constants.*;
+import static iudx.apd.acl.server.apiserver.util.Util.errorResponse;
+import static iudx.apd.acl.server.common.Constants.*;
+import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
 
 /**
  * The ACL-APD Server API Verticle.
@@ -40,6 +43,7 @@ import org.apache.logging.log4j.Logger;
  * <p>The API Server verticle implements the IUDX ACL-APD Server APIs. It handles the API requests
  * from the clients and interacts with the associated Service to respond.
  *
+ * @version 1.0
  * @see io.vertx.core.Vertx
  * @see AbstractVerticle
  * @see HttpServer
@@ -47,7 +51,6 @@ import org.apache.logging.log4j.Logger;
  * @see io.vertx.servicediscovery.ServiceDiscovery
  * @see io.vertx.servicediscovery.types.EventBusService
  * @see io.vertx.spi.cluster.hazelcast.HazelcastClusterManager
- * @version 1.0
  * @since 2020-05-31
  */
 public class ApiServerVerticle extends AbstractVerticle {
@@ -63,6 +66,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     private PolicyService policyService;
     private AuthenticationService authenticationService;
     private String detail;
+    private NotificationService notificationService;
 
     private static User getConsumer() {
         JsonObject consumer =
@@ -102,6 +106,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
         policyService = PolicyService.createProxy(vertx, POLICY_SERVICE_ADDRESS);
         authenticationService = AuthenticationService.createProxy(vertx, AUTH_SERVICE_ADDRESS);
+        notificationService = NotificationService.createProxy(vertx, NOTIFICATION_SERVICE_ADDRESS);
 
         router = Router.router(vertx);
         configureCorsHandler(router);
@@ -159,33 +164,67 @@ public class ApiServerVerticle extends AbstractVerticle {
         server.requestHandler(router).listen(port);
 
         /* Print the deployed endpoints */
+        printDeployedEndpoints(router);
+
         LOGGER.info("API server deployed on: " + port);
     }
 
-    private void putAccessRequestHandler(RoutingContext routingContext) {}
+    private void putAccessRequestHandler(RoutingContext routingContext) {
+    }
 
-    private void postAccessRequestHandler(RoutingContext routingContext) {}
+    private void postAccessRequestHandler(RoutingContext routingContext) {
+    }
+    private void printDeployedEndpoints(Router router) {
+        for (Route route : router.getRoutes()) {
+            if (route.getPath() != null) {
+                LOGGER.info("API Endpoints deployed : " + route.methods() + " : " + route.getPath());
+            }
+        }
+    }
 
-    private void deleteAccessRequestHandler(RoutingContext routingContext) {}
+    private void deleteAccessRequestHandler(RoutingContext routingContext) {
+        JsonObject bodyAsJsonObject = routingContext.body().asJsonObject();
+        JsonArray notificationList = bodyAsJsonObject.getJsonArray("request");
+        User consumer = getConsumer();
+        notificationService
+                .deleteNotification(notificationList, consumer)
+                .onComplete(
+                        handler -> {
+                            if (handler.succeeded()) {
+                                LOGGER.info("Delete Notification succeeded : {} ", handler.result().encode());
+                                JsonObject response =
+                                        new JsonObject()
+                                                .put(TYPE, handler.result().getString(TYPE))
+                                                .put(TITLE, handler.result().getString(TITLE))
+                                                .put(RESULT, handler.result().getValue(RESULT));
+                                handleSuccessResponse(
+                                        routingContext, handler.result().getInteger(STATUS_CODE), response.toString());
+                            } else {
+                                LOGGER.error("Delete Notification failed : {} ", handler.cause().getMessage());
+                                handleFailureResponse(routingContext, handler.cause().getMessage());
+                            }
+                        });
+    }
 
-    private void getAccessRequestHandler(RoutingContext routingContext) {}
+    private void getAccessRequestHandler(RoutingContext routingContext) {
+    }
 
     private void postPoliciesHandler(RoutingContext routingContext) {
-                      JsonObject requestBody = routingContext.body().asJsonObject();
-                      // TODO: to add user object in the requestBody before calling createPolicy method
-                      policyService
-                        .createPolicy(requestBody,getProvider())
-                        .onComplete(
-                          handler -> {
+        JsonObject requestBody = routingContext.body().asJsonObject();
+        // TODO: to add user object in the requestBody before calling createPolicy method
+        policyService
+                .createPolicy(requestBody, getProvider())
+                .onComplete(
+                        handler -> {
                             if (handler.succeeded()) {
-                              LOGGER.info("Policy created successfully ");
-                              handleSuccessResponse(
-                                routingContext, HttpStatusCode.SUCCESS.getValue(), handler.result().toString());
+                                LOGGER.info("Policy created successfully ");
+                                handleSuccessResponse(
+                                        routingContext, HttpStatusCode.SUCCESS.getValue(), handler.result().toString());
                             } else {
-                              LOGGER.error("Policy could not be created");
-                              handleFailureResponse(routingContext, handler.cause().getMessage());
+                                LOGGER.error("Policy could not be created");
+                                handleFailureResponse(routingContext, handler.cause().getMessage());
                             }
-                          });
+                        });
     }
 
 
@@ -277,7 +316,9 @@ public class ApiServerVerticle extends AbstractVerticle {
                         });
     }
 
-    /** Sets common response headers to be included in HTTP responses. */
+    /**
+     * Sets common response headers to be included in HTTP responses.
+     */
     private void putCommonResponseHeaders() {
         router
                 .route()
@@ -317,8 +358,8 @@ public class ApiServerVerticle extends AbstractVerticle {
      * Handles HTTP Success response from the server
      *
      * @param routingContext Routing context object
-     * @param statusCode statusCode to respond with
-     * @param result respective result returned from the service
+     * @param statusCode     statusCode to respond with
+     * @param result         respective result returned from the service
      */
     private void handleSuccessResponse(RoutingContext routingContext, int statusCode, String result) {
         HttpServerResponse response = routingContext.response();
@@ -384,7 +425,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                 .putHeader(CONTENT_TYPE, APPLICATION_JSON)
                 .setStatusCode(statusCode.getValue())
                 .end(generateResponse(statusCode, urn, failureMessage).toString());
-    };
+    }
 
 }
 
