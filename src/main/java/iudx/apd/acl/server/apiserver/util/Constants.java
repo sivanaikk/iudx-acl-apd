@@ -39,7 +39,11 @@ public class Constants {
                           HttpMethod.PATCH,
                           HttpMethod.PUT));
   // request/response params
+  public static final String ID = "id";
   public static final String CONTENT_TYPE = "content-type";
+  public static final String INTERNAL_ERROR = "Internal server error";
+  public static final String CAT_SUCCESS_URN = "urn:dx:cat:Success";
+  public static final String RESULTS = "results";
   public static final String APPLICATION_JSON = "application/json";
   public static final String ROUTE_STATIC_SPEC = "/apis/spec";
   public static final String ROUTE_DOC = "/apis";
