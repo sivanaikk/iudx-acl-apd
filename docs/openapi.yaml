@@ -185,7 +185,7 @@ paths:
                 type: string
               description: application/json
         '404':
-          description: '- unauthorized - `token` invalid/expired'
+          description: '- invalid id No policy found'
           content:
             application/json:
               schema:
@@ -385,10 +385,10 @@ paths:
                       - type: object
                         additionalProperties: false
                         properties:
-                          userId:
+                          userEmail:
                             type: string
-                            format: uuid
-                            pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
+                            format: string
+                            pattern: '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2, 4}$'
                             minLength: 36
                             maxLength: 36
                           itemId:
@@ -419,12 +419,12 @@ paths:
               x-examples:
                 example-1:
                   request:
-                    - userId: 89bbe934-5f18-4f57-b68e-fb821ba77291
+                    - userEmail: 89bbe934-5f18-4f57-b68e-fb821ba77291
                       itemId: example-resource-group
                       itemType: resource_group
                       expiryTime: '2023-08-30T21:10:06.834292'
                       constraints: {}
-                    - userId: 89bbe934-5f18-4f57-b68e-fb821ba77292
+                    - userEmail: 89bbe934-5f18-4f57-b68e-fb821ba77292
                       itemId: example-resource-group
                       itemType: resource_group
                       expiryTime: '2023-08-30T21:10:06.834292'
@@ -433,7 +433,7 @@ paths:
               Single request for resource group user policy:
                 value:
                   request:
-                    - userId: abc@xyz.com
+                    - userEmail: abc@xyz.com
                       itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
                       itemType: resource_group
                       expiryTime: '2022-08-04T20:00:19'
@@ -443,7 +443,7 @@ paths:
               Single request for resource user policy:
                 value:
                   request:
-                    - userId: abc@xyz.com
+                    - userEmail: abc@xyz.com
                       itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
                       itemType: resource
                       expiryTime: '2022-10-10T04:00:19'
@@ -454,12 +454,12 @@ paths:
               Multiple user policy requests:
                 value:
                   request:
-                    - userId: xyz@abx.com
+                    - userEmail: xyz@abx.com
                       itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
                       itemType: resource_group
                       expiryTime: '2022-08-04T20:00:19'
                       constraints: {}
-                    - userId: aaa@yun.com
+                    - userEmail: aaa@yun.com
                       itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
                       itemType: resource
                       expiryTime: '2022-10-10T04:00:19'
@@ -482,6 +482,7 @@ paths:
             - Missing or malformed data
             - Invalid expiry - dateTime in the past or invalid format
             - Invalid user - UserId is not present in db
+            - Invalid itemId - Item not present in CAT
           content:
             application/json:
               schema:
@@ -510,16 +511,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/conflictResponse'
-        '500':
-          description: |-
-
-            - Any kind of Database failure :
-              - Foreign key failure.
-              - Connection failure.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/internalServerErrorResponse'
       security:
         - authorization: []
       servers:
@@ -597,12 +588,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/unauthorized'
-              examples:
-                example-1:
-                  value:
-                    type: string
-                    title: string
-                    detail: string
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '204':
+          description: 'No policy found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/noPolicyRequestFound'
           headers:
             Content-Type:
               schema:
@@ -746,12 +742,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                Example:
-                  value:
-                    type: string
-                    title: string
-                    detail: string
           headers:
             Content-Type:
               schema:
@@ -763,12 +753,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/unauthorized'
-              examples:
-                Example:
-                  value:
-                    type: string
-                    title: string
-                    detail: string
           headers:
             Content-Type:
               schema:
@@ -795,7 +779,6 @@ paths:
         If the request is rejected
         - The request is modified to the `rejected` state
 
-        ##delegate
         A delegate may use the API to view policies on behalf of their provider. This is done by passing the userInfo of the delegator which must be present in the token issued by the AAA.
       operationId: put-auth-v1-policies-requests
       parameters:
@@ -1135,7 +1118,7 @@ paths:
                     title: requestId does not exists
                     detail: '[6c61b9c7-6cfd-4d2a-bfc1-217fd56bb8e3]'
               examples:
-                item does not es:
+                item does not exist:
                   value:
                     type: 'urn:acl:as:InvalidInput'
                     title: requestId does not exists
@@ -1156,13 +1139,13 @@ paths:
                 x-examples:
                   example-1:
                     type: 'urn:acl:as:InvalidRole'
-                    title: User does not have roles to use API
+                    title: User does not have access to use API
                     detail: User with consumer role may call the API
               examples:
                 example-1:
                   value:
                     type: 'urn:acl:as:InvalidRole'
-                    title: User does not have roles to use API
+                    title: User does not have access to use API
                     detail: User with consumer role may call the API
       security:
         - authorization: []
@@ -1189,7 +1172,7 @@ components:
       example:
         type: urn:dx:acl:notAuthorized
         title: Invalid credentials
-        detail: Invalid credentials
+        detail: Invalid token
     deletePolicyInvalidUserResponse:
       title: deletePolicyInvalidUserResponse
       type: object
@@ -1216,16 +1199,16 @@ components:
           type: string
         title:
           type: string
-        result:
+        details:
           type: string
       required:
         - type
         - title
-        - result
+        - details
       example:
         type: urn:dx:acl:success
         title: Success
-        result: Policy deleted successfully
+        details: Policy deleted successfully
     ErrorResponse:
       title: standardBadRequestErrorResponse
       properties:
@@ -1237,8 +1220,8 @@ components:
           type: string
       example:
         type: urn:dx:acl:badRequest
-        title: Bad Request Data
-        detail: Empty response | Missing/Invalid parameters
+        title: Bad Request
+        detail: Bad Request
       required:
         - type
         - title
@@ -1265,7 +1248,25 @@ components:
       example:
         type: urn:dx:acl:resourceNotFound
         title: Not Found
-        detail: Resource Not Found
+        detail: Resource Not Found [bf9d8f85-b7b0-40bb-8197-0046725f1ca8, 2789fa93-565a-4ea8-97f9-b64fc4863021]
+    noPolicyRequestFound:
+      title: noPolicyRequestFound
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:noContent
+        title: No Content
+        detail: No policy request found
     conflictResponse:
       title: standardPolicyAlreadyExistErrorResponse
       properties:
@@ -1330,19 +1331,6 @@ components:
             "owner_id": "4e563a5f-35f0-4f32-92be-8830775a1c5e"
           }
         ]
-    internalServerErrorResponse:
-      title: standardDatabaseErrorResponse
-      properties:
-        type:
-          type: string
-        title:
-          type: string
-        detail:
-          type: string
-      example:
-        type: urn:dx:acl:general
-        title: Internal Server Error
-        detail: Internal Server Error
     accessRequest:
       type: object
       properties:

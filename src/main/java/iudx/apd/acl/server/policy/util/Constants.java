@@ -8,6 +8,8 @@ public class Constants {
           + " and status = $4::status_type and user_emailid = $5::text and expiry_at > now() ";
   public static final String ENTITY_TABLE_CHECK =
       "Select _id,provider_id from resource_entity where _id = ANY ($1::UUID[]);";
+  public static final String INSERT_ENTITY_TABLE =
+    "insert into resource_entity(_id,provider_id,resource_group_id) values ($1,$2,$3) returning provider_id;";
 
   public static final String CREATE_POLICY_QUERY =
       "insert into policy (user_emailid, item_id, owner_id,item_type,expiry_at, constraints,status) "

@@ -3,6 +3,7 @@ package iudx.apd.acl.server.policy;
 import static iudx.apd.acl.server.apiserver.util.Constants.DETAIL;
 import static iudx.apd.acl.server.apiserver.util.Constants.TITLE;
 import static iudx.apd.acl.server.apiserver.util.Constants.TYPE;
+import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
 import static iudx.apd.acl.server.common.HttpStatusCode.CONFLICT;
 import static iudx.apd.acl.server.common.HttpStatusCode.FORBIDDEN;
 import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
@@ -33,9 +34,11 @@ import org.apache.logging.log4j.Logger;
 public class CreatePolicy {
   private static final Logger LOGGER = LogManager.getLogger(CreatePolicy.class);
   private final PostgresService postgresService;
+  private final CatalogueClient catalogueClient;
 
-  public CreatePolicy(PostgresService postgresService) {
+  public CreatePolicy(PostgresService postgresService, JsonObject config) {
     this.postgresService = postgresService;
+    this.catalogueClient = new CatalogueClient(postgresService.getPool(), config);
   }
   public Future<JsonObject> initiateCreatePolicy(JsonObject request, User user) {
     Promise<JsonObject> promise = Promise.promise();
@@ -107,14 +110,20 @@ public class CreatePolicy {
                               providerIdSet.add(row.getUUID("provider_id"));
                               existingItemIds.add(row.getUUID("_id"));
                             }
-                            // TODO: this check will be done after calling catalogue
                             itemIdList.removeAll(existingItemIds);
                           }
                           if (!itemIdList.isEmpty()) {
-                            // TODO: call for catalogue to check for the remaining item id
-                            // below promise will depend on the result we get from cat,PASSING it
-                            // for NOW
-                            promise.complete(providerIdSet);
+                            catalogueClient
+                                .fetchItem(itemIdList)
+                                .onSuccess(
+                                    successHandlerResult -> {
+                                      providerIdSet.addAll(successHandlerResult);
+                                      promise.complete(providerIdSet);
+                                    })
+                                .onFailure(
+                                    failureHandler -> {
+                                      promise.fail(generateErrorResponse(BAD_REQUEST,BAD_REQUEST.getDescription()));
+                                    });
                           } else {
                             promise.complete(providerIdSet);
                           }
