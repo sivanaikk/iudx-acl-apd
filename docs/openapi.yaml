@@ -1052,46 +1052,78 @@ components:
       scheme: bearer
   schemas:
     getPolicySuccessResponse2:
-      title: getPolicySuccessResponse2
+      title: get policy for type resource
       required:
         - type
         - title
-        - result
+        - results
       properties:
         type:
           type: string
         title:
           type: string
-        result:
+        results:
           type: array
           items:
             type: object
             properties:
               policyId:
                 type: string
-              ownerId:
-                type: string
               itemId:
                 type: string
               itemType:
                 type: string
                 enum: [ "RESOURCE_GROUP", "RESOURCE" ]
-              consumerEmailId:
-                type: string
-              consumerFirstName:
-                type: string
-              consumerLastName:
-                type: string
+              consumer:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          email:
+                            type: string
+                          name:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                firstName:
+                                  type: string
+                                lastName:
+                                  type: string
+                          id:
+                            type: string
+              provider:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          email:
+                            type: string
+                          name:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                firstName:
+                                  type: string
+                                lastName:
+                                  type: string
+                          id:
+                            type: string
               status:
                 type: string
                 enum: [ "ACTIVE","DELETED" ]
               expiryAt:
-                type: string
-              ownerEmailId:
-                type: string
-              ownerFirstName:
-                type: string
-              ownerLastName:
                 type: string
               constraints:
                 type: object
@@ -1099,66 +1131,110 @@ components:
                   access:
                     type: array
       example:
-        type: "urn:dx:acl:success"
-        title: Success
-        result:
-          - policyId: aaaaaaaa-1234-1234-1234-1234aaaa1234
-            ownerId: bbbbbbbb-5678-5678-5678-5678aaaa5678
-            itemId: cccccccc-4576-3455-5645-3565aaaa4255
-            itemType: RESOURCE
-            consumerEmailId: dummyConsumer@example.com
-            consumerFirstName: Some
-            consumerLastName: Consumer
-            status: ACTIVE
-            expiryAt: '2024-03-05T20:00:19'
-            ownerEmailId: someProvider@example.com
-            ownerFirstName: Some
-            ownerLastName: Provider
-            constraints:
-              access:
-                - sub
+        {
+          "type": "urn:dx:acl:success",
+          "title": "Success",
+          "results": [
+            {
+              "policyId": "aaaaaaaa-1234-1234-1234-1234aaaa1234",
+              "itemId": "cccccccc-4576-3455-5645-3565aaaa4255",
+              "itemType": "RESOURCE",
+              "expiryAt": "2024-03-05T20:00:19",
+              "constraints": {access:[sub]},
+              "status": "ACTIVE",
+                "consumer": {
+                  "email": "dummyConsumer@example.com",
+                  "name": {
+                    "firstName": "Some",
+                    "lastName": "Consumer"
+                  },
+                  "id": "gklmcd4-4576-3455-5645-3565aaaa4255"
+                },
+              "provider": {
+                "email": "someProvider@example.com",
+                "name": {
+                  "firstName": "Some",
+                  "lastName": "Provider"
+                },
+                "id": "abcdcd4-4576-3455-5645-3565aaaa4255"
+              }
+            }
+          ]
+        }
 
     getPolicySuccessResponse1:
-      title: getPolicySuccessResponse1
+      title: get policy with for type resource-group
       required:
         - type
         - title
-        - result
+        - results
       properties:
         type:
           type: string
         title:
           type: string
-        result:
+        results:
           type: array
           items:
             type: object
             properties:
               policyId:
                 type: string
-              ownerId:
-                type: string
               itemId:
                 type: string
               itemType:
                 type: string
                 enum: [ "RESOURCE_GROUP", "RESOURCE" ]
-              consumerEmailId:
-                type: string
-              consumerFirstName:
-                type: string
-              consumerLastName:
-                type: string
+              consumer:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          email:
+                            type: string
+                          name:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                firstName:
+                                  type: string
+                                lastName:
+                                  type: string
+                          id:
+                            type: string
+              provider:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          email:
+                            type: string
+                          name:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                firstName:
+                                  type: string
+                                lastName:
+                                  type: string
+                          id:
+                            type: string
               status:
                 type: string
                 enum: [ "ACTIVE","DELETED" ]
               expiryAt:
-                type: string
-              ownerEmailId:
-                type: string
-              ownerFirstName:
-                type: string
-              ownerLastName:
                 type: string
               constraints:
                 type: object
@@ -1166,39 +1242,60 @@ components:
                   access:
                     type: array
       example:
-        type: 'urn:dx:acl:success'
-        title: Success
-        result:
-          - policyId: aaaaaaaa-6473-3546-5436-8758aaaa5897
-            ownerId: bbbbbbbb-8958-2445-2354-7587aaaa6776
-            itemId: cccccccc-6754-8958-2456-3452aaaa5436
-            itemType: RESOURCE_GROUP
-            consumerEmailId: dummyConsumerAbcd@example.com
-            consumerFirstName: Dummy
-            consumerLastName: Consumer
-            status: ACTIVE
-            expiryAt: '2024-09-05T20:00:19'
-            ownerEmailId: dummyProvider@example.com
-            ownerFirstName: Dummy
-            ownerLastName: Provider
-            constraints:
-              access:
-                - sub
-          - policyId: aaaaaaaa-9870-7676-7456-2454aaaa1111
-            ownerId: bbbbbbbb-2652-1167-1766-4587aaaa2454
-            itemId: cccccccc-2452-2455-5656-1111aaaa7878
-            itemType: RESOURCE_GROUP
-            consumerEmailId: dummyConsumer@example.com
-            consumerFirstName: Dummy
-            consumerLastName: Consumer
-            status: ACTIVE
-            expiryAt: '2024-08-05T20:00:29'
-            ownerEmailId: dummyProviderTwo@example.com
-            ownerFirstName: Dummy
-            ownerLastName: ProviderTwo
-            constraints:
-              access:
-                - sub
+        {
+          "type": "urn:dx:acl:success",
+          "title": "Success",
+          "results": [
+            {
+              "policyId": "aaaaaaaa-6473-3546-5436-8758aaaa5897",
+              "itemId": "cccccccc-6754-8958-2456-3452aaaa5436",
+              "itemType": "RESOURCE_GROUP",
+              "expiryAt": "2024-09-05T20:00:19",
+              "constraints": { access: [ sub ] },
+              "status": "ACTIVE",
+              "consumer": {
+                "email": "dummyConsumerAbcd@example.com",
+                "name": {
+                  "firstName": "Dummy",
+                  "lastName": "Consumer"
+                },
+                "id": "gklmcd4-4576-3455-5645-3565aaaa4255"
+              },
+              "provider": {
+                "email": "dummyProvider@example.com",
+                "name": {
+                  "firstName": "Dummy",
+                  "lastName": "Provider"
+                },
+                "id": "bbbbbbbb-8958-2445-2354-7587aaaa6776"
+              }
+            },
+                {
+                  "policyId": "aaaaaaaa-9870-7676-7456-2454aaaa1111",
+                  "itemId": "cccccccc-2452-2455-5656-1111aaaa7878",
+                  "itemType": "RESOURCE_GROUP",
+                  "expiryAt": "2024-08-05T20:00:29",
+                  "constraints": { access: [ sub ] },
+                  "status": "ACTIVE",
+                  "consumer": {
+                    "email": "dummyConsumer@example.com",
+                    "name": {
+                      "firstName": "Dummy",
+                      "lastName": "Consumer"
+                    },
+                    "id": "gklmcd4-4576-3455-5645-3565aaaa4255"
+                  },
+                  "provider": {
+                    "email": "dummyProviderTwo@example.com",
+                    "name": {
+                      "firstName": "Some",
+                      "lastName": "ProviderTwo"
+                    },
+                    "id": "bbbbbbbb-2652-1167-1766-4587aaaa2454"
+                  }
+                }
+          ]
+        }
 
     deletePolicy:
       title: deletePolicy
@@ -1208,16 +1305,16 @@ components:
           type: string
         title:
           type: string
-        result:
+        results:
           type: string
       required:
         - type
         - title
-        - result
+        - results
       example:
         type: urn:dx:acl:success
         title: Success
-        result: Policy deleted successfully
+        results: Policy deleted successfully
     deletePolicyInvalidUserResponse:
       title: deletePolicyInvalidUserResponse
       type: object
