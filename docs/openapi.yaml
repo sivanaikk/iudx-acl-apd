@@ -95,7 +95,7 @@ paths:
       summary: Delete Policies
       description: |-
         Delete policies created by a user. User policies can be deleted.
-        The request would contain objects with a key `id`, i.e. the ID of the user policy or APD policy that the user wants to delete. The user can use the List Policy API to get the policy IDs.
+        The request would contain `id`, i.e. the ID of the user policy or APD policy that the user wants to delete. The user can use the List Policy API to get the policy ID.
         ## delegate
          - A delegate may use the API to view policies on behalf of their provider. This is done by passing the userInfo of the delegator must be present in the token issued by the AAA
       operationId: delete-auth-v1-policies
@@ -110,41 +110,25 @@ paths:
             maxLength: 4000
             example: Bearer <JWT>
       requestBody:
-        description: Request body is a JsonObject containing a JsonArray having one or multiple ID Objects to delete policies.
+        description: Request body is a JsonObject containing ID whose value is the policy ID.
         required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                request:
-                  type: array
-                  minItems: 1
-                  uniqueItems: true
-                  items:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        format: uuid
-                        pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
-                        minLength: 36
-                        maxLength: 36
-                    required:
-                      - id
+                id:
+                  type: string
+                  format: uuid
+                  pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
+                  minLength: 36
+                  maxLength: 36
               required:
-                - request
-              x-examples:
-                example-1:
-                  request:
-                    - id: ''
-                    - id: ''
+                - id
             examples:
               Delete Policies:
                 value:
-                  request:
-                    - id: 231f6eca-6276-4993-bfeb-53cbbbba6f06
-                    - id: 231f6eca-6276-4993-bfeb-53cbbbba6f0b
+                  id: 231f6eca-6276-4993-bfeb-53cbbbba6f06
       responses:
         '200':
           description: Successfully deleted the User Policies
@@ -158,7 +142,10 @@ paths:
                 type: string
               description: application/json
         '400':
-          description: Bad Request- Error or exceptions -id is not a valid a policyId
+          description: |- 
+            Bad Request
+            - Error or exceptions 
+            - id is not a valid a policyId
           content:
             application/json:
               schema:
@@ -168,8 +155,23 @@ paths:
               schema:
                 type: string
               description: application/json
+        '404':
+          description: |-
+            Not Found 
+              - policy id does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/deletePolicyNotFoundErrorResponse'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
         '401':
-          description: '- Unauthorized - `token` invalid/expired'
+          description: |-
+            Unauthorized
+              - `token` invalid/expired
           content:
             application/json:
               schema:
@@ -387,7 +389,7 @@ paths:
         - authorization: []
 
 
-  /policies/requests:
+  /ngsi-ld/v1/policies/requests:
     get:
       tags:
         - Notifications APIs
@@ -828,7 +830,7 @@ paths:
             type: string
       requestBody:
         description: |-
-          - `id` : the UUID of the request that are to be deleted.
+          - `id` : the UUID of the request that is to be deleted.
 
           Consumers can get the id of the request they want to delete using the list notifications API.
         required: true
@@ -845,182 +847,33 @@ paths:
                   maxLength: 36
                   required:
                    - id
-              required:
-                - request
-              x-examples:
-                example-1:
-                  request:
-                    - id: 6c61b9c7-6cfd-4d2a-bfc1-217fd56bb8e3
-            examples:
-              single delete request:
-                value:
-                  request:
-                    - id: 6c61b9c7-6cfd-4d2a-bfc1-217fd56bb8e3
+              examples:
+                id: 6c61b9c7-6cfd-4d2a-bfc1-217fd56bb8e3
+
       responses:
         '200':
-          description: OK
+          description: Successfully deleted the Notification
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  type:
-                    type: string
-                  title:
-                    type: string
-                  results:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        requestId:
-                          type: string
-                        itemId:
-                          type: string
-                        itemType:
-                          type: string
-                        status:
-                          type: string
-                        expiryDuration:
-                          type: string
-                        constraints:
-                          type: object
-                          properties:
-                            access:
-                              type: array
-                              items:
-                                type: string
-                        user:
-                          type: object
-                          properties:
-                            email:
-                              type: string
-                            name:
-                              type: object
-                              properties:
-                                firstName:
-                                  type: string
-                                lastName:
-                                  type: string
-                            id:
-                              type: string
-                        owner:
-                          type: object
-                          properties:
-                            email:
-                              type: string
-                            name:
-                              type: object
-                              properties:
-                                firstName:
-                                  type: string
-                                lastName:
-                                  type: string
-                            id:
-                              type: string
-                x-examples:
-                  example-1:
-                    type: 'urn:dx:acl:Success'
-                    title: deleted requests
-                    results:
-                      - requestId: 383ea497-0de9-4d6f-94c1-e3dd1328d944
-                        itemId: iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/integration-test
-                        itemType: resource_group
-                        status: withdrawn
-                        expiryDuration: '1 year 2 mons 10 days 02:30:00'
-                        constraints:
-                          access:
-                            - api
-                            - sub
-                            - file
-                        user:
-                          email: alice_consumer@iisc.ac.in
-                          name:
-                            firstName: Alice
-                            lastName: Consumer
-                          id: fdfb2eb0-f11e-43cb-a737-d17ed592e948
-                        owner:
-                          email: bob_provider@iisc.ac.in
-                          name:
-                            firstName: Bob
-                            lastName: Provider
-                          id: 844e251b-574b-46e6-9247-f76f1f70a637
-              examples:
-                successful deletion:
-                  value:
-                    type: 'urn:dx:acl:Success'
-                    title: deleted requests
-                    results:
-                      - requestId: 383ea497-0de9-4d6f-94c1-e3dd1328d944
-                        itemId: integration-test
-                        itemType: resource_group
-                        status: withdrawn
-                        expiryDuration: '1 year 2 mons 10 days 02:30:00'
-                        constraints:
-                          access:
-                            - api
-                            - sub
-                            - file
-                        user:
-                          email: alice_consumer@iisc.ac.in
-                          name:
-                            firstName: Alice
-                            lastName: Consumer
-                          id: fdfb2eb0-f11e-43cb-a737-d17ed592e948
-                        owner:
-                          email: bob_provider@iisc.ac.in
-                          name:
-                            firstName: Bob
-                            lastName: Provider
-                          id: 844e251b-574b-46e6-9247-f76f1f70a637
+                $ref: '#/components/schemas/deleteNotification'
         '400':
-          description: The Id does not exist or was not created by the user calling the API or is no longer in the `pending` status
+          description: |-
+            Bad Request
+              - Errors or exceptions
+              - The ID is no longer in the `PENDING` status or has already been withdrawn earlier
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  type:
-                    type: string
-                  title:
-                    type: string
-                  detail:
-                    type: string
-                x-examples:
-                  example-1:
-                    type: 'urn:dx:acl:InvalidInput'
-                    title: requestId does not exists
-                    detail: '[6c61b9c7-6cfd-4d2a-bfc1-217fd56bb8e3]'
-              examples:
-                item does not es:
-                  value:
-                    type: 'urn:dx:acl:InvalidInput'
-                    title: requestId does not exists
-                    detail: '[6c61b9c7-6cfd-4d2a-bfc1-217fd56bb8e3]'
-        '401':
-          description: User with non consumer role trying to call the API
+                $ref: '#/components/schemas/deleteNotificationBadRequest'
+        '404':
+          description: |- 
+            Not Found
+              - The ID for which the request is being withdrawn is not found
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  type:
-                    type: string
-                  title:
-                    type: string
-                  detail:
-                    type: string
-                x-examples:
-                  example-1:
-                    type: 'urn:dx:acl:InvalidRole'
-                    title: User does not have roles to use API
-                    detail: User with consumer role may call the API
-              examples:
-                example-1:
-                  value:
-                    type: 'urn:dx:acl:InvalidRole'
-                    title: User does not have roles to use API
-                    detail: User with consumer role may call the API
+                $ref: '#/components/schemas/deleteNotificationNotFound'
         '403':
           description: |-
             Forbidden
@@ -1028,12 +881,33 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/deleteNotificationInvalidUserResponse'
-          headers:
-            Content-Type:
+                $ref: '#/components/schemas/deleteNotificationForbiddenResponse'
+        '401':
+          description: |-
+            Unauthorized
+              - User with non-consumer role trying to call the API
+          content:
+            application/json:
               schema:
-                type: string
-              description: application/json
+                type: object
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  detail:
+                    type: string
+                x-examples:
+                  example-1:
+                    type: 'urn:dx:acl:InvalidRole'
+                    title: User does not have roles to use API
+                    detail: User with consumer role may call the API
+              examples:
+                example-1:
+                  value:
+                    type: 'urn:dx:acl:InvalidRole'
+                    title: User does not have roles to use API
+                    detail: User with consumer role may call the API
       security:
         - authorization: []
 
@@ -1290,6 +1164,81 @@ components:
           ]
         }
 
+    deleteNotificationForbiddenResponse:
+      title: Delete notification forbidden
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        results:
+          type: string
+      required:
+        - type
+        - title
+        - results
+      example:
+        type: urn:dx:acl:forbidden
+        title: Forbidden
+        detail: Request could not be withdrawn, as it is doesn't belong to the user
+
+    deleteNotificationNotFound:
+      title: Delete notification not found
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        results:
+          type: string
+      required:
+        - type
+        - title
+        - results
+      example:
+        type: urn:dx:acl:notFound
+        title: Not Found
+        detail: Request could not be withdrawn, as it is not found
+
+    deleteNotificationBadRequest:
+      title: Delete notification bad request
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        results:
+          type: string
+      required:
+        - type
+        - title
+        - results
+      example:
+        type: urn:dx:acl:badRequest
+        title: Bad Request
+        detail: Request could not be withdrawn, as it is not in PENDING status
+    deleteNotification:
+      title: Delete Notification
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        results:
+          type: string
+      required:
+        - type
+        - title
+        - results
+      example:
+        type: urn:dx:acl:success
+        title: Success
+        results: Request deleted successfully
+
     deletePolicy:
       title: deletePolicy
       type: object
@@ -1325,7 +1274,7 @@ components:
       example:
         type: urn:dx:acl:forbidden
         title: Access Denied
-        detail: Policy could not be deleted, user doesn't own the policy
+        detail: Policy could not be deleted, as user doesn't own the policy
     getPolicyInvalidUserResponse:
       title: getPolicyInvalidUserResponse
       type: object
@@ -1344,24 +1293,7 @@ components:
         type: urn:dx:acl:forbidden
         title: Access Denied
         detail: Policy could not be fetched, user doesn't own the policy
-    deleteNotificationInvalidUserResponse:
-      title: deleteNotificationInvalidUserResponse
-      type: object
-      properties:
-        type:
-          type: string
-        title:
-          type: string
-        detail:
-          type: string
-      required:
-        - type
-        - title
-        - detail
-      example:
-        type: urn:dx:acl:forbidden
-        title: Access Denied
-        detail: Notification could not be deleted, notification doesn't belong to the user
+
     updateNotificationInvalidUserResponse:
       title: updateNotificationInvalidUserResponse
       type: object
@@ -1415,7 +1347,25 @@ components:
       example:
         type: urn:dx:acl:badRequest
         title: Bad Request
-        detail: Policy could not be deleted, count not equal to list of policies to be deleted
+        detail: Policy could not be deleted, as it is not in active state or is expired
+    deletePolicyNotFoundErrorResponse:
+      title: deletePolicyNotFoundErrorResponse
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:notFound
+        title: Not Found
+        detail: Policy could not be deleted, as it doesn't exist
     Unauthorized:
       type: object
       properties:
