@@ -84,14 +84,6 @@ public class GetPolicy {
                 .onComplete(
                         handler -> {
                             if (handler.succeeded()) {
-//                                JsonObject response = handler.result().getJsonObject(RESULT).getJsonArray(RESULT).getJsonObject(0);
-//                                String consumerFirstName = response.getString("consumerFirstName");
-//                                String consumerLastName = response.getString("consumerLastName");
-//                                String consumerId = response.getString("consumerId");
-//                                String consumerEmail = response.getString("consumerEmail");
-//                                response.remove("policyId");
-//                                LOG.info("sjdfsfdjsl " + handler.result().encodePrettily());
-//                                LOG.info("wrtrt : " + response.encodePrettily());
                                 LOG.info("success while executing GET provider policy");
                                 promise.complete(handler.result());
                             } else {
