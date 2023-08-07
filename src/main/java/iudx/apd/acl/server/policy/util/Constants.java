@@ -9,7 +9,7 @@ public class Constants {
   public static final String ENTITY_TABLE_CHECK =
       "Select _id,provider_id from resource_entity where _id = ANY ($1::UUID[]);";
   public static final String INSERT_ENTITY_TABLE =
-    "insert into resource_entity(_id,provider_id,resource_group_id) values ($1,$2,$3) returning provider_id;";
+    "insert into resource_entity(_id,provider_id,resource_group_id) values ($1,$2,$3) on conflict (_id) do nothing;";
 
   public static final String CREATE_POLICY_QUERY =
       "insert into policy (user_emailid, item_id, owner_id,item_type,expiry_at, constraints,status) "

@@ -18,6 +18,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
 import io.vertx.sqlclient.Tuple;
+import iudx.apd.acl.server.apiserver.util.ResourceObj;
 import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
@@ -114,15 +115,21 @@ public class CreatePolicy {
                           }
                           if (!itemIdList.isEmpty()) {
                             catalogueClient
-                                .fetchItem(itemIdList)
+                                .fetchItemDBUpdate(itemIdList)
                                 .onSuccess(
-                                    successHandlerResult -> {
-                                      providerIdSet.addAll(successHandlerResult);
+                                    resourceObjListCAT -> {
+                                      Set<UUID> tempProviderIdSet =
+                                          resourceObjListCAT.stream()
+                                              .map(ResourceObj::getProviderId)
+                                              .collect(Collectors.toSet());
+                                      providerIdSet.addAll(tempProviderIdSet);
                                       promise.complete(providerIdSet);
                                     })
                                 .onFailure(
                                     failureHandler -> {
-                                      promise.fail(generateErrorResponse(BAD_REQUEST,BAD_REQUEST.getDescription()));
+                                      promise.fail(
+                                          generateErrorResponse(
+                                              BAD_REQUEST, BAD_REQUEST.getDescription()));
                                     });
                           } else {
                             promise.complete(providerIdSet);
