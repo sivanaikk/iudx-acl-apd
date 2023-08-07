@@ -831,7 +831,7 @@ paths:
       requestBody:
         description: |-
           - `id` : the UUID of the request that is to be deleted.
-
+          
           Consumers can get the id of the request they want to delete using the list notifications API.
         required: true
         content:
@@ -845,10 +845,12 @@ paths:
                   pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
                   minLength: 36
                   maxLength: 36
-                  required:
-                   - id
-              examples:
-                id: 6c61b9c7-6cfd-4d2a-bfc1-217fd56bb8e3
+              required:
+                - id
+            examples:
+              Delete Notification:
+                value:
+                  id: 6c61b9c7-6cfd-4d2a-bfc1-217fd56bb8e3
 
       responses:
         '200':
@@ -885,6 +887,7 @@ paths:
         '401':
           description: |-
             Unauthorized
+              - Invalid token
               - User with non-consumer role trying to call the API
           content:
             application/json:
@@ -899,14 +902,14 @@ paths:
                     type: string
                 x-examples:
                   example-1:
-                    type: 'urn:dx:acl:InvalidRole'
-                    title: User does not have roles to use API
+                    type: 'urn:dx:acl:forbidden'
+                    title: Forbidden
                     detail: User with consumer role may call the API
               examples:
                 example-1:
                   value:
-                    type: 'urn:dx:acl:InvalidRole'
-                    title: User does not have roles to use API
+                    type: 'urn:dx:acl:forbidden'
+                    title: Forbidden
                     detail: User with consumer role may call the API
       security:
         - authorization: []
@@ -1219,7 +1222,7 @@ components:
       example:
         type: urn:dx:acl:badRequest
         title: Bad Request
-        detail: Request could not be withdrawn, as it is not in PENDING status
+        detail: Request could not be withdrawn, as it is not in pending status
     deleteNotification:
       title: Delete Notification
       type: object
