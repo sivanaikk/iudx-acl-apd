@@ -830,28 +830,21 @@ paths:
         description: |-
           - `id` : the UUID of the request that are to be deleted.
 
-          Consumers can get the ids of the requests they want to delete using the list notifications API.
+          Consumers can get the id of the request they want to delete using the list notifications API.
         required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                request:
-                  type: array
-                  minItems: 1
-                  uniqueItems: true
-                  items:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        format: uuid
-                        pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
-                        minLength: 36
-                        maxLength: 36
-                    required:
-                      - id
+                id:
+                  type: string
+                  format: uuid
+                  pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
+                  minLength: 36
+                  maxLength: 36
+                  required:
+                   - id
               required:
                 - request
               x-examples:
