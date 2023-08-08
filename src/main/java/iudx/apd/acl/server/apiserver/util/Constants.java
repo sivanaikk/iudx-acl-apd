@@ -48,7 +48,7 @@ public class Constants {
   public static final String TYPE = "type";
   public static final String TITLE = "title";
   public static final String STATUS_CODE = "statusCode";
-  public static final String RESULT = "result";
+  public static final String RESULT = "results";
   public static final String DETAIL = "detail";
 
   // endpoints
