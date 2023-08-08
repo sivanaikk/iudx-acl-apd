@@ -62,13 +62,13 @@ public class Constants {
           Pattern.compile(
                   "[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$");
 
-  //operation ids
-  public static final String GET_POLICY_API = "get-auth-v1-policies";
-  public static final String DELETE_POLICY_API = "delete-auth-v1-policies";
-  public static final String CREATE_POLICY_API = "post-auth-v1-policies";
-  public static final String GET_NOTIFICATIONS_API = "get-auth-v1-policies-requests";
-  public static final String CREATE_NOTIFICATIONS_API = "post-auth-v1-policies-requests";
-  public static final String UPDATE_NOTIFICATIONS_API = "put-auth-v1-policies-requests";
-  public static final String DELETE_NOTIFICATIONS_API = "delete-auth-v1-policies-requests";
+  //  //operation ids
+    public static final String GET_POLICY_API = "get-auth-v1-policies";
+    public static final String DELETE_POLICY_API = "delete-auth-v1-policies";
+    public static final String CREATE_POLICY_API = "post-auth-v1-policies";
+    public static final String GET_NOTIFICATIONS_API = "get-auth-v1-policies-requests";
+    public static final String CREATE_NOTIFICATIONS_API = "post-auth-v1-policies-requests";
+    public static final String UPDATE_NOTIFICATIONS_API = "put-auth-v1-policies-requests";
+    public static final String DELETE_NOTIFICATIONS_API = "delete-auth-v1-policies-requests";
 
 }
