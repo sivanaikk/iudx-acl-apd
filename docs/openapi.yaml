@@ -63,6 +63,7 @@ paths:
               description: application/json
         '404':
           description: '- Not Found - Policy not found'
+
           content:
             application/json:
               schema:
@@ -385,7 +386,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/conflictResponse'
       security:
         - authorization: []
 
@@ -459,13 +460,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Unauthorized'
-              examples:
-                example-1:
-                  value:
-                    type: string
-                    title: string
-                    detail: string
+                $ref: '#/components/schemas/unauthorized'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '204':
+          description: 'No policy found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/noPolicyRequestFound'
           headers:
             Content-Type:
               schema:
@@ -896,8 +902,8 @@ paths:
               examples:
                 example-1:
                   value:
-                    type: 'urn:dx:acl:forbidden'
-                    title: Forbidde
+                    type: 'urn:acl:as:InvalidRole'
+                    title: User does not have access to use API
                     detail: User with consumer role may call the API
       security:
         - authorization: []
@@ -1238,8 +1244,7 @@ components:
           type: string
         title:
           type: string
-
-        results:
+        details:
           type: string
       required:
         - type
@@ -1328,10 +1333,27 @@ components:
       example:
         type: urn:dx:acl:resourceNotFound
         title: Not Found
-        detail: Resource Not Found
-    deletePolicyErrorResponse:
-      title: deletePolicyErrorResponse
+        detail: Resource Not Found [bf9d8f85-b7b0-40bb-8197-0046725f1ca8, 2789fa93-565a-4ea8-97f9-b64fc4863021]
+    noPolicyRequestFound:
+      title: noPolicyRequestFound
       type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:noContent
+        title: No Content
+        detail: No policy request found
+    conflictResponse:
+      title: standardPolicyAlreadyExistErrorResponse
       properties:
         type:
           type: string

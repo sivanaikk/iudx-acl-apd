@@ -27,7 +27,6 @@ public class CatalogueClient implements CatalogueClientInterface {
   private final String catServerRelationShipPath;
 
   public CatalogueClient(JsonObject options) {
-
     WebClientOptions clientOptions =
         new WebClientOptions().setSsl(true).setVerifyHost(false).setTrustAll(true);
 
