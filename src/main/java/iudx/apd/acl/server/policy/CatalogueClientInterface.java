@@ -21,5 +21,5 @@ public interface CatalogueClientInterface {
    *     Future is resolved with the fetched resourceObj list on success, or failed with an error
    *     message on failure.
    */
-  Future<List<ResourceObj>> fetchItemDBUpdate(Set<UUID> ids);
+  Future<List<ResourceObj>> fetchItems(Set<UUID> ids);
 }
