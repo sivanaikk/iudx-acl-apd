@@ -43,8 +43,8 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/getPolicySuccessResponse1'
-                  - $ref: '#/components/schemas/getPolicySuccessResponse2'
+                  - $ref: '#/components/schemas/getPolicySuccessResponseWithResourceGroup'
+                  - $ref: '#/components/schemas/getPolicySuccessResponseWithResourceType'
           headers:
             Content-Type:
               schema:
@@ -62,7 +62,7 @@ paths:
                 type: string
               description: application/json
         '404':
-          description: '- Unauthorized - `token` invalid/expired'
+          description: '- Not Found - Policy not found'
           content:
             application/json:
               schema:
@@ -921,7 +921,7 @@ components:
       type: http
       scheme: bearer
   schemas:
-    getPolicySuccessResponse2:
+    getPolicySuccessResponseWithResourceType:
       title: get policy for type resource
       required:
         - type
@@ -1032,7 +1032,7 @@ components:
           ]
         }
 
-    getPolicySuccessResponse1:
+    getPolicySuccessResponseWithResourceGroup:
       title: get policy with for type resource-group
       required:
         - type
