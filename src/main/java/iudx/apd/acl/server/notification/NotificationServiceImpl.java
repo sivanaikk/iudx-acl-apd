@@ -23,9 +23,9 @@ public class NotificationServiceImpl implements NotificationService{
     }
 
     @Override
-    public Future<JsonObject> deleteNotification(JsonArray notificationList, User user) {
+    public Future<JsonObject> deleteNotification(JsonObject notification, User user) {
         Promise<JsonObject> promise = Promise.promise();
-        deleteNotification.initiateDeleteNotification(notificationList,user)
+        deleteNotification.initiateDeleteNotification(notification,user)
                 .onComplete(
                         handler -> {
                             if (handler.succeeded()) {

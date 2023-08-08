@@ -183,11 +183,10 @@ public class ApiServerVerticle extends AbstractVerticle {
     }
 
     private void deleteAccessRequestHandler(RoutingContext routingContext) {
-        JsonObject bodyAsJsonObject = routingContext.body().asJsonObject();
-        JsonArray notificationList = bodyAsJsonObject.getJsonArray("request");
+        JsonObject notification = routingContext.body().asJsonObject();
         User consumer = getConsumer();
         notificationService
-                .deleteNotification(notificationList, consumer)
+                .deleteNotification(notification, consumer)
                 .onComplete(
                         handler -> {
                             if (handler.succeeded()) {

@@ -25,7 +25,7 @@ public interface NotificationService {
 
     Future<JsonObject> createNotification(JsonObject request, User user);
 
-    Future<JsonObject> deleteNotification(JsonArray notificationList, User user);
+    Future<JsonObject> deleteNotification(JsonObject notification, User user);
 
     Future<JsonObject> getNotification(User user);
 
