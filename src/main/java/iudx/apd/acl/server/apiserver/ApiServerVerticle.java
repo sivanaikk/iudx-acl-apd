@@ -24,7 +24,7 @@ import io.vertx.ext.web.openapi.RouterBuilderOptions;
 import iudx.apd.acl.server.apiserver.util.RequestType;
 import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.authentication.AuthHandler;
-import iudx.apd.acl.server.authentication.SomeAuth;
+import iudx.apd.acl.server.authentication.Authentication;
 import iudx.apd.acl.server.common.Api;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
@@ -112,7 +112,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         RouterBuilder.create(vertx, "docs/openapi.yaml")
                 .onSuccess(
                         routerBuilder -> {
-                            routerBuilder.securityHandler("authorization", new SomeAuth());
+                            routerBuilder.securityHandler("authorization", new Authentication());
 
                             routerBuilder
                                     .operation(CREATE_POLICY_API)
