@@ -43,31 +43,28 @@ public class DeleteNotification {
      * @return failure or success response
      */
     public Future<JsonObject> initiateDeleteNotification(JsonObject notification, User user) {
-        Promise<JsonObject> promise = Promise.promise();
         UUID requestUuid = UUID.fromString(notification.getString("id"));
-        verifyRequest(GET_REQUEST, requestUuid, user).onComplete(verifyHandler -> {
-            if (verifyHandler.succeeded()) {
-                executeWithDrawNotification(WITHDRAW_REQUEST, requestUuid).onComplete(executeWithDrawHandler -> {
-                    if (executeWithDrawHandler.succeeded()) {
-                        JsonObject response = new JsonObject()
-                                .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
-                                .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
-                                .put(RESULT, "Request deleted successfully")
-                                .put(STATUS_CODE, SUCCESS.getValue());
-                        promise.complete(response);
-                    } else {
-                        promise.fail(executeWithDrawHandler.cause().getMessage());
-                    }
-                });
-            } else {
-                promise.fail(verifyHandler.cause().getMessage());
+        Future<Boolean> verifyFuture = verifyRequest(GET_REQUEST, requestUuid, user);
+        Future<Boolean> withDrawNotificationFuture = verifyFuture.compose(isNotificationVerified -> {
+            if(isNotificationVerified)
+            {
+                return executeWithDrawNotification(WITHDRAW_REQUEST, requestUuid);
             }
+                return Future.failedFuture(verifyFuture.cause().getMessage());
         });
-
-
-        return promise.future();
+        return withDrawNotificationFuture.compose(isWithNotificationSuccessful -> {
+            if(isWithNotificationSuccessful)
+            {
+                JsonObject response = new JsonObject()
+                        .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
+                        .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
+                        .put(RESULT, "Request deleted successfully")
+                        .put(STATUS_CODE, SUCCESS.getValue());
+                return Future.succeededFuture(response);
+            }
+                return Future.failedFuture(withDrawNotificationFuture.cause().getMessage());
+        });
     }
-
     /**
      * Checks if the request ID that is about to be withdrawn, belongs
      * to the user and is not in Pending status
