@@ -192,7 +192,6 @@ public class ApiServerVerticle extends AbstractVerticle {
                         })
                 .onFailure(
                         failure -> {
-                            failure.printStackTrace();
                             LOGGER.error(
                                     "Failed to initialize router builder {}", failure.getCause().getMessage());
                         });
