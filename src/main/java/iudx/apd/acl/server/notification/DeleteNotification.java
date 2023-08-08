@@ -45,10 +45,10 @@ public class DeleteNotification {
     public Future<JsonObject> initiateDeleteNotification(JsonObject notification, User user) {
         Promise<JsonObject> promise = Promise.promise();
         UUID requestUuid = UUID.fromString(notification.getString("id"));
-        verifyRequest(GET_REQUEST, requestUuid, user).onComplete(handler -> {
-            if (handler.succeeded()) {
-                executeWithDrawNotification(WITHDRAW_REQUEST, requestUuid).onComplete(handler2 -> {
-                    if (handler2.succeeded()) {
+        verifyRequest(GET_REQUEST, requestUuid, user).onComplete(verifyHandler -> {
+            if (verifyHandler.succeeded()) {
+                executeWithDrawNotification(WITHDRAW_REQUEST, requestUuid).onComplete(executeWithDrawHandler -> {
+                    if (executeWithDrawHandler.succeeded()) {
                         JsonObject response = new JsonObject()
                                 .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
                                 .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
@@ -56,11 +56,11 @@ public class DeleteNotification {
                                 .put(STATUS_CODE, SUCCESS.getValue());
                         promise.complete(response);
                     } else {
-                        promise.fail(handler2.cause().getMessage());
+                        promise.fail(executeWithDrawHandler.cause().getMessage());
                     }
                 });
             } else {
-                promise.fail(handler.cause().getMessage());
+                promise.fail(verifyHandler.cause().getMessage());
             }
         });
 
