@@ -79,7 +79,7 @@ public class Deployer {
     int numInstances = moduleConfigurations.getInteger("verticleInstances");
 
     DeploymentOptions deploymentOptions =
-        new DeploymentOptions().setInstances(numInstances).setConfig(moduleConfigurations);
+            new DeploymentOptions().setInstances(numInstances).setConfig(moduleConfigurations);
 
     boolean isWorkerVerticle = moduleConfigurations.getBoolean("isWorkerVerticle");
     if (isWorkerVerticle) {
@@ -92,16 +92,16 @@ public class Deployer {
     }
 
     vertx.deployVerticle(
-        moduleName,
-        deploymentOptions,
-        ar -> {
-          if (ar.succeeded()) {
-            logger.info("Deployed " + moduleName);
-            recursiveDeploy(vertx, configs, i + 1);
-          } else {
-            logger.fatal("Failed to deploy " + moduleName + " cause:", ar.cause());
-          }
-        });
+            moduleName,
+            deploymentOptions,
+            ar -> {
+              if (ar.succeeded()) {
+                logger.info("Deployed " + moduleName);
+                recursiveDeploy(vertx, configs, i + 1);
+              } else {
+                logger.fatal("Failed to deploy " + moduleName + " cause:", ar.cause());
+              }
+            });
   }
 
   /**
@@ -120,11 +120,11 @@ public class Deployer {
 
     String moduleName = modules.get(0);
     JsonObject config =
-        configuredModules.stream()
-            .map(obj -> (JsonObject) obj)
-            .filter(obj -> obj.getString("id").equals(moduleName))
-            .findFirst()
-            .orElse(new JsonObject());
+            configuredModules.stream()
+                    .map(obj -> (JsonObject) obj)
+                    .filter(obj -> obj.getString("id").equals(moduleName))
+                    .findFirst()
+                    .orElse(new JsonObject());
 
     if (config.isEmpty()) {
       logger.fatal("Failed to deploy " + moduleName + " cause: Not Found");
@@ -135,7 +135,7 @@ public class Deployer {
     config.mergeIn(commonConfigs, true);
     int numInstances = config.getInteger("verticleInstances");
     DeploymentOptions deploymentOptions =
-        new DeploymentOptions().setInstances(numInstances).setConfig(config);
+            new DeploymentOptions().setInstances(numInstances).setConfig(config);
     boolean isWorkerVerticle = config.getBoolean("isWorkerVerticle");
     if (isWorkerVerticle) {
       logger.info("worker verticle : " + config.getString("id"));
@@ -147,17 +147,17 @@ public class Deployer {
     }
 
     vertx.deployVerticle(
-        moduleName,
-        deploymentOptions,
-        ar -> {
-          if (ar.succeeded()) {
-            logger.info("Deployed " + moduleName);
-            modules.remove(0);
-            recursiveDeploy(vertx, configs, modules);
-          } else {
-            logger.fatal("Failed to deploy " + moduleName + " cause:", ar.cause());
-          }
-        });
+            moduleName,
+            deploymentOptions,
+            ar -> {
+              if (ar.succeeded()) {
+                logger.info("Deployed " + moduleName);
+                modules.remove(0);
+                recursiveDeploy(vertx, configs, modules);
+              } else {
+                logger.fatal("Failed to deploy " + moduleName + " cause:", ar.cause());
+              }
+            });
   }
 
   private static JsonObject getConfigForModule(int moduleIndex, JsonObject configurations) {
@@ -167,37 +167,37 @@ public class Deployer {
   }
 
   public static ClusterManager getClusterManager(
-      String host, List<String> zookeepers, String clusterId) {
+          String host, List<String> zookeepers, String clusterId) {
     Config config = new Config();
     config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
     config.getNetworkConfig().setPublicAddress(host);
     config.setProperty("hazelcast.discovery.enabled", "true");
     config.setProperty("hazelcast.logging.type", "log4j2");
     DiscoveryStrategyConfig discoveryStrategyConfig =
-        new DiscoveryStrategyConfig(new ZookeeperDiscoveryStrategyFactory());
+            new DiscoveryStrategyConfig(new ZookeeperDiscoveryStrategyFactory());
     discoveryStrategyConfig.addProperty(
-        ZookeeperDiscoveryProperties.ZOOKEEPER_URL.key(), String.join(",", zookeepers));
+            ZookeeperDiscoveryProperties.ZOOKEEPER_URL.key(), String.join(",", zookeepers));
     discoveryStrategyConfig.addProperty(ZookeeperDiscoveryProperties.GROUP.key(), clusterId);
     config
-        .getNetworkConfig()
-        .getJoin()
-        .getDiscoveryConfig()
-        .addDiscoveryStrategyConfig(discoveryStrategyConfig);
+            .getNetworkConfig()
+            .getJoin()
+            .getDiscoveryConfig()
+            .addDiscoveryStrategyConfig(discoveryStrategyConfig);
 
     return new HazelcastClusterManager(config);
   }
 
   public static MetricsOptions getMetricsOptions() {
     return new MicrometerMetricsOptions()
-        .setPrometheusOptions(
-            new VertxPrometheusOptions()
-                .setEnabled(true)
-                .setStartEmbeddedServer(true)
-                .setEmbeddedServerOptions(new HttpServerOptions().setPort(9000)))
-        // .setPublishQuantiles(true))
-        .setLabels(
-            EnumSet.of(Label.EB_ADDRESS, Label.EB_FAILURE, Label.HTTP_CODE, Label.HTTP_METHOD))
-        .setEnabled(true);
+            .setPrometheusOptions(
+                    new VertxPrometheusOptions()
+                            .setEnabled(true)
+                            .setStartEmbeddedServer(true)
+                            .setEmbeddedServerOptions(new HttpServerOptions().setPort(9000)))
+            // .setPublishQuantiles(true))
+            .setLabels(
+                    EnumSet.of(Label.EB_ADDRESS, Label.EB_FAILURE, Label.HTTP_CODE, Label.HTTP_METHOD))
+            .setEnabled(true);
   }
 
   public static void setJvmMetrics() {
@@ -235,27 +235,27 @@ public class Deployer {
     mgr = getClusterManager(host, zookeepers, clusterId);
     EventBusOptions ebOptions = new EventBusOptions().setClusterPublicHost(host);
     VertxOptions options =
-        new VertxOptions()
-            .setClusterManager(mgr)
-            .setEventBusOptions(ebOptions)
-            .setMetricsOptions(getMetricsOptions());
+            new VertxOptions()
+                    .setClusterManager(mgr)
+                    .setEventBusOptions(ebOptions)
+                    .setMetricsOptions(getMetricsOptions());
     logger.debug("metrics-options" + options.getMetricsOptions());
     Vertx.clusteredVertx(
-        options,
-        res -> {
-          if (res.succeeded()) {
-            vertx = res.result();
-            logger.debug(vertx.isMetricsEnabled());
-            setJvmMetrics();
-            if (modules.isEmpty()) {
-              recursiveDeploy(vertx, configuration, 0);
-            } else {
-              recursiveDeploy(vertx, configuration, modules);
-            }
-          } else {
-            logger.fatal("Could not join cluster");
-          }
-        });
+            options,
+            res -> {
+              if (res.succeeded()) {
+                vertx = res.result();
+                logger.debug(vertx.isMetricsEnabled());
+                setJvmMetrics();
+                if (modules.isEmpty()) {
+                  recursiveDeploy(vertx, configuration, 0);
+                } else {
+                  recursiveDeploy(vertx, configuration, modules);
+                }
+              } else {
+                logger.fatal("Could not join cluster");
+              }
+            });
   }
 
   public static void gracefulShutdown() {
@@ -269,15 +269,15 @@ public class Deployer {
     // shutdown verticles
     for (String deploymentId : deployIdSet) {
       vertx.undeploy(
-          deploymentId,
-          handler -> {
-            if (handler.succeeded()) {
-              logger1.debug(deploymentId + " verticle  successfully Undeployed");
-              latchVerticles.countDown();
-            } else {
-              logger1.warn(deploymentId + "Undeploy failed!");
-            }
-          });
+              deploymentId,
+              handler -> {
+                if (handler.succeeded()) {
+                  logger1.debug(deploymentId + " verticle  successfully Undeployed");
+                  latchVerticles.countDown();
+                } else {
+                  logger1.warn(deploymentId + "Undeploy failed!");
+                }
+              });
     }
 
     try {
@@ -295,14 +295,14 @@ public class Deployer {
       latchCluster.await(5, TimeUnit.SECONDS);
       // shutdown vertx
       vertx.close(
-          handler -> {
-            if (handler.succeeded()) {
-              logger1.info("vertx closed succesfully");
-              latchVertx.countDown();
-            } else {
-              logger1.warn("Vertx didn't close properly, reason:" + handler.cause());
-            }
-          });
+              handler -> {
+                if (handler.succeeded()) {
+                  logger1.info("vertx closed succesfully");
+                  latchVertx.countDown();
+                } else {
+                  logger1.warn("Vertx didn't close properly, reason:" + handler.cause());
+                }
+              });
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -323,37 +323,37 @@ public class Deployer {
 
   public static void main(String[] args) {
     CLI cli =
-        CLI.create("IUDX Rs")
-            .setSummary("A CLI to deploy the acl-apd server")
-            .addOption(
-                new Option()
-                    .setLongName("help")
-                    .setShortName("h")
-                    .setFlag(true)
-                    .setDescription("display help"))
-            .addOption(
-                new Option()
-                    .setLongName("config")
-                    .setShortName("c")
-                    .setRequired(true)
-                    .setDescription("configuration file"))
-            .addOption(
-                new Option()
-                    .setLongName("host")
-                    .setShortName("i")
-                    .setRequired(true)
-                    .setDescription("public host"))
-            .addOption(
-                new TypedOption<String>()
-                    .setType(String.class)
-                    .setLongName("modules")
-                    .setShortName("m")
-                    .setRequired(false)
-                    .setDefaultValue("all")
-                    .setParsedAsList(true)
-                    .setDescription(
-                        "comma separated list of verticle names to deploy. "
-                            + "If omitted, or if `all` is passed, all verticles are deployed"));
+            CLI.create("IUDX Rs")
+                    .setSummary("A CLI to deploy the acl-apd server")
+                    .addOption(
+                            new Option()
+                                    .setLongName("help")
+                                    .setShortName("h")
+                                    .setFlag(true)
+                                    .setDescription("display help"))
+                    .addOption(
+                            new Option()
+                                    .setLongName("config")
+                                    .setShortName("c")
+                                    .setRequired(true)
+                                    .setDescription("configuration file"))
+                    .addOption(
+                            new Option()
+                                    .setLongName("host")
+                                    .setShortName("i")
+                                    .setRequired(true)
+                                    .setDescription("public host"))
+                    .addOption(
+                            new TypedOption<String>()
+                                    .setType(String.class)
+                                    .setLongName("modules")
+                                    .setShortName("m")
+                                    .setRequired(false)
+                                    .setDefaultValue("all")
+                                    .setParsedAsList(true)
+                                    .setDescription(
+                                            "comma separated list of verticle names to deploy. "
+                                                    + "If omitted, or if `all` is passed, all verticles are deployed"));
 
     StringBuilder usageString = new StringBuilder();
     cli.usage(usageString);

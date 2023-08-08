@@ -1,9 +1,8 @@
-package iudx.apd.acl.server;
+package iudx.apd.acl.server.authentication;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import iudx.apd.acl.server.authentication.JwtAuthenticationServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith({MockitoExtension.class, VertxExtension.class})
 public class TestJwtAuthenticationServiceImpl {
-    private static final Logger LOGGER = LogManager.getLogger(JwtAuthenticationServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(TestJwtAuthenticationServiceImpl.class);
     @Mock
     JsonObject jsonObject;
     private JwtAuthenticationServiceImpl jwtAuth;

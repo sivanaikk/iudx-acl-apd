@@ -171,21 +171,21 @@ public class ApiServerVerticle extends AbstractVerticle {
     private void getAccessRequestHandler(RoutingContext routingContext) {}
 
     private void postPoliciesHandler(RoutingContext routingContext) {
-                      JsonObject requestBody = routingContext.body().asJsonObject();
-                      // TODO: to add user object in the requestBody before calling createPolicy method
-                      policyService
-                        .createPolicy(requestBody,getProvider())
-                        .onComplete(
-                          handler -> {
+        JsonObject requestBody = routingContext.body().asJsonObject();
+        // TODO: to add user object in the requestBody before calling createPolicy method
+        policyService
+                .createPolicy(requestBody,getProvider())
+                .onComplete(
+                        handler -> {
                             if (handler.succeeded()) {
-                              LOGGER.info("Policy created successfully ");
-                              handleSuccessResponse(
-                                routingContext, HttpStatusCode.SUCCESS.getValue(), handler.result().toString());
+                                LOGGER.info("Policy created successfully ");
+                                handleSuccessResponse(
+                                        routingContext, HttpStatusCode.SUCCESS.getValue(), handler.result().toString());
                             } else {
-                              LOGGER.error("Policy could not be created");
-                              handleFailureResponse(routingContext, handler.cause().getMessage());
+                                LOGGER.error("Policy could not be created");
+                                handleFailureResponse(routingContext, handler.cause().getMessage());
                             }
-                          });
+                        });
     }
 
 
@@ -387,4 +387,3 @@ public class ApiServerVerticle extends AbstractVerticle {
     };
 
 }
-
