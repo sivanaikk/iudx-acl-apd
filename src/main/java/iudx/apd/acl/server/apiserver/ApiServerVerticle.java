@@ -13,17 +13,15 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.TimeoutHandler;
-import iudx.apd.acl.server.apiserver.util.RequestType;
+import io.vertx.ext.web.openapi.RouterBuilder;
 import iudx.apd.acl.server.apiserver.util.User;
-import iudx.apd.acl.server.authentication.AuthenticationService;
+import iudx.apd.acl.server.authentication.Authentication;
 import iudx.apd.acl.server.common.Api;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.notification.NotificationService;
 import iudx.apd.acl.server.policy.PolicyService;
 import iudx.apd.acl.server.validation.FailureHandler;
-import iudx.apd.acl.server.validation.ValidationHandler;
-import iudx.apd.acl.server.validation.ValidationHandlerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,7 +30,8 @@ import java.util.stream.Stream;
 import static iudx.apd.acl.server.apiserver.response.ResponseUtil.generateResponse;
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.apiserver.util.Util.errorResponse;
-import static iudx.apd.acl.server.common.Constants.*;
+import static iudx.apd.acl.server.common.Constants.NOTIFICATION_SERVICE_ADDRESS;
+import static iudx.apd.acl.server.common.Constants.POLICY_SERVICE_ADDRESS;
 import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
 
 /**
@@ -64,7 +63,6 @@ public class ApiServerVerticle extends AbstractVerticle {
     private String dxApiBasePath;
     private Api api;
     private PolicyService policyService;
-    private AuthenticationService authenticationService;
     private String detail;
     private NotificationService notificationService;
 
@@ -104,82 +102,112 @@ public class ApiServerVerticle extends AbstractVerticle {
         dxApiBasePath = config().getString("dxApiBasePath");
         api = Api.getInstance(dxApiBasePath);
 
+        FailureHandler failureHandler = new FailureHandler();
+        /* Initialize service proxy */
         policyService = PolicyService.createProxy(vertx, POLICY_SERVICE_ADDRESS);
-        authenticationService = AuthenticationService.createProxy(vertx, AUTH_SERVICE_ADDRESS);
         notificationService = NotificationService.createProxy(vertx, NOTIFICATION_SERVICE_ADDRESS);
 
-        router = Router.router(vertx);
-        configureCorsHandler(router);
+        /* Initialize Router builder */
+        RouterBuilder.create(vertx, "docs/openapi.yaml")
+                .onSuccess(
+                        routerBuilder -> {
+                            routerBuilder.securityHandler("authorization", new Authentication());
 
-        putCommonResponseHeaders();
+                            routerBuilder
+                                    .operation(CREATE_POLICY_API)
+//                                    .handler(AuthHandler.create(vertx,api))
+                                    .handler(this::postPoliciesHandler)
+                                    .failureHandler(failureHandler);
 
-        // attach custom http error responses to router
-        configureErrorHandlers(router);
+                            routerBuilder
+                                    .operation(GET_POLICY_API)
+                                    .handler(this::getPoliciesHandler)
+                                    .failureHandler(failureHandler);
 
-        router.route().handler(BodyHandler.create());
-        router.route().handler(TimeoutHandler.create(10000, 408));
+                            routerBuilder
+                                    .operation(DELETE_POLICY_API)
+                                    .handler(this::deletePoliciesHandler)
+                                    .failureHandler(failureHandler);
 
-        /* Api endpoints */
-        ValidationHandler policyHandler =
-                new ValidationHandler(vertx, RequestType.POLICY, new ValidationHandlerFactory());
-        FailureHandler policyFailureHandler = new FailureHandler();
-        router.get(api.getPoliciesUrl()).handler(this::getPoliciesHandler);
-        router
-                .delete(api.getPoliciesUrl())
-                .handler(policyHandler)
-                .handler(this::deletePoliciesHandler)
-                .handler(policyFailureHandler);
-        router.post(api.getPoliciesUrl()).handler(this::postPoliciesHandler);
+                            routerBuilder
+                                    .operation(CREATE_NOTIFICATIONS_API)
+                                    .handler(this::postAccessRequestHandler)
+                                    .failureHandler(failureHandler);
 
-        router.get(api.getRequestPoliciesUrl()).handler(this::getAccessRequestHandler);
-        router.delete(api.getRequestPoliciesUrl()).handler(this::deleteAccessRequestHandler);
-        router.post(api.getRequestPoliciesUrl()).handler(this::postAccessRequestHandler);
-        router.put(api.getRequestPoliciesUrl()).handler(this::putAccessRequestHandler);
+                            routerBuilder
+                                    .operation(UPDATE_NOTIFICATIONS_API)
+                                    .handler(this::putAccessRequestHandler)
+                                    .failureHandler(failureHandler);
 
-        /* Documentation routes */
-        /* Static Resource Handler */
-        /* Get openapiv3 spec */
-        router
-                .get(ROUTE_STATIC_SPEC)
-                .produces(APPLICATION_JSON)
-                .handler(
-                        routingContext -> {
-                            HttpServerResponse response = routingContext.response();
-                            response.sendFile("docs/openapi.yaml");
+                            routerBuilder
+                                    .operation(GET_NOTIFICATIONS_API)
+                                    .handler(this::getAccessRequestHandler)
+                                    .failureHandler(failureHandler);
+
+                            routerBuilder
+                                    .operation(DELETE_NOTIFICATIONS_API)
+                                    .handler(this::deleteAccessRequestHandler)
+                                    .failureHandler(failureHandler);
+
+                            routerBuilder.rootHandler(TimeoutHandler.create(100000, 408));
+                            configureCorsHandler(routerBuilder);
+                            routerBuilder.rootHandler(BodyHandler.create());
+                            router = routerBuilder.createRouter();
+                            putCommonResponseHeaders();
+                            configureErrorHandlers(router);
+
+
+                            /* Documentation routes */
+                            /* Static Resource Handler */
+                            /* Get openapiv3 spec */
+                            router
+                                    .get(ROUTE_STATIC_SPEC)
+                                    .produces(APPLICATION_JSON)
+                                    .handler(
+                                            routingContext -> {
+                                                HttpServerResponse response = routingContext.response();
+                                                response.sendFile("docs/openapi.yaml");
+                                            });
+                            /* Get redoc */
+                            router
+                                    .get(ROUTE_DOC)
+                                    .produces(MIME_TEXT_HTML)
+                                    .handler(
+                                            routingContext -> {
+                                                HttpServerResponse response = routingContext.response();
+                                                response.sendFile("docs/apidoc.html");
+                                            });
+
+                            /* Read ssl configuration. */
+                            HttpServerOptions serverOptions = new HttpServerOptions();
+                            setServerOptions(serverOptions);
+                            serverOptions.setCompressionSupported(true).setCompressionLevel(5);
+                            server = vertx.createHttpServer(serverOptions);
+                            server.requestHandler(router).listen(port);
+
+                            printDeployedEndpoints(router);
+                            /* Print the deployed endpoints */
+                            LOGGER.info("API server deployed on: " + port);
+                        })
+                .onFailure(
+                        failure -> {
+                            LOGGER.error(
+                                    "Failed to initialize router builder {}", failure.getCause().getMessage());
                         });
-        /* Get redoc */
-        router
-                .get(ROUTE_DOC)
-                .produces(MIME_TEXT_HTML)
-                .handler(
-                        routingContext -> {
-                            HttpServerResponse response = routingContext.response();
-                            response.sendFile("docs/apidoc.html");
-                        });
-        /* Read ssl configuration. */
-        HttpServerOptions serverOptions = new HttpServerOptions();
-        setServerOptions(serverOptions);
-        serverOptions.setCompressionSupported(true).setCompressionLevel(5);
-        server = vertx.createHttpServer(serverOptions);
-        server.requestHandler(router).listen(port);
-
-        /* Print the deployed endpoints */
-        printDeployedEndpoints(router);
-
-        LOGGER.info("API server deployed on: " + port);
-    }
-
-    private void putAccessRequestHandler(RoutingContext routingContext) {
     }
 
     private void postAccessRequestHandler(RoutingContext routingContext) {
     }
+
     private void printDeployedEndpoints(Router router) {
         for (Route route : router.getRoutes()) {
             if (route.getPath() != null) {
-                LOGGER.info("API Endpoints deployed : " + route.methods() + " : " + route.getPath());
+                LOGGER.debug("API Endpoints deployed : " + route.methods() + " : " + route.getPath());
             }
         }
+    }
+
+    private void putAccessRequestHandler(RoutingContext routingContext) {
     }
 
     private void deleteAccessRequestHandler(RoutingContext routingContext) {
@@ -266,6 +294,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                                         handler.result().getInteger(STATUS_CODE),
                                         handler.result().getString(RESULT));
                             } else {
+                                handler.cause().printStackTrace();
                                 handleFailureResponse(routingContext, handler.cause().getMessage());
                             }
                         });
@@ -274,15 +303,12 @@ public class ApiServerVerticle extends AbstractVerticle {
     /**
      * Configures the CORS handler on the provided router.
      *
-     * @param router The router instance to configure the CORS handler on.
+     * @param routerBuilder The router builder instance to configure the CORS handler on.
      */
-    private void configureCorsHandler(Router router) {
-        router
-                .route()
-                .handler(
-                        CorsHandler.create("*")
-                                .allowedHeaders(ALLOWED_HEADERS)
-                                .allowedMethods(ALLOWED_METHODS));
+    private void configureCorsHandler(RouterBuilder routerBuilder) {
+        routerBuilder.rootHandler(CorsHandler.create("*")
+                .allowedHeaders(ALLOWED_HEADERS)
+                .allowedMethods(ALLOWED_METHODS));
     }
 
     /**
