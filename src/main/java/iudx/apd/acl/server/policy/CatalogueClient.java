@@ -1,6 +1,7 @@
 package iudx.apd.acl.server.policy;
 
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
+import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -51,7 +52,7 @@ public class CatalogueClient implements CatalogueClientInterface {
         .onFailure(
             ar -> {
               LOGGER.error("fetchItem error : " + ar.getCause());
-              promise.fail(INTERNAL_ERROR);
+              promise.fail(INTERNAL_SERVER_ERROR.getDescription());
             })
         .onSuccess(
             catSuccessResponse -> {
