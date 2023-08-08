@@ -140,7 +140,7 @@ public class DeletePolicy {
                     if (handler.succeeded()) {
                         try {
                             int count =
-                                    handler.result().getJsonArray("result").getJsonObject(0).getInteger("count");
+                                    handler.result().getJsonArray("results").getJsonObject(0).getInteger("count");
                             boolean areTheNumberOfPoliciesEqual = policyIdSetSize == count;
                             if (areTheNumberOfPoliciesEqual) {
                                 promise.complete(true);
@@ -174,7 +174,7 @@ public class DeletePolicy {
         policyIdSet = new HashSet<>();
         Promise<JsonObject> promise = Promise.promise();
 
-        LOG.info("What is the policyList here : " + policyList.toString());
+        LOG.trace("What is the policyList : {}", policyList.toString());
         policyIdSet = policyList.stream()
                 .map(val -> UUID.fromString(JsonObject.mapFrom(val).getString("id")))
                 .collect(Collectors.toSet());
@@ -210,31 +210,5 @@ public class DeletePolicy {
                             }
                         });
         return promise.future();
-    /*    Future<Boolean> countQueryFuture =
-        executeCountQuery(user, query, policyIdSet.size(), policyUuid);
-    // Do not update the policy if any of the policy id doesn't complete the checks
-    Future<JsonObject> updateQueryFuture = Future.failedFuture(getFailureResponse(responseJson,FAILURE_MESSAGE + ", update query failed"));
-    if(countQueryFuture.succeeded()){
-      updateQueryFuture = executeUpdateQuery(finalQuery, policyUuid);
-      }
-    Future<JsonObject> finalUpdateQueryFuture = updateQueryFuture;
-    Future<JsonObject> resultFuture =
-        CompositeFuture.all(countQueryFuture, updateQueryFuture)
-            .compose(
-                object -> {
-                  if (countQueryFuture.succeeded()) {
-                    if (finalUpdateQueryFuture.result() != null
-                        && !finalUpdateQueryFuture.result().isEmpty()) {
-                      JsonObject response = finalUpdateQueryFuture.result();
-                      response.put(RESULT, "Policy deleted successfully");
-                      return Future.succeededFuture(finalUpdateQueryFuture.result());
-                    } else {
-                      return Future.failedFuture(finalUpdateQueryFuture.cause().getMessage());
-                    }
-                  } else {
-                    return Future.failedFuture(countQueryFuture.cause().getMessage());
-                  }
-                });
-    return resultFuture;*/
     }
 }
