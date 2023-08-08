@@ -200,7 +200,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     private void printDeployedEndpoints(Router router) {
         for (Route route : router.getRoutes()) {
             if (route.getPath() != null) {
-                LOGGER.info("API Endpoints deployed : " + route.methods() + " : " + route.getPath());
+                LOGGER.debug("API Endpoints deployed : " + route.methods() + " : " + route.getPath());
             }
         }
     }
