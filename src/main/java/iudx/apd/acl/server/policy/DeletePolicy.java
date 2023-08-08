@@ -74,7 +74,7 @@ public class DeletePolicy {
    * Executes the respective queries
    *
    * @param query SQL Query to be executed
-   * @param tuple exchangeables for the query
+   * @param tuple exchangeable(s) for the query
    * @param handler Result of the query execution is sent as Json Object in a handler
    */
   private void executeQuery(String query, Tuple tuple, Handler<AsyncResult<JsonObject>> handler) {
