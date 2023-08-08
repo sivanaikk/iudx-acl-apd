@@ -50,10 +50,6 @@ public class Constants {
   public static final String STATUS_CODE = "statusCode";
   public static final String RESULT = "results";
   public static final String DETAIL = "detail";
-<<<<<<< HEAD
-=======
-
->>>>>>> 9f95fcb (create-policy-flow)
 
   // endpoints
   public static final String POLICIES_API = "/policies";
@@ -67,13 +63,13 @@ public class Constants {
                   "[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$");
 
   //  //operation ids
-    public static final String GET_POLICY_API = "get-auth-v1-policies";
-    public static final String DELETE_POLICY_API = "delete-auth-v1-policies";
-    public static final String CREATE_POLICY_API = "post-auth-v1-policies";
-    public static final String GET_NOTIFICATIONS_API = "get-auth-v1-policies-requests";
-    public static final String CREATE_NOTIFICATIONS_API = "post-auth-v1-policies-requests";
-    public static final String UPDATE_NOTIFICATIONS_API = "put-auth-v1-policies-requests";
-    public static final String DELETE_NOTIFICATIONS_API = "delete-auth-v1-policies-requests";
+  public static final String GET_POLICY_API = "get-auth-v1-policies";
+  public static final String DELETE_POLICY_API = "delete-auth-v1-policies";
+  public static final String CREATE_POLICY_API = "post-auth-v1-policies";
+  public static final String GET_NOTIFICATIONS_API = "get-auth-v1-policies-requests";
+  public static final String CREATE_NOTIFICATIONS_API = "post-auth-v1-policies-requests";
+  public static final String UPDATE_NOTIFICATIONS_API = "put-auth-v1-policies-requests";
+  public static final String DELETE_NOTIFICATIONS_API = "delete-auth-v1-policies-requests";
 
 
 }
