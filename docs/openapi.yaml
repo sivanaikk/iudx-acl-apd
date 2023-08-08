@@ -42,137 +42,9 @@ paths:
           content:
             application/json:
               schema:
-<<<<<<< HEAD
                 oneOf:
                   - $ref: '#/components/schemas/getPolicySuccessResponse1'
                   - $ref: '#/components/schemas/getPolicySuccessResponse2'
-=======
-                required:
-                  - type
-                  - title
-                  - result
-                properties:
-                  type:
-                    type: string
-                  title:
-                    type: string
-                  result:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        policyId:
-                          type: string
-                        ownerId:
-                          type: string
-                        itemId:
-                          type: string
-                        itemType:
-                          type: string
-                          enum: [ "RESOURCE_GROUP", "RESOURCE" ]
-                        consumerEmailId:
-                          type: string
-                        consumerFirstName:
-                          type: string
-                        consumerLastName:
-                          type: string
-                        status:
-                          type: string
-                          enum: [ "ACTIVE","DELETED" ]
-                        expiryAt:
-                          type: string
-                        ownerEmailId:
-                          type: string
-                        ownerFirstName:
-                          type: string
-                        ownerLastName:
-                          type: string
-                        constraints:
-                          type: object
-                        properties:
-                          access:
-                          type: array
-                x-examples:
-                  Example 1:
-                    type: 'urn:acl:as:Success'
-                    title: policy read
-                    results:
-                      - policyId: 5055ca31-937b-4a5e-b301-449ca35c123b
-                        itemType: resource_group
-                        expiryTime: '2022-09-09T04:22:36'
-                        constraints:
-                          access:
-                            - sub
-                        itemId: pune-env-flood
-                        user:
-                          email: vasanth.rajaraman@datakaveri.org
-                          name:
-                            firstName: Vasanth
-                            lastName: Rajaraman
-                          id: 15c7506f-c800-48d6-adeb-0542b03947c6
-                        owner:
-                          email: bob_provider@iisc.ac.in
-                          name:
-                            firstName: Bob
-                            lastName: Provider
-                          id: 844e251b-574b-46e6-9247-f76f1f70a637
-              examples:
-                Listing of policies set for a resource group:
-                  value:
-                    type: 'urn:dx:acl:success'
-                    title: Success
-                    result:
-                      - policyId: aaaaaaaa-6473-3546-5436-8758aaaa5897
-                        ownerId: bbbbbbbb-8958-2445-2354-7587aaaa6776
-                        itemId: cccccccc-6754-8958-2456-3452aaaa5436
-                        itemType: RESOURCE_GROUP
-                        consumerEmailId: dummyConsumerAbcd@example.com
-                        consumerFirstName: Dummy
-                        consumerLastName: Consumer
-                        status: ACTIVE
-                        expiryAt: 2024-09-05T20:00:19
-                        ownerEmailId: dummyProvider@example.com
-                        ownerFirstName: Dummy
-                        ownerLastName: Provider
-                        constraints:
-                          access:
-                            - sub
-                      - policyId: aaaaaaaa-9870-7676-7456-2454aaaa1111
-                        ownerId: bbbbbbbb-2652-1167-1766-4587aaaa2454
-                        itemId: cccccccc-2452-2455-5656-1111aaaa7878
-                        itemType: RESOURCE_GROUP
-                        consumerEmailId: dummyConsumer@example.com
-                        consumerFirstName: Dummy
-                        consumerLastName: Consumer
-                        status: ACTIVE
-                        expiryAt: 2024-08-05T20:00:29
-                        ownerEmailId: dummyProviderTwo@example.com
-                        ownerFirstName: Dummy
-                        ownerLastName: ProviderTwo
-                        constraints:
-                          access:
-                            - sub
-                Listing of policies set for a resource:
-                  value:
-                    type: "urn:dx:acl:success"
-                    title: Success
-                    result:
-                      - policyId: aaaaaaaa-1234-1234-1234-1234aaaa1234
-                        ownerId: bbbbbbbb-5678-5678-5678-5678aaaa5678
-                        itemId: cccccccc-4576-3455-5645-3565aaaa4255
-                        itemType: RESOURCE
-                        consumerEmailId: dummyConsumer@example.com
-                        consumerFirstName: Some
-                        consumerLastName: Consumer
-                        status: ACTIVE
-                        expiryAt: 2024-03-05T20:00:19
-                        ownerEmailId: someProvider@example.com
-                        ownerFirstName: Some
-                        ownerLastName: Provider
-                        constraints:
-                          access:
-                            - sub
->>>>>>> 3af2205 (Update files)
           headers:
             Content-Type:
               schema:
@@ -200,7 +72,6 @@ paths:
               schema:
                 type: string
               description: application/json
-<<<<<<< HEAD
         '403':
           description: |-
             Forbidden
@@ -214,8 +85,6 @@ paths:
               schema:
                 type: string
               description: application/json
-=======
->>>>>>> 3af2205 (Update files)
       security:
         - authorization: []
 
@@ -273,19 +142,14 @@ paths:
                 type: string
               description: application/json
         '400':
-<<<<<<< HEAD
-          description: |- 
+          description: |-
             Bad Request
             - Error or exceptions 
             - id is not a valid a policyId
-=======
-          description: Bad Request- Error or exceptions -id is not a valid a policyId
->>>>>>> 3af2205 (Update files)
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/deletePolicyErrorResponse'
-<<<<<<< HEAD
           headers:
             Content-Type:
               schema:
@@ -299,8 +163,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/deletePolicyNotFoundErrorResponse'
-=======
->>>>>>> 3af2205 (Update files)
           headers:
             Content-Type:
               schema:
@@ -1007,7 +869,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/deleteNotificationBadRequest'
         '404':
-          description: |- 
+          description: |-
             Not Found
               - The ID for which the request is being withdrawn is not found
           content:
@@ -1059,7 +921,6 @@ components:
       type: http
       scheme: bearer
   schemas:
-<<<<<<< HEAD
     getPolicySuccessResponse2:
       title: get policy for type resource
       required:
@@ -1151,14 +1012,14 @@ components:
               "expiryAt": "2024-03-05T20:00:19",
               "constraints": {access:[sub]},
               "status": "ACTIVE",
-                "consumer": {
-                  "email": "dummyConsumer@example.com",
-                  "name": {
-                    "firstName": "Some",
-                    "lastName": "Consumer"
-                  },
-                  "id": "gklmcd4-4576-3455-5645-3565aaaa4255"
+              "consumer": {
+                "email": "dummyConsumer@example.com",
+                "name": {
+                  "firstName": "Some",
+                  "lastName": "Consumer"
                 },
+                "id": "gklmcd4-4576-3455-5645-3565aaaa4255"
+              },
               "provider": {
                 "email": "someProvider@example.com",
                 "name": {
@@ -1279,30 +1140,30 @@ components:
                 "id": "bbbbbbbb-8958-2445-2354-7587aaaa6776"
               }
             },
-                {
-                  "policyId": "aaaaaaaa-9870-7676-7456-2454aaaa1111",
-                  "itemId": "cccccccc-2452-2455-5656-1111aaaa7878",
-                  "itemType": "RESOURCE_GROUP",
-                  "expiryAt": "2024-08-05T20:00:29",
-                  "constraints": { access: [ sub ] },
-                  "status": "ACTIVE",
-                  "consumer": {
-                    "email": "dummyConsumer@example.com",
-                    "name": {
-                      "firstName": "Dummy",
-                      "lastName": "Consumer"
-                    },
-                    "id": "gklmcd4-4576-3455-5645-3565aaaa4255"
-                  },
-                  "provider": {
-                    "email": "dummyProviderTwo@example.com",
-                    "name": {
-                      "firstName": "Some",
-                      "lastName": "ProviderTwo"
-                    },
-                    "id": "bbbbbbbb-2652-1167-1766-4587aaaa2454"
-                  }
-                }
+            {
+              "policyId": "aaaaaaaa-9870-7676-7456-2454aaaa1111",
+              "itemId": "cccccccc-2452-2455-5656-1111aaaa7878",
+              "itemType": "RESOURCE_GROUP",
+              "expiryAt": "2024-08-05T20:00:29",
+              "constraints": { access: [ sub ] },
+              "status": "ACTIVE",
+              "consumer": {
+                "email": "dummyConsumer@example.com",
+                "name": {
+                  "firstName": "Dummy",
+                  "lastName": "Consumer"
+                },
+                "id": "gklmcd4-4576-3455-5645-3565aaaa4255"
+              },
+              "provider": {
+                "email": "dummyProviderTwo@example.com",
+                "name": {
+                  "firstName": "Some",
+                  "lastName": "ProviderTwo"
+                },
+                "id": "bbbbbbbb-2652-1167-1766-4587aaaa2454"
+              }
+            }
           ]
         }
 
@@ -1381,8 +1242,6 @@ components:
         title: Success
         results: Request deleted successfully
 
-=======
->>>>>>> 3af2205 (Update files)
     deletePolicy:
       title: deletePolicy
       type: object
@@ -1391,28 +1250,16 @@ components:
           type: string
         title:
           type: string
-<<<<<<< HEAD
         results:
-=======
-        result:
->>>>>>> 3af2205 (Update files)
           type: string
       required:
         - type
         - title
-<<<<<<< HEAD
         - results
       example:
         type: urn:dx:acl:success
         title: Success
         results: Policy deleted successfully
-=======
-        - result
-      example:
-        type: urn:dx:acl:success
-        title: Success
-        result: Policy deleted successfully
->>>>>>> 3af2205 (Update files)
     deletePolicyInvalidUserResponse:
       title: deletePolicyInvalidUserResponse
       type: object
@@ -1430,7 +1277,6 @@ components:
       example:
         type: urn:dx:acl:forbidden
         title: Access Denied
-<<<<<<< HEAD
         detail: Policy could not be deleted, as user doesn't own the policy
     getPolicyInvalidUserResponse:
       title: getPolicyInvalidUserResponse
@@ -1469,9 +1315,6 @@ components:
         type: urn:dx:acl:forbidden
         title: Access Denied
         detail: Notification could not be updated, notification doesn't belong to the user
-=======
-        detail: Policy could not be deleted, user doesn't own the policy
->>>>>>> 3af2205 (Update files)
     policyNotFound:
       title: policyNotFound
       type: object
@@ -1487,15 +1330,9 @@ components:
         - title
         - detail
       example:
-<<<<<<< HEAD
         type: urn:dx:acl:resourceNotFound
         title: Not Found
         detail: Resource Not Found
-=======
-          type: urn:dx:acl:resourceNotFound
-          title: Not Found
-          detail: Resource Not Found
->>>>>>> 3af2205 (Update files)
     deletePolicyErrorResponse:
       title: deletePolicyErrorResponse
       type: object
@@ -1511,7 +1348,6 @@ components:
         - title
         - detail
       example:
-<<<<<<< HEAD
         type: urn:dx:acl:badRequest
         title: Bad Request
         detail: Policy could not be deleted, as it is not in active state or is expired
@@ -1533,11 +1369,6 @@ components:
         type: urn:dx:acl:notFound
         title: Not Found
         detail: Policy could not be deleted, as it doesn't exist
-=======
-          type: urn:dx:acl:badRequest
-          title: Bad Request
-          detail: Policy could not be deleted, count not equal to list of policies to be deleted
->>>>>>> 3af2205 (Update files)
     Unauthorized:
       type: object
       properties:
@@ -1555,15 +1386,9 @@ components:
         - title
         - detail
       example:
-<<<<<<< HEAD
         type: urn:dx:acl:MissingAuthenticationToken
         title: Missing auth details
         detail: Missing auth details
-=======
-          type: urn:dx:acl:MissingAuthenticationToken
-          title: Missing auth details
-          detail: Missing auth details
->>>>>>> 3af2205 (Update files)
     ErrorResponse:
       type: object
       properties:
