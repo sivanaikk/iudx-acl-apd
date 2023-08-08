@@ -294,7 +294,6 @@ public class ApiServerVerticle extends AbstractVerticle {
                                         handler.result().getInteger(STATUS_CODE),
                                         handler.result().getString(RESULT));
                             } else {
-                                handler.cause().printStackTrace();
                                 handleFailureResponse(routingContext, handler.cause().getMessage());
                             }
                         });
