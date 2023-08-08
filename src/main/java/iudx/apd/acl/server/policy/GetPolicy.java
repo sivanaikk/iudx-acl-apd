@@ -14,9 +14,11 @@ import iudx.apd.acl.server.apiserver.util.Role;
 import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
-import java.util.*;
+
+import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +37,7 @@ public class GetPolicy {
   private static final String FAILURE_MESSAGE = "Policy could not be fetched";
   private final PostgresService postgresService;
   private PgPool pool;
+
   public GetPolicy(PostgresService postgresService) {
     this.postgresService = postgresService;
   }
@@ -48,8 +51,7 @@ public class GetPolicy {
       case PROVIDER_DELEGATE:
       case PROVIDER:
         return getProviderPolicy(user, GET_POLICY_4_PROVIDER_QUERY);
-      default:
-      {
+      default: {
         JsonObject response =
                 new JsonObject()
                         .put(TYPE, BAD_REQUEST.getValue())
@@ -63,8 +65,9 @@ public class GetPolicy {
   /**
    * Fetch policy details of the provider based on the owner_id and
    * gets the information about consumer like consumer first name, last name, id based on the consumer email-Id
+   *
    * @param provider Object of User type
-   * @param query Query to be executed
+   * @param query    Query to be executed
    * @return Policy details
    */
   public Future<JsonObject> getProviderPolicy(User provider, String query) {
@@ -72,12 +75,12 @@ public class GetPolicy {
     String owner_id = provider.getUserId();
     LOG.trace(provider.toString());
     Tuple tuple = Tuple.of(owner_id);
-    JsonObject information =
-            new JsonObject()
-                    .put("owner_email_id", provider.getEmailId())
-                    .put("owner_first_name", provider.getFirstName())
-                    .put("owner_last_name", provider.getLastName());
-    this.executeGetPolicy(tuple, query, information)
+    JsonObject jsonObject = new JsonObject()
+            .put("email", provider.getEmailId())
+            .put("name", new JsonObject().put("firstName", provider.getFirstName()).put("lastName", provider.getLastName()))
+            .put("id", provider.getUserId());
+    JsonObject providerInfo = new JsonObject().put("provider", jsonObject);
+    this.executeGetPolicy(tuple, query, providerInfo, Role.PROVIDER)
             .onComplete(
                     handler -> {
                       if (handler.succeeded()) {
@@ -94,8 +97,9 @@ public class GetPolicy {
   /**
    * Fetches policies related to the consumer based on the consumer's email-Id <br>
    * Also gets information related to the owner of the policy like first name, last name, email-Id  based on the owner_id
+   *
    * @param consumer Object of User type
-   * @param query Query to be executed
+   * @param query    Query to be executed
    * @return Policy details
    */
   public Future<JsonObject> getConsumerPolicy(User consumer, String query) {
@@ -103,12 +107,14 @@ public class GetPolicy {
     String emailId = consumer.getEmailId();
     LOG.trace(consumer.toString());
     Tuple tuple = Tuple.of(emailId);
-    JsonObject information =
-            new JsonObject()
-                    .put("consumer_id", consumer.getUserId())
-                    .put("consumer_first_name", consumer.getFirstName())
-                    .put("consumer_last_name", consumer.getLastName());
-    this.executeGetPolicy(tuple, query, information)
+    JsonObject jsonObject = new JsonObject()
+            .put("email", consumer.getEmailId())
+            .put("name", new JsonObject().put("firstName", consumer.getFirstName()).put("lastName", consumer.getLastName()))
+            .put("id", consumer.getUserId());
+    JsonObject consumerInfo = new JsonObject().put("consumer", jsonObject);
+
+
+    this.executeGetPolicy(tuple, query, consumerInfo, Role.CONSUMER)
             .onComplete(
                     handler -> {
                       if (handler.succeeded()) {
@@ -124,12 +130,13 @@ public class GetPolicy {
 
   /**
    * Executes the respective queries by using the vertx PgPool instance
-   * @param tuple Exchangeable values of query in the form of Vertx Tuple
-   * @param query String query to be executed
+   *
+   * @param tuple       Exchangeable values of query in the form of Vertx Tuple
+   * @param query       String query to be executed
    * @param information Information to be added in the response
    * @return
    */
-  private Future<JsonObject> executeGetPolicy(Tuple tuple, String query, JsonObject information) {
+  private Future<JsonObject> executeGetPolicy(Tuple tuple, String query, JsonObject information, Role role) {
     Promise<JsonObject> promise = Promise.promise();
     Collector<Row, ?, List<JsonObject>> rowListCollector =
             Collectors.mapping(row -> row.toJson(), Collectors.toList());
@@ -144,9 +151,9 @@ public class GetPolicy {
             .onComplete(
                     handler -> {
                       if (handler.succeeded()) {
-                        if(handler.result().size() > 0) {
+                        if (handler.result().size() > 0) {
                           for (JsonObject jsonObject : handler.result()) {
-                            jsonObject.mergeIn(information);
+                            jsonObject.mergeIn(information).mergeIn(getInformation(jsonObject, role));
                           }
                           JsonObject result =
                                   new JsonObject()
@@ -159,7 +166,7 @@ public class GetPolicy {
                                           .put(RESULT, result)
                                           .put(STATUS_CODE, HttpStatusCode.SUCCESS.getValue()));
                           LOG.debug("Success response : {}", handler.result());
-                        }else {
+                        } else {
                           JsonObject response = new JsonObject()
                                   .put(TYPE, HttpStatusCode.NOT_FOUND.getValue())
                                   .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
@@ -177,5 +184,46 @@ public class GetPolicy {
                       }
                     });
     return promise.future();
+  }
+
+  public JsonObject getInformation(JsonObject jsonObject, Role role) {
+    if (role.equals(Role.CONSUMER)) {
+      return getConsumerInformation(jsonObject);
+    }
+    return getProviderInformation(jsonObject);
+  }
+
+  public JsonObject getConsumerInformation(JsonObject jsonObject) {
+    String ownerFirstName = jsonObject.getString("ownerFirstName");
+    String ownerLastName = jsonObject.getString("ownerLastName");
+    String ownerId = jsonObject.getString("ownerId");
+    String ownerEmail = jsonObject.getString("ownerEmailId");
+    JsonObject jsonObject3 = new JsonObject()
+            .put("email", ownerEmail)
+            .put("name", new JsonObject().put("firstName", ownerFirstName).put("lastName", ownerLastName))
+            .put("id", ownerId);
+    JsonObject providerInfo = new JsonObject().put("provider", jsonObject3);
+    jsonObject.remove("ownerFirstName");
+    jsonObject.remove("ownerLastName");
+    jsonObject.remove("ownerId");
+    jsonObject.remove("ownerEmailId");
+    return providerInfo;
+  }
+
+  public JsonObject getProviderInformation(JsonObject jsonObject) {
+    String consumerFirstName = jsonObject.getString("consumerFirstName");
+    String consumerLastName = jsonObject.getString("consumerLastName");
+    String consumerId = jsonObject.getString("consumerId");
+    String consumerEmail = jsonObject.getString("consumerEmailId");
+    JsonObject jsonObject2 = new JsonObject()
+            .put("email", consumerEmail)
+            .put("name", new JsonObject().put("firstName", consumerFirstName).put("lastName", consumerLastName))
+            .put("id", consumerId);
+    JsonObject consumerInfo = new JsonObject().put("consumer", jsonObject2);
+    jsonObject.remove("consumerFirstName");
+    jsonObject.remove("consumerLastName");
+    jsonObject.remove("consumerId");
+    jsonObject.remove("consumerEmailId");
+    return consumerInfo;
   }
 }

@@ -83,16 +83,22 @@ public class TestGetPolicy {
                                 JsonObject actualResult =
                                         handler.result().getJsonObject(RESULT).getJsonArray(RESULT).getJsonObject(0);
 
-                                assertEquals(utility.getPolicyId().toString(), actualResult.getString("policy_id"));
+                                assertEquals(utility.getPolicyId().toString(), actualResult.getString("policyId"));
+                                assertEquals(utility.getConstraints(), actualResult.getString("constraints"));
+
+                                assertEquals(utility.getConsumerId().toString(), actualResult.getJsonObject("consumer").getString("id"));
                                 assertEquals(
-                                        utility.getConsumerEmailId(), actualResult.getString("consumer_email_id"));
-                                assertEquals(utility.getResourceId().toString(), actualResult.getString("item_id"));
-                                assertEquals(utility.getResourceType(), actualResult.getString("item_type"));
-                                assertEquals(utility.getOwnerId().toString(), actualResult.getString("owner_id"));
+                                        utility.getConsumerFirstName(), actualResult.getJsonObject("consumer").getJsonObject("name").getString("firstName"));
+                                assertEquals(utility.getConsumerLastName(), actualResult.getJsonObject("consumer").getJsonObject("name").getString("lastName"));
+                                assertEquals(utility.getConsumerEmailId(), actualResult.getJsonObject("consumer").getString("email"));
+
+                                assertEquals(utility.getResourceId().toString(), actualResult.getString("itemId"));
+                                assertEquals(utility.getResourceType(), actualResult.getString("itemType"));
+                                assertEquals(utility.getOwnerId().toString(), actualResult.getJsonObject("provider").getString("id"));
                                 assertEquals(
-                                        utility.getOwnerFirstName(), actualResult.getString("owner_first_name"));
-                                assertEquals(utility.getOwnerLastName(), actualResult.getString("owner_last_name"));
-                                assertEquals(utility.getOwnerEmailId(), actualResult.getString("owner_email_id"));
+                                        utility.getOwnerFirstName(), actualResult.getJsonObject("provider").getJsonObject("name").getString("firstName"));
+                                assertEquals(utility.getOwnerLastName(), actualResult.getJsonObject("provider").getJsonObject("name").getString("lastName"));
+                                assertEquals(utility.getOwnerEmailId(), actualResult.getJsonObject("provider").getString("email"));
                                 assertEquals(utility.getStatus(), actualResult.getString("status"));
                                 assertNotNull(handler.result());
                                 assertTrue(handler.result().getJsonObject(RESULT).containsKey(TYPE));
@@ -172,21 +178,23 @@ public class TestGetPolicy {
                                 JsonObject results = handler.result().getJsonObject(RESULT);
                                 JsonObject actualResult =
                                         handler.result().getJsonObject(RESULT).getJsonArray(RESULT).getJsonObject(0);
-                                assertEquals(utility.getPolicyId().toString(), actualResult.getString("policy_id"));
-                                assertEquals(utility.getOwnerId().toString(), actualResult.getString("owner_id"));
-                                assertEquals(utility.getResourceId().toString(), actualResult.getString("item_id"));
-                                assertEquals(utility.getResourceType(), actualResult.getString("item_type"));
+                                assertEquals(utility.getPolicyId().toString(), actualResult.getString("policyId"));
+                                assertEquals(utility.getConstraints(), actualResult.getString("constraints"));
+
+                                assertEquals(utility.getConsumerId().toString(), actualResult.getJsonObject("consumer").getString("id"));
                                 assertEquals(
-                                        utility.getConsumerEmailId(), actualResult.getString("consumer_email_id"));
+                                        utility.getConsumerFirstName(), actualResult.getJsonObject("consumer").getJsonObject("name").getString("firstName"));
+                                assertEquals(utility.getConsumerLastName(), actualResult.getJsonObject("consumer").getJsonObject("name").getString("lastName"));
+                                assertEquals(utility.getConsumerEmailId(), actualResult.getJsonObject("consumer").getString("email"));
+
+                                assertEquals(utility.getResourceId().toString(), actualResult.getString("itemId"));
+                                assertEquals(utility.getResourceType(), actualResult.getString("itemType"));
+                                assertEquals(utility.getOwnerId().toString(), actualResult.getJsonObject("provider").getString("id"));
                                 assertEquals(
-                                        utility.getConsumerFirstName(), actualResult.getString("consumer_first_name"));
-                                assertEquals(
-                                        utility.getConsumerLastName(), actualResult.getString("consumer_last_name"));
+                                        utility.getOwnerFirstName(), actualResult.getJsonObject("provider").getJsonObject("name").getString("firstName"));
+                                assertEquals(utility.getOwnerLastName(), actualResult.getJsonObject("provider").getJsonObject("name").getString("lastName"));
+                                assertEquals(utility.getOwnerEmailId(), actualResult.getJsonObject("provider").getString("email"));
                                 assertEquals(utility.getStatus(), actualResult.getString("status"));
-                                assertEquals(utility.getOwnerEmailId(), actualResult.getString("owner_email_id"));
-                                assertEquals(
-                                        utility.getOwnerFirstName(), actualResult.getString("owner_first_name"));
-                                assertEquals(utility.getOwnerLastName(), actualResult.getString("owner_last_name"));
 
                                 assertNotNull(handler.result());
                                 assertTrue(results.containsKey(TYPE));
