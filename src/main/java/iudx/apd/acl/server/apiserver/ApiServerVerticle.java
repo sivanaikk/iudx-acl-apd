@@ -1,11 +1,5 @@
 package iudx.apd.acl.server.apiserver;
 
-import static iudx.apd.acl.server.apiserver.response.ResponseUtil.generateResponse;
-import static iudx.apd.acl.server.apiserver.util.Constants.*;
-import static iudx.apd.acl.server.apiserver.util.Util.errorResponse;
-import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
-import static iudx.apd.acl.server.common.Constants.*;
-
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
@@ -20,21 +14,25 @@ import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.TimeoutHandler;
 import io.vertx.ext.web.openapi.RouterBuilder;
-import io.vertx.ext.web.openapi.RouterBuilderOptions;
-import iudx.apd.acl.server.apiserver.util.RequestType;
 import iudx.apd.acl.server.apiserver.util.User;
-import iudx.apd.acl.server.authentication.AuthHandler;
 import iudx.apd.acl.server.authentication.Authentication;
 import iudx.apd.acl.server.common.Api;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
+import iudx.apd.acl.server.notification.NotificationService;
 import iudx.apd.acl.server.policy.PolicyService;
 import iudx.apd.acl.server.validation.FailureHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.stream.Stream;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import static iudx.apd.acl.server.apiserver.response.ResponseUtil.generateResponse;
+import static iudx.apd.acl.server.apiserver.util.Constants.*;
+import static iudx.apd.acl.server.apiserver.util.Util.errorResponse;
+import static iudx.apd.acl.server.common.Constants.NOTIFICATION_SERVICE_ADDRESS;
+import static iudx.apd.acl.server.common.Constants.POLICY_SERVICE_ADDRESS;
+import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
 
 /**
  * The ACL-APD Server API Verticle.
@@ -44,6 +42,7 @@ import org.apache.logging.log4j.Logger;
  * <p>The API Server verticle implements the IUDX ACL-APD Server APIs. It handles the API requests
  * from the clients and interacts with the associated Service to respond.
  *
+ * @version 1.0
  * @see io.vertx.core.Vertx
  * @see AbstractVerticle
  * @see HttpServer
@@ -51,7 +50,6 @@ import org.apache.logging.log4j.Logger;
  * @see io.vertx.servicediscovery.ServiceDiscovery
  * @see io.vertx.servicediscovery.types.EventBusService
  * @see io.vertx.spi.cluster.hazelcast.HazelcastClusterManager
- * @version 1.0
  * @since 2020-05-31
  */
 public class ApiServerVerticle extends AbstractVerticle {
@@ -66,6 +64,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     private Api api;
     private PolicyService policyService;
     private String detail;
+    private NotificationService notificationService;
 
     private static User getConsumer() {
         JsonObject consumer =
@@ -106,7 +105,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         FailureHandler failureHandler = new FailureHandler();
         /* Initialize service proxy */
         policyService = PolicyService.createProxy(vertx, POLICY_SERVICE_ADDRESS);
-
+        notificationService = NotificationService.createProxy(vertx, NOTIFICATION_SERVICE_ADDRESS);
 
         /* Initialize Router builder */
         RouterBuilder.create(vertx, "docs/openapi.yaml")
@@ -197,6 +196,9 @@ public class ApiServerVerticle extends AbstractVerticle {
                         });
     }
 
+    private void postAccessRequestHandler(RoutingContext routingContext) {
+    }
+
     private void printDeployedEndpoints(Router router) {
         for (Route route : router.getRoutes()) {
             if (route.getPath() != null) {
@@ -205,19 +207,40 @@ public class ApiServerVerticle extends AbstractVerticle {
         }
     }
 
-    private void putAccessRequestHandler(RoutingContext routingContext) {}
+    private void putAccessRequestHandler(RoutingContext routingContext) {
+    }
 
-    private void postAccessRequestHandler(RoutingContext routingContext) {}
+    private void deleteAccessRequestHandler(RoutingContext routingContext) {
+        JsonObject notification = routingContext.body().asJsonObject();
+        User consumer = getConsumer();
+        notificationService
+                .deleteNotification(notification, consumer)
+                .onComplete(
+                        handler -> {
+                            if (handler.succeeded()) {
+                                LOGGER.info("Delete Notification succeeded : {} ", handler.result().encode());
+                                JsonObject response =
+                                        new JsonObject()
+                                                .put(TYPE, handler.result().getString(TYPE))
+                                                .put(TITLE, handler.result().getString(TITLE))
+                                                .put(RESULT, handler.result().getValue(RESULT));
+                                handleSuccessResponse(
+                                        routingContext, handler.result().getInteger(STATUS_CODE), response.toString());
+                            } else {
+                                LOGGER.error("Delete Notification failed : {} ", handler.cause().getMessage());
+                                handleFailureResponse(routingContext, handler.cause().getMessage());
+                            }
+                        });
+    }
 
-    private void deleteAccessRequestHandler(RoutingContext routingContext) {}
-
-    private void getAccessRequestHandler(RoutingContext routingContext) {}
+    private void getAccessRequestHandler(RoutingContext routingContext) {
+    }
 
     private void postPoliciesHandler(RoutingContext routingContext) {
         JsonObject requestBody = routingContext.body().asJsonObject();
         // TODO: to add user object in the requestBody before calling createPolicy method
         policyService
-                .createPolicy(requestBody,getProvider())
+                .createPolicy(requestBody, getProvider())
                 .onComplete(
                         handler -> {
                             if (handler.succeeded()) {
@@ -271,7 +294,6 @@ public class ApiServerVerticle extends AbstractVerticle {
                                         handler.result().getInteger(STATUS_CODE),
                                         handler.result().getString(RESULT));
                             } else {
-                                handler.cause().printStackTrace();
                                 handleFailureResponse(routingContext, handler.cause().getMessage());
                             }
                         });
@@ -282,14 +304,6 @@ public class ApiServerVerticle extends AbstractVerticle {
      *
      * @param routerBuilder The router builder instance to configure the CORS handler on.
      */
-/*    private void configureCorsHandler(Router router) {
-        router
-                .route()
-                .handler(
-                        CorsHandler.create("*")
-                                .allowedHeaders(ALLOWED_HEADERS)
-                                .allowedMethods(ALLOWED_METHODS));
-    }*/
     private void configureCorsHandler(RouterBuilder routerBuilder) {
         routerBuilder.rootHandler(CorsHandler.create("*")
                 .allowedHeaders(ALLOWED_HEADERS)
@@ -326,7 +340,9 @@ public class ApiServerVerticle extends AbstractVerticle {
                         });
     }
 
-    /** Sets common response headers to be included in HTTP responses. */
+    /**
+     * Sets common response headers to be included in HTTP responses.
+     */
     private void putCommonResponseHeaders() {
         router
                 .route()
@@ -366,8 +382,8 @@ public class ApiServerVerticle extends AbstractVerticle {
      * Handles HTTP Success response from the server
      *
      * @param routingContext Routing context object
-     * @param statusCode statusCode to respond with
-     * @param result respective result returned from the service
+     * @param statusCode     statusCode to respond with
+     * @param result         respective result returned from the service
      */
     private void handleSuccessResponse(RoutingContext routingContext, int statusCode, String result) {
         HttpServerResponse response = routingContext.response();

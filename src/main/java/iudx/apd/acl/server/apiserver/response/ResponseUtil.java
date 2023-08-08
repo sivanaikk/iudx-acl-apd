@@ -9,6 +9,7 @@ public class ResponseUtil {
         return generateResponse(statusCode, urn, statusCode.getDescription());
     }
 
+
     public static JsonObject generateResponse(
             HttpStatusCode statusCode, ResponseUrn urn, String message) {
         String type = urn.getUrn();
