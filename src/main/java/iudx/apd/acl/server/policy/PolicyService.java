@@ -8,6 +8,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.apd.acl.server.apiserver.util.User;
+import net.sf.saxon.trans.SymbolicName;
 
 @VertxGen
 @ProxyGen
@@ -26,4 +27,5 @@ public interface PolicyService {
   Future<JsonObject> deletePolicy(JsonArray policyList, User user);
 
   Future<JsonObject> getPolicy(User user);
+  Future<JsonObject> verifyPolicy(JsonObject jsonArray);
 }
