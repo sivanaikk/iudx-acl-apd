@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 public class CreatePolicyRequest {
     private static long defaultExpiryDays;
     private String userEmail;
