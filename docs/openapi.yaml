@@ -86,7 +86,7 @@ paths:
                 type: string
               description: application/json
       security:
-        - authorization: []
+        - authorization: [ ]
 
 
     delete:
@@ -144,7 +144,7 @@ paths:
         '400':
           description: |-
             Bad Request
-            - Error or exceptions 
+            - Error or exceptions
             - id is not a valid a policyId
           content:
             application/json:
@@ -157,7 +157,7 @@ paths:
               description: application/json
         '404':
           description: |-
-            Not Found 
+            Not Found
               - policy id does not exist
           content:
             application/json:
@@ -195,7 +195,7 @@ paths:
                 type: string
               description: application/json
       security:
-        - authorization: []
+        - authorization: [ ]
 
 
     post:
@@ -294,12 +294,12 @@ paths:
                       itemId: example-resource-group
                       itemType: resource_group
                       expiryTime: '2023-08-30T21:10:06'
-                      constraints: {}
+                      constraints: { }
                     - userId: 89bbe934-5f18-4f57-b68e-fb821ba77292
                       itemId: example-resource-group
                       itemType: resource_group
                       expiryTime: '2023-08-30T21:10:06'
-                      constraints: {}
+                      constraints: { }
             examples:
               Single request for resource group user policy:
                 value:
@@ -329,7 +329,7 @@ paths:
                       itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
                       itemType: resource_group
                       expiryTime: '2022-08-04T20:00:19'
-                      constraints: {}
+                      constraints: { }
                     - userId: aaa@yun.com
                       itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
                       itemType: resource
@@ -386,8 +386,62 @@ paths:
               schema:
                 type: object
       security:
-        - authorization: []
+        - authorization: [ ]
 
+  /ngsi-ld/v1/verify:
+    get:
+      summary: Verify Policy
+      description: |
+        Verify the policy for a given item and owner. This endpoint checks if a policy exists for the specified item and owner in the APD server. It returns the policy constraints if a policy is found.
+      operationId: get-auth-v1-verify
+      parameters:
+        - name: Authorization
+          in: header
+          description: AAA issued token
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 4000
+            example: Bearer <JWT>
+    responses:
+      '200':
+        description: Policy verification successful
+        content:
+          application/json:
+            example:
+              type: success
+              constraints:
+                rule: read
+                duration: 3600
+      '400':
+        description: Bad Request
+        content:
+          application/json:
+            example:
+              type: error
+              message: Invalid request format
+      '403':
+        description: Forbidden
+        content:
+          application/json:
+            example:
+              type: error
+              message: No policy found for the specified item and owner
+      '500':
+        description: Internal Server Error
+        content:
+          application/json:
+            example:
+              type: error
+              message: Internal server error occurred
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+      security:
+        - authorization: [ ]
 
   /ngsi-ld/v1/policies/requests:
     get:
@@ -471,7 +525,7 @@ paths:
                 type: string
               description: application/json
       security:
-        - authorization: []
+        - authorization: [ ]
 
 
     post:
@@ -546,7 +600,7 @@ paths:
                     - itemId: iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood/FWR03
                       itemType: resource
                       expiryDuration: P1Y2M10DT2H30M
-                      constraints: {}
+                      constraints: { }
             examples:
               Create:
                 value:
@@ -634,7 +688,7 @@ paths:
                 type: string
               description: application/json
       security:
-        - authorization: []
+        - authorization: [ ]
 
 
     put:
@@ -809,7 +863,7 @@ paths:
                 type: string
               description: application/json
       security:
-        - authorization: []
+        - authorization: [ ]
 
 
     delete:
@@ -831,7 +885,7 @@ paths:
       requestBody:
         description: |-
           - `id` : the UUID of the request that is to be deleted.
-          
+
           Consumers can get the id of the request they want to delete using the list notifications API.
         required: true
         content:
@@ -912,7 +966,7 @@ paths:
                     title: Forbidden
                     detail: User with consumer role may call the API
       security:
-        - authorization: []
+        - authorization: [ ]
 
 
 components:
@@ -1000,37 +1054,22 @@ components:
                 properties:
                   access:
                     type: array
-      example:
-        {
-          "type": "urn:dx:acl:success",
-          "title": "Success",
-          "results": [
-            {
-              "policyId": "aaaaaaaa-1234-1234-1234-1234aaaa1234",
-              "itemId": "cccccccc-4576-3455-5645-3565aaaa4255",
-              "itemType": "RESOURCE",
-              "expiryAt": "2024-03-05T20:00:19",
-              "constraints": {access:[sub]},
-              "status": "ACTIVE",
-              "consumer": {
-                "email": "dummyConsumer@example.com",
-                "name": {
-                  "firstName": "Some",
-                  "lastName": "Consumer"
-                },
-                "id": "gklmcd4-4576-3455-5645-3565aaaa4255"
-              },
-              "provider": {
-                "email": "someProvider@example.com",
-                "name": {
-                  "firstName": "Some",
-                  "lastName": "Provider"
-                },
-                "id": "abcdcd4-4576-3455-5645-3565aaaa4255"
-              }
-            }
-          ]
-        }
+      example: { "type": "urn:dx:acl:success",
+                 "title": "Success",
+                 "results": [ { "policyId": "aaaaaaaa-1234-1234-1234-1234aaaa1234",
+                                "itemId": "cccccccc-4576-3455-5645-3565aaaa4255",
+                                "itemType": "RESOURCE",
+                                "expiryAt": "2024-03-05T20:00:19",
+                                "constraints": { access: [ sub ] },
+                                "status": "ACTIVE",
+                                "consumer": { "email": "dummyConsumer@example.com",
+                                              "name": { "firstName": "Some",
+                                                        "lastName": "Consumer" },
+                                              "id": "gklmcd4-4576-3455-5645-3565aaaa4255" },
+                                "provider": { "email": "someProvider@example.com",
+                                              "name": { "firstName": "Some",
+                                                        "lastName": "Provider" },
+                                              "id": "abcdcd4-4576-3455-5645-3565aaaa4255" } } ] }
 
     getPolicySuccessResponseWithResourceGroup:
       title: get policy with for type resource-group
@@ -1111,61 +1150,36 @@ components:
                 properties:
                   access:
                     type: array
-      example:
-        {
-          "type": "urn:dx:acl:success",
-          "title": "Success",
-          "results": [
-            {
-              "policyId": "aaaaaaaa-6473-3546-5436-8758aaaa5897",
-              "itemId": "cccccccc-6754-8958-2456-3452aaaa5436",
-              "itemType": "RESOURCE_GROUP",
-              "expiryAt": "2024-09-05T20:00:19",
-              "constraints": { access: [ sub ] },
-              "status": "ACTIVE",
-              "consumer": {
-                "email": "dummyConsumerAbcd@example.com",
-                "name": {
-                  "firstName": "Dummy",
-                  "lastName": "Consumer"
-                },
-                "id": "gklmcd4-4576-3455-5645-3565aaaa4255"
-              },
-              "provider": {
-                "email": "dummyProvider@example.com",
-                "name": {
-                  "firstName": "Dummy",
-                  "lastName": "Provider"
-                },
-                "id": "bbbbbbbb-8958-2445-2354-7587aaaa6776"
-              }
-            },
-            {
-              "policyId": "aaaaaaaa-9870-7676-7456-2454aaaa1111",
-              "itemId": "cccccccc-2452-2455-5656-1111aaaa7878",
-              "itemType": "RESOURCE_GROUP",
-              "expiryAt": "2024-08-05T20:00:29",
-              "constraints": { access: [ sub ] },
-              "status": "ACTIVE",
-              "consumer": {
-                "email": "dummyConsumer@example.com",
-                "name": {
-                  "firstName": "Dummy",
-                  "lastName": "Consumer"
-                },
-                "id": "gklmcd4-4576-3455-5645-3565aaaa4255"
-              },
-              "provider": {
-                "email": "dummyProviderTwo@example.com",
-                "name": {
-                  "firstName": "Some",
-                  "lastName": "ProviderTwo"
-                },
-                "id": "bbbbbbbb-2652-1167-1766-4587aaaa2454"
-              }
-            }
-          ]
-        }
+      example: { "type": "urn:dx:acl:success",
+                 "title": "Success",
+                 "results": [ { "policyId": "aaaaaaaa-6473-3546-5436-8758aaaa5897",
+                                "itemId": "cccccccc-6754-8958-2456-3452aaaa5436",
+                                "itemType": "RESOURCE_GROUP",
+                                "expiryAt": "2024-09-05T20:00:19",
+                                "constraints": { access: [ sub ] },
+                                "status": "ACTIVE",
+                                "consumer": { "email": "dummyConsumerAbcd@example.com",
+                                              "name": { "firstName": "Dummy",
+                                                        "lastName": "Consumer" },
+                                              "id": "gklmcd4-4576-3455-5645-3565aaaa4255" },
+                                "provider": { "email": "dummyProvider@example.com",
+                                              "name": { "firstName": "Dummy",
+                                                        "lastName": "Provider" },
+                                              "id": "bbbbbbbb-8958-2445-2354-7587aaaa6776" } },
+                   { "policyId": "aaaaaaaa-9870-7676-7456-2454aaaa1111",
+                     "itemId": "cccccccc-2452-2455-5656-1111aaaa7878",
+                     "itemType": "RESOURCE_GROUP",
+                     "expiryAt": "2024-08-05T20:00:29",
+                     "constraints": { access: [ sub ] },
+                     "status": "ACTIVE",
+                     "consumer": { "email": "dummyConsumer@example.com",
+                                   "name": { "firstName": "Dummy",
+                                             "lastName": "Consumer" },
+                                   "id": "gklmcd4-4576-3455-5645-3565aaaa4255" },
+                     "provider": { "email": "dummyProviderTwo@example.com",
+                                   "name": { "firstName": "Some",
+                                             "lastName": "ProviderTwo" },
+                                   "id": "bbbbbbbb-2652-1167-1766-4587aaaa2454" } } ] }
 
     deleteNotificationForbiddenResponse:
       title: Delete notification forbidden
