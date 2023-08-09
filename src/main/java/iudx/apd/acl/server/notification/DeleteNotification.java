@@ -47,15 +47,13 @@ public class DeleteNotification {
         Future<Boolean> verifyFuture = verifyRequest(GET_REQUEST, requestUuid, user);
 
         Future<Boolean> withDrawNotificationFuture = verifyFuture.compose(isNotificationVerified -> {
-            if(isNotificationVerified)
-            {
+            if (isNotificationVerified) {
                 return executeWithDrawNotification(WITHDRAW_REQUEST, requestUuid);
             }
             return Future.failedFuture(verifyFuture.cause().getMessage());
         });
-        return withDrawNotificationFuture.compose(isWithNotificationSuccessful -> {
-            if(isWithNotificationSuccessful)
-            {
+        return withDrawNotificationFuture.compose(isWithDrawNotificationSuccessful -> {
+            if (isWithDrawNotificationSuccessful) {
                 JsonObject response = new JsonObject()
                         .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
                         .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
@@ -63,9 +61,10 @@ public class DeleteNotification {
                         .put(STATUS_CODE, SUCCESS.getValue());
                 return Future.succeededFuture(response);
             }
-                return Future.failedFuture(withDrawNotificationFuture.cause().getMessage());
+            return Future.failedFuture(withDrawNotificationFuture.cause().getMessage());
         });
     }
+
     /**
      * Checks if the request ID that is about to be withdrawn, belongs
      * to the user and is not in Pending status
@@ -86,16 +85,13 @@ public class DeleteNotification {
         executeQuery(query, tuple, handler -> {
             if (handler.succeeded()) {
                 /* if the response is empty, notification is not found */
-                if(handler.result().getJsonArray(RESULT).isEmpty())
-                {
+                if (handler.result().getJsonArray(RESULT).isEmpty()) {
                     JsonObject response = new JsonObject();
                     response.put(TYPE, NOT_FOUND.getValue());
                     response.put(TITLE, NOT_FOUND.getUrn());
                     response.put(DETAIL, "Request could not be withdrawn, as it is not found");
                     promise.fail(response.encode());
-                }
-                else
-                {
+                } else {
                     JsonObject response = handler.result().getJsonArray(RESULT).getJsonObject(0);
                     String consumerId = response.getString("user_id");
                     String status = response.getString("status");
@@ -175,18 +171,9 @@ public class DeleteNotification {
         Collector<Row, ?, List<JsonObject>> rowListCollector = Collectors.mapping(row -> row.toJson(), Collectors.toList());
 
         pool.withConnection(sqlConnection -> sqlConnection.preparedQuery(query).collecting(rowListCollector).execute(tuple).map(rows -> rows.value())).onSuccess(successHandler -> {
-//            if (successHandler.isEmpty()) {
-//                /* notification id not present */
-//                JsonObject response = new JsonObject();
-//                response.put(TYPE, NOT_FOUND.getValue());
-//                response.put(TITLE, NOT_FOUND.getUrn());
-//                response.put(DETAIL, "Request could not be withdrawn, as it is not found");
-//                handler.handle(Future.failedFuture(response.encode()));
-//            } else {
-                JsonArray response = new JsonArray(successHandler);
-                JsonObject responseJson = new JsonObject().put(TYPE, ResponseUrn.SUCCESS_URN.getUrn()).put(TITLE, ResponseUrn.SUCCESS_URN.getMessage()).put(RESULT, response);
-                handler.handle(Future.succeededFuture(responseJson));
-//            }
+            JsonArray response = new JsonArray(successHandler);
+            JsonObject responseJson = new JsonObject().put(TYPE, ResponseUrn.SUCCESS_URN.getUrn()).put(TITLE, ResponseUrn.SUCCESS_URN.getMessage()).put(RESULT, response);
+            handler.handle(Future.succeededFuture(responseJson));
         }).onFailure(failureHandler -> {
             LOG.error("Failure while executing the query : {}", failureHandler.getMessage());
             JsonObject response = new JsonObject().put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue()).put(TITLE, ResponseUrn.DB_ERROR_URN.getMessage()).put(DETAIL, "Failure while executing query");

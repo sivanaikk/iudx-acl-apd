@@ -10,7 +10,6 @@ import iudx.apd.acl.server.Utility;
 import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
-import iudx.apd.acl.server.policy.DeletePolicy;
 import iudx.apd.acl.server.policy.PostgresService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -33,7 +32,6 @@ import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
 import static iudx.apd.acl.server.common.HttpStatusCode.FORBIDDEN;
 import static iudx.apd.acl.server.notification.util.Constants.GET_REQUEST;
 import static iudx.apd.acl.server.notification.util.Constants.WITHDRAW_REQUEST;
-import static iudx.apd.acl.server.policy.util.Constants.DELETE_POLICY_QUERY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -134,7 +132,7 @@ public class TestDeleteNotifications {
 
     @Test
     @DisplayName("Test initiateDeleteNotification with an invalid notification id")
-    public void testInitiateDeletePolicy4InvalidRequestId(VertxTestContext vertxTestContext) {
+    public void testInitiateDeleteNotification4InvalidRequestId(VertxTestContext vertxTestContext) {
 
         deleteNotification
                 .initiateDeleteNotification(new JsonObject().put("id", utility.getOwnerId()), consumer)
@@ -154,7 +152,7 @@ public class TestDeleteNotifications {
 
     @Test
     @DisplayName("Test initiateDeleteNotification with invalid User")
-    public void testInitiateDeletePolicy4UserId(VertxTestContext vertxTestContext) {
+    public void testInitiateDeleteNotification4UserId(VertxTestContext vertxTestContext) {
         deleteNotification.initiateDeleteNotification(new JsonObject().put("id", utility.getRequestId()), getOwner()).onComplete(handler -> {
             if (handler.succeeded()) {
                 vertxTestContext.failNow("Succeeded with an invalid user id");
@@ -198,7 +196,7 @@ public class TestDeleteNotifications {
         utility.executeQuery(tuple, INSERT_INTO_REQUEST_TABLE);
         deleteNotification.initiateDeleteNotification(new JsonObject().put("id", requestId), consumer).onComplete(handler -> {
             if (handler.succeeded()) {
-                vertxTestContext.failNow("Succeeded for previously deleted policy");
+                vertxTestContext.failNow("Succeeded for previously deleted notification");
             } else {
                 JsonObject result = new JsonObject(handler.cause().getMessage());
                 assertEquals(BAD_REQUEST.getValue(), result.getInteger(TYPE));
@@ -278,7 +276,7 @@ public class TestDeleteNotifications {
     @Test
     @DisplayName("Test executeQuery with invalid query")
     public void testExecuteQueryWithInvalidQuery(VertxTestContext vertxTestContext) {
-        String query = "UPDATE request SET status='DELETED' WHERE _id = 'someDummyValue'::uuid";
+        String query = "UPDATE request123 SET status='DELETED' WHERE _id = 'someDummyValue'::uuid";
         deleteNotification.executeQuery(
                 query,
                 Tuple.tuple(),

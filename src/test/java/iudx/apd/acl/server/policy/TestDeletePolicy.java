@@ -81,6 +81,7 @@ public class TestDeletePolicy {
             }
         });
     }
+
     @Test
     @DisplayName("Test initiateDeletePolicy with an invalid policy id")
     public void testInitiateDeletePolicy4InvalidPolicy(VertxTestContext vertxTestContext) {
