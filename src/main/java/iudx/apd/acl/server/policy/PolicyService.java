@@ -8,7 +8,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.apd.acl.server.apiserver.util.User;
-import net.sf.saxon.trans.SymbolicName;
 
 @VertxGen
 @ProxyGen
