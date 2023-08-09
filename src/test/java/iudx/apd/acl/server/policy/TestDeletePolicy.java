@@ -66,7 +66,6 @@ public class TestDeletePolicy {
         return new User(jsonObject);
     }
 
-    //2
     @Test
     @DisplayName("Test initiateDeletePolicy : Success")
     public void testInitiateDeletePolicy(VertxTestContext vertxTestContext) {

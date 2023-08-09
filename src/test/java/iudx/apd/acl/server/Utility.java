@@ -26,6 +26,7 @@ public class Utility {
             "INSERT INTO policy(_id, user_emailid, item_id, item_type, owner_id, status, expiry_at, constraints, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING _id;";
     public static final String INSERT_INTO_USER_TABLE =
             "INSERT INTO user_table(_id, email_id, first_name, last_name, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING _id;";
+    public static final String INSERT_INTO_REQUEST_TABLE = "INSERT INTO request(_id, user_id, item_id, item_type, owner_id, status, expiry_at, created_at, updated_at, constraints) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING _id;";
     private static final Logger LOG = LoggerFactory.getLogger(Utility.class);
     private PgPool pool;
     private String resourceType;
@@ -45,17 +46,20 @@ public class Utility {
     private Tuple consumerTuple;
     private Tuple ownerTuple;
     private Tuple policyInsertionTuple;
+    private Tuple requestInsertionTuple;
+    private UUID requestId;
+    private String requestStatus;
     private boolean hasFailed;
 
-    private static UUID generateRandomUuid() {
+    public static UUID generateRandomUuid() {
         return UUID.randomUUID();
     }
 
-    private static String generateRandomString() {
+    public static String generateRandomString() {
         return UUID.randomUUID().toString();
     }
 
-    private static String generateRandomEmailId() {
+    public static String generateRandomEmailId() {
         return generateRandomString().substring(0, 6)
                 + "@"
                 + generateRandomString().substring(0, 3)
@@ -147,6 +151,10 @@ public class Utility {
                         constraints,
                         createdAt,
                         updatedAt);
+        requestId = generateRandomUuid();
+        requestStatus = "PENDING";
+
+        requestInsertionTuple = Tuple.of(requestId, consumerId, resourceId, resourceType, ownerId, requestStatus, expiryTime, createdAt, updatedAt, constraints);
     }
     public Future<Boolean> testInsert()
     {
@@ -157,12 +165,21 @@ public class Utility {
                 executeQuery(resourceInsertionTuple, INSERT_INTO_RESOURCE_ENTITY_TABLE).onComplete(resourceHandler -> {
                     if(resourceHandler.succeeded())
                     {
-                        executeQuery(policyInsertionTuple, INSERT_INTO_POLICY_TABLE).onComplete(policyHandler -> {
-                            if(policyHandler.succeeded())
+                        executeQuery(requestInsertionTuple, INSERT_INTO_REQUEST_TABLE).onComplete(requestInsertionHandler -> {
+                            if(requestInsertionHandler.succeeded())
                             {
-                                LOG.info("Succeeded in inserting all the queries");
-                                LOG.info("Result from the insertion : {}, {}, {}",handler.result(),resourceHandler.result(), policyHandler.result());
-                                promise.complete(true);
+                                executeQuery(policyInsertionTuple, INSERT_INTO_POLICY_TABLE).onComplete(policyHandler -> {
+                                    if(policyHandler.succeeded())
+                                    {
+                                        LOG.info("Succeeded in inserting all the queries");
+                                        LOG.info("Result from the insertion : {}, {}, {}, {}",handler.result(),resourceHandler.result(), policyHandler.result(), requestInsertionHandler.result());
+                                        promise.complete(true);
+                                    }
+                                    else
+                                    {
+                                        hasFailed = true;
+                                    }
+                                });
                             }
                             else
                             {
@@ -240,6 +257,9 @@ public class Utility {
     public String getResourceType() {
         return resourceType;
     }
+    public UUID getRequestId() {
+        return requestId;
+    }
 
     public String getStatus() {
         return status;
@@ -287,6 +307,9 @@ public class Utility {
 
     public String getOwnerLastName() {
         return ownerLastName;
+    }
+    public String getRequestStatus(){
+        return requestStatus;
     }
 
 }
