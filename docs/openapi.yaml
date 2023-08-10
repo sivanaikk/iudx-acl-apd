@@ -1213,12 +1213,12 @@ components:
           type: string
         title:
           type: string
-        results:
+        detail:
           type: string
       required:
         - type
         - title
-        - results
+        - detail
       example:
         type: urn:dx:acl:badRequest
         title: Bad Request
