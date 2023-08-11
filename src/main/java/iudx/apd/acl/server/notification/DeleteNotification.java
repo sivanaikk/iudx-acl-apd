@@ -45,16 +45,15 @@ public class DeleteNotification {
     public Future<JsonObject> initiateDeleteNotification(JsonObject notification, User user) {
         UUID requestUuid = UUID.fromString(notification.getString("id"));
         Future<Boolean> verifyFuture = verifyRequest(GET_REQUEST, requestUuid, user);
+
         Future<Boolean> withDrawNotificationFuture = verifyFuture.compose(isNotificationVerified -> {
-            if(isNotificationVerified)
-            {
+            if (isNotificationVerified) {
                 return executeWithDrawNotification(WITHDRAW_REQUEST, requestUuid);
             }
-                return Future.failedFuture(verifyFuture.cause().getMessage());
+            return Future.failedFuture(verifyFuture.cause().getMessage());
         });
-        return withDrawNotificationFuture.compose(isWithNotificationSuccessful -> {
-            if(isWithNotificationSuccessful)
-            {
+        return withDrawNotificationFuture.compose(isWithDrawNotificationSuccessful -> {
+            if (isWithDrawNotificationSuccessful) {
                 JsonObject response = new JsonObject()
                         .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
                         .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
@@ -62,9 +61,10 @@ public class DeleteNotification {
                         .put(STATUS_CODE, SUCCESS.getValue());
                 return Future.succeededFuture(response);
             }
-                return Future.failedFuture(withDrawNotificationFuture.cause().getMessage());
+            return Future.failedFuture(withDrawNotificationFuture.cause().getMessage());
         });
     }
+
     /**
      * Checks if the request ID that is about to be withdrawn, belongs
      * to the user and is not in Pending status
@@ -79,30 +79,41 @@ public class DeleteNotification {
         LOG.trace("inside verifyRequest method");
         Promise<Boolean> promise = Promise.promise();
         Tuple tuple = Tuple.of(requestUuid);
+        String consumer = user.getUserId();
+        LOG.trace("The consumer who's requesting to with draw notification is {}", consumer);
+
         executeQuery(query, tuple, handler -> {
             if (handler.succeeded()) {
-                JsonObject response = handler.result().getJsonArray(RESULT).getJsonObject(0);
-
-                String consumerId = response.getString("user_id");
-                String status = response.getString("status");
-                /* ownership check */
-                if (consumerId.equals(user.getUserId())) {
-                    /* check if status is in pending state */
-                    if (status.equals("PENDING")) {
-                        promise.complete(true);
+                /* if the response is empty, notification is not found */
+                if (handler.result().getJsonArray(RESULT).isEmpty()) {
+                    JsonObject response = new JsonObject();
+                    response.put(TYPE, NOT_FOUND.getValue());
+                    response.put(TITLE, NOT_FOUND.getUrn());
+                    response.put(DETAIL, "Request could not be withdrawn, as it is not found");
+                    promise.fail(response.encode());
+                } else {
+                    JsonObject response = handler.result().getJsonArray(RESULT).getJsonObject(0);
+                    String consumerId = response.getString("user_id");
+                    String status = response.getString("status");
+                    /* ownership check */
+                    if (consumerId.equals(consumer)) {
+                        /* check if status is in pending state */
+                        if (status.equals("PENDING")) {
+                            promise.complete(true);
+                        } else {
+                            JsonObject failureResponse = new JsonObject();
+                            failureResponse.put(TYPE, BAD_REQUEST.getValue());
+                            failureResponse.put(TITLE, BAD_REQUEST.getUrn());
+                            failureResponse.put(DETAIL, "Request could not be withdrawn, as it is not in pending status");
+                            promise.fail(failureResponse.encode());
+                        }
                     } else {
                         JsonObject failureResponse = new JsonObject();
-                        failureResponse.put(TYPE, BAD_REQUEST.getValue());
-                        failureResponse.put(TITLE, BAD_REQUEST.getUrn());
-                        failureResponse.put(DETAIL, "Request could not be withdrawn, as it is not in pending status");
+                        failureResponse.put(TYPE, FORBIDDEN.getValue());
+                        failureResponse.put(TITLE, FORBIDDEN.getUrn());
+                        failureResponse.put(DETAIL, "Request could not be withdrawn, as it is doesn't belong to the user");
                         promise.fail(failureResponse.encode());
                     }
-                } else {
-                    JsonObject failureResponse = new JsonObject();
-                    failureResponse.put(TYPE, FORBIDDEN.getValue());
-                    failureResponse.put(TITLE, FORBIDDEN.getUrn());
-                    failureResponse.put(DETAIL, "Request could not be withdrawn, as it is doesn't belong to the user");
-                    promise.fail(failureResponse.encode());
                 }
 
             } else {
@@ -154,24 +165,15 @@ public class DeleteNotification {
      * @param tuple   exchangeable values to be added in the query
      * @param handler
      */
-    private void executeQuery(String query, Tuple tuple, Handler<AsyncResult<JsonObject>> handler) {
+    public void executeQuery(String query, Tuple tuple, Handler<AsyncResult<JsonObject>> handler) {
 
         pool = postgresService.getPool();
         Collector<Row, ?, List<JsonObject>> rowListCollector = Collectors.mapping(row -> row.toJson(), Collectors.toList());
 
         pool.withConnection(sqlConnection -> sqlConnection.preparedQuery(query).collecting(rowListCollector).execute(tuple).map(rows -> rows.value())).onSuccess(successHandler -> {
-            if (successHandler.isEmpty()) {
-                /* notification id not present */
-                JsonObject response = new JsonObject();
-                response.put(TYPE, NOT_FOUND.getValue());
-                response.put(TITLE, NOT_FOUND.getUrn());
-                response.put(DETAIL, "Request could not be withdrawn, as it is not found");
-                handler.handle(Future.failedFuture(response.encode()));
-            } else {
-                JsonArray response = new JsonArray(successHandler);
-                JsonObject responseJson = new JsonObject().put(TYPE, ResponseUrn.SUCCESS_URN.getUrn()).put(TITLE, ResponseUrn.SUCCESS_URN.getMessage()).put(RESULT, response);
-                handler.handle(Future.succeededFuture(responseJson));
-            }
+            JsonArray response = new JsonArray(successHandler);
+            JsonObject responseJson = new JsonObject().put(TYPE, ResponseUrn.SUCCESS_URN.getUrn()).put(TITLE, ResponseUrn.SUCCESS_URN.getMessage()).put(RESULT, response);
+            handler.handle(Future.succeededFuture(responseJson));
         }).onFailure(failureHandler -> {
             LOG.error("Failure while executing the query : {}", failureHandler.getMessage());
             JsonObject response = new JsonObject().put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue()).put(TITLE, ResponseUrn.DB_ERROR_URN.getMessage()).put(DETAIL, "Failure while executing query");
