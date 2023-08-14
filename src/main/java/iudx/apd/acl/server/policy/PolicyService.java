@@ -23,8 +23,7 @@ public interface PolicyService {
 
   Future<JsonObject> createPolicy(JsonObject request, User user);
 
-  Future<JsonObject> deletePolicy(JsonArray policyList, User user);
-
+  Future<JsonObject> deletePolicy(JsonObject policy, User user);
   Future<JsonObject> getPolicy(User user);
   Future<JsonObject> verifyPolicy(JsonObject jsonArray);
 }

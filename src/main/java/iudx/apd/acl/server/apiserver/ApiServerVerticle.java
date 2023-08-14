@@ -278,12 +278,11 @@ public class ApiServerVerticle extends AbstractVerticle {
 
 
     private void deletePoliciesHandler(RoutingContext routingContext) {
-        JsonObject bodyAsJsonObject = routingContext.body().asJsonObject();
-        JsonArray policyList = bodyAsJsonObject.getJsonArray("request");
+        JsonObject policy = routingContext.body().asJsonObject();
 
         User provider = getProvider();
         policyService
-                .deletePolicy(policyList, provider)
+                .deletePolicy(policy, provider)
                 .onComplete(
                         handler -> {
                             if (handler.succeeded()) {

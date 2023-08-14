@@ -144,7 +144,7 @@ paths:
         '400':
           description: |-
             Bad Request
-            - Error or exceptions
+            - Error or exceptions 
             - id is not a valid a policyId
           content:
             application/json:
@@ -157,7 +157,7 @@ paths:
               description: application/json
         '404':
           description: |-
-            Not Found
+            Not Found 
               - policy id does not exist
           content:
             application/json:
@@ -885,7 +885,7 @@ paths:
       requestBody:
         description: |-
           - `id` : the UUID of the request that is to be deleted.
-
+          
           Consumers can get the id of the request they want to delete using the list notifications API.
         required: true
         content:
@@ -1227,12 +1227,12 @@ components:
           type: string
         title:
           type: string
-        results:
+        detail:
           type: string
       required:
         - type
         - title
-        - results
+        - detail
       example:
         type: urn:dx:acl:badRequest
         title: Bad Request

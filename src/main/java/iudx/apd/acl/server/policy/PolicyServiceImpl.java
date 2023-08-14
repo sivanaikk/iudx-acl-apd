@@ -46,10 +46,10 @@ public class PolicyServiceImpl implements PolicyService {
 
 
     @Override
-    public Future<JsonObject> deletePolicy(JsonArray policyList, User user) {
+    public Future<JsonObject> deletePolicy(JsonObject policy, User user) {
         Promise<JsonObject> promise = Promise.promise();
         this.deletePolicy
-                .initiateDeletePolicy(policyList, user)
+                .initiateDeletePolicy(policy, user)
                 .onComplete(
                         handler -> {
                             if (handler.succeeded()) {
