@@ -444,6 +444,9 @@ paths:
           required: true
           schema:
             type: string
+            minLength: 1
+            maxLength: 4000
+            example: Bearer <JWT>
       requestBody:
         description: >-
           The request body is a JSON object that contains information about the

@@ -91,7 +91,6 @@ public class PolicyServiceImpl implements PolicyService {
       .onComplete(
         handler -> {
           if (handler.succeeded()) {
-            LOG.info("Verify policy successful");
             promise.complete(handler.result());
           } else {
             LOG.error("Failed to verify policy");

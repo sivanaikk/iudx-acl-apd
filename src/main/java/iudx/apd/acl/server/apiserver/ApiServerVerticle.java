@@ -203,7 +203,6 @@ public class ApiServerVerticle extends AbstractVerticle {
 
   private void verifyRequestHandler(RoutingContext routingContext) {
     JsonObject requestBody = routingContext.body().asJsonObject();
-    LOGGER.info("BODY "+requestBody);
     policyService.verifyPolicy(requestBody)
       .onComplete(
         handler -> {
