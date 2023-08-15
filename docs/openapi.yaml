@@ -202,24 +202,41 @@ paths:
       tags:
         - Policies APIs
       summary: Create Policies
-      description: |-
-        Allows users to create policies to allow a particular user to get token for a resource.
+      description: >-
+        Allows users to create policies to allow a particular user to get token
+        for a resource.
+
         `providers` can create policy for any resource that they own.
-        `delegates` can create policy on behalf of a provider who owns the resource.
+
+        `delegates` can create policy on behalf of a provider who owns the
+        resource.
+
 
         ## Policies created by provider
 
+
         ### User Policies
+
         - Valid item types - `resource`, `resource_group`
-        - A `provider` can set **user policies** for a `consumer` for the resources owned by the `provider`.
+
+        - A `provider` can set **user policies** for a `consumer` for the
+        resources owned by the `provider`.
+
 
 
         ## Policies created by delegate
-        - A delegate may use the API to view policies on behalf of their provider. This is done by passing the userInfo of the delegator must be present in the token issued by the AAA.
+
+        - A delegate may use the API to view policies on behalf of their
+        provider. This is done by passing the userInfo of the delegator must be
+        present in the token issued by the AAA.
+
 
         ### User Policies
+
         - Valid item types - `resource`, `resource_group`
-        - A `delegate` can set **user policies** for other `delegate` or `consumer` for the resources owned by the `provider`
+
+        - A `delegate` can set **user policies** for other `delegate` or
+        `consumer` for the resources owned by the `provider`
       operationId: post-auth-v1-policies
       parameters:
         - name: Authorization
@@ -232,14 +249,24 @@ paths:
             maxLength: 4000
             example: Bearer <JWT>
       requestBody:
-        description: |
-          Request body will be an JsonObject containing JsonArray of requests. The requests can be either for user policies or APD policies.
+        description: >
+          Request body will be an JsonObject containing JsonArray of requests.
+          The requests can be either for user policies or APD policies.
+
           ### User Policy Request :
-          - `userId` : emailId of the user for whom policy is to be set.
+
+          - `userEmail` : emailId of the user for whom policy is to be set.
+
           - `itemId` : UUID value of the item for which policy is to be set
+
           - `itemType` : Enum value of the item type
-          - `expiryTime` : ISO8601 compatible time in UTC(yyyy-MM-dd'T'HH:mm:ss). optional field, if not sent default expiry is set for the policy
-          - `constraints` : JsonObject of the constraints that the resource server can recognize.
+
+          - `expiryTime` : ISO8601 compatible time in
+          UTC(yyyy-MM-dd'T'HH:mm:ss). optional field, if not sent default expiry
+          is set for the policy
+
+          - `constraints` : JsonObject of the constraints that the resource
+          server can recognize.
         required: true
         content:
           application/json:
@@ -256,11 +283,11 @@ paths:
                       - type: object
                         additionalProperties: false
                         properties:
-                          userId:
+                          userEmail:
                             type: string
-                            format: uuid
-                            pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
-                            minLength: 36
+                            pattern: >-
+                              ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+                            minLength: 1
                             maxLength: 36
                           itemId:
                             type: string
@@ -276,12 +303,13 @@ paths:
                             minLength: 1
                           expiryTime:
                             type: string
-                            pattern: '^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$'
+                            pattern: >-
+                              ^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$
                             minLength: 1
                           constraints:
                             type: object
                         required:
-                          - userId
+                          - userEmail
                           - itemId
                           - itemType
                           - constraints
@@ -290,21 +318,21 @@ paths:
               x-examples:
                 example-1:
                   request:
-                    - userId: 89bbe934-5f18-4f57-b68e-fb821ba77291
+                    - userEmail: pqr@abc
                       itemId: example-resource-group
                       itemType: resource_group
                       expiryTime: '2023-08-30T21:10:06'
-                      constraints: { }
-                    - userId: 89bbe934-5f18-4f57-b68e-fb821ba77292
+                      constraints: {}
+                    - userEmail: test@demo
                       itemId: example-resource-group
                       itemType: resource_group
                       expiryTime: '2023-08-30T21:10:06'
-                      constraints: { }
+                      constraints: {}
             examples:
               Single request for resource group user policy:
                 value:
                   request:
-                    - userId: abc@xyz.com
+                    - userEmail: abc@xyz.com
                       itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
                       itemType: resource_group
                       expiryTime: '2022-08-04T20:00:19'
@@ -314,7 +342,7 @@ paths:
               Single request for resource user policy:
                 value:
                   request:
-                    - userId: abc@xyz.com
+                    - userEmail: abc@xyz.com
                       itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
                       itemType: resource
                       expiryTime: '2022-10-10T04:00:19'
@@ -325,12 +353,12 @@ paths:
               Multiple user policy requests:
                 value:
                   request:
-                    - userId: xyz@abx.com
+                    - userEmail: xyz@abx.com
                       itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
                       itemType: resource_group
                       expiryTime: '2022-08-04T20:00:19'
-                      constraints: { }
-                    - userId: aaa@yun.com
+                      constraints: {}
+                    - userEmail: aaa@yun.com
                       itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
                       itemType: resource
                       expiryTime: '2022-10-10T04:00:19'
@@ -343,14 +371,13 @@ paths:
               type: object
       responses:
         '200':
-          description: 'The policies have been created successfully.Must return the details of the policy created like policy Id,ItemId etc.'
+          description: >-
+            The policies have been created successfully.Must return the details
+            of the policy created like policy Id,ItemId etc.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  '':
-                    type: string
+                $ref: '#/components/schemas/createPolicySuccessResponse'
         '400':
           description: |-
             - Missing or malformed data
@@ -359,7 +386,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/generalBadRequest'
           headers:
             Content-Type:
               schema:
@@ -377,69 +404,109 @@ paths:
                 type: string
               description: application/json
         '403':
-          description: |-
-            - If the user trying to set a policy does not have an  `provider` or `delegate` role
-            - If the user is neither the owner of the resource item/group or a delegate to the owner of the resource
-            - If a valid policy already exists
+          description: >-
+            - If the user trying to set a policy does not have an  `provider` or
+            `delegate` role
+
+            - If the user is neither the owner of the resource item/group or a
+            delegate to the owner of the resource
           content:
             application/json:
               schema:
-                type: object
-      security:
-        - authorization: [ ]
-
-  /ngsi-ld/v1/verify:
-    get:
-      summary: Verify Policy
-      description: |
-        Verify the policy for a given item and owner. This endpoint checks if a policy exists for the specified item and owner in the APD server. It returns the policy constraints if a policy is found.
-      operationId: get-auth-v1-verify
-      parameters:
-        - name: Authorization
-          in: header
-          description: AAA issued token
-          required: true
-          schema:
-            type: string
-            minLength: 1
-            maxLength: 4000
-            example: Bearer <JWT>
-    responses:
-      '200':
-        description: Policy verification successful
-        content:
-          application/json:
-            example:
-              type: success
-              constraints:
-                rule: read
-                duration: 3600
-      '400':
-        description: Bad Request
-        content:
-          application/json:
-            example:
-              type: error
-              message: Invalid request format
-      '403':
-        description: Forbidden
-        content:
-          application/json:
-            example:
-              type: error
-              message: No policy found for the specified item and owner
-      '500':
-        description: Internal Server Error
-        content:
-          application/json:
-            example:
-              type: error
-              message: Internal server error occurred
+                $ref: '#/components/schemas/createPolicyForbidden'
           headers:
             Content-Type:
               schema:
                 type: string
               description: application/json
+        '409':
+          description: |-
+
+            - If a valid policy already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/conflictResponse'
+      security:
+        - authorization: []
+
+  /verify:
+    get:
+      tags:
+        - Verify API
+      summary: Verify Policy
+      description: |
+        Verify the policy for a given item and owner. This endpoint checks if a policy exists for the specified item and owner in the APD server. It returns the policy constraints if a policy is found.
+      operationId: get-auth-v1-verify
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: >-
+          The request body is a JSON object that contains information about the
+          user, owner, and item.The user's ID, name, and email, as well as the
+          owner's ID, name, and email, are provided.Additionally, information
+          about the item, including its ID and type, is included.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/requestBodyForVerify'
+            examples:
+              request-body:
+                value:
+                  user:
+                    id: b58da193-23d9-43eb-b98a-a103d4b6103c
+                    name:
+                      firstName: demo
+                      lastName: name
+                    email: test_user_1@example.com
+                  owner:
+                    id: b2c27f3f-2524-4a84-816e-91f9ab23f837
+                    name:
+                      firstName: test
+                      lastName: provider
+                    email: test@provider
+                  item:
+                    itemId: b58da193-23d9-43eb-b98a-a103d4b6103c
+                    itemType: RESOURCE_GROUP
+      responses:
+        '200':
+          description: Policy verification successful
+          content:
+            application/json:
+              example:
+                type: urn:apd:Allow
+                constraints:
+                  rule: read
+                  duration: 3600
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                type: urn:dx:acl:badRequest
+                title: Bad Request
+                detail: Bad Request
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                type: urn:apd:Deny
+                title: Policy does not exist
+                detail: Invalid request format/Incorrect request
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                type: urn:dx:acl:internalServerError
+                title : Internal Server Error
+                detail: DB error.
       security:
         - authorization: [ ]
 
@@ -658,7 +725,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/generalBadRequest'
               examples:
                 Example:
                   value:
@@ -832,7 +899,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/generalBadRequest'
           headers:
             Content-Type:
               schema:
@@ -1403,7 +1470,7 @@ components:
         type: urn:dx:acl:MissingAuthenticationToken
         title: Missing auth details
         detail: Missing auth details
-    ErrorResponse:
+    createPolicyForbidden:
       type: object
       properties:
         type:
@@ -1415,18 +1482,69 @@ components:
         detail:
           type: string
           minLength: 1
-        context:
-          type: object
-          description: Any additional information required
       required:
         - type
         - title
         - detail
-      x-examples:
-        Example:
+      example:
+        type: urn:dx:acl:forbidden
+        title: Forbidden
+        detail: Ownership Error.
+    createPolicySuccessResponse:
+      title: complete
+      type: object
+      properties:
+        type:
           type: string
-          title: string
-          detail: string
+        title:
+          type: string
+        results:
+          description: An array of objects
+          type: array
+          items:
+            type: object
+      example:
+        type: 'urn:dx:acl:success'
+        title: Success
+        results:
+          - policy_id: e03c2e31-910b-4dd6-b3ec-a490773b5463
+            user_emailId: abc@xyz.com
+            item_id: b34eb955-c691-4fd3-b200-f18bc78810a2
+            expiry_at: '2022-08-04T20:00:19'
+          - policy_id: 06b3ca12-de0d-4a29-bf98-074de1fa4c6b
+            user_emailId: tester@example.com
+            item_id: d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2
+            expiry_at: '2023-08-05T20:00:19'
+          - owner_id: 4e563a5f-35f0-4f32-92be-8830775a1c5e
+    conflictResponse:
+      title: standardPolicyAlreadyExistErrorResponse
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+      example:
+        type: 'urn:dx:acl:general'
+        title: Conflict
+        detail: >-
+          Policy already exist for some of the request objects
+          [bf9d8f85-b7b0-40bb-8197-0046725f1ca8,
+          2789fa93-565a-4ea8-97f9-b64fc4863021]
+
+    generalBadRequest:
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+      example:
+        type: 'urn:dx:acl:badRequest'
+        title: Bad Request
+        detail: Bad Request
     AccessRequest:
       type: object
       properties:
@@ -1548,3 +1666,80 @@ components:
                 name:
                   firstName: string
                   lastName: string
+
+    name:
+      title: schemaName
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+        lastName:
+          type: string
+          minLength: 1
+      required:
+        - firstName
+        - lastName
+
+
+    user:
+      title: schemaUser
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
+          minLength: 1
+          maxLength: 512
+        name:
+          $ref: '#/components/schemas/name'
+        email:
+          pattern: >-
+            ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+          minLength: 1
+          maxLength: 36
+      required:
+        - id
+        - name
+        - email
+
+    owner:
+      title: schemaOwner
+      type: object
+      properties:
+        id:
+          pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
+          minLength: 1
+          maxLength: 512
+        name:
+          $ref: '#/components/schemas/name'
+        email:
+          pattern: >-
+            ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+          minLength: 1
+          maxLength: 36
+    item:
+      type: object
+      properties:
+        itemId:
+          pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
+          minLength: 1
+          maxLength: 512
+        itemType:
+          enum:
+            - RESOURCE
+            - RESOURCE_GROUP
+          minLength: 1
+      required:
+        - itemId
+        - itemType
+
+    requestBodyForVerify:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/user'
+        owner:
+          $ref: '#/components/schemas/owner'
+        item:
+          $ref: '#/components/schemas/item'

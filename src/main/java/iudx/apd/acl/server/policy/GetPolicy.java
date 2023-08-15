@@ -165,7 +165,6 @@ public class GetPolicy {
                                             new JsonObject()
                                                     .put(RESULT, result)
                                                     .put(STATUS_CODE, HttpStatusCode.SUCCESS.getValue()));
-                                    LOG.debug("Success response : {}", handler.result());
                                 } else {
                                     JsonObject response = new JsonObject()
                                             .put(TYPE, HttpStatusCode.NOT_FOUND.getValue())
