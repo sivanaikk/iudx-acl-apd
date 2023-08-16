@@ -88,7 +88,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         return new User(provider);
     }
 
-    /**
+  /**
      * This method is used to start the Verticle. It deploys a verticle in a cluster, reads the
      * configuration, obtains a proxy for the Event bus services exposed through service discovery,
      * start an HTTPs server at port 8443 or an HTTP server at port 8080.
@@ -149,6 +149,11 @@ public class ApiServerVerticle extends AbstractVerticle {
                                     .handler(this::deleteAccessRequestHandler)
                                     .failureHandler(failureHandler);
 
+                            routerBuilder
+                            .operation(VERIFY_API)
+                            .handler(this::verifyRequestHandler)
+                            .failureHandler(failureHandler);
+
                             routerBuilder.rootHandler(TimeoutHandler.create(100000, 408));
                             configureCorsHandler(routerBuilder);
                             routerBuilder.rootHandler(BodyHandler.create());
@@ -195,6 +200,22 @@ public class ApiServerVerticle extends AbstractVerticle {
                                     "Failed to initialize router builder {}", failure.getCause().getMessage());
                         });
     }
+
+  private void verifyRequestHandler(RoutingContext routingContext) {
+    JsonObject requestBody = routingContext.body().asJsonObject();
+    policyService.verifyPolicy(requestBody)
+      .onComplete(
+        handler -> {
+          if (handler.succeeded()) {
+            LOGGER.info("Policy verified successfully ");
+            handleSuccessResponse(
+              routingContext, HttpStatusCode.SUCCESS.getValue(), handler.result().toString());
+          } else {
+            LOGGER.error("Policy could not be verified");
+            handleFailureResponse(routingContext, handler.cause().getMessage());
+          }
+        });
+  }
 
     private void postAccessRequestHandler(RoutingContext routingContext) {
     }

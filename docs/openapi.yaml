@@ -86,7 +86,7 @@ paths:
                 type: string
               description: application/json
       security:
-        - authorization: []
+        - authorization: [ ]
 
 
     delete:
@@ -144,7 +144,7 @@ paths:
         '400':
           description: |-
             Bad Request
-            - Error or exceptions 
+            - Error or exceptions
             - id is not a valid a policyId
           content:
             application/json:
@@ -157,7 +157,7 @@ paths:
               description: application/json
         '404':
           description: |-
-            Not Found 
+            Not Found
               - policy id does not exist
           content:
             application/json:
@@ -195,31 +195,48 @@ paths:
                 type: string
               description: application/json
       security:
-        - authorization: []
+        - authorization: [ ]
 
 
     post:
       tags:
         - Policies APIs
       summary: Create Policies
-      description: |-
-        Allows users to create policies to allow a particular user to get token for a resource.
+      description: >-
+        Allows users to create policies to allow a particular user to get token
+        for a resource.
+
         `providers` can create policy for any resource that they own.
-        `delegates` can create policy on behalf of a provider who owns the resource.
+
+        `delegates` can create policy on behalf of a provider who owns the
+        resource.
+
 
         ## Policies created by provider
 
+
         ### User Policies
-        - Valid item types - `resource`, `resource_group`
-        - A `provider` can set **user policies** for a `consumer` for the resources owned by the `provider`.
+
+        - Valid item types - `RESOURCE`, `RESOURCE_GROUP`
+
+        - A `provider` can set **user policies** for a `consumer` for the
+        resources owned by the `provider`.
+
 
 
         ## Policies created by delegate
-        - A delegate may use the API to view policies on behalf of their provider. This is done by passing the userInfo of the delegator must be present in the token issued by the AAA.
+
+        - A delegate may use the API to view policies on behalf of their
+        provider. This is done by passing the userInfo of the delegator must be
+        present in the token issued by the AAA.
+
 
         ### User Policies
-        - Valid item types - `resource`, `resource_group`
-        - A `delegate` can set **user policies** for other `delegate` or `consumer` for the resources owned by the `provider`
+
+        - Valid item types - `RESOURCE`, `RESOURCE_GROUP`
+
+        - A `delegate` can set **user policies** for other `delegate` or
+        `consumer` for the resources owned by the `provider`
       operationId: post-auth-v1-policies
       parameters:
         - name: Authorization
@@ -232,14 +249,24 @@ paths:
             maxLength: 4000
             example: Bearer <JWT>
       requestBody:
-        description: |
-          Request body will be an JsonObject containing JsonArray of requests. The requests can be either for user policies or APD policies.
+        description: >
+          Request body will be an JsonObject containing JsonArray of requests.
+          The requests can be either for user policies or APD policies.
+
           ### User Policy Request :
-          - `userId` : emailId of the user for whom policy is to be set.
+
+          - `userEmail` : emailId of the user for whom policy is to be set.
+
           - `itemId` : UUID value of the item for which policy is to be set
+
           - `itemType` : Enum value of the item type
-          - `expiryTime` : ISO8601 compatible time in UTC(yyyy-MM-dd'T'HH:mm:ss). optional field, if not sent default expiry is set for the policy
-          - `constraints` : JsonObject of the constraints that the resource server can recognize.
+
+          - `expiryTime` : ISO8601 compatible time in
+          UTC(yyyy-MM-dd'T'HH:mm:ss). optional field, if not sent default expiry
+          is set for the policy
+
+          - `constraints` : JsonObject of the constraints that the resource
+          server can recognize.
         required: true
         content:
           application/json:
@@ -256,11 +283,11 @@ paths:
                       - type: object
                         additionalProperties: false
                         properties:
-                          userId:
+                          userEmail:
                             type: string
-                            format: uuid
-                            pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
-                            minLength: 36
+                            pattern: >-
+                              ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+                            minLength: 1
                             maxLength: 36
                           itemId:
                             type: string
@@ -269,19 +296,18 @@ paths:
                             maxLength: 512
                           itemType:
                             enum:
-                              - resource
-                              - resource_group
-                              - resource_server
-                              - apd
+                              - RESOURCE
+                              - RESOURCE_GROUP
                             minLength: 1
                           expiryTime:
                             type: string
-                            pattern: '^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$'
+                            pattern: >-
+                              ^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$
                             minLength: 1
                           constraints:
                             type: object
                         required:
-                          - userId
+                          - userEmail
                           - itemId
                           - itemType
                           - constraints
@@ -290,23 +316,23 @@ paths:
               x-examples:
                 example-1:
                   request:
-                    - userId: 89bbe934-5f18-4f57-b68e-fb821ba77291
+                    - userEmail: pqr@abc.com
                       itemId: example-resource-group
-                      itemType: resource_group
+                      itemType: RESOURCE_GROUP
                       expiryTime: '2023-08-30T21:10:06'
                       constraints: {}
-                    - userId: 89bbe934-5f18-4f57-b68e-fb821ba77292
+                    - userEmail: test@demo.com
                       itemId: example-resource-group
-                      itemType: resource_group
+                      itemType: RESOURCE_GROUP
                       expiryTime: '2023-08-30T21:10:06'
                       constraints: {}
             examples:
               Single request for resource group user policy:
                 value:
                   request:
-                    - userId: abc@xyz.com
+                    - userEmail: abc@xyz.com
                       itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
-                      itemType: resource_group
+                      itemType: RESOURCE_GROUP
                       expiryTime: '2022-08-04T20:00:19'
                       constraints:
                         access:
@@ -314,9 +340,9 @@ paths:
               Single request for resource user policy:
                 value:
                   request:
-                    - userId: abc@xyz.com
+                    - userEmail: abc@xyz.com
                       itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
-                      itemType: resource
+                      itemType: RESOURCE
                       expiryTime: '2022-10-10T04:00:19'
                       constraints:
                         access:
@@ -325,14 +351,14 @@ paths:
               Multiple user policy requests:
                 value:
                   request:
-                    - userId: xyz@abx.com
+                    - userEmail: xyz@abx.com
                       itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
-                      itemType: resource_group
+                      itemType: RESOURCE_GROUP
                       expiryTime: '2022-08-04T20:00:19'
                       constraints: {}
-                    - userId: aaa@yun.com
+                    - userEmail: aaa@yun.com
                       itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
-                      itemType: resource
+                      itemType: RESOURCE
                       expiryTime: '2022-10-10T04:00:19'
                       constraints:
                         access:
@@ -343,14 +369,13 @@ paths:
               type: object
       responses:
         '200':
-          description: 'The policies have been created successfully.Must return the details of the policy created like policy Id,ItemId etc.'
+          description: >-
+            The policies have been created successfully.Must return the details
+            of the policy created like policy Id,ItemId etc.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  '':
-                    type: string
+                $ref: '#/components/schemas/createPolicySuccessResponse'
         '400':
           description: |-
             - Missing or malformed data
@@ -359,7 +384,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/generalBadRequest'
           headers:
             Content-Type:
               schema:
@@ -377,17 +402,114 @@ paths:
                 type: string
               description: application/json
         '403':
+          description: >-
+            - If the user trying to set a policy does not have an  `provider` or
+            `delegate` role
+
+            - If the user is neither the owner of the resource item/group or a
+            delegate to the owner of the resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createPolicyForbidden'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '409':
           description: |-
-            - If the user trying to set a policy does not have an  `provider` or `delegate` role
-            - If the user is neither the owner of the resource item/group or a delegate to the owner of the resource
+
             - If a valid policy already exists
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/conflictResponse'
       security:
         - authorization: []
 
+  /verify:
+    get:
+      tags:
+        - Verify API
+      summary: Verify Policy
+      description: |
+        Verify the policy for a given item and owner. This endpoint checks if a policy exists for the specified item and owner in the APD server. It returns the policy constraints if a policy is found.
+      operationId: get-auth-v1-verify
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 4000
+            example: Bearer <JWT>
+      requestBody:
+        description: >-
+          The request body is a JSON object that contains information about the
+          user, owner, and item.The user's ID, name, and email, as well as the
+          owner's ID, name, and email, are provided.Additionally, information
+          about the item, including its ID and type, is included.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/requestBodyForVerify'
+            examples:
+              request-body:
+                value:
+                  user:
+                    id: b58da193-23d9-43eb-b98a-a103d4b6103c
+                    name:
+                      firstName: demo
+                      lastName: name
+                    email: test_user_1@example.com
+                  owner:
+                    id: b2c27f3f-2524-4a84-816e-91f9ab23f837
+                    name:
+                      firstName: test
+                      lastName: provider
+                    email: test@provider.com
+                  item:
+                    itemId: b58da193-23d9-43eb-b98a-a103d4b6103c
+                    itemType: RESOURCE_GROUP
+      responses:
+        '200':
+          description: Policy verification successful
+          content:
+            application/json:
+              example:
+                type: urn:apd:Allow
+                constraints:
+                  rule: read
+                  duration: 3600
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                type: urn:dx:acl:badRequest
+                title: Bad Request
+                detail: Bad Request
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                type: urn:apd:Deny
+                title: Policy does not exist
+                detail: Invalid request format/Incorrect request
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                type: urn:dx:acl:internalServerError
+                title : Internal Server Error
+                detail: DB error.
+      security:
+        - authorization: [ ]
 
   /ngsi-ld/v1/policies/requests:
     get:
@@ -428,7 +550,7 @@ paths:
                     results:
                       - requestId: ea48d233-5d3b-4bdb-9545-691680c99cee
                         itemId: pune-env-flood-FWR056"
-                        itemType: resource
+                        itemType: RESOURCE
                         status: pending
                         expiryDuration: P1Y2M10DT2H30M
                         constraints:
@@ -471,7 +593,7 @@ paths:
                 type: string
               description: application/json
       security:
-        - authorization: []
+        - authorization: [ ]
 
 
     post:
@@ -523,8 +645,8 @@ paths:
                         maxLength: 512
                       itemType:
                         enum:
-                          - resource_group
-                          - resource
+                          - RESOURCE_GROUP
+                          - RESOURCE
                         minLength: 1
                       expiryDuration:
                         type: string
@@ -544,15 +666,15 @@ paths:
                 example-1:
                   request:
                     - itemId: iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood/FWR03
-                      itemType: resource
+                      itemType: RESOURCE
                       expiryDuration: P1Y2M10DT2H30M
-                      constraints: {}
+                      constraints: { }
             examples:
               Create:
                 value:
                   request:
                     - itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
-                      itemType: resource
+                      itemType: RESOURCE
                       expiryDuration: P1Y2M10DT2H30M
                       constraints:
                         access:
@@ -574,7 +696,7 @@ paths:
                     results:
                       - requestId: bd5f0bb3-c02c-4e3d-b75c-a6eb8144bddc
                         itemId: iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood/FWR056
-                        itemType: resource
+                        itemType: RESOURCE
                         status: pending
                         expiryDuration: P1Y2M10DT2H30M
                         constraints:
@@ -604,7 +726,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/generalBadRequest'
               examples:
                 Example:
                   value:
@@ -634,7 +756,7 @@ paths:
                 type: string
               description: application/json
       security:
-        - authorization: []
+        - authorization: [ ]
 
 
     put:
@@ -748,7 +870,7 @@ paths:
                     results:
                       - requestId: bd5f0bb3-c02c-4e3d-b75c-a6eb8144bddc
                         itemId: pune-env-flood-FWR056
-                        itemType: resource
+                        itemType: RESOURCE
                         status: approved
                         expiryDuration: P1Y2M10DT2H30M
                         constraints:
@@ -778,7 +900,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/generalBadRequest'
           headers:
             Content-Type:
               schema:
@@ -809,7 +931,7 @@ paths:
                 type: string
               description: application/json
       security:
-        - authorization: []
+        - authorization: [ ]
 
 
     delete:
@@ -831,7 +953,7 @@ paths:
       requestBody:
         description: |-
           - `id` : the UUID of the request that is to be deleted.
-          
+
           Consumers can get the id of the request they want to delete using the list notifications API.
         required: true
         content:
@@ -912,7 +1034,7 @@ paths:
                     title: Forbidden
                     detail: User with consumer role may call the API
       security:
-        - authorization: []
+        - authorization: [ ]
 
 
 components:
@@ -1000,37 +1122,22 @@ components:
                 properties:
                   access:
                     type: array
-      example:
-        {
-          "type": "urn:dx:acl:success",
-          "title": "Success",
-          "results": [
-            {
-              "policyId": "aaaaaaaa-1234-1234-1234-1234aaaa1234",
-              "itemId": "cccccccc-4576-3455-5645-3565aaaa4255",
-              "itemType": "RESOURCE",
-              "expiryAt": "2024-03-05T20:00:19",
-              "constraints": {access:[sub]},
-              "status": "ACTIVE",
-              "consumer": {
-                "email": "dummyConsumer@example.com",
-                "name": {
-                  "firstName": "Some",
-                  "lastName": "Consumer"
-                },
-                "id": "gklmcd4-4576-3455-5645-3565aaaa4255"
-              },
-              "provider": {
-                "email": "someProvider@example.com",
-                "name": {
-                  "firstName": "Some",
-                  "lastName": "Provider"
-                },
-                "id": "abcdcd4-4576-3455-5645-3565aaaa4255"
-              }
-            }
-          ]
-        }
+      example: { "type": "urn:dx:acl:success",
+                 "title": "Success",
+                 "results": [ { "policyId": "aaaaaaaa-1234-1234-1234-1234aaaa1234",
+                                "itemId": "cccccccc-4576-3455-5645-3565aaaa4255",
+                                "itemType": "RESOURCE",
+                                "expiryAt": "2024-03-05T20:00:19",
+                                "constraints": { access: [ sub ] },
+                                "status": "ACTIVE",
+                                "consumer": { "email": "dummyConsumer@example.com",
+                                              "name": { "firstName": "Some",
+                                                        "lastName": "Consumer" },
+                                              "id": "gklmcd4-4576-3455-5645-3565aaaa4255" },
+                                "provider": { "email": "someProvider@example.com",
+                                              "name": { "firstName": "Some",
+                                                        "lastName": "Provider" },
+                                              "id": "abcdcd4-4576-3455-5645-3565aaaa4255" } } ] }
 
     getPolicySuccessResponseWithResourceGroup:
       title: get policy with for type resource-group
@@ -1111,61 +1218,36 @@ components:
                 properties:
                   access:
                     type: array
-      example:
-        {
-          "type": "urn:dx:acl:success",
-          "title": "Success",
-          "results": [
-            {
-              "policyId": "aaaaaaaa-6473-3546-5436-8758aaaa5897",
-              "itemId": "cccccccc-6754-8958-2456-3452aaaa5436",
-              "itemType": "RESOURCE_GROUP",
-              "expiryAt": "2024-09-05T20:00:19",
-              "constraints": { access: [ sub ] },
-              "status": "ACTIVE",
-              "consumer": {
-                "email": "dummyConsumerAbcd@example.com",
-                "name": {
-                  "firstName": "Dummy",
-                  "lastName": "Consumer"
-                },
-                "id": "gklmcd4-4576-3455-5645-3565aaaa4255"
-              },
-              "provider": {
-                "email": "dummyProvider@example.com",
-                "name": {
-                  "firstName": "Dummy",
-                  "lastName": "Provider"
-                },
-                "id": "bbbbbbbb-8958-2445-2354-7587aaaa6776"
-              }
-            },
-            {
-              "policyId": "aaaaaaaa-9870-7676-7456-2454aaaa1111",
-              "itemId": "cccccccc-2452-2455-5656-1111aaaa7878",
-              "itemType": "RESOURCE_GROUP",
-              "expiryAt": "2024-08-05T20:00:29",
-              "constraints": { access: [ sub ] },
-              "status": "ACTIVE",
-              "consumer": {
-                "email": "dummyConsumer@example.com",
-                "name": {
-                  "firstName": "Dummy",
-                  "lastName": "Consumer"
-                },
-                "id": "gklmcd4-4576-3455-5645-3565aaaa4255"
-              },
-              "provider": {
-                "email": "dummyProviderTwo@example.com",
-                "name": {
-                  "firstName": "Some",
-                  "lastName": "ProviderTwo"
-                },
-                "id": "bbbbbbbb-2652-1167-1766-4587aaaa2454"
-              }
-            }
-          ]
-        }
+      example: { "type": "urn:dx:acl:success",
+                 "title": "Success",
+                 "results": [ { "policyId": "aaaaaaaa-6473-3546-5436-8758aaaa5897",
+                                "itemId": "cccccccc-6754-8958-2456-3452aaaa5436",
+                                "itemType": "RESOURCE_GROUP",
+                                "expiryAt": "2024-09-05T20:00:19",
+                                "constraints": { access: [ sub ] },
+                                "status": "ACTIVE",
+                                "consumer": { "email": "dummyConsumerAbcd@example.com",
+                                              "name": { "firstName": "Dummy",
+                                                        "lastName": "Consumer" },
+                                              "id": "gklmcd4-4576-3455-5645-3565aaaa4255" },
+                                "provider": { "email": "dummyProvider@example.com",
+                                              "name": { "firstName": "Dummy",
+                                                        "lastName": "Provider" },
+                                              "id": "bbbbbbbb-8958-2445-2354-7587aaaa6776" } },
+                   { "policyId": "aaaaaaaa-9870-7676-7456-2454aaaa1111",
+                     "itemId": "cccccccc-2452-2455-5656-1111aaaa7878",
+                     "itemType": "RESOURCE_GROUP",
+                     "expiryAt": "2024-08-05T20:00:29",
+                     "constraints": { access: [ sub ] },
+                     "status": "ACTIVE",
+                     "consumer": { "email": "dummyConsumer@example.com",
+                                   "name": { "firstName": "Dummy",
+                                             "lastName": "Consumer" },
+                                   "id": "gklmcd4-4576-3455-5645-3565aaaa4255" },
+                     "provider": { "email": "dummyProviderTwo@example.com",
+                                   "name": { "firstName": "Some",
+                                             "lastName": "ProviderTwo" },
+                                   "id": "bbbbbbbb-2652-1167-1766-4587aaaa2454" } } ] }
 
     deleteNotificationForbiddenResponse:
       title: Delete notification forbidden
@@ -1389,7 +1471,7 @@ components:
         type: urn:dx:acl:MissingAuthenticationToken
         title: Missing auth details
         detail: Missing auth details
-    ErrorResponse:
+    createPolicyForbidden:
       type: object
       properties:
         type:
@@ -1401,18 +1483,69 @@ components:
         detail:
           type: string
           minLength: 1
-        context:
-          type: object
-          description: Any additional information required
       required:
         - type
         - title
         - detail
-      x-examples:
-        Example:
+      example:
+        type: urn:dx:acl:forbidden
+        title: Forbidden
+        detail: Ownership Error.
+    createPolicySuccessResponse:
+      title: complete
+      type: object
+      properties:
+        type:
           type: string
-          title: string
-          detail: string
+        title:
+          type: string
+        results:
+          description: An array of objects
+          type: array
+          items:
+            type: object
+      example:
+        type: 'urn:dx:acl:success'
+        title: Success
+        results:
+          - policy_id: e03c2e31-910b-4dd6-b3ec-a490773b5463
+            user_emailId: abc@xyz.com
+            item_id: b34eb955-c691-4fd3-b200-f18bc78810a2
+            expiry_at: '2022-08-04T20:00:19'
+          - policy_id: 06b3ca12-de0d-4a29-bf98-074de1fa4c6b
+            user_emailId: tester@example.com
+            item_id: d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2
+            expiry_at: '2023-08-05T20:00:19'
+          - owner_id: 4e563a5f-35f0-4f32-92be-8830775a1c5e
+    conflictResponse:
+      title: standardPolicyAlreadyExistErrorResponse
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+      example:
+        type: 'urn:dx:acl:general'
+        title: Conflict
+        detail: >-
+          Policy already exist for some of the request objects
+          [bf9d8f85-b7b0-40bb-8197-0046725f1ca8,
+          2789fa93-565a-4ea8-97f9-b64fc4863021]
+
+    generalBadRequest:
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+      example:
+        type: 'urn:dx:acl:badRequest'
+        title: Bad Request
+        detail: Bad Request
     AccessRequest:
       type: object
       properties:
@@ -1514,7 +1647,7 @@ components:
           results:
             - requestId: e4619679-f5d9-4eff-9f79-bbded6130bb1
               itemId: string
-              itemType: resource_server
+              itemType: RESOURCE_GROUP
               status: pending
               expiryDuration: string
               constraints:
@@ -1534,3 +1667,80 @@ components:
                 name:
                   firstName: string
                   lastName: string
+
+    name:
+      title: schemaName
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+        lastName:
+          type: string
+          minLength: 1
+      required:
+        - firstName
+        - lastName
+
+
+    user:
+      title: schemaUser
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
+          minLength: 1
+          maxLength: 512
+        name:
+          $ref: '#/components/schemas/name'
+        email:
+          pattern: >-
+            ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+          minLength: 1
+          maxLength: 36
+      required:
+        - id
+        - name
+        - email
+
+    owner:
+      title: schemaOwner
+      type: object
+      properties:
+        id:
+          pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
+          minLength: 1
+          maxLength: 512
+        name:
+          $ref: '#/components/schemas/name'
+        email:
+          pattern: >-
+            ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+          minLength: 1
+          maxLength: 36
+    item:
+      type: object
+      properties:
+        itemId:
+          pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
+          minLength: 1
+          maxLength: 512
+        itemType:
+          enum:
+            - RESOURCE
+            - RESOURCE_GROUP
+          minLength: 1
+      required:
+        - itemId
+        - itemType
+
+    requestBodyForVerify:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/user'
+        owner:
+          $ref: '#/components/schemas/owner'
+        item:
+          $ref: '#/components/schemas/item'

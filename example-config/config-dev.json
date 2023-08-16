@@ -28,7 +28,11 @@
       "databaseUserName": "",
       "databasePassword": "",
       "poolSize": 25,
-      "defaultExpiryDays": 12
+      "defaultExpiryDays": 12,
+      "catServerHost": "",
+      "catServerPort": 123,
+      "catServerRelationShipPath": "",
+      "domain" : ""
     },
     {
       "id": "iudx.apd.acl.server.authentication.AuthenticationVerticle",

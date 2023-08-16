@@ -13,13 +13,15 @@ public class PolicyServiceImpl implements PolicyService {
     private final DeletePolicy deletePolicy;
     private final GetPolicy getPolicy;
     private final CreatePolicy createPolicy;
-    
+    private final VerifyPolicy verifyPolicy;
+
     JsonObject config ;
     public PolicyServiceImpl(
-            DeletePolicy deletePolicy, CreatePolicy createPolicy, GetPolicy getPolicy,JsonObject config) {
+            DeletePolicy deletePolicy, CreatePolicy createPolicy, GetPolicy getPolicy,VerifyPolicy verifyPolicy,JsonObject config) {
         this.deletePolicy = deletePolicy;
         this.createPolicy = createPolicy;
         this.getPolicy = getPolicy;
+        this.verifyPolicy = verifyPolicy;
         this.config = config;
     }
 
@@ -79,4 +81,22 @@ public class PolicyServiceImpl implements PolicyService {
                         });
         return promise.future();
     }
+
+  @Override
+  public Future<JsonObject> verifyPolicy(JsonObject jsonArray) {
+    Promise<JsonObject> promise = Promise.promise();
+
+    this.verifyPolicy
+      .initiateVerifyPolicy(jsonArray)
+      .onComplete(
+        handler -> {
+          if (handler.succeeded()) {
+            promise.complete(handler.result());
+          } else {
+            LOG.error("Failed to verify policy");
+            promise.fail(handler.cause().getMessage());
+          }
+        });
+    return promise.future();
+  }
 }
