@@ -217,7 +217,7 @@ paths:
 
         ### User Policies
 
-        - Valid item types - `resource`, `resource_group`
+        - Valid item types - `RESOURCE`, `RESOURCE_GROUP`
 
         - A `provider` can set **user policies** for a `consumer` for the
         resources owned by the `provider`.
@@ -233,7 +233,7 @@ paths:
 
         ### User Policies
 
-        - Valid item types - `resource`, `resource_group`
+        - Valid item types - `RESOURCE`, `RESOURCE_GROUP`
 
         - A `delegate` can set **user policies** for other `delegate` or
         `consumer` for the resources owned by the `provider`
@@ -296,8 +296,8 @@ paths:
                             maxLength: 512
                           itemType:
                             enum:
-                              - resource
-                              - resource_group
+                              - RESOURCE
+                              - RESOURCE_GROUP
                             minLength: 1
                           expiryTime:
                             type: string
@@ -316,14 +316,14 @@ paths:
               x-examples:
                 example-1:
                   request:
-                    - userEmail: pqr@abc
+                    - userEmail: pqr@abc.com
                       itemId: example-resource-group
-                      itemType: resource_group
+                      itemType: RESOURCE_GROUP
                       expiryTime: '2023-08-30T21:10:06'
                       constraints: {}
-                    - userEmail: test@demo
+                    - userEmail: test@demo.com
                       itemId: example-resource-group
-                      itemType: resource_group
+                      itemType: RESOURCE_GROUP
                       expiryTime: '2023-08-30T21:10:06'
                       constraints: {}
             examples:
@@ -332,7 +332,7 @@ paths:
                   request:
                     - userEmail: abc@xyz.com
                       itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
-                      itemType: resource_group
+                      itemType: RESOURCE_GROUP
                       expiryTime: '2022-08-04T20:00:19'
                       constraints:
                         access:
@@ -342,7 +342,7 @@ paths:
                   request:
                     - userEmail: abc@xyz.com
                       itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
-                      itemType: resource
+                      itemType: RESOURCE
                       expiryTime: '2022-10-10T04:00:19'
                       constraints:
                         access:
@@ -353,12 +353,12 @@ paths:
                   request:
                     - userEmail: xyz@abx.com
                       itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
-                      itemType: resource_group
+                      itemType: RESOURCE_GROUP
                       expiryTime: '2022-08-04T20:00:19'
                       constraints: {}
                     - userEmail: aaa@yun.com
                       itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
-                      itemType: resource
+                      itemType: RESOURCE
                       expiryTime: '2022-10-10T04:00:19'
                       constraints:
                         access:
@@ -470,7 +470,7 @@ paths:
                     name:
                       firstName: test
                       lastName: provider
-                    email: test@provider
+                    email: test@provider.com
                   item:
                     itemId: b58da193-23d9-43eb-b98a-a103d4b6103c
                     itemType: RESOURCE_GROUP
@@ -550,7 +550,7 @@ paths:
                     results:
                       - requestId: ea48d233-5d3b-4bdb-9545-691680c99cee
                         itemId: pune-env-flood-FWR056"
-                        itemType: resource
+                        itemType: RESOURCE
                         status: pending
                         expiryDuration: P1Y2M10DT2H30M
                         constraints:
@@ -645,8 +645,8 @@ paths:
                         maxLength: 512
                       itemType:
                         enum:
-                          - resource_group
-                          - resource
+                          - RESOURCE_GROUP
+                          - RESOURCE
                         minLength: 1
                       expiryDuration:
                         type: string
@@ -666,7 +666,7 @@ paths:
                 example-1:
                   request:
                     - itemId: iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood/FWR03
-                      itemType: resource
+                      itemType: RESOURCE
                       expiryDuration: P1Y2M10DT2H30M
                       constraints: { }
             examples:
@@ -674,7 +674,7 @@ paths:
                 value:
                   request:
                     - itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
-                      itemType: resource
+                      itemType: RESOURCE
                       expiryDuration: P1Y2M10DT2H30M
                       constraints:
                         access:
@@ -696,7 +696,7 @@ paths:
                     results:
                       - requestId: bd5f0bb3-c02c-4e3d-b75c-a6eb8144bddc
                         itemId: iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood/FWR056
-                        itemType: resource
+                        itemType: RESOURCE
                         status: pending
                         expiryDuration: P1Y2M10DT2H30M
                         constraints:
@@ -870,7 +870,7 @@ paths:
                     results:
                       - requestId: bd5f0bb3-c02c-4e3d-b75c-a6eb8144bddc
                         itemId: pune-env-flood-FWR056
-                        itemType: resource
+                        itemType: RESOURCE
                         status: approved
                         expiryDuration: P1Y2M10DT2H30M
                         constraints:
@@ -1647,7 +1647,7 @@ components:
           results:
             - requestId: e4619679-f5d9-4eff-9f79-bbded6130bb1
               itemId: string
-              itemType: resource_server
+              itemType: RESOURCE_GROUP
               status: pending
               expiryDuration: string
               constraints:
