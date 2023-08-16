@@ -298,8 +298,6 @@ paths:
                             enum:
                               - resource
                               - resource_group
-                              - resource_server
-                              - apd
                             minLength: 1
                           expiryTime:
                             type: string
