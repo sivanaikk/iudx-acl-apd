@@ -12,14 +12,15 @@ public class PolicyVerticle extends AbstractVerticle {
     private CreatePolicy createPolicy;
     private VerifyPolicy verifyPolicy;
     private GetPolicy getPolicy;
-
+    private CatalogueClient catalogueClient;
     @Override
     public void start() {
         postgresService = new PostgresService(config(), vertx);
         deletePolicy = new DeletePolicy(postgresService);
-        createPolicy = new CreatePolicy(postgresService,config());
         getPolicy = new GetPolicy(postgresService);
-        verifyPolicy = new VerifyPolicy(postgresService,config());
+        catalogueClient = new CatalogueClient(config());
+        createPolicy = new CreatePolicy(postgresService,catalogueClient);
+        verifyPolicy = new VerifyPolicy(postgresService,catalogueClient);
         policyService = new PolicyServiceImpl(deletePolicy, createPolicy, getPolicy,verifyPolicy,config());
         new ServiceBinder(vertx)
                 .setAddress(POLICY_SERVICE_ADDRESS)
