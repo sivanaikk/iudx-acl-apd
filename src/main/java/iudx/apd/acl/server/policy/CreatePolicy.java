@@ -38,9 +38,9 @@ public class CreatePolicy {
   private final PostgresService postgresService;
   private final CatalogueClient catalogueClient;
 
-  public CreatePolicy(PostgresService postgresService, JsonObject config) {
+  public CreatePolicy(PostgresService postgresService, CatalogueClient catalogueClient) {
     this.postgresService = postgresService;
-    this.catalogueClient = new CatalogueClient(config);
+    this.catalogueClient = catalogueClient;
   }
 
   public Future<JsonObject> initiateCreatePolicy(JsonObject request, User user) {
@@ -175,7 +175,6 @@ public class CreatePolicy {
 
   private Future<Boolean> checkExistingPoliciesForId(
     List<CreatePolicyRequest> createPolicyRequestList, UUID providerId) {
-
     List<Tuple> selectTuples =
       createPolicyRequestList.stream()
         .map(
@@ -227,7 +226,6 @@ public class CreatePolicy {
 
   Future<RowSet<Row>> createPolicy(List<CreatePolicyRequest> createPolicyRequestList, UUID userId) {
     Promise<RowSet<Row>> promise = Promise.promise();
-
     List<Tuple> createPolicyTuple =
       createPolicyRequestList.stream()
         .map(

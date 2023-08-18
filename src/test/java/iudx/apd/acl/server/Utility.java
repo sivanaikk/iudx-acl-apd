@@ -31,7 +31,7 @@ public class Utility {
     private PgPool pool;
     private String resourceType;
     private String status;
-    private String constraints;
+    private JsonObject constraints;
     private UUID resourceId;
     private UUID policyId;
     private UUID consumerId;
@@ -65,7 +65,6 @@ public class Utility {
                 + generateRandomString().substring(0, 3)
                 + ".com";
     }
-
     public PostgresService setUp(PostgreSQLContainer container) {
         Vertx vertx = Vertx.vertx();
         Integer port = container.getFirstMappedPort();
@@ -114,7 +113,7 @@ public class Utility {
         resourceType = "RESOURCE_GROUP";
         status = "ACTIVE";
         LocalDateTime expiryTime = LocalDateTime.of(2025, 12, 10, 3, 20, 20, 29);
-        constraints = "{}";
+        constraints = new JsonObject();
         resourceId = generateRandomUuid();
         ownerId = generateRandomUuid();
 
@@ -265,7 +264,7 @@ public class Utility {
         return status;
     }
 
-    public String getConstraints() {
+    public JsonObject getConstraints() {
         return constraints;
     }
 
