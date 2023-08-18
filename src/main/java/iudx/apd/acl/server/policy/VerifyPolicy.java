@@ -31,9 +31,9 @@ public class VerifyPolicy {
   private final PostgresService postgresService;
   private final CatalogueClient catalogueClient;
 
-  public VerifyPolicy(PostgresService postgresService, JsonObject config) {
+  public VerifyPolicy(PostgresService postgresService, CatalogueClient catalogueClient) {
     this.postgresService = postgresService;
-    this.catalogueClient = new CatalogueClient(config);
+    this.catalogueClient = catalogueClient;
   }
 
   public Future<JsonObject> initiateVerifyPolicy(JsonObject request) {
@@ -43,7 +43,6 @@ public class VerifyPolicy {
     String userEmail = request.getJsonObject("user").getString("email");
     UUID itemId = UUID.fromString(request.getJsonObject("item").getString("itemId"));
     ItemType itemType = ItemType.valueOf(request.getJsonObject("item").getString("itemType"));
-
     Future<JsonObject> checkForExistingPolicy =
         checkExistingPoliciesForId(itemId, itemType, ownerId, userEmail);
 
@@ -73,7 +72,6 @@ public class VerifyPolicy {
                                     if (rsPolicy.containsKey("id")) {
                                       return Future.succeededFuture(rsPolicy);
                                     } else {
-                                      LOGGER.info("RS " + rsPolicy);
                                       return Future.failedFuture(
                                           generateErrorResponse(
                                               VERIFY_FORBIDDEN,
@@ -124,7 +122,6 @@ public class VerifyPolicy {
                         policyExists -> {
                           if (policyExists.size() > 0) {
                             JsonObject policyConstraints = new JsonObject();
-
                             for (Row row : policyExists) {
                               policyConstraints.put(
                                   "constraints", row.getJsonObject("constraints"));
@@ -140,7 +137,7 @@ public class VerifyPolicy {
     return promise.future();
   }
 
-  private String generateErrorResponse(HttpStatusCode httpStatusCode, String errorMessage) {
+  public String generateErrorResponse(HttpStatusCode httpStatusCode, String errorMessage) {
     return new JsonObject()
         .put(TYPE, httpStatusCode.getValue())
         .put(TITLE, httpStatusCode.getUrn())

@@ -84,7 +84,7 @@ public class TestGetPolicy {
                                         handler.result().getJsonObject(RESULT).getJsonArray(RESULT).getJsonObject(0);
 
                                 assertEquals(utility.getPolicyId().toString(), actualResult.getString("policyId"));
-                                assertEquals(utility.getConstraints(), actualResult.getString("constraints"));
+                                assertEquals(utility.getConstraints(), actualResult.getJsonObject("constraints"));
 
                                 assertEquals(utility.getConsumerId().toString(), actualResult.getJsonObject("consumer").getString("id"));
                                 assertEquals(
@@ -179,7 +179,7 @@ public class TestGetPolicy {
                                 JsonObject actualResult =
                                         handler.result().getJsonObject(RESULT).getJsonArray(RESULT).getJsonObject(0);
                                 assertEquals(utility.getPolicyId().toString(), actualResult.getString("policyId"));
-                                assertEquals(utility.getConstraints(), actualResult.getString("constraints"));
+                                assertEquals(utility.getConstraints(), actualResult.getJsonObject("constraints"));
 
                                 assertEquals(utility.getConsumerId().toString(), actualResult.getJsonObject("consumer").getString("id"));
                                 assertEquals(
