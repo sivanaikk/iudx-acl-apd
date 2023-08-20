@@ -622,65 +622,35 @@ paths:
       requestBody:
         description: |
           - `itemId` : The catalogue ID of the item for which the request is to be created.(UUID)
-          - `itemType` : 'resource' or 'resource_group'.
-          - `expiryDuration` : Duration for the policy expiry in the ISO-8601 format.
-          - `constraints` : The constraints that will be included in the policy that will be created.
+          - `itemType` : 'RESOURCE' or 'RESOURCE_GROUP'.
         required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                request:
-                  type: array
-                  minItems: 1
-                  uniqueItems: true
-                  items:
-                    type: object
-                    properties:
-                      itemId:
-                        type: string
-                        pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
-                        minLength: 1
-                        maxLength: 512
-                      itemType:
-                        enum:
-                          - RESOURCE_GROUP
-                          - RESOURCE
-                        minLength: 1
-                      expiryDuration:
-                        type: string
-                        pattern: '^(-?)P(?=\d|T\d)(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)([DW]))?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$'
-                        minLength: 1
-                        example: P1Y2M10DT2H30M
-                      constraints:
-                        type: object
-                    required:
-                      - itemId
-                      - itemType
-                      - expiryDuration
-                      - constraints
+                itemId:
+                  type: string
+                  pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
+                  minLength: 1
+                  maxLength: 512
+                itemType:
+                  enum:
+                    - RESOURCE_GROUP
+                    - RESOURCE
+                  minLength: 1
               required:
-                - request
+                - itemId
+                - itemType
               x-examples:
                 example-1:
-                  request:
-                    - itemId: iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood/FWR03
-                      itemType: RESOURCE
-                      expiryDuration: P1Y2M10DT2H30M
-                      constraints: { }
+                  itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
+                  itemType: RESOURCE
             examples:
               Create:
                 value:
-                  request:
-                    - itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
-                      itemType: RESOURCE
-                      expiryDuration: P1Y2M10DT2H30M
-                      constraints:
-                        access:
-                          - api
-                          - sub
-                          - file
+                  itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
+                  itemType: RESOURCE
       responses:
         '200':
           description: OK
