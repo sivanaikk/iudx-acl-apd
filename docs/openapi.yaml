@@ -789,9 +789,9 @@ paths:
       requestBody:
         description: |-
           - `requestId` :  ID of the request. Can get this Id by using the list policy API.
-          - `status` : The `provider` or `Auth delegate` can update the status to `approved` or `rejected`.
+          - `status` : The `provider` or `Auth delegate` can update the status to `granted` or `rejected`.
           - `expiryAt` : expiration time stamp of the policy that will be created (Only present for the approved requests).
-          - `constraints` :  constraints for the policy if request is approved.
+          - `constraints` :  constraints for the policy if request is granted.
         required: true
         content:
           application/json:
@@ -805,7 +805,7 @@ paths:
                   maxLength: 36
                 status:
                   enum:
-                    - approved
+                    - granted
                     - rejected
                   minLength: 1
                 expiryAt:
