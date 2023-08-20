@@ -218,6 +218,25 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
     private void postAccessRequestHandler(RoutingContext routingContext) {
+        JsonObject request = routingContext.body().asJsonObject();
+        User consumer = getConsumer();
+        notificationService
+                .createNotification(request, consumer)
+                .onComplete(handler -> {
+                    if(handler.succeeded()){
+                        LOGGER.info("Notification created successfully : {}", handler.result().encode());
+                        JsonObject response = new JsonObject()
+                                .put(TYPE, handler.result().getString(TYPE))
+                                .put(TITLE, handler.result().getString(TITLE))
+                                .put(RESULT, handler.result().getValue(RESULT));
+                        handleSuccessResponse(routingContext, handler.result().getInteger(STATUS_CODE), response.toString());
+                    }
+                    else
+                    {
+                        LOGGER.error("Failed to create notification : {}", handler.cause().getMessage());
+                        handleFailureResponse(routingContext, handler.cause().getMessage());
+                    }
+                });
     }
 
     private void printDeployedEndpoints(Router router) {
