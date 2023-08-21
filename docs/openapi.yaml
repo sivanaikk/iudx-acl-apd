@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   version: 1.0.0
-  title: IUDX-ACL-APD
+  title: Data-Exchange-ACL-APD
   description: API specification for ACL APD. These APIs are used by users manage policy. These APIs requires valid token for authentication.
   contact:
     name: For support contact IUDX Team at
@@ -92,7 +92,7 @@ paths:
       description: |-
         User policies can be deleted.
         The request would contain `id`, i.e. the ID of the user policy or APD policy that the user wants to delete. The user can use the List Policy API to get the policy ID.
-        ## delegate
+        ## Delegate
          - A delegate may use the API to view policies on behalf of their provider. The user info of the delegator must be present in the token issued by the Data Exchange AAA
       operationId: delete-auth-v1-policies
       parameters:
@@ -518,7 +518,7 @@ paths:
         - `provider` : The requests that are present for the items owned by a provider are returned.
         - `consumer` : The requests which are created by the consumer are returned.
 
-        ## delegate
+        ## Delegate
         A delegate may use the API to view policies on behalf of their provider. The user info of the delegator must be present in the token issued by the Data Exchange AAA
       operationId: get-auth-v1-policies-requests
       parameters:
@@ -743,7 +743,7 @@ paths:
         If the request is rejected
         - The request is modified to the `rejected` state
 
-        ##delegate
+        ## Delegate
         A delegate may use the API to view policies on behalf of their provider. This is done by passing the userInfo of the delegator which must be present in the token issued by the AAA.
       operationId: put-auth-v1-policies-requests
       parameters:
@@ -759,107 +759,71 @@ paths:
       requestBody:
         description: |-
           - `requestId` :  ID of the request. Can get this Id by using the list policy API.
-          - `status` : The `provider` or `Auth delegate` can update the status to `approved` or `rejected`.
-          - `expiryDuration` : duration of the policy that will be created (Only present for the approved requests).
-          - `constraints` :  constraints for the policy if request is approved.
+          - `status` : The `provider` or `Auth delegate` can update the status to `granted` or `rejected`.
+          - `expiryAt` : expiration time stamp of the policy that will be created (Only present for the granted requests).
+          - `constraints` :  constraints for the policy if request is granted.
         required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                request:
-                  type: array
-                  minItems: 1
-                  uniqueItems: true
-                  items:
+                requestId:
+                  type: string
+                  format: uuid
+                  minLength: 36
+                  maxLength: 36
+                  status:
+                    enum:
+                      - granted
+                      - rejected
+                    minLength: 1
+                  expiryAt:
+                    type: string
+                  constraints:
                     type: object
-                    properties:
-                      requestId:
-                        type: string
-                        format: uuid
-                        minLength: 36
-                        maxLength: 36
-                      status:
-                        enum:
-                          - approved
-                          - rejected
-                        minLength: 1
-                      expiryDuration:
-                        type: string
-                        pattern: '^(-?)P(?=\d|T\d)(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)([DW]))?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$'
-                        minLength: 1
-                        example: P1Y2M10DT2H30M
-                      constraints:
-                        type: object
-                    required:
-                      - requestId
-                      - status
               required:
-                - request
+                - requestId
+                - status
               x-examples:
                 example-1:
                   request:
                     - requestId: bca11712-f381-46a5-afa3-a29b00568ace
-                      status: approved
-                      expiryDuration: P1Y2M10DT2H30M
+                      status: GRANTED
+                      expiryAt: '2024-03-05T20:00:19'
                       constraints:
                         access:
                           - api
                           - sub
                           - file
             examples:
-              Update:
+              Update Approved access request:
                 value:
-                  request:
-                    - requestId: bca11712-f381-46a5-afa3-a29b00568ace
-                      status: approved
-                      expiryDuration: P1Y2M10DT2H30M
-                      constraints:
-                        access:
-                          - api
-                          - sub
-                          - file
-              Update-Rejected:
+                  requestId: bca11712-f381-46a5-afa3-a29b00568ace
+                  status: rejected
+                  expiryAt: '2024-03-05T20:00:19'
+                  constraints:
+                    access:
+                      - api
+                      - sub
+                      - file
+              Update Rejected access request:
                 value:
-                  request:
-                    - requestId: bca11712-f381-46a5-afa3-a29b00568ace
-                      status: rejected
+                  requestId: bca11712-f381-46a5-afa3-a29b00568ace
+                  status: rejected
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccessRequest'
+                $ref: '#/components/schemas/UpdateAccessRequest'
               examples:
                 Update:
                   value:
                     type: 'urn:dx:acl:Success'
-                    title: Access requests
-                    results:
-                      - requestId: bd5f0bb3-c02c-4e3d-b75c-a6eb8144bddc
-                        itemId: pune-env-flood-FWR056
-                        itemType: RESOURCE
-                        status: approved
-                        expiryDuration: P1Y2M10DT2H30M
-                        constraints:
-                          access:
-                            - api
-                            - sub
-                            - file
-                        user:
-                          email: someone@example.com
-                          name:
-                            firstName: Someone
-                            lastName: Person
-                          id: a13eb955-c691-4fd3-b200-f18bc78810b5
-                        owner:
-                          email: bob_provider@iisc.ac.in
-                          name:
-                            firstName: Bob
-                            lastName: Provider
-                          id: 844e251b-574b-46e6-9247-f76f1f70a637
+                    title: Success
+                    results: Request updated successfully
           headers:
             Content-Type:
               schema:
@@ -870,7 +834,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/generalBadRequest'
+                $ref: '#/components/schemas/updateNotificationBadRequest'
           headers:
             Content-Type:
               schema:
@@ -894,12 +858,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/updateNotificationInvalidUserResponse'
+                $ref: '#/components/schemas/updateNotificationForbiddenResponse'
           headers:
             Content-Type:
               schema:
                 type: string
               description: application/json
+        '404':
+          description: '- Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/updateNotificationNotFound'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '409':
+          description: |-
+            Conflict
+            - Policy for the approved request was created previously
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/updateNotificationForbiddenResponse'
       security:
         - authorization: [ ]
 
@@ -996,6 +979,100 @@ components:
       type: http
       scheme: bearer
   schemas:
+    updateNotificationForbiddenResponse:
+      title: Update notification forbidden
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:forbidden
+        title: Forbidden
+        detail: Request could not be updated, as it is doesn't belong to the user
+
+      updateNotificationNotFound:
+        title: Update notification not found
+        type: object
+        properties:
+          type:
+            type: string
+          title:
+            type: string
+          detail:
+            type: string
+        required:
+          - type
+          - title
+          - detail
+        example:
+          type: urn:dx:acl:notFound
+          title: Not Found
+          detail: Request could not be updated, as it is not found
+
+      updateNotificationBadRequest:
+        title: Update notification bad request
+        type: object
+        properties:
+          type:
+            type: string
+          title:
+            type: string
+          detail:
+            type: string
+        required:
+          - type
+          - title
+          - detail
+        example:
+          type: urn:dx:acl:badRequest
+          title: Bad Request
+          detail: Request could not be updated, as it is not in pending status
+
+      updateNotificationConflict:
+        title: Update notification conflict
+        type: object
+        properties:
+          type:
+            type: string
+          title:
+            type: string
+          detail:
+            type: string
+        required:
+          - type
+          - title
+          - detail
+        example:
+          type: urn:dx:acl:conflict
+          title: Conflict
+          detail: Request could not be approved, as policy is already created
+
+      UpdateAccessRequest:
+        title: Delete notification forbidden
+        type: object
+        properties:
+          type:
+            type: string
+          title:
+            type: string
+          results:
+            type: string
+        required:
+          - type
+          - title
+          - results
+        example:
+          type: urn:dx:acl:success
+          title: Success
+          results: Request updated successfully
     getNotificationForbiddenResponse:
       title: get notification forbidden response
       type: object
