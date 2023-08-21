@@ -59,6 +59,18 @@ public class NotificationServiceImpl implements NotificationService{
 
     @Override
     public Future<JsonObject> updateNotification(JsonObject request, User user) {
-        return null;
+        Promise<JsonObject> promise = Promise.promise();
+        updateNotification.initiateUpdateNotification(request, user).onComplete(handler -> {
+            if(handler.succeeded()){
+                LOG.info("Successfully updated the notification");
+                promise.complete(handler.result());
+            }
+            else
+            {
+                LOG.error("Failed to updated the notification");
+                promise.fail(handler.cause().getMessage());
+            }
+        });
+        return promise.future();
     }
 }

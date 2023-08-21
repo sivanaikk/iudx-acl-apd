@@ -5,7 +5,6 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.DecodeException;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
@@ -248,6 +247,26 @@ public class ApiServerVerticle extends AbstractVerticle {
     }
 
     private void putAccessRequestHandler(RoutingContext routingContext) {
+        JsonObject notification = routingContext.body().asJsonObject();
+        User provider = getProvider();
+        notificationService
+                .updateNotification(notification, provider)
+                .onComplete(
+                        handler -> {
+                            if (handler.succeeded()) {
+                                LOGGER.info("Update Notification succeeded : {} ", handler.result().encode());
+                                JsonObject response =
+                                        new JsonObject()
+                                                .put(TYPE, handler.result().getString(TYPE))
+                                                .put(TITLE, handler.result().getString(TITLE))
+                                                .put(RESULT, handler.result().getValue(RESULT));
+                                handleSuccessResponse(
+                                        routingContext, handler.result().getInteger(STATUS_CODE), response.toString());
+                            } else {
+                                LOGGER.error("Update Notification failed : {} ", handler.cause().getMessage());
+                                handleFailureResponse(routingContext, handler.cause().getMessage());
+                            }
+                        });
     }
 
     private void deleteAccessRequestHandler(RoutingContext routingContext) {

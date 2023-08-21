@@ -16,5 +16,6 @@ public class Constants {
             "VALUES ($1::uuid, $2::uuid, $3::uuid) RETURNING _id;";
 
 
+    public static final String REJECT_NOTIFICATION =  "UPDATE request SET status = 'REJECTED' WHERE _id = $1::uuid AND expiry_at > NOW() RETURNING _id";
 
 }
