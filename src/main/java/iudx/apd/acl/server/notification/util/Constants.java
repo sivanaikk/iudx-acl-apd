@@ -45,3 +45,4 @@ public class Constants {
             "WHERE R.owner_id=$1::uuid; ";
 
 }
+
