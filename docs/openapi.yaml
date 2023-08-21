@@ -8,11 +8,7 @@ info:
     email: support@iudx.org.in
   license:
     name: MIT
-servers:
-  - url: '/ngsi-ld/v1'
-    description: 'Production'
-  - url: '/ngsi-ld/v1'
-    description: 'Development'
+
 paths:
   /ngsi-ld/v1/policies:
     get:
@@ -94,10 +90,10 @@ paths:
         - Policies APIs
       summary: Delete Policies
       description: |-
-        Delete policies created by a user. User policies can be deleted.
+        User policies can be deleted.
         The request would contain `id`, i.e. the ID of the user policy or APD policy that the user wants to delete. The user can use the List Policy API to get the policy ID.
         ## delegate
-         - A delegate may use the API to view policies on behalf of their provider. This is done by passing the userInfo of the delegator must be present in the token issued by the AAA
+         - A delegate may use the API to view policies on behalf of their provider. The user info of the delegator must be present in the token issued by the Data Exchange AAA
       operationId: delete-auth-v1-policies
       parameters:
         - name: Authorization
@@ -514,7 +510,7 @@ paths:
   /ngsi-ld/v1/policies/requests:
     get:
       tags:
-        - Notifications APIs
+        - Access Request APIs
       summary: List Access Requests
       description: |-
         Lists all the access requests of the user calling the API. The response depends on the roles the user has
@@ -523,7 +519,7 @@ paths:
         - `consumer` : The requests which are created by the consumer are returned.
 
         ## delegate
-        A delegate may use the API to view policies on behalf of their provider. This is done by passing the userInfo of the delegator must be present in the token issued by the AAA
+        A delegate may use the API to view policies on behalf of their provider. The user info of the delegator must be present in the token issued by the Data Exchange AAA
       operationId: get-auth-v1-policies-requests
       parameters:
         - name: Authorization
@@ -537,7 +533,9 @@ paths:
             example: Bearer <JWT>
       responses:
         '200':
-          description: Successfully listing all the requests of a Consumer or of a providers
+          description: |-
+            OK
+            - Successfully fetched all the requests of a consumer or of a provider
           content:
             application/json:
               schema:
@@ -546,7 +544,7 @@ paths:
                 ListResults:
                   value:
                     type: 'urn:dx:acl:Success'
-                    title: Access requests
+                    title: Success
                     results:
                       - requestId: ea48d233-5d3b-4bdb-9545-691680c99cee
                         itemId: pune-env-flood-FWR056"
@@ -581,12 +579,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
-              examples:
-                example-1:
-                  value:
-                    type: string
-                    title: string
-                    detail: string
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '403':
+          description:  |-
+            Forbidden
+            - user trying to list requests that do not belong to the given consumer or delegate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getNotificationForbiddenResponse'
           headers:
             Content-Type:
               schema:
@@ -598,16 +603,12 @@ paths:
 
     post:
       tags:
-        - Notifications APIs
-      summary: Create Access Requests
+        - Access Request APIs
+      summary: Create Access Request
       description: |-
         Access requests are made by consumers to request a provider to grant access to the provider's resources. Providers or their associated delegates may choose to approve or reject the request. On approval, a policy is written for the consumer for said resource. On rejection, no policy is written.
 
-        Users with the `consumer` role can request access for a resource/resource group:
-        - With the expiry time they desire for the associated policy (in case the provider chooses to approve the request)
-        - With the constraints they desire for the associated policy (in case the provider chooses to approve the request)
-
-        Users may make multiple access requests with a single API call.
+        Users with the `consumer` role can request access for a resource/resource group
       operationId: post-auth-v1-policies-requests
       parameters:
         - name: Authorization
@@ -622,7 +623,7 @@ paths:
       requestBody:
         description: |
           - `itemId` : The catalogue ID of the item for which the request is to be created.(UUID)
-          - `itemType` : 'RESOURCE' or 'RESOURCE_GROUP'.
+          - `itemType` : The type of the resource being requested for, it could be either RESOURCE or RESOURCE_GROUP
         required: true
         content:
           application/json:
@@ -631,9 +632,10 @@ paths:
               properties:
                 itemId:
                   type: string
-                  pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
-                  minLength: 1
-                  maxLength: 512
+                  format: uuid
+                  pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
+                  minLength: 36
+                  maxLength: 36
                 itemType:
                   enum:
                     - RESOURCE_GROUP
@@ -657,42 +659,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccessRequest'
-              examples:
-                Example:
-                  value:
-                    type: 'urn:dx:acl:Success'
-                    title: Access requests
-                    results:
-                      - requestId: bd5f0bb3-c02c-4e3d-b75c-a6eb8144bddc
-                        itemId: iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood/FWR056
-                        itemType: RESOURCE
-                        status: pending
-                        expiryDuration: P1Y2M10DT2H30M
-                        constraints:
-                          access:
-                            - api
-                            - sub
-                            - file
-                        user:
-                          email: someone@example.com
-                          name:
-                            firstName: Someone
-                            lastName: Person
-                          id: a13eb955-c691-4fd3-b200-f18bc78810b5
-                        owner:
-                          email: bob_provider@iisc.ac.in
-                          name:
-                            firstName: Bob
-                            lastName: Provider
-                          id: 844e251b-574b-46e6-9247-f76f1f70a637
+                $ref: '#/components/schemas/createNotificationSuccessResponse'
           headers:
             Content-Type:
               schema:
                 type: string
               description: application/json
         '400':
-          description: 'Bad Request- Schema validation, missing or incorrect fields & values'
+          description: |-
+            Bad Request 
+            - Schema validation, missing or incorrect fields & values
           content:
             application/json:
               schema:
@@ -700,39 +676,63 @@ paths:
               examples:
                 Example:
                   value:
-                    type: string
-                    title: string
-                    detail: string
+                    type: urn:dx:acl:badRequest
+                    title: Bad Request
+                    detail: Invalid or missing fields
           headers:
             Content-Type:
               schema:
                 type: string
               description: application/json
         '401':
-          description: '- Unauthorized - `token` invalid/expired'
+          description: |-
+            Unauthorized 
+            - `token` invalid/expired
+            - A user with non-consumer role trying to create a request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
-              examples:
-                Example:
-                  value:
-                    type: string
-                    title: string
-                    detail: string
           headers:
             Content-Type:
               schema:
                 type: string
               description: application/json
+        '404':
+          description: |- 
+            Not Found
+            - Resource not found in Data Exchange Catalogue Server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createNotificationResourceNotFoundResponse'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '409':
+          description: |-
+            Conflict
+            - The policy or request for the given resource was previously created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createNotificationConflictResponse'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+
       security:
         - authorization: [ ]
 
 
     put:
       tags:
-        - Notifications APIs
-      summary: Update Access Requests
+        - Access Request APIs
+      summary: Update Access Request
       description: |
         Providers or delegates can choose to approve or reject **pending** access requests associated with their resources.
 
@@ -906,8 +906,8 @@ paths:
 
     delete:
       tags:
-        - Notifications APIs
-      summary: Withdraw Access Requests
+        - Access Request APIs
+      summary: Withdraw Access Request
       description: |-
         A consumer may choose to withdraw access requests they have created, **as long as they are still in the pending state**. A withdrawn request  cannot be approved or rejected by the concerned provider.
 
@@ -924,7 +924,7 @@ paths:
         description: |-
           - `id` : the UUID of the request that is to be deleted.
 
-          Consumers can get the id of the request they want to delete using the list notifications API.
+          Consumers can get the id of the request they want to delete using the list access request API.
         required: true
         content:
           application/json:
@@ -946,7 +946,7 @@ paths:
 
       responses:
         '200':
-          description: Successfully deleted the Notification
+          description: Successfully deleted the access request
           content:
             application/json:
               schema:
@@ -984,25 +984,8 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  type:
-                    type: string
-                  title:
-                    type: string
-                  detail:
-                    type: string
-                x-examples:
-                  example-1:
-                    type: 'urn:dx:acl:forbidden'
-                    title: Forbidden
-                    detail: User with consumer role may call the API
-              examples:
-                example-1:
-                  value:
-                    type: 'urn:dx:acl:forbidden'
-                    title: Forbidden
-                    detail: User with consumer role may call the API
+                $ref: '#/components/schemas/Unauthorized'
+
       security:
         - authorization: [ ]
 
@@ -1013,6 +996,94 @@ components:
       type: http
       scheme: bearer
   schemas:
+    getNotificationForbiddenResponse:
+      title: get notification forbidden response
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        detail:
+          type: string
+          minLength: 1
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:forbidden
+        title: Access Denied
+        detail: Request could not be fetched, as it doesn't belong to the user
+    createNotificationSuccessResponse:
+      title: Create notification success
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        results:
+          type: string
+          minLength: 1
+      required:
+        - type
+        - title
+        - results
+      example:
+        type: urn:dx:acl:success
+        title: Success
+        results: Request inserted successfully!
+
+    createNotificationResourceNotFoundResponse:
+      title: Create notification resource not found
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        detail:
+          type: string
+          minLength: 1
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:resourceNotFound
+        title: Not Found
+        detail: Request could not be created, as resource is not found
+
+    createNotificationConflictResponse:
+      title: Create notification conflict response
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        detail:
+          type: string
+          minLength: 1
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:conflict
+        title: Conflict
+        detail: Request could not be created, as policy or request for the given resource is already present
+
+
     getPolicySuccessResponseWithResourceType:
       title: get policy for type resource
       required:
@@ -1022,10 +1093,13 @@ components:
       properties:
         type:
           type: string
+          minLength: 1
         title:
           type: string
+          minLength: 1
         results:
           type: array
+          minLength: 1
           items:
             type: object
             properties:
@@ -1035,7 +1109,7 @@ components:
                 type: string
               itemType:
                 type: string
-                enum: [ "RESOURCE_GROUP", "RESOURCE" ]
+                default: "RESOURCE"
               consumer:
                 type: array
                 items:
@@ -1118,10 +1192,13 @@ components:
       properties:
         type:
           type: string
+          minLength: 1
         title:
           type: string
+          minLength: 1
         results:
           type: array
+          minLength: 1
           items:
             type: object
             properties:
@@ -1131,7 +1208,7 @@ components:
                 type: string
               itemType:
                 type: string
-                enum: [ "RESOURCE_GROUP", "RESOURCE" ]
+                default: "RESOURCE_GROUP"
               consumer:
                 type: array
                 items:
@@ -1225,14 +1302,17 @@ components:
       properties:
         type:
           type: string
+          minLength: 1
         title:
           type: string
-        results:
+          minLength: 1
+        detail:
           type: string
+          minLength: 1
       required:
         - type
         - title
-        - results
+        - detail
       example:
         type: urn:dx:acl:forbidden
         title: Forbidden
@@ -1244,14 +1324,17 @@ components:
       properties:
         type:
           type: string
+          minLength: 1
         title:
           type: string
-        results:
+          minLength: 1
+        detail:
           type: string
+          minLength: 1
       required:
         - type
         - title
-        - results
+        - detail
       example:
         type: urn:dx:acl:notFound
         title: Not Found
@@ -1263,10 +1346,13 @@ components:
       properties:
         type:
           type: string
+          minLength: 1
         title:
           type: string
+          minLength: 1
         detail:
           type: string
+          minLength: 1
       required:
         - type
         - title
@@ -1281,10 +1367,13 @@ components:
       properties:
         type:
           type: string
+          minLength: 1
         title:
           type: string
+          minLength: 1
         results:
           type: string
+          minLength: 1
       required:
         - type
         - title
@@ -1300,10 +1389,13 @@ components:
       properties:
         type:
           type: string
+          minLength: 1
         title:
           type: string
+          minLength: 1
         results:
           type: string
+          minLength: 1
       required:
         - type
         - title
@@ -1318,10 +1410,13 @@ components:
       properties:
         type:
           type: string
+          minLength: 1
         title:
           type: string
+          minLength: 1
         detail:
           type: string
+          minLength: 1
       required:
         - type
         - title
@@ -1336,10 +1431,13 @@ components:
       properties:
         type:
           type: string
+          minLength: 1
         title:
           type: string
+          minLength: 1
         detail:
           type: string
+          minLength: 1
       required:
         - type
         - title
@@ -1373,10 +1471,13 @@ components:
       properties:
         type:
           type: string
+          minLength: 1
         title:
           type: string
+          minLength: 1
         detail:
           type: string
+          minLength: 1
       required:
         - type
         - title
@@ -1384,17 +1485,20 @@ components:
       example:
         type: urn:dx:acl:resourceNotFound
         title: Not Found
-        detail: Resource Not Found
+        detail: Policy Not Found
     deletePolicyErrorResponse:
       title: deletePolicyErrorResponse
       type: object
       properties:
         type:
           type: string
+          minLength: 1
         title:
           type: string
+          minLength: 1
         detail:
           type: string
+          minLength: 1
       required:
         - type
         - title
@@ -1409,10 +1513,13 @@ components:
       properties:
         type:
           type: string
+          minLength: 1
         title:
           type: string
+          minLength: 1
         detail:
           type: string
+          minLength: 1
       required:
         - type
         - title
@@ -1508,10 +1615,17 @@ components:
       properties:
         type:
           type: string
+          minLength: 1
         title:
           type: string
+          minLength: 1
         detail:
           type: string
+          minLength: 1
+      required:
+        - type
+        - title
+        - detail
       example:
         type: 'urn:dx:acl:badRequest'
         title: Bad Request
