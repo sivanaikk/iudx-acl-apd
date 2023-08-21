@@ -699,7 +699,7 @@ paths:
                 type: string
               description: application/json
         '404':
-          description: |- 
+          description: |-
             Not Found
             - Resource not found in Data Exchange Catalogue Server
           content:
