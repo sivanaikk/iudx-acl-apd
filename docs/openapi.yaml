@@ -773,15 +773,15 @@ paths:
                   format: uuid
                   minLength: 36
                   maxLength: 36
-                  status:
-                    enum:
-                      - granted
-                      - rejected
-                    minLength: 1
-                  expiryAt:
-                    type: string
-                  constraints:
-                    type: object
+                status:
+                  enum:
+                    - granted
+                    - rejected
+                  minLength: 1
+                expiryAt:
+                  type: string
+                constraints:
+                  type: object
               required:
                 - requestId
                 - status
@@ -789,7 +789,7 @@ paths:
                 example-1:
                   request:
                     - requestId: bca11712-f381-46a5-afa3-a29b00568ace
-                      status: GRANTED
+                      status: granted
                       expiryAt: '2024-03-05T20:00:19'
                       constraints:
                         access:
@@ -799,18 +799,20 @@ paths:
             examples:
               Update Approved access request:
                 value:
-                  requestId: bca11712-f381-46a5-afa3-a29b00568ace
-                  status: rejected
-                  expiryAt: '2024-03-05T20:00:19'
-                  constraints:
-                    access:
-                      - api
-                      - sub
-                      - file
+                  request:
+                    - requestId: bca11712-f381-46a5-afa3-a29b00568ace
+                      status: granted
+                      expiryAt: '2024-03-05T20:00:19'
+                      constraints:
+                        access:
+                          - api
+                          - sub
+                          - file
               Update Rejected access request:
                 value:
-                  requestId: bca11712-f381-46a5-afa3-a29b00568ace
-                  status: rejected
+                  request:
+                    - requestId: bca11712-f381-46a5-afa3-a29b00568ace
+                      status: rejected
       responses:
         '200':
           description: OK
@@ -823,7 +825,7 @@ paths:
                   value:
                     type: 'urn:dx:acl:Success'
                     title: Success
-                    results: Request updated successfully
+                    results: 'Request updated successfully'
           headers:
             Content-Type:
               schema:
@@ -835,6 +837,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/updateNotificationBadRequest'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+        '404':
+          description: '- Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/updateNotificationNotFound'
           headers:
             Content-Type:
               schema:
@@ -864,17 +877,6 @@ paths:
               schema:
                 type: string
               description: application/json
-        '404':
-          description: '- Not Found'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/updateNotificationNotFound'
-          headers:
-            Content-Type:
-              schema:
-                type: string
-              description: application/json
         '409':
           description: |-
             Conflict
@@ -882,9 +884,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/updateNotificationForbiddenResponse'
+                $ref: '#/components/schemas/updateNotificationConflict'
       security:
-        - authorization: [ ]
+        - authorization: []
 
 
     delete:
@@ -985,10 +987,13 @@ components:
       properties:
         type:
           type: string
+          minLength: 1
         title:
           type: string
+          minLength: 1
         detail:
           type: string
+          minLength: 1
       required:
         - type
         - title
@@ -998,81 +1003,93 @@ components:
         title: Forbidden
         detail: Request could not be updated, as it is doesn't belong to the user
 
-      updateNotificationNotFound:
-        title: Update notification not found
-        type: object
-        properties:
-          type:
-            type: string
-          title:
-            type: string
-          detail:
-            type: string
-        required:
-          - type
-          - title
-          - detail
-        example:
-          type: urn:dx:acl:notFound
-          title: Not Found
-          detail: Request could not be updated, as it is not found
+    updateNotificationNotFound:
+      title: Update notification not found
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        detail:
+          type: string
+          minLength: 1
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:notFound
+        title: Not Found
+        detail: Request could not be updated, as it is not found
 
-      updateNotificationBadRequest:
-        title: Update notification bad request
-        type: object
-        properties:
-          type:
-            type: string
-          title:
-            type: string
-          detail:
-            type: string
-        required:
-          - type
-          - title
-          - detail
-        example:
-          type: urn:dx:acl:badRequest
-          title: Bad Request
-          detail: Request could not be updated, as it is not in pending status
+    updateNotificationBadRequest:
+      title: Update notification bad request
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        detail:
+          type: string
+          minLength: 1
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:badRequest
+        title: Bad Request
+        detail: Request could not be updated, as it is not in pending status
 
-      updateNotificationConflict:
-        title: Update notification conflict
-        type: object
-        properties:
-          type:
-            type: string
-          title:
-            type: string
-          detail:
-            type: string
-        required:
-          - type
-          - title
-          - detail
-        example:
-          type: urn:dx:acl:conflict
-          title: Conflict
-          detail: Request could not be approved, as policy is already created
+    updateNotificationConflict:
+      title: Update notification conflict
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        detail:
+          type: string
+          minLength: 1
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:conflict
+        title: Conflict
+        detail: Request could not be approved, as policy is already created
 
-      UpdateAccessRequest:
-        title: Delete notification forbidden
-        type: object
-        properties:
-          type:
-            type: string
-          title:
-            type: string
-          results:
-            type: string
-        required:
-          - type
-          - title
-          - results
-        example:
-          type: urn:dx:acl:success
-          title: Success
-          results: Request updated successfully
+    UpdateAccessRequest:
+      title: Delete notification forbidden
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        results:
+          type: string
+          minLength: 1
+      required:
+        - type
+        - title
+        - results
+      example:
+        type: urn:dx:acl:success
+        title: Success
+        results: Request updated successfully
     getNotificationForbiddenResponse:
       title: get notification forbidden response
       type: object
