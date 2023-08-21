@@ -137,7 +137,7 @@ public class UpdateNotification {
         LOG.trace("inside approveNotification method");
         Promise<JsonObject> promise = Promise.promise();
         UUID notificationId = UUID.fromString(notification.getString("requestId"));
-        String constraints = notification.getString("constraints");
+        JsonObject constraints = new JsonObject(notification.getString("constraints"));
 
         Tuple tuple = Tuple.of(getExpiryAt(), constraints, notificationId, getOwnerId());
         executeQuery(query, tuple, handler -> {
