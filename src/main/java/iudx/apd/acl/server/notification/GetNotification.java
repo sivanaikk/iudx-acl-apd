@@ -26,28 +26,30 @@ import static iudx.apd.acl.server.notification.util.Constants.GET_PROVIDER_NOTIF
 
 
 public class GetNotification {
-    private final PostgresService postgresService;
     private static final Logger LOG = LoggerFactory.getLogger(GetNotification.class);
     private static final String FAILURE_MESSAGE = "Notifications could not be fetched";
+    private final PostgresService postgresService;
     private PgPool pool;
-    public GetNotification(PostgresService postgresService){
+
+    public GetNotification(PostgresService postgresService) {
         this.postgresService = postgresService;
     }
 
     /**
      * Fetches notifications based on the user role
+     *
      * @param user Detail about the user
      * @return Notification or Failure with type Future JsonObject
      */
-    public Future<JsonObject> initiateGetNotifications(User user){
+    public Future<JsonObject> initiateGetNotifications(User user) {
         Role role = user.getUserRole();
         switch (role) {
             case CONSUMER_DELEGATE:
             case CONSUMER:
-                return getConsumerNotification(user, GET_CONSUMER_NOTIFICATION_QUERY);
+                return getUserNotification(user, GET_CONSUMER_NOTIFICATION_QUERY, Role.CONSUMER);
             case PROVIDER_DELEGATE:
             case PROVIDER:
-                return getProviderNotification(user, GET_PROVIDER_NOTIFICATION_QUERY);
+                return getUserNotification(user, GET_PROVIDER_NOTIFICATION_QUERY, Role.PROVIDER);
             default: {
                 JsonObject response =
                         new JsonObject()
@@ -60,63 +62,37 @@ public class GetNotification {
     }
 
     /**
-     * Fetches notifications for the respective provider when the user is provider or provider delegate
-     * @param provider Information of provider with type User
-     * @param query A SELECT query to be executed
-     * @return notifications as success response or failure both of type Future JsonObject
-     */
-    public Future<JsonObject> getProviderNotification(User provider, String query) {
-        LOG.trace("inside getProviderNotification method");
-        Promise<JsonObject> promise = Promise.promise();
-        UUID owner_id = UUID.fromString(provider.getUserId());
-        LOG.trace(provider.toString());
-        Tuple tuple = Tuple.of(owner_id);
-        JsonObject jsonObject = new JsonObject()
-                .put("email", provider.getEmailId())
-                .put("name", new JsonObject().put("firstName", provider.getFirstName()).put("lastName", provider.getLastName()))
-                .put("id", provider.getUserId());
-        JsonObject providerInfo = new JsonObject().put("provider", jsonObject);
-        this.executeGetNotification(tuple, query, providerInfo, Role.PROVIDER)
-                .onComplete(
-                        handler -> {
-                            if (handler.succeeded()) {
-                                LOG.info("success while executing GET provider request");
-                                promise.complete(handler.result());
-                            } else {
-                                LOG.error("failure while executing GET provider request");
-                                promise.fail(handler.cause().getMessage());
-                            }
-                        });
-        return promise.future();
-    }
-
-
-    /**
      * Fetches the notifications concerned with the respective consumer when the user requesting it is a consumer or consumer delegate
-     * @param consumer Information about the consumer with type User
+     *
+     * @param user  Information about the user
      * @param query A SELECT query to fetch details
-     * @return notifications from the consumer as success response or failure response both of type Future JsonObject
+     * @return notifications from the consumer or for the provider as success response <br> or failure response both of type Future JsonObject
      */
-    public Future<JsonObject> getConsumerNotification(User consumer, String query) {
-        LOG.trace("inside getConsumerNotification method");
+    public Future<JsonObject> getUserNotification(User user, String query, Role role) {
+        LOG.trace("inside getUserNotification method");
         Promise<JsonObject> promise = Promise.promise();
-        UUID consumerId = UUID.fromString(consumer.getUserId());
-        LOG.trace(consumer.toString());
-        Tuple tuple = Tuple.of(consumerId);
+        UUID userId = UUID.fromString(user.getUserId());
+        LOG.trace(user.toString());
+        Tuple tuple = Tuple.of(userId);
         JsonObject jsonObject = new JsonObject()
-                .put("email", consumer.getEmailId())
-                .put("name", new JsonObject().put("firstName", consumer.getFirstName()).put("lastName", consumer.getLastName()))
-                .put("id", consumer.getUserId());
-        JsonObject consumerInfo = new JsonObject().put("consumer", jsonObject);
+                .put("email", user.getEmailId())
+                .put("name", new JsonObject().put("firstName", user.getFirstName()).put("lastName", user.getLastName()))
+                .put("id", user.getUserId());
+        JsonObject userInfo = new JsonObject();
+        if (role.equals(Role.CONSUMER)) {
+            userInfo.put("consumer", jsonObject);
+        } else {
+            userInfo.put("provider", jsonObject);
+        }
 
-        this.executeGetNotification(tuple, query, consumerInfo, Role.CONSUMER)
+        this.executeGetNotification(tuple, query, userInfo, role)
                 .onComplete(
                         handler -> {
                             if (handler.succeeded()) {
-                                LOG.info("success while executing GET consumer request");
+                                LOG.info("success while executing GET user request");
                                 promise.complete(handler.result());
                             } else {
-                                LOG.error("Failure while executing GET consumer request");
+                                LOG.error("Failure while executing GET user request");
                                 promise.fail(handler.cause().getMessage());
                             }
                         });
@@ -125,10 +101,11 @@ public class GetNotification {
 
     /**
      * Executes GET notification query based on the role of the user
-     * @param tuple replaceable in the query with type Tuple
-     * @param query to be executed
+     *
+     * @param tuple       replaceable in the query with type Tuple
+     * @param query       to be executed
      * @param information to be merged with the response
-     * @param role user role
+     * @param role        user role
      * @return response returned from the query execution
      */
     private Future<JsonObject> executeGetNotification(Tuple tuple, String query, JsonObject information, Role role) {
