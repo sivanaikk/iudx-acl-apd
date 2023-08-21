@@ -1,0 +1,503 @@
+{
+	"info": {
+		"_postman_id": "bcd5ff9f-c0b5-4e64-9b50-ef0f6985563e",
+		"name": "IUDX-ACL-APD",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "policy",
+			"item": [
+				{
+					"name": "200 Verify Policy: Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:apd:Allow\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user\": {\n    \"id\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n    \"name\": {\n    \"firstName\":\"demo\",\n    \"lastName\":\"name\"\n    },\n    \"email\": \"abd31111111221ac@xyz.com\"\n  },\n  \"owner\": {\n    \"id\": \"4e563a5f-35f0-4f32-92be-8830775a1c5e\",\n    \"name\": {\n    \"firstName\":\"Test\",\n    \"lastName\":\"provider\"\n    },\n    \"email\": \"testprovider@example.com\"\n  },\n   \"item\": {\n     \"itemId\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n     \"itemType\": \"RESOURCE_GROUP\"\n   }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/verify",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"verify"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "403 Verify Policy: No Policy Exist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 403 (Forbidden)\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:apd:Deny\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Forbidden\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"No policy exist for given Resource Group\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user\": {\n    \"id\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n    \"name\": {\n    \"firstName\":\"demo\",\n    \"lastName\":\"name\"\n    },\n    \"email\": \"abc31111111221ac@xyz.com\"\n  },\n  \"owner\": {\n    \"id\": \"4e563a5f-35f0-4f32-92be-8830775a1c5e\",\n    \"name\": {\n    \"firstName\":\"Test\",\n    \"lastName\":\"provider\"\n    },\n    \"email\": \"testprovider@example.com\"\n  },\n   \"item\": {\n     \"itemId\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n     \"itemType\": \"RESOURCE_GROUP\"\n   }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/verify",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"verify"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400 Verify Policy: Bad Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 400 (Bad Request)\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:backend\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Bad Request\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user\": {\n    \"id\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n    \"name\": {\n    \"firstName\":\"demo\",\n    \"lastName\":\"name\"\n    },\n    \"email\": \"abc31111111221ac@xyz.com\"\n  },\n  \"owner\": {\n    \"id\": \"4e563a5f-35f0-4f32-92be-8830775a1c5e\",\n    \"name\": {\n    \"firstName\":\"Test\",\n    \"lastName\":\"provider\"\n    },\n    \"email\": \"testprovider@example.com\"\n  },\n   \"item\": {\n     \"itemId\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n     \"itemType\": \"RESOURCE\"\n   }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/verify",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"verify"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "200 Create Policy : Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    console.log(\"body \"+pm.response.toJSON)",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"test_consumers@xyz.com\",\n      \"itemId\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "401 Create Policy : Unauthorized",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 401 (Not Authorized)\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:MissingAuthenticationToken\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Missing auth details\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Missing auth details\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"abd311111112c@xyz.com\",\n      \"itemId\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "409 Create Policy : Conflict Duplicate Policy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 409 (Conflict)\", function () {",
+									"    pm.response.to.have.status(409);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:conflict\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Conflict\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Policy already exist for some of the request objects [9e6f40aa-da2e-4fdf-abf1-4785ce3d132a]\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"abd311111112c@xyz.com\",\n      \"itemId\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "403 Create Policy : Forbidden OwnerShip Error",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 403 (Forbidden)\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:forbidden\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Forbidden\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Ownership Error.\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"abd311111112c@xyz.com\",\n      \"itemId\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400 Create Policy : Bad Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 400 (Bad Request)\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:badRequest\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Bad Request\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"abd311111112c@xyz.com\",\n      \"itemId\": \"d67a19d5-0a26-5d7c-b0e7-58e7f3b222e2\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "notification",
+			"item": []
+		}
+	]
+}

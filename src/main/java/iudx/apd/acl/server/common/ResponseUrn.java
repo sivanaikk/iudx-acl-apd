@@ -30,6 +30,7 @@ public enum ResponseUrn {
     INVALID_HEADER_VALUE_URN("urn:dx:acl:invalidHeaderValue", "Invalid header value"),
     POLICY_ALREADY_EXIST_URN("urn:dx:acl:conflict", "Policy already exist"),
     VERIFY_FORBIDDEN_URN("urn:apd:Deny", "Policy does not exist"),
+    FORBIDDEN_URN("urn:dx:acl:forbidden", "OwnerShip Error."),
     NOT_YET_IMPLEMENTED_URN("urn:dx:acl:general", "urn not yet implemented in backend verticle."),
     BACKING_SERVICE_FORMAT_URN(
             "urn:dx:acl:backend", "format error from backing service [cat,auth etc.]"),
