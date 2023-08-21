@@ -176,7 +176,7 @@ public class GetPolicy {
                             } else {
                                 JsonObject response = new JsonObject()
                                         .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
-                                        .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
+                                        .put(TITLE, ResponseUrn.DB_ERROR_URN.getMessage())
                                         .put(DETAIL, FAILURE_MESSAGE + ", Failure while executing query");
                                 promise.fail(response.encode());
                                 LOG.error("Error response : {}", handler.cause().getMessage());
