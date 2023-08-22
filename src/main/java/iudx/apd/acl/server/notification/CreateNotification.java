@@ -34,11 +34,14 @@ public class CreateNotification {
     private static final String FAILURE_MESSAGE = "Request could not be created";
     private final PostgresService postgresService;
     private final CatalogueClient catalogueClient;
-    private UUID providerId;
     private UUID resourceId;
     private UUID resourceGroupId;
     private String resourceType;
     private PgPool pool;
+    private static final String dummyProviderFirstName = "dummy_first_name";
+    private static final String dummyProviderLastName = "dummy_last_name";
+    private static final String dummyProviderEmailId = "dummy@gmail.com";
+    private User provider;
 
     public CreateNotification(PostgresService postgresService, CatalogueClient catalogueClient) {
         this.postgresService = postgresService;
@@ -51,12 +54,37 @@ public class CreateNotification {
      * @param user details of the consumer
      * @return response as JsonObject with type Future
      */
-
     public Future<JsonObject> initiateCreateNotification(JsonObject notification, User user) {
         resourceId = UUID.fromString(notification.getString("itemId"));
         resourceType = notification.getString("itemType");
 
-        Future<Boolean> validPolicyExistsFuture = checkIfValidPolicyExists(GET_ACTIVE_CONSUMER_POLICY,resourceId, resourceType, user);
+        /* check if the resource exists in CAT */
+        Future<Boolean> getItemFromCatFuture = isItemPresentInCatalogue(resourceId);
+
+        Future<Boolean> providerInsertionFuture = getItemFromCatFuture.compose(resourceExistsInCatalogue -> {
+            if (resourceExistsInCatalogue) {
+                /* add the provider information if not already present in user_table */
+                return addProviderInDb(INSERT_PROVIDER_INFO_QUERY, UUID.fromString(getProviderInfo().getUserId()), getProviderInfo().getFirstName(), getProviderInfo().getLastName(), getProviderInfo().getEmailId());
+            }
+            return Future.failedFuture(getItemFromCatFuture.cause().getMessage());
+        });
+
+        Future<Boolean> resourceInsertionFuture = providerInsertionFuture.compose(isProviderAddedSuccessfully -> {
+            if (isProviderAddedSuccessfully) {
+                /* add the resource in resource_entity table if not already present*/
+                return addResourceInDb(INSERT_RESOURCE_INFO_QUERY, resourceId, getResourceGroupId(), UUID.fromString(getProviderInfo().getUserId()));
+            }
+            return Future.failedFuture(getItemFromCatFuture.cause().getMessage());
+        });
+
+        Future<Boolean> validPolicyExistsFuture = resourceInsertionFuture.compose(isResourceAddedInDb -> {
+            if (isResourceAddedInDb) {
+                return checkIfValidPolicyExists(GET_ACTIVE_CONSUMER_POLICY, resourceId, resourceType, user);
+            }
+            /* something went wrong while inserting the resource in DB */
+            return Future.failedFuture(resourceInsertionFuture.cause().getMessage());
+        });
+
         Future<Boolean> validNotificationExistsFuture = validPolicyExistsFuture.compose(isValidPolicyExisting -> {
             /* Policy with ACTIVE status already present */
             if (isValidPolicyExisting) {
@@ -66,54 +94,69 @@ public class CreateNotification {
             return checkIfValidNotificationExists(GET_VALID_NOTIFICATION, resourceId, resourceType, user);
         });
 
-        Future<Boolean> checkIfResourceExistsInDbFuture = validNotificationExistsFuture.compose(isValidNotificationExisting -> {
-            /*PENDING notification already exists waiting for its approval*/
+        Future<JsonObject> createNotificationFuture = validNotificationExistsFuture.compose(isValidNotificationExisting -> {
+            /* PENDING notification already exists waiting for its approval */
             if (isValidNotificationExisting) {
                 return Future.failedFuture(validNotificationExistsFuture.cause().getMessage());
             }
-            /* Notification doesn't exist, or is WITHDRAWN, or REJECTED */
-            /*TODO: what if a notification is approved but a policy is not created*/
-            return checkIfResourceExistsInDb(GET_RESOURCE_INFO_QUERY, resourceId);
+            return createNotification(CREATE_NOTIFICATION_QUERY, resourceId, resourceType, user, UUID.fromString(getProviderInfo().getUserId()));
         });
 
-        Future<Boolean> insertNotificationFuture = checkIfResourceExistsInDbFuture.compose(isResourcePresentInDb -> {
-            if (isResourcePresentInDb) {
-                return createNotification(CREATE_NOTIFICATION_QUERY, resourceId, resourceType, user, providerId);
-            }
-               return isItemPresentInCatalogue(resourceId).compose(itemPresentInCat -> {
-                    if (itemPresentInCat) {
-                        return insertResourceInDb(INSERT_RESOURCE_IN_DB_QUERY, resourceId, getResourceGroupId(), getProviderId()).compose(resourceInsertedInDb -> {
-                            if (resourceInsertedInDb) {
-                                return createNotification(CREATE_NOTIFICATION_QUERY, resourceId, resourceType, user, providerId);
-                            }
-                            JsonObject failureMessage = new JsonObject()
-                                    .put(TYPE, INTERNAL_SERVER_ERROR)
-                                    .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
-                                    .put(DETAIL, FAILURE_MESSAGE + ", as an error occurred in DB while inserting resource");
-                            return Future.failedFuture(failureMessage.encode());
-                        });
-                    }
-                    JsonObject failureMessage = new JsonObject()
-                            .put(TYPE, HttpStatusCode.NOT_FOUND)
-                            .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
-                            .put(DETAIL, FAILURE_MESSAGE + ", as resource is not found");
-                    return Future.failedFuture(failureMessage.encode());
-                });
-        });
-
-        Future<JsonObject> userResponseFuture = insertNotificationFuture.compose(isNotificationSuccessfullyInserted -> {
-            if (isNotificationSuccessfullyInserted) {
-                return Future.succeededFuture(new JsonObject()
-                        .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
-                        .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
-                        .put(RESULT, "Request inserted successfully")
-                        .put(STATUS_CODE, HttpStatusCode.SUCCESS.getValue()));
-            }
-            return Future.failedFuture(insertNotificationFuture.cause().getMessage());
-        });
-        return userResponseFuture;
+        return createNotificationFuture;
     }
 
+    /**
+     * Inserts provider information in the user_table if it is not already present
+     * @param query An insert query
+     * @param providerId id of the owner of the resource with type UUID
+     * @param firstName First name of the provider
+     * @param lastName Last name of the provider
+     * @param emailId Email id of the provider
+     * @return True if the insertion is successfully done, failure if any
+     */
+    // TODO: Auth call is required here
+    public Future<Boolean> addProviderInDb(String query, UUID providerId, String firstName, String lastName, String emailId){
+        Promise<Boolean> promise = Promise.promise();
+        LOG.trace("inside addProviderInDb method");
+        Tuple tuple = Tuple.of(providerId, emailId, firstName, lastName);
+        executeQuery(query, tuple, handler -> {
+            if(handler.succeeded()){
+                /* inserted provider successfully if not already present */
+                promise.complete(true);
+            }
+            else
+            {
+                promise.fail(handler.cause().getMessage());
+            }
+        });
+        return promise.future();
+    }
+
+    /**
+     * Adds resource in the database if the resource is not already present
+     * @param query An insert query
+     * @param resourceId id of the resource with type UUID
+     * @param resourceGroupId if present for the resource with type UUID or null
+     * @param providerId id of the owner of the resource with type UUID
+     * @return True, if the insertion is successful or Failure if there is any DB failure
+     */
+    public Future<Boolean> addResourceInDb(String query, UUID resourceId,  UUID resourceGroupId, UUID providerId){
+        Promise<Boolean> promise = Promise.promise();
+        LOG.trace("inside addResourceInDb method");
+        Tuple tuple = Tuple.of(resourceId, providerId, resourceGroupId);
+        executeQuery(query, tuple, handler -> {
+            if(handler.succeeded()){
+                /* resource inserted successfully if not present */
+                promise.complete(true);
+            }
+            else
+            {
+                promise.fail(handler.cause().getMessage());
+            }
+        });
+
+        return promise.future();
+    }
     /**
      * checks if the policy for the given resource and given consumer already exists or not
      * <br>
@@ -191,52 +234,16 @@ public class CreateNotification {
     }
 
     /**
-     * Verifies if the resource being requested for accessing, is present in the database
-     * @param query To fetch the details of the resource
-     * @param resourceId id of the resource with type UUID
-     * @return True, if the resource is found in the database or failure if any
-     */
-    public Future<Boolean> checkIfResourceExistsInDb(String query, UUID resourceId) {
-        Promise<Boolean> promise = Promise.promise();
-        LOG.trace("inside checkIfResourceExistsInDb method");
-        Tuple tuple = Tuple.of(resourceId);
-        executeQuery(query, tuple, handler -> {
-            if(handler.succeeded()){
-                JsonArray result = handler.result().getJsonArray(RESULT);
-                boolean isResourcePresent = !(result.isEmpty());
-                if(isResourcePresent){
-                    /* get the information of the provider of the resource */
-                    String provider = result.getJsonObject(0).getString("provider_id");
-                    setProviderId(UUID.fromString(provider));
-
-                    promise.complete(true);
-                }
-                else
-                {
-                    /* the given resource is not present in the resource entity table*/
-                    promise.complete(false);
-                }
-            }
-            else
-            {
-                promise.fail(handler.cause().getMessage());
-            }
-        });
-
-        return promise.future();
-    }
-
-    /**
      * Creates notification for the consumer to access the given resource
      * @param query Insert query to create notification
      * @param resourceId id for which the consumer or consumer delegate wants access to with type UUID
      * @param resourceType type of the resource, can be <b>RESOURCE</b> or <b>RESOURCE_GROUP</b>
      * @param consumer details of the consumer with type User
      * @param providerId id of the owner of the resource with type UUID
-     * @return True, if notification is created successfully, failure if any
+     * @return JsonObject response, if notification is created successfully, failure if any
      */
-    public Future<Boolean> createNotification(String query, UUID resourceId, String resourceType, User consumer, UUID providerId) {
-        Promise<Boolean> promise = Promise.promise();
+    public Future<JsonObject> createNotification(String query, UUID resourceId, String resourceType, User consumer, UUID providerId) {
+        Promise<JsonObject> promise = Promise.promise();
         LOG.trace("inside createNotification method");
         UUID notificationId = UUID.randomUUID();
         UUID consumerId = UUID.fromString(consumer.getUserId());
@@ -253,7 +260,12 @@ public class CreateNotification {
                     promise.fail(failureMessage.encode());
                 } else {
                     LOG.info("created a notification with notification Id : {}",result.getJsonObject(0).getString("_id"));
-                    promise.complete(true);
+                    JsonObject response = new JsonObject()
+                            .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
+                            .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
+                            .put(RESULT, "Request inserted successfully")
+                            .put(STATUS_CODE, HttpStatusCode.SUCCESS.getValue());
+                    promise.complete(response);
                 }
             } else {
                 promise.fail(handler.cause().getMessage());
@@ -280,10 +292,18 @@ public class CreateNotification {
                 UUID ownerId = result.getProviderId();
                 UUID resourceGroupIdValue = result.getResourceGroupId();
 
-                /*set provider id and resourceGroupId */
-                setProviderId(ownerId);
+                /* set provider id and resourceGroupId */
                 setResourceGroupId(resourceGroupIdValue);
+                JsonObject providerInfo = new JsonObject()
+                         .put("userId", ownerId.toString())
+                         .put("userRole", "provider")
+                         .put("emailId", dummyProviderEmailId)
+                         .put("firstName", dummyProviderFirstName)
+                         .put("lastName", dummyProviderLastName);
+                setProviderInfo(new User(providerInfo));
 
+                System.out.println("Provider ID is : " + ownerId);
+                System.out.println("resourceGroupId value is : " + resourceGroupIdValue);
                 promise.complete(true);
             } else {
                 if (handler.cause().getMessage().equalsIgnoreCase("Id/Ids does not present in CAT")) {
@@ -307,41 +327,6 @@ public class CreateNotification {
         return promise.future();
     }
 
-    /**
-     * Inserts a new resource in resource_entity table
-     * @param query Insert query to insert the resource
-     * @param resourceId id of the resource with type UUID
-     * @param resourceGroupId resourceGroupId if present, for the resource with type UUID or null
-     * @param ownerId id of the provider of the resource with type UUID
-     * @return True if insertion is successful, failure if any
-     */
-    public Future<Boolean> insertResourceInDb(String query, UUID resourceId, UUID resourceGroupId, UUID ownerId) {
-        Promise<Boolean> promise = Promise.promise();
-        LOG.trace("inside insertResourceInDb method");
-        Tuple tuple = Tuple.of(resourceId, ownerId, resourceGroupId);
-        executeQuery(query, tuple, handler -> {
-            if(handler.succeeded()){
-                JsonArray result = handler.result().getJsonArray(RESULT);
-                if(result.isEmpty()){
-                    /* id is not returned while inserting the resource in the table*/
-                    LOG.error("Something went wrong while inserting the resources in the table");
-                    JsonObject failureMessage = new JsonObject()
-                            .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
-                            .put(TITLE, INTERNAL_SERVER_ERROR.getUrn())
-                            .put(DETAIL, FAILURE_MESSAGE);
-                    promise.fail(failureMessage.encode());
-                }
-                else
-                {
-                    /*successfully inserted resources in the table*/
-                    promise.complete(true);
-                }
-            }else {
-                promise.fail(handler.cause().getMessage());
-            }
-        });
-        return promise.future();
-    }
     /**
      * Executes the query by getting the Pgpool instance from postgres
      *
@@ -374,12 +359,12 @@ public class CreateNotification {
             handler.handle(Future.failedFuture(response.encode()));
         });
     }
-    public UUID getProviderId() {
-        return providerId;
+    public void setProviderInfo(User user){
+        provider = user;
     }
 
-    public void setProviderId(UUID ownerId) {
-        providerId = ownerId;
+    public User getProviderInfo(){
+        return this.provider;
     }
 
     public UUID getResourceGroupId(){
