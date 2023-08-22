@@ -1,5 +1,6 @@
 package iudx.apd.acl.server.apiserver.util;
 
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -53,4 +54,19 @@ public class ResourceObj {
   public UUID getResourceGroupId() {
     return resourceGroupId;
   }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof ResourceObj)) return false;
+    ResourceObj that = (ResourceObj) o;
+    return Objects.equals(itemId, that.itemId) && Objects.equals(providerId, that.providerId) && Objects.equals(resourceGroupId, that.resourceGroupId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(itemId, providerId, resourceGroupId);
+  }
+
 }

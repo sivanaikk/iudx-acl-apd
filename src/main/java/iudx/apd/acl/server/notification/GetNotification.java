@@ -1,8 +1,4 @@
-package iudx.apd.acl.server.policy;
-
-import static iudx.apd.acl.server.apiserver.util.Constants.*;
-import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
-import static iudx.apd.acl.server.policy.util.Constants.*;
+package iudx.apd.acl.server.notification;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -14,43 +10,46 @@ import iudx.apd.acl.server.apiserver.util.Role;
 import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
-
-import java.util.List;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
+import iudx.apd.acl.server.policy.PostgresService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * <b>CONSUMER</b> : A User for whom policy is made <br>
- * <b>PROVIDER</b> : Policy is created by the user who provides the resource, also known as owner <br>
- * <b>PROVIDER DELEGATE</b> : A user who acts on behalf of provider, having certain privileges of Provider <br>
- * <b>CONSUMER DELEGATE</b> : A user who acts on behalf of consumer, having certain privileges of Consumer <br>
- * GetPolicy class is used to fetch policy related information like policy id,
- * consumer details like consumer id, first name, last name, email, resource related information,
- * owner related information like id, first name, last name, email<br>
- * Since delegate acts on behalf of the consumer, provider, while fetching the policies, the delegate is either treated as a consumer or provider
- */
-public class GetPolicy {
-    private static final Logger LOG = LoggerFactory.getLogger(GetPolicy.class);
-    private static final String FAILURE_MESSAGE = "Policy could not be fetched";
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
+import static iudx.apd.acl.server.apiserver.util.Constants.*;
+import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
+import static iudx.apd.acl.server.notification.util.Constants.GET_CONSUMER_NOTIFICATION_QUERY;
+import static iudx.apd.acl.server.notification.util.Constants.GET_PROVIDER_NOTIFICATION_QUERY;
+
+
+public class GetNotification {
+    private static final Logger LOG = LoggerFactory.getLogger(GetNotification.class);
+    private static final String FAILURE_MESSAGE = "Notifications could not be fetched";
     private final PostgresService postgresService;
     private PgPool pool;
 
-    public GetPolicy(PostgresService postgresService) {
+    public GetNotification(PostgresService postgresService) {
         this.postgresService = postgresService;
     }
 
-    public Future<JsonObject> initiateGetPolicy(User user) {
+    /**
+     * Fetches notifications based on the user role
+     *
+     * @param user Detail about the user
+     * @return Notification or Failure with type Future JsonObject
+     */
+    public Future<JsonObject> initiateGetNotifications(User user) {
         Role role = user.getUserRole();
         switch (role) {
             case CONSUMER_DELEGATE:
             case CONSUMER:
-                return getConsumerPolicy(user, GET_POLICY_4_CONSUMER_QUERY);
+                return getUserNotification(user, GET_CONSUMER_NOTIFICATION_QUERY, Role.CONSUMER);
             case PROVIDER_DELEGATE:
             case PROVIDER:
-                return getProviderPolicy(user, GET_POLICY_4_PROVIDER_QUERY);
+                return getUserNotification(user, GET_PROVIDER_NOTIFICATION_QUERY, Role.PROVIDER);
             default: {
                 JsonObject response =
                         new JsonObject()
@@ -63,31 +62,37 @@ public class GetPolicy {
     }
 
     /**
-     * Fetch policy details of the provider based on the owner_id and
-     * gets the information about consumer like consumer first name, last name, id based on the consumer email-Id
+     * Fetches the notifications concerned with the respective consumer when the user requesting it is a consumer or consumer delegate
      *
-     * @param provider Object of User type
-     * @param query    Query to be executed
-     * @return Policy details
+     * @param user  Information about the user
+     * @param query A SELECT query to fetch details
+     * @return notifications from the consumer or for the provider as success response <br> or failure response both of type Future JsonObject
      */
-    public Future<JsonObject> getProviderPolicy(User provider, String query) {
+    public Future<JsonObject> getUserNotification(User user, String query, Role role) {
+        LOG.trace("inside getUserNotification method");
         Promise<JsonObject> promise = Promise.promise();
-        String owner_id = provider.getUserId();
-        LOG.trace(provider.toString());
-        Tuple tuple = Tuple.of(owner_id);
+        UUID userId = UUID.fromString(user.getUserId());
+        LOG.trace(user.toString());
+        Tuple tuple = Tuple.of(userId);
         JsonObject jsonObject = new JsonObject()
-                .put("email", provider.getEmailId())
-                .put("name", new JsonObject().put("firstName", provider.getFirstName()).put("lastName", provider.getLastName()))
-                .put("id", provider.getUserId());
-        JsonObject providerInfo = new JsonObject().put("provider", jsonObject);
-        this.executeGetPolicy(tuple, query, providerInfo, Role.PROVIDER)
+                .put("email", user.getEmailId())
+                .put("name", new JsonObject().put("firstName", user.getFirstName()).put("lastName", user.getLastName()))
+                .put("id", user.getUserId());
+        JsonObject userInfo = new JsonObject();
+        if (role.equals(Role.CONSUMER)) {
+            userInfo.put("consumer", jsonObject);
+        } else {
+            userInfo.put("provider", jsonObject);
+        }
+
+        this.executeGetNotification(tuple, query, userInfo, role)
                 .onComplete(
                         handler -> {
                             if (handler.succeeded()) {
-                                LOG.info("success while executing GET provider policy");
+                                LOG.info("success while executing GET user request");
                                 promise.complete(handler.result());
                             } else {
-                                LOG.error("failure while executing GET provider policy");
+                                LOG.error("Failure while executing GET user request");
                                 promise.fail(handler.cause().getMessage());
                             }
                         });
@@ -95,48 +100,15 @@ public class GetPolicy {
     }
 
     /**
-     * Fetches policies related to the consumer based on the consumer's email-Id <br>
-     * Also gets information related to the owner of the policy like first name, last name, email-Id  based on the owner_id
+     * Executes GET notification query based on the role of the user
      *
-     * @param consumer Object of User type
-     * @param query    Query to be executed
-     * @return Policy details
+     * @param tuple       replaceable in the query with type Tuple
+     * @param query       to be executed
+     * @param information to be merged with the response
+     * @param role        user role
+     * @return response returned from the query execution
      */
-    public Future<JsonObject> getConsumerPolicy(User consumer, String query) {
-        Promise<JsonObject> promise = Promise.promise();
-        String emailId = consumer.getEmailId();
-        LOG.trace(consumer.toString());
-        Tuple tuple = Tuple.of(emailId);
-        JsonObject jsonObject = new JsonObject()
-                .put("email", consumer.getEmailId())
-                .put("name", new JsonObject().put("firstName", consumer.getFirstName()).put("lastName", consumer.getLastName()))
-                .put("id", consumer.getUserId());
-        JsonObject consumerInfo = new JsonObject().put("consumer", jsonObject);
-
-
-        this.executeGetPolicy(tuple, query, consumerInfo, Role.CONSUMER)
-                .onComplete(
-                        handler -> {
-                            if (handler.succeeded()) {
-                                LOG.info("success while executing GET consumer policy");
-                                promise.complete(handler.result());
-                            } else {
-                                LOG.error("Failure while executing GET consumer policy");
-                                promise.fail(handler.cause().getMessage());
-                            }
-                        });
-        return promise.future();
-    }
-
-    /**
-     * Executes the respective queries by using the vertx PgPool instance
-     *
-     * @param tuple       Exchangeable values of query in the form of Vertx Tuple
-     * @param query       String query to be executed
-     * @param information Information to be added in the response
-     * @return
-     */
-    private Future<JsonObject> executeGetPolicy(Tuple tuple, String query, JsonObject information, Role role) {
+    private Future<JsonObject> executeGetNotification(Tuple tuple, String query, JsonObject information, Role role) {
         Promise<JsonObject> promise = Promise.promise();
         Collector<Row, ?, List<JsonObject>> rowListCollector =
                 Collectors.mapping(row -> row.toJson(), Collectors.toList());
@@ -169,8 +141,8 @@ public class GetPolicy {
                                     JsonObject response = new JsonObject()
                                             .put(TYPE, HttpStatusCode.NOT_FOUND.getValue())
                                             .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
-                                            .put(DETAIL, "Policy not found");
-                                    LOG.error("No policy found!");
+                                            .put(DETAIL, "Request not found");
+                                    LOG.error("No Request found!");
                                     promise.fail(response.encode());
                                 }
                             } else {
