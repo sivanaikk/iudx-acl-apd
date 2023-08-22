@@ -162,6 +162,11 @@ create trigger update_ua_modified before insert or update on request for each ro
 -- approved_access_requests table
 create trigger update_ua_created before insert on approved_access_requests for each row EXECUTE procedure update_created ();
 create trigger update_ua_modified before insert or update on approved_access_requests for each row EXECUTE procedure update_modified ();
+
+-- user_table
+create trigger update_ua_created before insert on user_table for each row EXECUTE procedure update_created ();
+create trigger update_ua_modified before insert or update on user_table for each row EXECUTE procedure update_modified ();
+
  ---
  -- grants
  ---
