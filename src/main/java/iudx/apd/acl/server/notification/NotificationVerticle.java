@@ -10,6 +10,7 @@ import static iudx.apd.acl.server.common.Constants.NOTIFICATION_SERVICE_ADDRESS;
 public class NotificationVerticle extends AbstractVerticle {
     private DeleteNotification deleteNotification;
     private UpdateNotification updateNotification;
+    private GetNotification getNotification;
     private PostgresService postgresService;
     private NotificationServiceImpl notificationService;
     private CreateNotification createNotification;
@@ -22,7 +23,8 @@ public class NotificationVerticle extends AbstractVerticle {
         createNotification = new CreateNotification(postgresService, catalogueClient);
         deleteNotification = new DeleteNotification(postgresService);
         updateNotification = new UpdateNotification(postgresService);
-        notificationService = new NotificationServiceImpl(deleteNotification, updateNotification, createNotification);
+        getNotification  = new GetNotification(postgresService);
+        notificationService = new NotificationServiceImpl(deleteNotification, updateNotification, getNotification, createNotification);
         new ServiceBinder(vertx).setAddress(NOTIFICATION_SERVICE_ADDRESS).register(NotificationService.class, notificationService);
     }
 }
