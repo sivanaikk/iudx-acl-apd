@@ -784,6 +784,7 @@ paths:
                 requestId:
                   type: string
                   format: uuid
+                  pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
                   minLength: 36
                   maxLength: 36
                 status:
