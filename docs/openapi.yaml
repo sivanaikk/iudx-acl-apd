@@ -556,13 +556,13 @@ paths:
                             - api
                             - sub
                             - file
-                        user:
+                        consumer:
                           email: someone@example.com
                           name:
                             firstName: Someone
                             lastName: Person
                           id: a13eb955-c691-4fd3-b200-f18bc78810b5
-                        owner:
+                        provider:
                           email: bob_provider@iisc.ac.in
                           name:
                             firstName: Bob
