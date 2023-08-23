@@ -95,6 +95,7 @@ public class TestDeleteNotifications {
         });
     }
 
+//    TODO: write a test case for withdrawing NULL expiryAt
     @Test
     @DisplayName("Test initiateDeleteNotification with invalid user")
     public void testInitiateDeleteNotification4InvalidUser(VertxTestContext vertxTestContext)

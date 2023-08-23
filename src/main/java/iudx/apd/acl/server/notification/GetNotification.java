@@ -177,6 +177,7 @@ public class GetNotification {
         jsonObject.remove("ownerFirstName");
         jsonObject.remove("ownerLastName");
         jsonObject.remove("ownerId");
+        jsonObject.remove("consumerId");
         jsonObject.remove("ownerEmailId");
         return providerInfo;
     }
@@ -195,6 +196,7 @@ public class GetNotification {
         jsonObject.remove("consumerLastName");
         jsonObject.remove("consumerId");
         jsonObject.remove("consumerEmailId");
+        jsonObject.remove("ownerId");
         return consumerInfo;
     }
 }

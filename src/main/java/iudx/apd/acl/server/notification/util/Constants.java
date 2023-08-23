@@ -2,7 +2,7 @@ package iudx.apd.acl.server.notification.util;
 
 public class Constants {
 
-    public static final String WITHDRAW_REQUEST = "UPDATE request SET status = 'WITHDRAWN' WHERE _id = $1::uuid AND expiry_at > NOW() RETURNING _id";
+    public static final String WITHDRAW_REQUEST = "UPDATE request SET status = 'WITHDRAWN' WHERE _id = $1::uuid AND expiry_at > NOW() OR expiry_at IS NULL RETURNING _id";
     public static final String GET_REQUEST = "SELECT * FROM request WHERE _id = $1::uuid";
 
     public static final String GET_ACTIVE_CONSUMER_POLICY = "SELECT * FROM policy WHERE user_emailid = $1 AND item_id = $2::uuid AND item_type = $3 AND expiry_at > now() AND status = 'ACTIVE'";
@@ -31,7 +31,7 @@ public class Constants {
     "U.last_name AS \"ownerLastName\", U.email_id AS \"ownerEmailId\" "+
     "FROM request AS R "+
     "INNER JOIN user_table AS U "+
-    "ON U._id = R.user_id "+
+    "ON U._id = R.owner_id "+
     "WHERE R.user_id=$1::uuid; ";
 
     public static final String GET_PROVIDER_NOTIFICATION_QUERY = "SELECT R._id AS \"requestId\", R.item_id AS \"itemId\", " +
