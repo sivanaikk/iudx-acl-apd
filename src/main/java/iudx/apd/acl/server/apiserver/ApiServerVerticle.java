@@ -79,10 +79,10 @@ public class ApiServerVerticle extends AbstractVerticle {
     private static User getProvider() {
         JsonObject provider =
                 new JsonObject()
-                        .put("userId", "4e563a5f-35f0-4f32-92be-8830775a1c5e")
+                        .put("userId", "bbeacb12-5e54-339d-92e0-d8e063b551a8")
                         .put("firstName", "Test")
-                        .put("lastName", "Provider")
-                        .put("emailId", "testprovider@example.com")
+                        .put("lastName", "Dummy last Name")
+                        .put("emailId", "test_consumers@xyz.com")
                         .put("userRole", "provider");
         return new User(provider);
     }

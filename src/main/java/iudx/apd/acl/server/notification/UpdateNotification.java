@@ -4,6 +4,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
+import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.pgclient.PgPool;
@@ -273,30 +274,41 @@ public class UpdateNotification {
         UUID policyId = UUID.randomUUID();
         /* set policyId */
         setPolicyId(policyId);
-        String constraints = notification.getString("constraints");
-        Tuple tuple = Tuple.of(policyId, getConsumerEmailId(), getItemId(), getItemType(), getOwnerId(), "ACTIVE", getExpiryAt(), constraints);
+        JsonObject constraints = null;
+        try {
+            constraints = new JsonObject(notification.getString("constraints"));
+        }catch (DecodeException exception){
+            LOG.error("Error : {}", exception.getMessage());
+            JsonObject failureMessage = new JsonObject()
+                    .put(TYPE, BAD_REQUEST)
+                    .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getMessage())
+                    .put(DETAIL, "Invalid constraints in the request body");
+            return Future.failedFuture(failureMessage.encode());
+        }
 
-        executeQuery(query, tuple, handler -> {
-            if (handler.succeeded()) {
-                JsonObject result = handler.result().getJsonArray(RESULT).getJsonObject(0);
-                if (!result.isEmpty()) {
-                    /*policy is created successfully and the policy id is returned */
-                    LOG.trace("Policy created successfully with policyId: {}", result.getString("_id"));
-                    promise.complete(true);
-                } else {
-                    LOG.error("Could not create policy : {}", handler.cause().getMessage());
-                    JsonObject failureMessage = new JsonObject()
-                            .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
-                            .put(TITLE, ResponseUrn.DB_ERROR_URN.getMessage())
-                            .put(DETAIL, "Failure while executing query");
+            Tuple tuple = Tuple.of(policyId, getConsumerEmailId(), getItemId(), getItemType(), getOwnerId(), "ACTIVE", getExpiryAt(), constraints);
 
-                    promise.fail(failureMessage.encode());
+            executeQuery(query, tuple, handler -> {
+                if (handler.succeeded()) {
+                    JsonObject result = handler.result().getJsonArray(RESULT).getJsonObject(0);
+                    if (!result.isEmpty()) {
+                        /*policy is created successfully and the policy id is returned */
+                        LOG.trace("Policy created successfully with policyId: {}", result.getString("_id"));
+                        promise.complete(true);
+                    } else {
+                        LOG.error("Could not create policy : {}", handler.cause().getMessage());
+                        JsonObject failureMessage = new JsonObject()
+                                .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
+                                .put(TITLE, ResponseUrn.DB_ERROR_URN.getMessage())
+                                .put(DETAIL, "Failure while executing query");
+
+                        promise.fail(failureMessage.encode());
+                    }
                 }
-            }
-        });
-        return promise.future();
-    }
+            });
+            return promise.future();
 
+    }
     /**
      * Checks if the expiryAt value given the request body of the PUT Notification, is greater than the present time
      *

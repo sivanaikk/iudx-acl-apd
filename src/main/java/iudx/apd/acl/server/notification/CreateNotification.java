@@ -64,12 +64,21 @@ public class CreateNotification {
         Future<Boolean> providerInsertionFuture = getItemFromCatFuture.compose(resourceExistsInCatalogue -> {
             if (resourceExistsInCatalogue) {
                 /* add the provider information if not already present in user_table */
-                return addProviderInDb(INSERT_PROVIDER_INFO_QUERY, UUID.fromString(getProviderInfo().getUserId()), getProviderInfo().getFirstName(), getProviderInfo().getLastName(), getProviderInfo().getEmailId());
+                return addProviderInDb(INSERT_USER_INFO_QUERY, UUID.fromString(getProviderInfo().getUserId()), getProviderInfo().getFirstName(), getProviderInfo().getLastName(), getProviderInfo().getEmailId());
             }
             return Future.failedFuture(getItemFromCatFuture.cause().getMessage());
         });
 
-        Future<Boolean> resourceInsertionFuture = providerInsertionFuture.compose(isProviderAddedSuccessfully -> {
+        // TODO: remove the add consumerInDb method
+        Future<Boolean> consumerInsertionFuture = providerInsertionFuture.compose(resourceExistsInCatalogue -> {
+            if (resourceExistsInCatalogue) {
+                /* add the consumer information if not already present in user_table */
+                return addConsumerInDb(INSERT_USER_INFO_QUERY, UUID.fromString(user.getUserId()), user.getFirstName(), user.getLastName(), user.getEmailId());
+            }
+            return Future.failedFuture(getItemFromCatFuture.cause().getMessage());
+        });
+
+        Future<Boolean> resourceInsertionFuture = consumerInsertionFuture.compose(isProviderAddedSuccessfully -> {
             if (isProviderAddedSuccessfully) {
                 /* add the resource in resource_entity table if not already present*/
                 return addResourceInDb(INSERT_RESOURCE_INFO_QUERY, resourceId, getResourceGroupId(), UUID.fromString(getProviderInfo().getUserId()));
@@ -122,6 +131,33 @@ public class CreateNotification {
         executeQuery(query, tuple, handler -> {
             if(handler.succeeded()){
                 /* inserted provider successfully if not already present */
+                promise.complete(true);
+            }
+            else
+            {
+                promise.fail(handler.cause().getMessage());
+            }
+        });
+        return promise.future();
+    }
+
+    /**
+     * Inserts consumer information in the user_table if it is not already present
+     * @param query An insert query
+     * @param providerId id of the owner of the resource with type UUID
+     * @param firstName First name of the consumer
+     * @param lastName Last name of the consumer
+     * @param emailId Email id of the consumer
+     * @return True if the insertion is successfully done, failure if any
+     */
+    // TODO: Auth call is required here
+    public Future<Boolean> addConsumerInDb(String query, UUID providerId, String firstName, String lastName, String emailId){
+        Promise<Boolean> promise = Promise.promise();
+        LOG.trace("inside addConsumerInDb method");
+        Tuple tuple = Tuple.of(providerId, emailId, firstName, lastName);
+        executeQuery(query, tuple, handler -> {
+            if(handler.succeeded()){
+                /* inserted consumer successfully if not already present */
                 promise.complete(true);
             }
             else
