@@ -5,6 +5,8 @@ import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * User class is used to initialize information about the user like id, role, email-Id etc., <br>
  * User class can store information about Consumer, Provider. <br>
@@ -64,4 +66,19 @@ public class User {
   public String toString(){
     return  "User details :: \nuserId - " + userId + ",\n emailId - " + emailId + ",\n userRole - " + userRole + ",\n firstName - " + firstName + ",\n lastName - " + lastName;
   }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof User)) return false;
+    User user = (User) o;
+    return Objects.equals(userId, user.userId) && userRole == user.userRole && Objects.equals(emailId, user.emailId) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(userId, userRole, emailId, firstName, lastName);
+  }
+
 }

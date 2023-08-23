@@ -92,7 +92,7 @@ public class ApiServerVerticle extends AbstractVerticle {
      * configuration, obtains a proxy for the Event bus services exposed through service discovery,
      * start an HTTPs server at port 8443 or an HTTP server at port 8080.
      *
-     * @throws Exception which is a startup exception TODO Need to add documentation for all the
+     * @throws Exception which is a startup exception
      */
     @Override
     public void start() throws Exception {
@@ -217,6 +217,25 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
     private void postAccessRequestHandler(RoutingContext routingContext) {
+        JsonObject request = routingContext.body().asJsonObject();
+        User consumer = getConsumer();
+        notificationService
+                .createNotification(request, consumer)
+                .onComplete(handler -> {
+                    if(handler.succeeded()){
+                        LOGGER.info("Notification created successfully : {}", handler.result().encode());
+                        JsonObject response = new JsonObject()
+                                .put(TYPE, handler.result().getString(TYPE))
+                                .put(TITLE, handler.result().getString(TITLE))
+                                .put(RESULT, handler.result().getValue(RESULT));
+                        handleSuccessResponse(routingContext, handler.result().getInteger(STATUS_CODE), response.toString());
+                    }
+                    else
+                    {
+                        LOGGER.error("Failed to create notification : {}", handler.cause().getMessage());
+                        handleFailureResponse(routingContext, handler.cause().getMessage());
+                    }
+                });
     }
 
     private void printDeployedEndpoints(Router router) {
@@ -274,6 +293,21 @@ public class ApiServerVerticle extends AbstractVerticle {
     }
 
     private void getAccessRequestHandler(RoutingContext routingContext) {
+        User consumer = getConsumer();
+        User provider = getProvider();
+        notificationService
+                .getNotification(consumer)
+                .onComplete(
+                        handler -> {
+                            if (handler.succeeded()) {
+                                handleSuccessResponse(
+                                        routingContext,
+                                        handler.result().getInteger(STATUS_CODE),
+                                        handler.result().getString(RESULT));
+                            } else {
+                                handleFailureResponse(routingContext, handler.cause().getMessage());
+                            }
+                        });
     }
 
     private void postPoliciesHandler(RoutingContext routingContext) {
