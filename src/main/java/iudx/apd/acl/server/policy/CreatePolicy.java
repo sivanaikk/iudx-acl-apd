@@ -278,14 +278,14 @@ public class CreatePolicy {
         row -> {
           JsonObject jsonObject =
             new JsonObject()
-              .put("policy_id", row.getUUID("_id").toString())
-              .put("user_emailId", row.getString("user_emailid"))
-              .put("item_id", row.getUUID("item_id").toString())
-              .put("expiry_at", row.getLocalDateTime("expiry_at").toString());
+              .put("policyId", row.getUUID("_id").toString())
+              .put("userEmailId", row.getString("user_emailid"))
+              .put("itemId", row.getUUID("item_id").toString())
+              .put("expiryAt", row.getLocalDateTime("expiry_at").toString());
 
           if (ownerJsonObject[0] == null) {
             ownerJsonObject[0] =
-              new JsonObject().put("owner_id", row.getValue("owner_id").toString());
+              new JsonObject().put("ownerId", row.getValue("owner_id").toString());
           }
           response.add(jsonObject);
         });
