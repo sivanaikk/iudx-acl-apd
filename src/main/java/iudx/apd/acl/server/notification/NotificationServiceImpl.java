@@ -11,18 +11,32 @@ import org.slf4j.LoggerFactory;
 public class NotificationServiceImpl implements NotificationService{
     private final DeleteNotification deleteNotification;
     private final UpdateNotification updateNotification;
+    private final CreateNotification createNotification;
+
     private final GetNotification getNotification;
 
-    public NotificationServiceImpl(DeleteNotification deleteNotification, UpdateNotification updateNotification, GetNotification getNotification)
+    public NotificationServiceImpl(DeleteNotification deleteNotification, UpdateNotification updateNotification, GetNotification getNotification, CreateNotification createNotification)
     {
         this.deleteNotification = deleteNotification;
         this.updateNotification = updateNotification;
         this.getNotification = getNotification;
+        this.createNotification = createNotification;
     }
     private static final Logger LOG = LoggerFactory.getLogger(NotificationServiceImpl.class);
     @Override
     public Future<JsonObject> createNotification(JsonObject request, User user) {
-        return null;
+        Promise<JsonObject> promise = Promise.promise();
+        createNotification.initiateCreateNotification(request, user)
+                .onComplete(handler -> {
+                    if(handler.succeeded()){
+                        LOG.info("Successfully created notification");
+                        promise.complete(handler.result());
+                    }else {
+                        LOG.error("Failed to create notification");
+                        promise.fail(handler.cause().getMessage());
+                    }
+                });
+        return promise.future();
     }
 
     @Override

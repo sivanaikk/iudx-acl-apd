@@ -94,10 +94,10 @@ CREATE TABLE IF NOT EXISTS request
    item_type _item_type NOT NULL,
    owner_id uuid NOT NULL,
    status access_request_status_type NOT NULL default 'PENDING',
-   expiry_at timestamp without time zone NOT NULL,
+   expiry_at timestamp without time zone,
    created_at timestamp without time zone NOT NULL,
    updated_at timestamp without time zone NOT NULL,
-   constraints json NOT NULL,
+   constraints json,
    CONSTRAINT request_pk PRIMARY KEY (_id),
    CONSTRAINT user_id_fk FOREIGN KEY(user_id) REFERENCES user_table(_id),
    CONSTRAINT owner_id_fk FOREIGN KEY(owner_id) REFERENCES user_table(_id),
@@ -162,6 +162,11 @@ create trigger update_ua_modified before insert or update on request for each ro
 -- approved_access_requests table
 create trigger update_ua_created before insert on approved_access_requests for each row EXECUTE procedure update_created ();
 create trigger update_ua_modified before insert or update on approved_access_requests for each row EXECUTE procedure update_modified ();
+
+-- user_table
+create trigger update_ua_created before insert on user_table for each row EXECUTE procedure update_created ();
+create trigger update_ua_modified before insert or update on user_table for each row EXECUTE procedure update_modified ();
+
  ---
  -- grants
  ---
