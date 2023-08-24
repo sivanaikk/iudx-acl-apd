@@ -113,7 +113,7 @@ public class DeletePolicy {
         executeQuery(query, tuple, handler -> {
             if (handler.succeeded()) {
                 if (handler.result().getJsonArray(RESULT).isEmpty()) {
-                    JsonObject failureResponse = new JsonObject().put(TYPE, HttpStatusCode.NOT_FOUND.getValue()).put(TITLE, HttpStatusCode.NOT_FOUND.getUrn()).put(DETAIL, FAILURE_MESSAGE + ", as policy is not found");
+                    JsonObject failureResponse = new JsonObject().put(TYPE, HttpStatusCode.NOT_FOUND.getValue()).put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn()).put(DETAIL, FAILURE_MESSAGE + ", as policy is not found");
                     promise.fail(failureResponse.encode());
                 } else {
                     JsonObject result = handler.result().getJsonArray(RESULT).getJsonObject(0);
@@ -131,7 +131,7 @@ public class DeletePolicy {
                         }
                     } else {
                         LOG.error("Failure : policy does not belong to the user");
-                        JsonObject failureResponse = new JsonObject().put(TYPE, HttpStatusCode.FORBIDDEN.getValue()).put(TITLE, HttpStatusCode.FORBIDDEN.getUrn()).put(DETAIL, FAILURE_MESSAGE + ", as policy doesn't belong to the user");
+                        JsonObject failureResponse = new JsonObject().put(TYPE, HttpStatusCode.FORBIDDEN.getValue()).put(TITLE, ResponseUrn.FORBIDDEN_URN.getUrn()).put(DETAIL, FAILURE_MESSAGE + ", as policy doesn't belong to the user");
                         promise.fail(failureResponse.encode());
                     }
                 }

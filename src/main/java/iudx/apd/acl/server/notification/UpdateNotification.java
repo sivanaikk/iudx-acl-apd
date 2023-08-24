@@ -143,25 +143,27 @@ public class UpdateNotification {
 
         Tuple tuple = Tuple.of(getExpiryAt(), constraints, notificationId, getOwnerId());
         executeQuery(query, tuple, handler -> {
-
-            JsonObject result = handler.result().getJsonArray(RESULT).getJsonObject(0);
-            boolean isResponseEmpty = result.isEmpty();
-            /* if the id is not returned back after execution, then record is not inserted*/
-            if (isResponseEmpty) {
-                LOG.error("Could not update request table while approving the request as  : {}", handler.cause().getMessage());
-                JsonObject failureMessage = new JsonObject()
-                        .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
-                        .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
-                        .put(DETAIL, "Failure while executing query");
-                promise.fail(failureMessage.encode());
+            if(handler.succeeded()){
+                JsonArray result = handler.result().getJsonArray(RESULT);
+                boolean isResponseEmpty = result.isEmpty();
+                /* if the id is not returned back after execution, then record is not inserted*/
+                if (isResponseEmpty) {
+                    LOG.error("Could not update request table while approving the request");
+                    JsonObject failureMessage = new JsonObject()
+                            .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
+                            .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
+                            .put(DETAIL, "Failure while executing query");
+                    promise.fail(failureMessage.encode());
+                } else {
+                    JsonObject successResponse = new JsonObject()
+                            .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
+                            .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
+                            .put(RESULT, "Request successfully approved!")
+                            .put(STATUS_CODE, SUCCESS.getValue());
+                    promise.complete(successResponse);
+                }
             } else {
-
-                JsonObject successResponse = new JsonObject()
-                        .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
-                        .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
-                        .put(RESULT, "Request successfully approved!")
-                        .put(STATUS_CODE, SUCCESS.getValue());
-                promise.complete(successResponse);
+                promise.fail(handler.cause().getMessage());
             }
         });
         return promise.future();
@@ -222,7 +224,7 @@ public class UpdateNotification {
                 boolean isResponseEmpty = result.isEmpty();
                 /* if the id is not returned back after execution, then record is not inserted*/
                 if (isResponseEmpty) {
-                    LOG.error("Could not insert in approved request access table as  : {}", handler.cause().getMessage());
+                    LOG.error("Could not insert in approved request access table");
                     JsonObject failureMessage = new JsonObject()
                             .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
                             .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
@@ -251,7 +253,7 @@ public class UpdateNotification {
         Tuple tuple = Tuple.of(getItemId(), getOwnerId());
         executeQuery(query, tuple, handler -> {
             if (handler.succeeded()) {
-                JsonObject result = handler.result().getJsonArray(RESULT).getJsonObject(0);
+                JsonArray result = handler.result().getJsonArray(RESULT);
                 boolean isResponseEmpty = result.isEmpty();
                 /* if there are no records of a given item belonging the given provider, then ownership check failed*/
                 if (isResponseEmpty) {
@@ -263,6 +265,8 @@ public class UpdateNotification {
                 } else {
                     promise.complete(true);
                 }
+            }else {
+                promise.fail(handler.cause().getMessage());
             }
         });
         return promise.future();

@@ -29,6 +29,7 @@ import static iudx.apd.acl.server.Utility.generateRandomString;
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.common.HttpStatusCode.*;
 import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
+import static iudx.apd.acl.server.common.ResponseUrn.POLICY_ALREADY_EXIST_URN;
 import static iudx.apd.acl.server.notification.util.Constants.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -183,7 +184,6 @@ public class TestUpdateNotifications {
     @Test
     @DisplayName("Test PUT notification by rejecting the request : Success")
     public void testUpdateRejectedNotification(VertxTestContext vertxTestContext) {
-        // TODO : create another request
         JsonObject jsonObject = new JsonObject()
                 .put("userId", utility.getOwnerId())
                 .put("userRole", "provider")
@@ -282,7 +282,7 @@ public class TestUpdateNotifications {
             } else {
                 JsonObject failureMessage = new JsonObject()
                         .put(TYPE, HttpStatusCode.FORBIDDEN.getValue())
-                        .put(TITLE, HttpStatusCode.FORBIDDEN.getUrn())
+                        .put(TITLE, ResponseUrn.FORBIDDEN_URN.getUrn())
                         .put(DETAIL, "Request could not be granted or rejected, as it is doesn't belong to the user");
                 assertEquals(failureMessage.encode(), handler.cause().getMessage());
                 vertxTestContext.completeNow();
@@ -424,7 +424,7 @@ public class TestUpdateNotifications {
                     } else {
                         JsonObject failureMessage = new JsonObject()
                                 .put(TYPE, HttpStatusCode.CONFLICT.getValue())
-                                .put(TITLE, HttpStatusCode.CONFLICT.getUrn())
+                                .put(TITLE, POLICY_ALREADY_EXIST_URN.getUrn())
                                 .put(DETAIL, "Request cannot be approved as, policy is previously created");
                         assertEquals(failureMessage.encode(), handler.cause().getMessage());
                         vertxTestContext.completeNow();
@@ -516,7 +516,108 @@ public class TestUpdateNotifications {
         });
     }
 
+    @Test
+    @DisplayName("Test checkOwner4GivenResource when the owner is invalid")
+    public void testCheckOwner4GivenResource(VertxTestContext vertxTestContext)
+    {
+        updateNotification.setOwnerId(UUID.randomUUID());
+        updateNotification.checkOwner4GivenResource(OWNERSHIP_CHECK_QUERY)
+                .onComplete(handler -> {
+                    if(handler.succeeded()){
+                        vertxTestContext.failNow("Succeeded for invalid owner");
+                    }
+                    else
+                    {
+                        JsonObject failureMessage = new JsonObject()
+                                .put(TYPE, FORBIDDEN.getValue())
+                                .put(TITLE, FORBIDDEN.getUrn())
+                                .put(DETAIL, "Request cannot be approved, as the resource does not belong to the provider");
+                        assertEquals(failureMessage.encode(), handler.cause().getMessage());
+                        vertxTestContext.completeNow();
+                    }
+                });
+    }
 
+    @Test
+    @DisplayName("Test insertInApprovedAccessRequest method when the response from the DB is empty")
+    public void testInsertInApprovedAccessRequest(VertxTestContext vertxTestContext)
+    {
+        updateNotification.setPolicyId(UUID.randomUUID());
+        JsonObject approveNotification = new JsonObject()
+                .put("requestId", requestId)
+                .put("status", "granted")
+                .put("expiryAt", expiryTime)
+                .put("constraints", "constraints");
+        updateNotification.insertInApprovedAccessRequest(approveNotification, INSERT_IN_APPROVED_ACCESS_REQUESTS_QUERY).onComplete(handler -> {
+            if(handler.succeeded())
+            {
+                vertxTestContext.failNow("Succeeded with invalid requestId and while Database throws an error");
+            }
+            else
+            {
+                JsonObject failureMessage = new JsonObject()
+                        .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
+                        .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
+                        .put(DETAIL, "Failure while executing query");
+                assertEquals(failureMessage.encode(), handler.cause().getMessage());
+                vertxTestContext.completeNow();
+            }
+        });
+    }
+
+    @Test
+    @DisplayName("Test approveNotification method when the response from the DB is empty")
+    public void testApproveNotification(VertxTestContext vertxTestContext)
+    {
+        JsonObject approveNotification = new JsonObject()
+                .put("requestId", UUID.randomUUID())
+                .put("status", "granted")
+                .put("expiryAt", expiryTime)
+                .put("constraints", constraints);
+        updateNotification.approveNotification(approveNotification, APPROVE_REQUEST_QUERY).onComplete(handler -> {
+            if(handler.succeeded())
+            {
+                vertxTestContext.failNow("Succeeded with invalid requestId and while Database throws an error");
+            }
+            else
+            {
+                JsonObject failureMessage = new JsonObject()
+                        .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
+                        .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
+                        .put(DETAIL, "Failure while executing query");
+                assertEquals(failureMessage.encode(), handler.cause().getMessage());
+                vertxTestContext.completeNow();
+            }
+        });
+    }
+
+
+    @Test
+    @DisplayName("Test createPolicy method when the response from the DB is empty")
+    public void testCreatePolicy(VertxTestContext vertxTestContext)
+    {
+        updateNotification.setOwnerId(consumerId);
+        JsonObject approveNotification = new JsonObject()
+                .put("requestId", UUID.randomUUID())
+                .put("status", "granted")
+                .put("expiryAt", expiryTime)
+                .put("constraints", constraints);
+        updateNotification.createPolicy(approveNotification, CREATE_POLICY_QUERY).onComplete(handler -> {
+            if(handler.succeeded())
+            {
+                vertxTestContext.failNow("Succeeded with invalid ownerId and while Database throws an error");
+            }
+            else
+            {
+                JsonObject failureMessage = new JsonObject()
+                        .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
+                        .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
+                        .put(DETAIL, "Failure while executing query");
+                assertEquals(failureMessage.encode(), handler.cause().getMessage());
+                vertxTestContext.completeNow();
+            }
+        });
+    }
 }
 
 

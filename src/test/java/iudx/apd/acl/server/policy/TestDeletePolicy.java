@@ -95,7 +95,7 @@ public class TestDeletePolicy {
                             } else {
                                 JsonObject result = new JsonObject(handler.cause().getMessage());
                                 assertEquals(HttpStatusCode.NOT_FOUND.getValue(), result.getInteger(TYPE));
-                                assertEquals(HttpStatusCode.NOT_FOUND.getUrn(), result.getString(TITLE));
+                                assertEquals(ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn(), result.getString(TITLE));
                                 assertEquals("Policy could not be deleted, as policy is not found", result.getString(DETAIL));
                                 vertxTestContext.completeNow();
                             }

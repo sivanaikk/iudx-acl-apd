@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
+import static iudx.apd.acl.server.common.ResponseUrn.POLICY_ALREADY_EXIST_URN;
 import static iudx.apd.acl.server.notification.util.Constants.*;
 
 
@@ -220,7 +221,7 @@ public class CreateNotification {
                     /* An active policy for the consumer is present */ {
                     JsonObject failureMessage = new JsonObject()
                             .put(TYPE, HttpStatusCode.CONFLICT.getValue())
-                            .put(TITLE, HttpStatusCode.CONFLICT.getUrn())
+                            .put(TITLE, POLICY_ALREADY_EXIST_URN.getUrn())
                             .put(DETAIL, FAILURE_MESSAGE + ", as a policy is already present");
                     promise.fail(failureMessage.encode());
                 }
@@ -256,7 +257,7 @@ public class CreateNotification {
                     /* A notification was created previously by the consumer and is in PENDING status */
                     JsonObject failureResponse = new JsonObject()
                             .put(TYPE, HttpStatusCode.CONFLICT.getValue())
-                            .put(TITLE, HttpStatusCode.CONFLICT.getUrn())
+                            .put(TITLE, POLICY_ALREADY_EXIST_URN.getUrn())
                             .put(DETAIL, FAILURE_MESSAGE + ", as a request for the given resource has been previously made");
                     promise.fail(failureResponse.encode());
                 }
@@ -390,7 +391,7 @@ public class CreateNotification {
             LOG.error("Failure while executing the query : {}", failureHandler.getMessage());
             JsonObject response = new JsonObject()
                     .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
-                    .put(TITLE, ResponseUrn.DB_ERROR_URN.getMessage())
+                    .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
                     .put(DETAIL, "Failure while executing query");
             handler.handle(Future.failedFuture(response.encode()));
         });
