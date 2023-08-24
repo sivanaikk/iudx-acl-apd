@@ -101,7 +101,7 @@ public class CreatePolicy {
             .onFailure(
               existingIdFailureHandler -> {
                 LOGGER.error(
-                  "checkUserExist db fail {}",
+                  "checkForItemsInDb db fail {}",
                   existingIdFailureHandler.getLocalizedMessage());
                 promise.fail(
                   generateErrorResponse(
@@ -164,7 +164,7 @@ public class CreatePolicy {
             .executeBatch(batch)
             .onFailure(
               dbHandler -> {
-                LOGGER.error("checkUserExist db fail " + dbHandler.getLocalizedMessage());
+                LOGGER.error("insertItemsIntoDb db fail " + dbHandler.getLocalizedMessage());
               })
             .onSuccess(
               dbSuccessHandler -> {
