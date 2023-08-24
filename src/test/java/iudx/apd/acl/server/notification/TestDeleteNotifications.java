@@ -176,7 +176,7 @@ public class TestDeleteNotifications {
             } else {
                 JsonObject result = new JsonObject(handler.cause().getMessage());
                 assertEquals(500, result.getInteger(TYPE));
-                assertEquals(ResponseUrn.DB_ERROR_URN.getMessage(), result.getString(TITLE));
+                assertEquals(ResponseUrn.DB_ERROR_URN.getUrn(), result.getString(TITLE));
                 assertEquals("Failure while executing query", result.getString(DETAIL));
                 vertxTestContext.completeNow();
             }
@@ -287,7 +287,7 @@ public class TestDeleteNotifications {
                     } else {
                         JsonObject result = new JsonObject(handler.cause().getMessage());
                         assertEquals(500, result.getInteger(TYPE));
-                        assertEquals(ResponseUrn.DB_ERROR_URN.getMessage(), result.getString(TITLE));
+                        assertEquals(ResponseUrn.DB_ERROR_URN.getUrn(), result.getString(TITLE));
                         assertEquals("Failure while executing query", result.getString(DETAIL));
                         vertxTestContext.completeNow();
                     }

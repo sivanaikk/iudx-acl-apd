@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.apiserver.util.RequestStatus.PENDING;
 import static iudx.apd.acl.server.common.HttpStatusCode.*;
+import static iudx.apd.acl.server.common.ResponseUrn.RESOURCE_NOT_FOUND_URN;
 import static iudx.apd.acl.server.notification.util.Constants.*;
 
 public class UpdateNotification {
@@ -118,7 +119,7 @@ public class UpdateNotification {
             default: {
                 JsonObject failureMessage = new JsonObject()
                         .put(TYPE, BAD_REQUEST.getValue())
-                        .put(TITLE, ResponseUrn.BAD_REQUEST_URN)
+                        .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getUrn())
                         .put(DETAIL, "Invalid request status, request can be either rejected or granted");
                 return Future.failedFuture(failureMessage.encode());
             }
@@ -142,6 +143,7 @@ public class UpdateNotification {
 
         Tuple tuple = Tuple.of(getExpiryAt(), constraints, notificationId, getOwnerId());
         executeQuery(query, tuple, handler -> {
+
             JsonObject result = handler.result().getJsonArray(RESULT).getJsonObject(0);
             boolean isResponseEmpty = result.isEmpty();
             /* if the id is not returned back after execution, then record is not inserted*/
@@ -149,7 +151,7 @@ public class UpdateNotification {
                 LOG.error("Could not update request table while approving the request as  : {}", handler.cause().getMessage());
                 JsonObject failureMessage = new JsonObject()
                         .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
-                        .put(TITLE, ResponseUrn.DB_ERROR_URN.getMessage())
+                        .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
                         .put(DETAIL, "Failure while executing query");
                 promise.fail(failureMessage.encode());
             } else {
@@ -215,18 +217,23 @@ public class UpdateNotification {
         UUID notificationId = UUID.fromString(notification.getString("requestId"));
         Tuple tuple = Tuple.of(id, notificationId, getPolicyId());
         executeQuery(query, tuple, handler -> {
-            JsonObject result = handler.result().getJsonArray(RESULT).getJsonObject(0);
-            boolean isResponseEmpty = result.isEmpty();
-            /* if the id is not returned back after execution, then record is not inserted*/
-            if (isResponseEmpty) {
-                LOG.error("Could not insert in approved request access table as  : {}", handler.cause().getMessage());
-                JsonObject failureMessage = new JsonObject()
-                        .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
-                        .put(TITLE, ResponseUrn.DB_ERROR_URN.getMessage())
-                        .put(DETAIL, "Failure while executing query");
-                promise.fail(failureMessage.encode());
-            } else {
-                promise.complete(true);
+            if(handler.succeeded()){
+                JsonObject result = handler.result().getJsonArray(RESULT).getJsonObject(0);
+                boolean isResponseEmpty = result.isEmpty();
+                /* if the id is not returned back after execution, then record is not inserted*/
+                if (isResponseEmpty) {
+                    LOG.error("Could not insert in approved request access table as  : {}", handler.cause().getMessage());
+                    JsonObject failureMessage = new JsonObject()
+                            .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
+                            .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
+                            .put(DETAIL, "Failure while executing query");
+                    promise.fail(failureMessage.encode());
+                } else {
+                    promise.complete(true);
+                }
+            }else
+            {
+                promise.fail(handler.cause().getMessage());
             }
         });
         return promise.future();
@@ -280,7 +287,7 @@ public class UpdateNotification {
         }catch (DecodeException exception){
             LOG.error("Error : {}", exception.getMessage());
             JsonObject failureMessage = new JsonObject()
-                    .put(TYPE, BAD_REQUEST)
+                    .put(TYPE, BAD_REQUEST.getValue())
                     .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getMessage())
                     .put(DETAIL, "Invalid constraints in the request body");
             return Future.failedFuture(failureMessage.encode());
@@ -299,11 +306,13 @@ public class UpdateNotification {
                         LOG.error("Could not create policy : {}", handler.cause().getMessage());
                         JsonObject failureMessage = new JsonObject()
                                 .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
-                                .put(TITLE, ResponseUrn.DB_ERROR_URN.getMessage())
+                                .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
                                 .put(DETAIL, "Failure while executing query");
 
                         promise.fail(failureMessage.encode());
                     }
+                }else {
+                    promise.fail(handler.cause().getMessage());
                 }
             });
             return promise.future();
@@ -326,7 +335,7 @@ public class UpdateNotification {
         if (dateTime.isBefore(LocalDateTime.now())) {
             JsonObject failureMessage = new JsonObject()
                     .put(TYPE, BAD_REQUEST.getValue())
-                    .put(TITLE, ResponseUrn.BAD_REQUEST_URN)
+                    .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getUrn())
                     .put(DETAIL, "Invalid expiry time, expiryAt could be greater than the present time");
             return Future.failedFuture(failureMessage.encode());
         }
@@ -408,7 +417,7 @@ public class UpdateNotification {
                 if (handler.result().getJsonArray(RESULT).isEmpty()) {
                     JsonObject response = new JsonObject();
                     response.put(TYPE, NOT_FOUND.getValue());
-                    response.put(TITLE, NOT_FOUND.getUrn());
+                    response.put(TITLE, RESOURCE_NOT_FOUND_URN.getUrn());
                     response.put(DETAIL, "Request could not be granted or rejected, as it is not found");
                     promise.fail(response.encode());
                 } else {
@@ -469,7 +478,7 @@ public class UpdateNotification {
                     JsonObject response = new JsonObject()
                             .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
                             .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
-                            .put(RESULT, "Request deleted successfully")
+                            .put(RESULT, "Request rejected successfully!")
                             .put(STATUS_CODE, SUCCESS.getValue());
                     promise.complete(response);
                 } else {
@@ -477,7 +486,7 @@ public class UpdateNotification {
                     JsonObject failureResponse = new JsonObject();
                     failureResponse.put(TYPE, BAD_REQUEST.getValue());
                     failureResponse.put(TITLE, BAD_REQUEST.getUrn());
-                    failureResponse.put(DETAIL, "Request could not be withdrawn, as it is expired");
+                    failureResponse.put(DETAIL, "Request could not be rejected, as it is expired");
                     promise.fail(failureResponse.encode());
                 }
             } else {
@@ -507,7 +516,7 @@ public class UpdateNotification {
             handler.handle(Future.succeededFuture(responseJson));
         }).onFailure(failureHandler -> {
             LOG.error("Failure while executing the query : {},{}", failureHandler.getMessage(), query);
-            JsonObject response = new JsonObject().put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue()).put(TITLE, ResponseUrn.DB_ERROR_URN.getMessage()).put(DETAIL, "Failure while executing query");
+            JsonObject response = new JsonObject().put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue()).put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn()).put(DETAIL, "Failure while executing query");
             handler.handle(Future.failedFuture(response.encode()));
         });
     }

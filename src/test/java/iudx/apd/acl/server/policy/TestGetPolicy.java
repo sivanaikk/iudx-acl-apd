@@ -127,7 +127,7 @@ public class TestGetPolicy {
                             } else {
                                 JsonObject result = new JsonObject(handler.cause().getMessage());
                                 assertEquals(500, result.getInteger(TYPE));
-                                assertEquals(ResponseUrn.DB_ERROR_URN.getMessage(), result.getString(TITLE));
+                                assertEquals(ResponseUrn.DB_ERROR_URN.getUrn(), result.getString(TITLE));
                                 assertEquals(
                                         "Policy could not be fetched, Failure while executing query",
                                         result.getString(DETAIL));
@@ -251,7 +251,7 @@ public class TestGetPolicy {
                             } else {
                                 JsonObject result = new JsonObject(handler.cause().getMessage());
                                 assertEquals(500, result.getInteger(TYPE));
-                                assertEquals(ResponseUrn.DB_ERROR_URN.getMessage(), result.getString(TITLE));
+                                assertEquals(ResponseUrn.DB_ERROR_URN.getUrn(), result.getString(TITLE));
                                 assertEquals(
                                         "Policy could not be fetched, Failure while executing query",
                                         result.getString(DETAIL));

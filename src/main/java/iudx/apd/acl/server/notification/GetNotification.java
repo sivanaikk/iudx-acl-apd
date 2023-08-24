@@ -20,7 +20,6 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
-import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
 import static iudx.apd.acl.server.notification.util.Constants.GET_CONSUMER_NOTIFICATION_QUERY;
 import static iudx.apd.acl.server.notification.util.Constants.GET_PROVIDER_NOTIFICATION_QUERY;
 
@@ -48,16 +47,8 @@ public class GetNotification {
             case CONSUMER:
                 return getUserNotification(user, GET_CONSUMER_NOTIFICATION_QUERY, Role.CONSUMER);
             case PROVIDER_DELEGATE:
-            case PROVIDER:
+            default:
                 return getUserNotification(user, GET_PROVIDER_NOTIFICATION_QUERY, Role.PROVIDER);
-            default: {
-                JsonObject response =
-                        new JsonObject()
-                                .put(TYPE, BAD_REQUEST.getValue())
-                                .put(TITLE, BAD_REQUEST.getUrn())
-                                .put(DETAIL, "Invalid role");
-                return Future.failedFuture(response.encode());
-            }
         }
     }
 
@@ -108,7 +99,7 @@ public class GetNotification {
      * @param role        user role
      * @return response returned from the query execution
      */
-    private Future<JsonObject> executeGetNotification(Tuple tuple, String query, JsonObject information, Role role) {
+    public Future<JsonObject> executeGetNotification(Tuple tuple, String query, JsonObject information, Role role) {
         Promise<JsonObject> promise = Promise.promise();
         Collector<Row, ?, List<JsonObject>> rowListCollector =
                 Collectors.mapping(row -> row.toJson(), Collectors.toList());
@@ -148,7 +139,7 @@ public class GetNotification {
                             } else {
                                 JsonObject response = new JsonObject()
                                         .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
-                                        .put(TITLE, ResponseUrn.DB_ERROR_URN.getMessage())
+                                        .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
                                         .put(DETAIL, FAILURE_MESSAGE + ", Failure while executing query");
                                 promise.fail(response.encode());
                                 LOG.error("Error response : {}", handler.cause().getMessage());

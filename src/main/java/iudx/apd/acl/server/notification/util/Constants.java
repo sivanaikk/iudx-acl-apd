@@ -19,7 +19,7 @@ public class Constants {
     public static final String CREATE_POLICY_QUERY =   "INSERT INTO policy(_id, user_emailid, item_id, item_type, owner_id, status, expiry_at, constraints) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING _id;";
     public static final String INSERT_IN_APPROVED_ACCESS_REQUESTS_QUERY = "INSERT INTO approved_access_requests(_id, request_id, policy_id) VALUES ($1, $2, $3) RETURNING _id";
     public static final String APPROVE_REQUEST_QUERY = "UPDATE request SET status = 'GRANTED', expiry_at = $1, constraints = $2 WHERE _id = $3 AND owner_id = $4 RETURNING _id";
-    public static final String INSERT_PROVIDER_INFO_QUERY = "INSERT INTO user_table (_id, email_id, first_name, last_name) VALUES ($1::uuid, $2, $3, $4) ON CONFLICT (_id) DO NOTHING;";
+    public static final String INSERT_USER_INFO_QUERY = "INSERT INTO user_table (_id, email_id, first_name, last_name) VALUES ($1::uuid, $2, $3, $4) ON CONFLICT (_id) DO NOTHING;";
     public static final String INSERT_RESOURCE_INFO_QUERY = "INSERT INTO resource_entity (_id, provider_id, resource_group_id) VALUES ($1::uuid, $2::uuid, $3::uuid) ON CONFLICT (_id) DO NOTHING;";
 
 
