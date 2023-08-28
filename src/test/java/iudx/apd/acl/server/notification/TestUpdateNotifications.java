@@ -508,7 +508,7 @@ public class TestUpdateNotifications {
             } else {
                 JsonObject failureMessage = new JsonObject()
                         .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
-                        .put(TITLE, INTERNAL_SERVER_ERROR.getUrn())
+                        .put(TITLE, ResponseUrn.INTERNAL_SERVER_ERROR.getUrn())
                         .put(DETAIL, "Request cannot be approved as, consumer is not found");
                 assertEquals(failureMessage.encode(),handler.cause().getMessage());
                 vertxTestContext.completeNow();

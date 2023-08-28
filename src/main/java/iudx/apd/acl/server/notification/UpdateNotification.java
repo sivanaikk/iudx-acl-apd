@@ -366,7 +366,7 @@ public class UpdateNotification {
                 if (result.isEmpty()) {
                     JsonObject failureMessage = new JsonObject()
                             .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
-                            .put(TITLE, INTERNAL_SERVER_ERROR.getUrn())
+                            .put(TITLE, ResponseUrn.INTERNAL_SERVER_ERROR.getUrn())
                             .put(DETAIL, "Request cannot be approved as, consumer is not found");
                     promise.fail(failureMessage.encode());
                 } else {

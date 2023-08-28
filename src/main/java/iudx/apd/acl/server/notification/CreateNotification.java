@@ -246,7 +246,7 @@ public class CreateNotification {
         Promise<Boolean> promise = Promise.promise();
         LOG.trace("inside checkIfValidNotificationExists method");
         UUID consumerId = UUID.fromString(user.getUserId());
-        Tuple tuple = Tuple.of(consumerId, resourceId, resourceType);
+        Tuple tuple = Tuple.of(consumerId, resourceId);
         executeQuery(query, tuple, handler -> {
             if(handler.succeeded()){
                 JsonArray result = handler.result().getJsonArray(RESULT);
@@ -292,7 +292,7 @@ public class CreateNotification {
                     /*notification id not returned*/
                     JsonObject failureMessage = new JsonObject()
                             .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
-                            .put(TITLE, INTERNAL_SERVER_ERROR.getUrn())
+                            .put(TITLE, ResponseUrn.INTERNAL_SERVER_ERROR.getUrn())
                             .put(DETAIL, FAILURE_MESSAGE);
                     promise.fail(failureMessage.encode());
                 } else {
@@ -338,9 +338,6 @@ public class CreateNotification {
                          .put("firstName", dummyProviderFirstName)
                          .put("lastName", dummyProviderLastName);
                 setProviderInfo(new User(providerInfo));
-
-                System.out.println("Provider ID is : " + ownerId);
-                System.out.println("resourceGroupId value is : " + resourceGroupIdValue);
                 promise.complete(true);
             } else {
                 if (handler.cause().getMessage().equalsIgnoreCase("Id/Ids does not present in CAT")) {
@@ -355,7 +352,7 @@ public class CreateNotification {
                     LOG.error("Failure while fetching item from CAT : {}", handler.cause().getMessage());
                     JsonObject failureMessage = new JsonObject()
                             .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
-                            .put(TITLE, INTERNAL_SERVER_ERROR.getUrn())
+                            .put(TITLE, ResponseUrn.INTERNAL_SERVER_ERROR.getUrn())
                             .put(DETAIL, FAILURE_MESSAGE);
                     promise.fail(failureMessage.encode());
                 }
