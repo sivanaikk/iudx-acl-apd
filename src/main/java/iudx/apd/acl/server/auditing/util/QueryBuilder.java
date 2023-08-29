@@ -1,8 +1,8 @@
-package iudx.apd.acl.server.metering.util;
+package iudx.apd.acl.server.auditing.util;
 
-import static iudx.apd.acl.server.metering.util.Constant.ORIGIN;
-import static iudx.apd.acl.server.metering.util.Constant.ORIGIN_SERVER;
-import static iudx.apd.acl.server.metering.util.Constant.PRIMARY_KEY;
+import static iudx.apd.acl.server.auditing.util.Constant.ORIGIN;
+import static iudx.apd.acl.server.auditing.util.Constant.ORIGIN_SERVER;
+import static iudx.apd.acl.server.auditing.util.Constant.PRIMARY_KEY;
 
 import io.vertx.core.json.JsonObject;
 import java.util.UUID;
