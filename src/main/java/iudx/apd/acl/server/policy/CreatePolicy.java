@@ -64,7 +64,7 @@ public class CreatePolicy {
             return checkExistingPoliciesForId(createPolicyRequestList, userId);
           } else {
             LOGGER.error("Item does not belong to the policy creator.");
-            return Future.failedFuture(generateErrorResponse(FORBIDDEN, "Ownership Error."));
+            return Future.failedFuture(generateErrorResponse(FORBIDDEN, "Access Denied: You do not have ownership rights for this resource."));
           }
         });
 
@@ -84,7 +84,11 @@ public class CreatePolicy {
               });
         });
 
-    insertPolicy.onSuccess(promise::complete).onFailure(promise::fail);
+    insertPolicy.onSuccess(promise::complete).onFailure(failure->{
+      LOGGER.info("HERE "+failure.getLocalizedMessage());
+
+      promise.fail(failure.getLocalizedMessage());
+    });
     return promise.future();
   }
 
@@ -131,6 +135,7 @@ public class CreatePolicy {
                       })
                     .onFailure(
                       insertItemsFailureHandler -> {
+                        LOGGER.info("YE FAIL");
                         promise.fail(
                           generateErrorResponse(
                             BAD_REQUEST, BAD_REQUEST.getDescription()));
