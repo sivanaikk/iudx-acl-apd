@@ -1,4 +1,4 @@
-package iudx.apd.acl.server.metering.databroker;
+package iudx.apd.acl.server.auditing.databroker;
 
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;

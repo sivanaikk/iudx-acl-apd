@@ -1,7 +1,7 @@
-package iudx.apd.acl.server.metering.util;
+package iudx.apd.acl.server.auditing.util;
 
 public class Constant {
-  public static final String METERING_SERVICE_ADDRESS = "iudx.apd.acl.server.metering";
+  public static final String METERING_SERVICE_ADDRESS = "iudx.apd.acl.server.auditing";
   public static final String USERNAME = "userName";
   public static final String PASSWORD = "password";
   public static final String PRIMARY_KEY = "primaryKey";
