@@ -18,26 +18,26 @@ public class Constants {
   public static final String HEADER_REFERER = "Referer";
   public static final String HEADER_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
   public static final Set<String> ALLOWED_HEADERS =
-          new HashSet<>(
-                  Arrays.asList(
-                          HEADER_ACCEPT,
-                          HEADER_TOKEN,
-                          HEADER_CONTENT_LENGTH,
-                          HEADER_CONTENT_TYPE,
-                          HEADER_HOST,
-                          HEADER_ORIGIN,
-                          HEADER_REFERER,
-                          HEADER_ALLOW_ORIGIN));
+      new HashSet<>(
+          Arrays.asList(
+              HEADER_ACCEPT,
+              HEADER_TOKEN,
+              HEADER_CONTENT_LENGTH,
+              HEADER_CONTENT_TYPE,
+              HEADER_HOST,
+              HEADER_ORIGIN,
+              HEADER_REFERER,
+              HEADER_ALLOW_ORIGIN));
 
   public static final Set<HttpMethod> ALLOWED_METHODS =
-          new HashSet<>(
-                  Arrays.asList(
-                          HttpMethod.GET,
-                          HttpMethod.POST,
-                          HttpMethod.OPTIONS,
-                          HttpMethod.DELETE,
-                          HttpMethod.PATCH,
-                          HttpMethod.PUT));
+      new HashSet<>(
+          Arrays.asList(
+              HttpMethod.GET,
+              HttpMethod.POST,
+              HttpMethod.OPTIONS,
+              HttpMethod.DELETE,
+              HttpMethod.PATCH,
+              HttpMethod.PUT));
   // request/response params
   public static final String ID = "id";
   public static final String CONTENT_TYPE = "content-type";
@@ -58,22 +58,18 @@ public class Constants {
   public static final String POLICIES_API = "/policies";
   public static final String REQUEST_POLICY_API = "/policies/requests";
 
-
   // validation
   public static final int POLICY_ID_MAX_LENGTH = 4000;
   public static final Pattern POLICY_ID_PATTERN =
-          Pattern.compile(
-                  "[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$");
+      Pattern.compile("[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$");
 
   //  //operation ids
-    public static final String GET_POLICY_API = "get-auth-v1-policies";
-    public static final String DELETE_POLICY_API = "delete-auth-v1-policies";
-    public static final String CREATE_POLICY_API = "post-auth-v1-policies";
-    public static final String GET_NOTIFICATIONS_API = "get-auth-v1-policies-requests";
-    public static final String CREATE_NOTIFICATIONS_API = "post-auth-v1-policies-requests";
-    public static final String UPDATE_NOTIFICATIONS_API = "put-auth-v1-policies-requests";
-    public static final String DELETE_NOTIFICATIONS_API = "delete-auth-v1-policies-requests";
-    public static final String VERIFY_API = "get-auth-v1-verify";
-
-
+  public static final String GET_POLICY_API = "get-auth-v1-policies";
+  public static final String DELETE_POLICY_API = "delete-auth-v1-policies";
+  public static final String CREATE_POLICY_API = "post-auth-v1-policies";
+  public static final String GET_NOTIFICATIONS_API = "get-auth-v1-policies-requests";
+  public static final String CREATE_NOTIFICATIONS_API = "post-auth-v1-policies-requests";
+  public static final String UPDATE_NOTIFICATIONS_API = "put-auth-v1-policies-requests";
+  public static final String DELETE_NOTIFICATIONS_API = "delete-auth-v1-policies-requests";
+  public static final String VERIFY_API = "get-auth-v1-verify";
 }
