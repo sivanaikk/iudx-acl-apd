@@ -1,22 +1,22 @@
-package iudx.apd.acl.server.metering;
+package iudx.apd.acl.server.auditing;
 
-import static iudx.apd.acl.server.metering.util.Constant.EXCHANGE_NAME;
-import static iudx.apd.acl.server.metering.util.Constant.ROUTING_KEY;
+import static iudx.apd.acl.server.auditing.util.Constant.EXCHANGE_NAME;
+import static iudx.apd.acl.server.auditing.util.Constant.ROUTING_KEY;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
-import iudx.apd.acl.server.metering.databroker.DataBrokerService;
-import iudx.apd.acl.server.metering.util.QueryBuilder;
+import iudx.apd.acl.server.auditing.databroker.DataBrokerService;
+import iudx.apd.acl.server.auditing.util.QueryBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class MeteringServiceImpl implements MeteringService {
-  private static final Logger LOGGER = LogManager.getLogger(MeteringServiceImpl.class);
+public class AuditingServiceImpl implements AuditingService {
+  private static final Logger LOGGER = LogManager.getLogger(AuditingServiceImpl.class);
   private DataBrokerService dataBrokerService;
   private QueryBuilder queryBuilder = new QueryBuilder();
 
-  public MeteringServiceImpl(DataBrokerService dataBrokerService) {
+  public AuditingServiceImpl(DataBrokerService dataBrokerService) {
     this.dataBrokerService = dataBrokerService;
   }
 
@@ -25,7 +25,7 @@ public class MeteringServiceImpl implements MeteringService {
    * @return
    */
   @Override
-  public Future<Void> insertMeteringValuesInRmq(JsonObject request) {
+  public Future<Void> insertAuditlogIntoRmq(JsonObject request) {
     Promise<Void> promise = Promise.promise();
     JsonObject writeMessage = queryBuilder.buildMessageForRmq(request);
     LOGGER.info("write message =  {}", writeMessage);

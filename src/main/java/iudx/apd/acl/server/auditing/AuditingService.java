@@ -1,4 +1,4 @@
-package iudx.apd.acl.server.metering;
+package iudx.apd.acl.server.auditing;
 
 import io.vertx.codegen.annotations.GenIgnore;
 import io.vertx.codegen.annotations.ProxyGen;
@@ -9,11 +9,11 @@ import io.vertx.core.json.JsonObject;
 
 @ProxyGen
 @VertxGen
-public interface MeteringService {
+public interface AuditingService {
   @GenIgnore
-  static MeteringService createProxy(Vertx vertx, String address) {
-    return new MeteringServiceVertxEBProxy(vertx, address);
+  static AuditingService createProxy(Vertx vertx, String address) {
+    return new AuditingServiceVertxEBProxy(vertx, address);
   }
 
-  Future<Void> insertMeteringValuesInRmq(JsonObject request);
+  Future<Void> insertAuditlogIntoRmq(JsonObject request);
 }
