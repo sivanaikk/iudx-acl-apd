@@ -1,11 +1,11 @@
 package iudx.apd.acl.server.notification;
 
+import static iudx.apd.acl.server.common.Constants.NOTIFICATION_SERVICE_ADDRESS;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.serviceproxy.ServiceBinder;
 import iudx.apd.acl.server.policy.CatalogueClient;
 import iudx.apd.acl.server.policy.PostgresService;
-
-import static iudx.apd.acl.server.common.Constants.NOTIFICATION_SERVICE_ADDRESS;
 
 public class NotificationVerticle extends AbstractVerticle {
   private DeleteNotification deleteNotification;

@@ -1,5 +1,10 @@
 package iudx.apd.acl.server.policy;
 
+import static iudx.apd.acl.server.apiserver.util.Constants.*;
+import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
+import static iudx.apd.acl.server.policy.util.Constants.CHECK_IF_POLICY_PRESENT_QUERY;
+import static iudx.apd.acl.server.policy.util.Constants.DELETE_POLICY_QUERY;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -12,18 +17,12 @@ import io.vertx.sqlclient.Tuple;
 import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
-import static iudx.apd.acl.server.apiserver.util.Constants.*;
-import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
-import static iudx.apd.acl.server.policy.util.Constants.CHECK_IF_POLICY_PRESENT_QUERY;
-import static iudx.apd.acl.server.policy.util.Constants.DELETE_POLICY_QUERY;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DeletePolicy {
   private static final Logger LOG = LoggerFactory.getLogger(DeletePolicy.class);
@@ -154,10 +153,10 @@ public class DeletePolicy {
               promise.fail(failureResponse.encode());
             } else {
               JsonObject result = handler.result().getJsonArray(RESULT).getJsonObject(0);
-              String owner_id = result.getString("owner_id");
+              String ownerIdValue = result.getString("owner_id");
               String status = result.getString("status");
               /* does the policy belong to the owner who is requesting */
-              if (owner_id.equals(ownerId)) {
+              if (ownerIdValue.equals(ownerId)) {
                 /* is policy in ACTIVE status */
                 if (status.equals("ACTIVE")) {
                   LOG.info("Success : policy verified");

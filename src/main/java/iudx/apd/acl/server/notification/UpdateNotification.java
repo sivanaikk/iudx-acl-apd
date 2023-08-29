@@ -1,5 +1,11 @@
 package iudx.apd.acl.server.notification;
 
+import static iudx.apd.acl.server.apiserver.util.Constants.*;
+import static iudx.apd.acl.server.apiserver.util.RequestStatus.PENDING;
+import static iudx.apd.acl.server.common.HttpStatusCode.*;
+import static iudx.apd.acl.server.common.ResponseUrn.RESOURCE_NOT_FOUND_URN;
+import static iudx.apd.acl.server.notification.util.Constants.*;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -15,9 +21,6 @@ import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.policy.PostgresService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -25,12 +28,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
-import static iudx.apd.acl.server.apiserver.util.Constants.*;
-import static iudx.apd.acl.server.apiserver.util.RequestStatus.PENDING;
-import static iudx.apd.acl.server.common.HttpStatusCode.*;
-import static iudx.apd.acl.server.common.ResponseUrn.RESOURCE_NOT_FOUND_URN;
-import static iudx.apd.acl.server.notification.util.Constants.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UpdateNotification {
   private static final Logger LOG = LoggerFactory.getLogger(UpdateNotification.class);
@@ -69,75 +68,65 @@ public class UpdateNotification {
     } catch (Exception e) {
       LOG.error("Exception is {}", e.getMessage());
     }
-
+    /* check if the request is valid */
+    Future<Boolean> checkNotificationFuture =
+        checkValidityOfRequest(GET_REQUEST, notificationId, user);
     switch (status) {
       case REJECTED:
-        {
-          /* check if the request is valid */
-          Future<Boolean> checkNotificationFuture =
-              checkValidityOfRequest(GET_REQUEST, notificationId, user);
-          Future<JsonObject> rejectedNotificationFuture =
-              checkNotificationFuture.compose(
-                  isNotificationValid -> {
-                    if (isNotificationValid) {
-                      return updateRejectedNotification(REJECT_NOTIFICATION, notificationId);
-                    }
-                    return Future.failedFuture(checkNotificationFuture.cause().getMessage());
-                  });
-          return rejectedNotificationFuture;
-        }
+        Future<JsonObject> rejectedNotificationFuture =
+            checkNotificationFuture.compose(
+                isNotificationValid -> {
+                  if (isNotificationValid) {
+                    return updateRejectedNotification(REJECT_NOTIFICATION, notificationId);
+                  }
+                  return Future.failedFuture(checkNotificationFuture.cause().getMessage());
+                });
+        return rejectedNotificationFuture;
       case GRANTED:
-        {
-          Future<Boolean> checkNotificationFuture =
-              checkValidityOfRequest(GET_REQUEST, notificationId, user);
+        /* checks the expiry time present in the request body is greater than the present time */
+        Future<Boolean> verifiedExpiryTimeFuture =
+            checkNotificationFuture.compose(
+                isNotificationValid -> {
+                  if (isNotificationValid) {
+                    return checkExpiryTime(notification);
+                  }
+                  return Future.failedFuture(checkNotificationFuture.cause().getMessage());
+                });
+        /* Checks if a policy already exists in the policy table */
+        Future<Boolean> verifyPolicyExistsFuture =
+            verifiedExpiryTimeFuture.compose(
+                isExpiryAtValid -> {
+                  if (isExpiryAtValid) {
+                    return checkIfPolicyExists(GET_EXISTING_POLICY_QUERY);
+                  }
+                  return Future.failedFuture(verifiedExpiryTimeFuture.cause().getMessage());
+                });
 
-          /* checks the expiry time present in the request body is greater than the present time */
-          Future<Boolean> verifiedExpiryTimeFuture =
-              checkNotificationFuture.compose(
-                  isNotificationValid -> {
-                    if (isNotificationValid) {
-                      return checkExpiryTime(notification);
-                    }
-                    return Future.failedFuture(checkNotificationFuture.cause().getMessage());
-                  });
-          /* Checks if a policy already exists in the policy table */
-          Future<Boolean> verifyPolicyExistsFuture =
-              verifiedExpiryTimeFuture.compose(
-                  isExpiryAtValid -> {
-                    if (isExpiryAtValid) {
-                      return checkIfPolicyExists(GET_EXISTING_POLICY_QUERY);
-                    }
-                    return Future.failedFuture(verifiedExpiryTimeFuture.cause().getMessage());
-                  });
-
-          /* checks if the resource belongs to the provider */
-          Future<Boolean> ownershipCheckFuture =
-              verifyPolicyExistsFuture.compose(
-                  isPolicyExisting -> {
-                    if (isPolicyExisting) {
-                      return Future.failedFuture(verifyPolicyExistsFuture.cause().getMessage());
-                    }
-                    return checkOwner4GivenResource(OWNERSHIP_CHECK_QUERY);
-                  });
-          Future<JsonObject> approvedRequestFuture =
-              ownershipCheckFuture.compose(
-                  ownerOwningTheResource -> {
-                    if (ownerOwningTheResource) {
-                      return initiateTransactions(notification);
-                    }
-                    return Future.failedFuture(ownershipCheckFuture.cause().getMessage());
-                  });
-          return approvedRequestFuture;
-        }
+        /* checks if the resource belongs to the provider */
+        Future<Boolean> ownershipCheckFuture =
+            verifyPolicyExistsFuture.compose(
+                isPolicyExisting -> {
+                  if (isPolicyExisting) {
+                    return Future.failedFuture(verifyPolicyExistsFuture.cause().getMessage());
+                  }
+                  return checkOwner4GivenResource(OWNERSHIP_CHECK_QUERY);
+                });
+        Future<JsonObject> approvedRequestFuture =
+            ownershipCheckFuture.compose(
+                ownerOwningTheResource -> {
+                  if (ownerOwningTheResource) {
+                    return initiateTransactions(notification);
+                  }
+                  return Future.failedFuture(ownershipCheckFuture.cause().getMessage());
+                });
+        return approvedRequestFuture;
       default:
-        {
-          JsonObject failureMessage =
-              new JsonObject()
-                  .put(TYPE, BAD_REQUEST.getValue())
-                  .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getUrn())
-                  .put(DETAIL, "Invalid request status, request can be either rejected or granted");
-          return Future.failedFuture(failureMessage.encode());
-        }
+        JsonObject failureMessage =
+            new JsonObject()
+                .put(TYPE, BAD_REQUEST.getValue())
+                .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getUrn())
+                .put(DETAIL, "Invalid request status, request can be either rejected or granted");
+        return Future.failedFuture(failureMessage.encode());
     }
   }
 
@@ -375,6 +364,7 @@ public class UpdateNotification {
         });
     return promise.future();
   }
+
   /**
    * Checks if the expiryAt value given the request body of the PUT Notification, is greater than
    * the present time
@@ -582,7 +572,7 @@ public class UpdateNotification {
    *
    * @param query to be executes
    * @param tuple exchangeable values to be added in the query
-   * @param handler
+   * @param handler AsyncResult JsonObject handler
    */
   public void executeQuery(String query, Tuple tuple, Handler<AsyncResult<JsonObject>> handler) {
     LOG.trace("inside executeQuery method");

@@ -1,5 +1,10 @@
 package iudx.apd.acl.server.notification;
 
+import static iudx.apd.acl.server.apiserver.util.Constants.*;
+import static iudx.apd.acl.server.common.HttpStatusCode.*;
+import static iudx.apd.acl.server.notification.util.Constants.GET_REQUEST;
+import static iudx.apd.acl.server.notification.util.Constants.WITHDRAW_REQUEST;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -13,18 +18,12 @@ import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.policy.PostgresService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
-import static iudx.apd.acl.server.apiserver.util.Constants.*;
-import static iudx.apd.acl.server.common.HttpStatusCode.*;
-import static iudx.apd.acl.server.notification.util.Constants.GET_REQUEST;
-import static iudx.apd.acl.server.notification.util.Constants.WITHDRAW_REQUEST;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DeleteNotification {
   private static final Logger LOG = LoggerFactory.getLogger(DeleteNotification.class);
@@ -172,7 +171,7 @@ public class DeleteNotification {
    *
    * @param query to be executes
    * @param tuple exchangeable values to be added in the query
-   * @param handler
+   * @param handler AsyncResult JsonObject handler
    */
   public void executeQuery(String query, Tuple tuple, Handler<AsyncResult<JsonObject>> handler) {
 

@@ -14,7 +14,7 @@ public class PostgresService {
 
   public PostgresService(JsonObject config, Vertx vertx) {
     /* Database Properties */
-    String databaseIP = config.getString("databaseIP");
+    String databaseIp = config.getString("databaseIP");
     int databasePort = config.getInteger("databasePort");
     String databaseName = config.getString("databaseName");
     String databaseUserName = config.getString("databaseUserName");
@@ -25,7 +25,7 @@ public class PostgresService {
     PgConnectOptions connectOptions =
         new PgConnectOptions()
             .setPort(databasePort)
-            .setHost(databaseIP)
+            .setHost(databaseIp)
             .setDatabase(databaseName)
             .setUser(databaseUserName)
             .setPassword(databasePassword)

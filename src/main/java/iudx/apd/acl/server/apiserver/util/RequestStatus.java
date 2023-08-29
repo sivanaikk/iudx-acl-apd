@@ -1,10 +1,9 @@
 package iudx.apd.acl.server.apiserver.util;
 
-import iudx.apd.acl.server.validation.exceptions.DxRuntimeException;
-
-import java.util.stream.Stream;
-
 import static iudx.apd.acl.server.common.ResponseUrn.RESOURCE_NOT_FOUND_URN;
+
+import iudx.apd.acl.server.validation.exceptions.DxRuntimeException;
+import java.util.stream.Stream;
 
 public enum RequestStatus {
   REJECTED("rejected"),

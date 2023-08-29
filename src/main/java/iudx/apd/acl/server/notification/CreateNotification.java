@@ -1,5 +1,10 @@
 package iudx.apd.acl.server.notification;
 
+import static iudx.apd.acl.server.apiserver.util.Constants.*;
+import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
+import static iudx.apd.acl.server.common.ResponseUrn.POLICY_ALREADY_EXIST_URN;
+import static iudx.apd.acl.server.notification.util.Constants.*;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -15,19 +20,13 @@ import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.policy.CatalogueClient;
 import iudx.apd.acl.server.policy.PostgresService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
-import static iudx.apd.acl.server.apiserver.util.Constants.*;
-import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
-import static iudx.apd.acl.server.common.ResponseUrn.POLICY_ALREADY_EXIST_URN;
-import static iudx.apd.acl.server.notification.util.Constants.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CreateNotification {
   private static final Logger LOG = LoggerFactory.getLogger(CreateNotification.class);
@@ -237,6 +236,7 @@ public class CreateNotification {
 
     return promise.future();
   }
+
   /**
    * checks if the policy for the given resource and given consumer already exists or not <br>
    * If it is existing checks if it has been <b>DELETED</b> status or <b>EXPIRED</b> <br>
@@ -444,7 +444,7 @@ public class CreateNotification {
    *
    * @param query to be executes
    * @param tuple exchangeable values to be added in the query
-   * @param handler
+   * @param handler AsyncResult JsonObject handler
    */
   public void executeQuery(String query, Tuple tuple, Handler<AsyncResult<JsonObject>> handler) {
     LOG.trace("inside executeQuery method");

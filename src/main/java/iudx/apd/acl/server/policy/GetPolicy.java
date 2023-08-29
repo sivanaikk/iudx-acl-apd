@@ -14,11 +14,9 @@ import iudx.apd.acl.server.apiserver.util.Role;
 import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
-
 import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,19 +54,17 @@ public class GetPolicy {
       case PROVIDER:
         return getProviderPolicy(user, GET_POLICY_4_PROVIDER_QUERY);
       default:
-        {
-          JsonObject response =
-              new JsonObject()
-                  .put(TYPE, BAD_REQUEST.getValue())
-                  .put(TITLE, BAD_REQUEST.getUrn())
-                  .put(DETAIL, "Invalid role");
-          return Future.failedFuture(response.encode());
-        }
+        JsonObject response =
+            new JsonObject()
+                .put(TYPE, BAD_REQUEST.getValue())
+                .put(TITLE, BAD_REQUEST.getUrn())
+                .put(DETAIL, "Invalid role");
+        return Future.failedFuture(response.encode());
     }
   }
 
   /**
-   * Fetch policy details of the provider based on the owner_id and gets the information about
+   * Fetch policy details of the provider based on the ownerId and gets the information about
    * consumer like consumer first name, last name, id based on the consumer email-Id
    *
    * @param provider Object of User type
@@ -77,9 +73,9 @@ public class GetPolicy {
    */
   public Future<JsonObject> getProviderPolicy(User provider, String query) {
     Promise<JsonObject> promise = Promise.promise();
-    String owner_id = provider.getUserId();
+    String ownerIdValue = provider.getUserId();
     LOG.trace(provider.toString());
-    Tuple tuple = Tuple.of(owner_id);
+    Tuple tuple = Tuple.of(ownerIdValue);
     JsonObject jsonObject =
         new JsonObject()
             .put("email", provider.getEmailId())
@@ -107,7 +103,7 @@ public class GetPolicy {
   /**
    * Fetches policies related to the consumer based on the consumer's email-Id <br>
    * Also gets information related to the owner of the policy like first name, last name, email-Id
-   * based on the owner_id
+   * based on the ownerId
    *
    * @param consumer Object of User type
    * @param query Query to be executed
@@ -149,7 +145,7 @@ public class GetPolicy {
    * @param tuple Exchangeable values of query in the form of Vertx Tuple
    * @param query String query to be executed
    * @param information Information to be added in the response
-   * @return
+   * @return the response as Future JsonObject type
    */
   private Future<JsonObject> executeGetPolicy(
       Tuple tuple, String query, JsonObject information, Role role) {
@@ -222,7 +218,7 @@ public class GetPolicy {
                 "name",
                 new JsonObject().put("firstName", ownerFirstName).put("lastName", ownerLastName))
             .put("id", ownerId);
-    JsonObject providerInfo = new JsonObject().put("provider", providerJson);
+    final JsonObject providerInfo = new JsonObject().put("provider", providerJson);
     jsonObject.remove("ownerFirstName");
     jsonObject.remove("ownerLastName");
     jsonObject.remove("ownerId");
@@ -244,7 +240,7 @@ public class GetPolicy {
                     .put("firstName", consumerFirstName)
                     .put("lastName", consumerLastName))
             .put("id", consumerId);
-    JsonObject consumerInfo = new JsonObject().put("consumer", consumerJson);
+    final JsonObject consumerInfo = new JsonObject().put("consumer", consumerJson);
     jsonObject.remove("consumerFirstName");
     jsonObject.remove("consumerLastName");
     jsonObject.remove("consumerId");

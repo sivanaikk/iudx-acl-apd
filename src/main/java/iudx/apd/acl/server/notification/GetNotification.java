@@ -1,5 +1,9 @@
 package iudx.apd.acl.server.notification;
 
+import static iudx.apd.acl.server.apiserver.util.Constants.*;
+import static iudx.apd.acl.server.notification.util.Constants.GET_CONSUMER_NOTIFICATION_QUERY;
+import static iudx.apd.acl.server.notification.util.Constants.GET_PROVIDER_NOTIFICATION_QUERY;
+
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
@@ -11,17 +15,12 @@ import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.policy.PostgresService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
-import static iudx.apd.acl.server.apiserver.util.Constants.*;
-import static iudx.apd.acl.server.notification.util.Constants.GET_CONSUMER_NOTIFICATION_QUERY;
-import static iudx.apd.acl.server.notification.util.Constants.GET_PROVIDER_NOTIFICATION_QUERY;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GetNotification {
   private static final Logger LOG = LoggerFactory.getLogger(GetNotification.class);
@@ -176,7 +175,7 @@ public class GetNotification {
                 "name",
                 new JsonObject().put("firstName", ownerFirstName).put("lastName", ownerLastName))
             .put("id", ownerId);
-    JsonObject providerInfo = new JsonObject().put("provider", providerJson);
+    final JsonObject providerInfo = new JsonObject().put("provider", providerJson);
     jsonObject.remove("ownerFirstName");
     jsonObject.remove("ownerLastName");
     jsonObject.remove("ownerId");
@@ -199,7 +198,7 @@ public class GetNotification {
                     .put("firstName", consumerFirstName)
                     .put("lastName", consumerLastName))
             .put("id", consumerId);
-    JsonObject consumerInfo = new JsonObject().put("consumer", consumerJson);
+    final JsonObject consumerInfo = new JsonObject().put("consumer", consumerJson);
     jsonObject.remove("consumerFirstName");
     jsonObject.remove("consumerLastName");
     jsonObject.remove("consumerId");

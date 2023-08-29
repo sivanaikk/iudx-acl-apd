@@ -57,8 +57,12 @@ public class ResourceObj {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof ResourceObj)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof ResourceObj)) {
+      return false;
+    }
     ResourceObj that = (ResourceObj) o;
     return Objects.equals(itemId, that.itemId)
         && Objects.equals(providerId, that.providerId)
