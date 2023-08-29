@@ -84,11 +84,7 @@ public class CreatePolicy {
               });
         });
 
-    insertPolicy.onSuccess(promise::complete).onFailure(failure->{
-      LOGGER.info("HERE "+failure.getLocalizedMessage());
-
-      promise.fail(failure.getLocalizedMessage());
-    });
+    insertPolicy.onSuccess(promise::complete).onFailure(promise::fail);
     return promise.future();
   }
 
@@ -135,7 +131,6 @@ public class CreatePolicy {
                       })
                     .onFailure(
                       insertItemsFailureHandler -> {
-                        LOGGER.info("YE FAIL");
                         promise.fail(
                           generateErrorResponse(
                             BAD_REQUEST, BAD_REQUEST.getDescription()));
