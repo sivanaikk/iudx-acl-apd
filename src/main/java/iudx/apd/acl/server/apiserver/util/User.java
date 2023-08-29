@@ -15,7 +15,7 @@ import java.util.Objects;
  */
 @DataObject(generateConverter = true)
 public class User {
-  private static final Logger LOG = LoggerFactory.getLogger(User.class);
+//  private static final Logger LOG = LoggerFactory.getLogger(User.class);
   private final String userId;
   private final Role userRole;
   private final String emailId;

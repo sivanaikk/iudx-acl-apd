@@ -9,7 +9,7 @@ import static iudx.apd.acl.server.common.Constants.AUTH_SERVICE_ADDRESS;
 
 public class AuthHandler implements Handler<RoutingContext> {
     static AuthenticationService authenticator;
-    private static Api api;
+    static Api api;
     public static AuthHandler create(Vertx vertx, Api apis) {
         authenticator = AuthenticationService.createProxy(vertx, AUTH_SERVICE_ADDRESS);
         api = apis;

@@ -60,7 +60,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     private int port;
     private boolean isSsl;
     private String dxApiBasePath;
-    private Api api;
+    Api api;
     private PolicyService policyService;
     private String detail;
     private NotificationService notificationService;
@@ -99,7 +99,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
         /* Define the APIs, methods, endpoints and associated methods. */
         dxApiBasePath = config().getString("dxApiBasePath");
-        api = Api.getInstance(dxApiBasePath);
+        this.api = Api.getInstance(dxApiBasePath);
 
         FailureHandler failureHandler = new FailureHandler();
         /* Initialize service proxy */
@@ -294,7 +294,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     private void getAccessRequestHandler(RoutingContext routingContext) {
         User consumer = getConsumer();
-        User provider = getProvider();
+//        User provider = getProvider();
         notificationService
                 .getNotification(consumer)
                 .onComplete(
@@ -355,7 +355,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     private void getPoliciesHandler(RoutingContext routingContext) {
 
-        User consumer = getConsumer();
+//        User consumer = getConsumer();
         User provider = getProvider();
         policyService
                 .getPolicy(provider)
