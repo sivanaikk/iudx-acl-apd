@@ -25,6 +25,7 @@ public class CatalogueClient implements CatalogueClientInterface {
   private final WebClient client;
   private final String catHost;
   private final Integer catPort;
+  private final String catRelationShipPath;
 
   public CatalogueClient(JsonObject options) {
     WebClientOptions clientOptions =
@@ -32,6 +33,7 @@ public class CatalogueClient implements CatalogueClientInterface {
     this.client = WebClient.create(Vertx.vertx(), clientOptions);
     this.catHost = options.getString("catServerHost");
     this.catPort = options.getInteger("catServerPort");
+    this.catRelationShipPath = options.getString("dxCatalogueBasePath")+RELATIONSHIP_PATH;
   }
 
   @Override
@@ -40,7 +42,7 @@ public class CatalogueClient implements CatalogueClientInterface {
     List<ResourceObj> resourceObjList = new ArrayList<>();
     for (UUID id : ids) {
       client
-          .get(catPort, catHost, RELATIONSHIP_PATH)
+          .get(catPort, catHost, catRelationShipPath)
           .addQueryParam("id", String.valueOf(id))
           .addQueryParam("rel", "all")
           .send()

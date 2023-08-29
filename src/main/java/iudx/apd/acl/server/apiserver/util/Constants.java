@@ -53,7 +53,7 @@ public class Constants {
   public static final String STATUS_CODE = "statusCode";
   public static final String RESULT = "results";
   public static final String DETAIL = "detail";
-  public static final String RELATIONSHIP_PATH = "/iudx/cat/v1/relationship";
+  public static final String RELATIONSHIP_PATH = "/relationship";
 
   // endpoints
   public static final String POLICIES_API = "/policies";
