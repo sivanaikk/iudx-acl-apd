@@ -155,7 +155,8 @@ public class TestVerifyPolicy {
     List<ResourceObj> resourceObjList = new ArrayList<>();
     ResourceObj resourceObj =
         new ResourceObj(
-            Utility.generateRandomUuid(), utility.getOwnerId(), utility.getResourceId());
+            Utility.generateRandomUuid(), utility.getOwnerId(), utility.getResourceId(),
+            "resourceServerURL");
     resourceObjList.add(resourceObj);
     when(catalogueClient.fetchItems(mockUUIDList))
         .thenReturn(Future.succeededFuture(resourceObjList));
@@ -229,7 +230,8 @@ public class TestVerifyPolicy {
     List<ResourceObj> resourceObjList = new ArrayList<>();
     ResourceObj resourceObj =
       new ResourceObj(
-        Utility.generateRandomUuid(), utility.getOwnerId(), Utility.generateRandomUuid());
+        Utility.generateRandomUuid(), utility.getOwnerId(), Utility.generateRandomUuid(),
+          Utility.generateRandomUrl());
     resourceObjList.add(resourceObj);
 
     when(catalogueClient.fetchItems(mockUUIDList))

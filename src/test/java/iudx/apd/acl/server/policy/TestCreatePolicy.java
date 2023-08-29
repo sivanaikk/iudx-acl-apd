@@ -98,7 +98,6 @@ public class TestCreatePolicy {
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
-
                 assertEquals(ResponseUrn.SUCCESS_URN.getUrn(), handler.result().getString(TYPE));
                 assertEquals(
                     ResponseUrn.SUCCESS_URN.getMessage(), handler.result().getString(TITLE));
@@ -107,7 +106,7 @@ public class TestCreatePolicy {
                         .result()
                         .getJsonArray("result")
                         .getJsonObject(0)
-                        .containsKey("policy_id"));
+                        .containsKey("policyId"));
                 vertxTestContext.completeNow();
 
               } else {
@@ -159,7 +158,7 @@ public class TestCreatePolicy {
                 JsonObject result = new JsonObject(handler.cause().getMessage());
                 assertEquals(FORBIDDEN.getValue(), result.getInteger(TYPE));
                 assertEquals(FORBIDDEN.getUrn(), result.getString(TITLE));
-                assertEquals("Ownership Error.", result.getString("detail"));
+                assertEquals("Access Denied: You do not have ownership rights for this resource.", result.getString("detail"));
                 vertxTestContext.completeNow();
               }
             });
@@ -174,7 +173,8 @@ public class TestCreatePolicy {
     JsonObject request = getRequest(Utility.generateRandomEmailId(),mockResourceId);
     List<ResourceObj> resourceObjList = new ArrayList<>();
 
-    ResourceObj resourceObj = new ResourceObj(mockResourceId,utility.getOwnerId(),null);
+    ResourceObj resourceObj = new ResourceObj(mockResourceId,utility.getOwnerId(),null,
+      Utility.generateRandomUrl());
     resourceObjList.add(resourceObj);
     when(catalogueClient.fetchItems(mockUUIDList)).thenReturn(Future.succeededFuture(resourceObjList));
 
@@ -191,7 +191,7 @@ public class TestCreatePolicy {
                 .result()
                 .getJsonArray("result")
                 .getJsonObject(0)
-                .containsKey("policy_id"));
+                .containsKey("policyId"));
             vertxTestContext.completeNow();
 
           } else {
