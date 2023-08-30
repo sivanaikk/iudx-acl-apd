@@ -33,7 +33,7 @@ public class CatalogueClient implements CatalogueClientInterface {
     this.client = WebClient.create(Vertx.vertx(), clientOptions);
     this.catHost = options.getString("catServerHost");
     this.catPort = options.getInteger("catServerPort");
-    this.catRelationShipPath = options.getString("dxCatalogueBasePath")+RELATIONSHIP_PATH;
+    this.catRelationShipPath = options.getString("dxCatalogueBasePath") + RELATIONSHIP_PATH;
   }
 
   @Override
@@ -61,20 +61,20 @@ public class CatalogueClient implements CatalogueClientInterface {
                           .collect(Collectors.toList());
                   UUID provider = null;
                   UUID resourceGroup = null;
-                  String resServerURL=null;
+                  String resServerUrl = null;
 
                   for (JsonObject resultJson : resultJsonList) {
                     JsonArray typeArray = resultJson.getJsonArray("type");
                     if (typeArray.contains("iudx:ResourceGroup")) {
-                       resourceGroup = UUID.fromString(resultJson.getString("id"));
+                      resourceGroup = UUID.fromString(resultJson.getString("id"));
                     } else if (typeArray.contains("iudx:Provider")) {
                       provider = UUID.fromString(resultJson.getString("providerKcId"));
                     } else if (typeArray.contains("iudx:ResourceServer")) {
-                      resServerURL = resultJson.getString("resourceServerHTTPAccessURL");
+                      resServerUrl = resultJson.getString("resourceServerHTTPAccessURL");
                     }
                   }
-                  ResourceObj resourceObj = new ResourceObj(id, provider, resourceGroup,
-                    resServerURL);
+                  ResourceObj resourceObj =
+                      new ResourceObj(id, provider, resourceGroup, resServerUrl);
                   resourceObjList.add(resourceObj);
                   promise.complete(resourceObjList);
                 } else {
