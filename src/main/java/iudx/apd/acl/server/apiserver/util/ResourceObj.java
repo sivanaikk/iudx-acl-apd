@@ -64,7 +64,7 @@ public class ResourceObj {
    *
    * @return The resource server URL as a String.
    */
-  public String getResourceServerURL() {
+  public String getResourceServerUrl() {
     return resourceServerUrl;
   }
 

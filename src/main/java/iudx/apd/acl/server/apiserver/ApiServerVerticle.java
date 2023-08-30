@@ -74,16 +74,16 @@ public class ApiServerVerticle extends AbstractVerticle {
     return new User(consumer);
   }
 
-    private static User getProvider() {
-        JsonObject provider =
-                new JsonObject()
-                        .put("userId", "b2c27f3f-2524-4a84-816e-91f9ab23f837")
-                        .put("firstName", "Test")
-                        .put("lastName", "Provider")
-                        .put("emailId", "testprovider@example.com")
-                        .put("userRole", "provider");
-        return new User(provider);
-    }
+  private static User getProvider() {
+    JsonObject provider =
+        new JsonObject()
+            .put("userId", "b2c27f3f-2524-4a84-816e-91f9ab23f837")
+            .put("firstName", "Test")
+            .put("lastName", "Provider")
+            .put("emailId", "testprovider@example.com")
+            .put("userRole", "provider");
+    return new User(provider);
+  }
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, reads the
