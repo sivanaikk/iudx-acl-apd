@@ -9,8 +9,7 @@
     "dxCatalogueBasePath": "/iudx/cat/v1",
     "dxAuthBasePath": "/auth/v1",
     "catServerHost": "",
-    "catServerPort": 443,
-    "catServerRelationShipPath": "/iudx/cat/v1/relationship"
+    "catServerPort": 443
   },
   "host": "acl-apd.iudx.io",
   "modules": [
