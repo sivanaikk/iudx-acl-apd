@@ -6,12 +6,12 @@ import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import iudx.apd.acl.server.apiserver.util.ResourceObj;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -28,6 +28,7 @@ public class CatalogueClient implements CatalogueClientInterface {
   private final String catServerRelationShipPath;
 
   public CatalogueClient(JsonObject options) {
+    LOGGER.info("CONFIG "+options);
     WebClientOptions clientOptions =
         new WebClientOptions().setSsl(true).setVerifyHost(false).setTrustAll(true);
 
@@ -41,48 +42,49 @@ public class CatalogueClient implements CatalogueClientInterface {
   public Future<List<ResourceObj>> fetchItems(Set<UUID> ids) {
     Promise<List<ResourceObj>> promise = Promise.promise();
     List<ResourceObj> resourceObjList = new ArrayList<>();
-    String tempIds = "[" + Arrays.toString(ids.toArray()) + "]";
+    for (UUID id : ids) {
+      client
+          .get(catPort, catHost, catServerRelationShipPath)
+          .addQueryParam("id", String.valueOf(id))
+          .addQueryParam("rel", "all")
+          .send()
+          .onFailure(
+              ar -> {
+                LOGGER.error("fetchItem error : " + ar.getCause());
+                promise.fail(INTERNAL_SERVER_ERROR.getDescription());
+              })
+          .onSuccess(
+              catSuccessResponse -> {
+                JsonObject resultBody = catSuccessResponse.bodyAsJsonObject();
+                if (resultBody.getString(TYPE).equals(CAT_SUCCESS_URN)) {
+                  List<JsonObject> resultJsonList =
+                      resultBody.getJsonArray(RESULTS).stream()
+                          .map(obj -> (JsonObject) obj)
+                          .collect(Collectors.toList());
 
-    client
-        .get(catPort, catHost, catServerRelationShipPath)
-        .addQueryParam("property", "[id]")
-        .addQueryParam("value", tempIds)
-        .addQueryParam("filter", "[id,resourceGroup,provider]")
-        .send()
-        .onFailure(
-            ar -> {
-              LOGGER.error("fetchItem error : " + ar.getCause());
-              promise.fail(INTERNAL_SERVER_ERROR.getDescription());
-            })
-        .onSuccess(
-            catSuccessResponse -> {
-              JsonObject resultBody = catSuccessResponse.bodyAsJsonObject();
-              if (resultBody.getString(TYPE).equals(CAT_SUCCESS_URN)) {
-                List<JsonObject> resultJsonList =
-                    resultBody.getJsonArray(RESULTS).stream()
-                        .map(obj -> (JsonObject) obj)
-                        .collect(Collectors.toList());
+                  UUID provider = null;
+                  UUID resourceGroup = null;
+                  String resServerURL=null;
 
-                if (resultJsonList.size() != ids.size()) {
-                  LOGGER.error("FAIL TO GET RESULT FROM CAT");
-                  promise.fail("Id/Ids does not present in CAT");
-                  return;
-                }
-                for (JsonObject resultJson : resultJsonList) {
-                  UUID id = UUID.fromString(resultJson.getString("id"));
-                  UUID provider = UUID.fromString(resultJson.getString("provider"));
-                  UUID resourceGroup =
-                      resultJson.size() == 3
-                          ? UUID.fromString(resultJson.getString("resourceGroup"))
-                          : null;
-                  ResourceObj resourceObj = new ResourceObj(id, provider, resourceGroup);
+                  for (JsonObject resultJson : resultJsonList) {
+                    JsonArray typeArray = resultJson.getJsonArray("type");
+                    if (typeArray.contains("iudx:ResourceGroup")) {
+                       resourceGroup = UUID.fromString(resultJson.getString("id"));
+                    } else if (typeArray.contains("iudx:Provider")) {
+                      provider = UUID.fromString(resultJson.getString("providerKcId"));
+                    } else if (typeArray.contains("iudx:ResourceServer")) {
+                      resServerURL = resultJson.getString("resourceServerHTTPAccessURL");
+                    }
+                  }
+                  ResourceObj resourceObj = new ResourceObj(id, provider, resourceGroup,
+                    resServerURL);
                   resourceObjList.add(resourceObj);
+                  promise.complete(resourceObjList);
+                } else {
+                  promise.fail(resultBody.getString(TITLE));
                 }
-                promise.complete(resourceObjList);
-              } else {
-                promise.fail(resultBody.getString(TITLE));
-              }
-            });
+              });
+    }
     return promise.future();
   }
 }

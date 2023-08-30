@@ -11,6 +11,7 @@ public class ResourceObj {
   private final UUID itemId;
   private final UUID providerId;
   private final UUID resourceGroupId;
+  private final String resourceServerURL;
 
   /**
    * Constructs a new ResourceObj with the given item ID, provider ID, and resource group ID. If the
@@ -20,12 +21,14 @@ public class ResourceObj {
    * @param providerId The unique ID of the provider who owns the resource.
    * @param resourceGroupId The unique ID of the resource group to which the resource belongs (can
    *     be null).
+   * @param resourceServerURL The resource server URL to which the resource item belong.
    */
-  public ResourceObj(UUID itemId, UUID providerId, UUID resourceGroupId) {
+  public ResourceObj(UUID itemId, UUID providerId, UUID resourceGroupId, String resourceServerURL) {
     this.itemId = itemId;
     this.providerId = providerId;
     // in case of resourceGroup, 'resourceGroupId' will be null
     this.resourceGroupId = resourceGroupId;
+    this.resourceServerURL = resourceServerURL;
   }
 
   /**
@@ -66,11 +69,12 @@ public class ResourceObj {
     ResourceObj that = (ResourceObj) o;
     return Objects.equals(itemId, that.itemId)
         && Objects.equals(providerId, that.providerId)
-        && Objects.equals(resourceGroupId, that.resourceGroupId);
+        && Objects.equals(resourceGroupId, that.resourceGroupId)
+        && Objects.equals(resourceServerURL, that.resourceServerURL);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(itemId, providerId, resourceGroupId);
+    return Objects.hash(itemId, providerId, resourceGroupId, resourceServerURL);
   }
 }
