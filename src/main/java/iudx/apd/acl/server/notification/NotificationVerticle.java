@@ -23,7 +23,8 @@ public class NotificationVerticle extends AbstractVerticle {
     postgresService = new PostgresService(config(), vertx);
     catalogueClient = new CatalogueClient(config());
     emailNotification = new EmailNotification(vertx, config().getJsonObject(EMAIL_OPTIONS));
-    createNotification = new CreateNotification(postgresService, catalogueClient, emailNotification);
+    createNotification =
+        new CreateNotification(postgresService, catalogueClient, emailNotification);
     deleteNotification = new DeleteNotification(postgresService);
     updateNotification = new UpdateNotification(postgresService);
     getNotification = new GetNotification(postgresService);
