@@ -3,13 +3,17 @@ package iudx.apd.acl.server.apiserver;
 import static iudx.apd.acl.server.apiserver.response.ResponseUtil.generateResponse;
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.apiserver.util.Util.errorResponse;
+import static iudx.apd.acl.server.common.Constants.AUDITING_SERVICE_ADDRESS;
 import static iudx.apd.acl.server.common.Constants.NOTIFICATION_SERVICE_ADDRESS;
 import static iudx.apd.acl.server.common.Constants.POLICY_SERVICE_ADDRESS;
 import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonObject;
@@ -21,6 +25,7 @@ import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.TimeoutHandler;
 import io.vertx.ext.web.openapi.RouterBuilder;
 import iudx.apd.acl.server.apiserver.util.User;
+import iudx.apd.acl.server.auditing.AuditingService;
 import iudx.apd.acl.server.authentication.Authentication;
 import iudx.apd.acl.server.common.Api;
 import iudx.apd.acl.server.common.HttpStatusCode;
@@ -28,6 +33,9 @@ import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.notification.NotificationService;
 import iudx.apd.acl.server.policy.PolicyService;
 import iudx.apd.acl.server.validation.FailureHandler;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -62,6 +70,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   private PolicyService policyService;
   private String detail;
   private NotificationService notificationService;
+  private AuditingService auditingService;
 
   private static User getConsumer() {
     JsonObject consumer =
@@ -99,10 +108,12 @@ public class ApiServerVerticle extends AbstractVerticle {
     dxApiBasePath = config().getString("dxApiBasePath");
     this.api = Api.getInstance(dxApiBasePath);
 
-    FailureHandler failureHandler = new FailureHandler();
     /* Initialize service proxy */
     policyService = PolicyService.createProxy(vertx, POLICY_SERVICE_ADDRESS);
     notificationService = NotificationService.createProxy(vertx, NOTIFICATION_SERVICE_ADDRESS);
+    auditingService = AuditingService.createProxy(vertx, AUDITING_SERVICE_ADDRESS);
+
+    FailureHandler failureHandler = new FailureHandler();
 
     /* Initialize Router builder */
     RouterBuilder.create(vertx, "docs/openapi.yaml")
@@ -199,6 +210,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
   private void verifyRequestHandler(RoutingContext routingContext) {
     JsonObject requestBody = routingContext.body().asJsonObject();
+    HttpServerResponse response = routingContext.response();
     policyService
         .verifyPolicy(requestBody)
         .onComplete(
@@ -206,7 +218,7 @@ public class ApiServerVerticle extends AbstractVerticle {
               if (handler.succeeded()) {
                 LOGGER.info("Policy verified successfully ");
                 handleSuccessResponse(
-                    routingContext, HttpStatusCode.SUCCESS.getValue(), handler.result().toString());
+                    response, HttpStatusCode.SUCCESS.getValue(), handler.result().toString());
               } else {
                 LOGGER.error("Policy could not be verified");
                 handleFailureResponse(routingContext, handler.cause().getMessage());
@@ -216,6 +228,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
   private void postAccessRequestHandler(RoutingContext routingContext) {
     JsonObject request = routingContext.body().asJsonObject();
+    HttpServerResponse response = routingContext.response();
     User consumer = getConsumer();
     notificationService
         .createNotification(request, consumer)
@@ -223,13 +236,14 @@ public class ApiServerVerticle extends AbstractVerticle {
             handler -> {
               if (handler.succeeded()) {
                 LOGGER.info("Notification created successfully : {}", handler.result().encode());
-                JsonObject response =
+                JsonObject responseJson =
                     new JsonObject()
                         .put(TYPE, handler.result().getString(TYPE))
                         .put(TITLE, handler.result().getString(TITLE))
                         .put(RESULT, handler.result().getValue(RESULT));
                 handleSuccessResponse(
-                    routingContext, handler.result().getInteger(STATUS_CODE), response.toString());
+                    response, handler.result().getInteger(STATUS_CODE), responseJson.toString());
+                Future.future(fu -> handleAuditLogs(routingContext));
               } else {
                 LOGGER.error("Failed to create notification : {}", handler.cause().getMessage());
                 handleFailureResponse(routingContext, handler.cause().getMessage());
@@ -247,6 +261,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
   private void putAccessRequestHandler(RoutingContext routingContext) {
     JsonObject notification = routingContext.body().asJsonObject();
+    HttpServerResponse response = routingContext.response();
     User provider = getProvider();
     notificationService
         .updateNotification(notification, provider)
@@ -254,13 +269,14 @@ public class ApiServerVerticle extends AbstractVerticle {
             handler -> {
               if (handler.succeeded()) {
                 LOGGER.info("Update Notification succeeded : {} ", handler.result().encode());
-                JsonObject response =
+                JsonObject responseJson =
                     new JsonObject()
                         .put(TYPE, handler.result().getString(TYPE))
                         .put(TITLE, handler.result().getString(TITLE))
                         .put(RESULT, handler.result().getValue(RESULT));
                 handleSuccessResponse(
-                    routingContext, handler.result().getInteger(STATUS_CODE), response.toString());
+                    response, handler.result().getInteger(STATUS_CODE), responseJson.toString());
+                Future.future(fu -> handleAuditLogs(routingContext));
               } else {
                 LOGGER.error("Update Notification failed : {} ", handler.cause().getMessage());
                 handleFailureResponse(routingContext, handler.cause().getMessage());
@@ -270,6 +286,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
   private void deleteAccessRequestHandler(RoutingContext routingContext) {
     JsonObject notification = routingContext.body().asJsonObject();
+    HttpServerResponse response = routingContext.response();
     User consumer = getConsumer();
     notificationService
         .deleteNotification(notification, consumer)
@@ -277,13 +294,14 @@ public class ApiServerVerticle extends AbstractVerticle {
             handler -> {
               if (handler.succeeded()) {
                 LOGGER.info("Delete Notification succeeded : {} ", handler.result().encode());
-                JsonObject response =
+                JsonObject responseJson =
                     new JsonObject()
                         .put(TYPE, handler.result().getString(TYPE))
                         .put(TITLE, handler.result().getString(TITLE))
                         .put(RESULT, handler.result().getValue(RESULT));
                 handleSuccessResponse(
-                    routingContext, handler.result().getInteger(STATUS_CODE), response.toString());
+                    response, handler.result().getInteger(STATUS_CODE), responseJson.toString());
+                Future.future(fu -> handleAuditLogs(routingContext));
               } else {
                 LOGGER.error("Delete Notification failed : {} ", handler.cause().getMessage());
                 handleFailureResponse(routingContext, handler.cause().getMessage());
@@ -292,6 +310,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   private void getAccessRequestHandler(RoutingContext routingContext) {
+    HttpServerResponse response = routingContext.response();
     User consumer = getConsumer();
     //        User provider = getProvider();
     notificationService
@@ -300,7 +319,7 @@ public class ApiServerVerticle extends AbstractVerticle {
             handler -> {
               if (handler.succeeded()) {
                 handleSuccessResponse(
-                    routingContext,
+                    response,
                     handler.result().getInteger(STATUS_CODE),
                     handler.result().getString(RESULT));
               } else {
@@ -311,6 +330,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
   private void postPoliciesHandler(RoutingContext routingContext) {
     JsonObject requestBody = routingContext.body().asJsonObject();
+    HttpServerResponse response = routingContext.response();
     // TODO: to add user object in the requestBody before calling createPolicy method
     policyService
         .createPolicy(requestBody, getProvider())
@@ -319,7 +339,8 @@ public class ApiServerVerticle extends AbstractVerticle {
               if (handler.succeeded()) {
                 LOGGER.info("Policy created successfully ");
                 handleSuccessResponse(
-                    routingContext, HttpStatusCode.SUCCESS.getValue(), handler.result().toString());
+                    response, HttpStatusCode.SUCCESS.getValue(), handler.result().toString());
+                Future.future(fu -> handleAuditLogs(routingContext));
               } else {
                 LOGGER.error("Policy could not be created");
                 handleFailureResponse(routingContext, handler.cause().getMessage());
@@ -329,6 +350,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
   private void deletePoliciesHandler(RoutingContext routingContext) {
     JsonObject policy = routingContext.body().asJsonObject();
+    HttpServerResponse response = routingContext.response();
 
     User provider = getProvider();
     policyService
@@ -337,13 +359,14 @@ public class ApiServerVerticle extends AbstractVerticle {
             handler -> {
               if (handler.succeeded()) {
                 LOGGER.info("Delete policy succeeded : {} ", handler.result().encode());
-                JsonObject response =
+                JsonObject responseJson =
                     new JsonObject()
                         .put(TYPE, handler.result().getString(TYPE))
                         .put(TITLE, handler.result().getString(TITLE))
                         .put(RESULT, handler.result().getValue(RESULT));
                 handleSuccessResponse(
-                    routingContext, handler.result().getInteger(STATUS_CODE), response.toString());
+                    response, handler.result().getInteger(STATUS_CODE), responseJson.toString());
+                Future.future(fu -> handleAuditLogs(routingContext));
               } else {
                 LOGGER.error("Delete policy failed : {} ", handler.cause().getMessage());
                 handleFailureResponse(routingContext, handler.cause().getMessage());
@@ -352,6 +375,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   private void getPoliciesHandler(RoutingContext routingContext) {
+    HttpServerResponse response = routingContext.response();
 
     //        User consumer = getConsumer();
     User provider = getProvider();
@@ -361,7 +385,7 @@ public class ApiServerVerticle extends AbstractVerticle {
             handler -> {
               if (handler.succeeded()) {
                 handleSuccessResponse(
-                    routingContext,
+                    response,
                     handler.result().getInteger(STATUS_CODE),
                     handler.result().getString(RESULT));
               } else {
@@ -449,12 +473,11 @@ public class ApiServerVerticle extends AbstractVerticle {
   /**
    * Handles HTTP Success response from the server
    *
-   * @param routingContext Routing context object
+   * @param response HttpServerResponse object
    * @param statusCode statusCode to respond with
    * @param result respective result returned from the service
    */
-  private void handleSuccessResponse(RoutingContext routingContext, int statusCode, String result) {
-    HttpServerResponse response = routingContext.response();
+  private void handleSuccessResponse(HttpServerResponse response, int statusCode, String result) {
     response.putHeader(CONTENT_TYPE, APPLICATION_JSON).setStatusCode(statusCode).end(result);
   }
 
@@ -517,5 +540,46 @@ public class ApiServerVerticle extends AbstractVerticle {
         .putHeader(CONTENT_TYPE, APPLICATION_JSON)
         .setStatusCode(statusCode.getValue())
         .end(generateResponse(statusCode, urn, failureMessage).toString());
+  }
+
+  // TODO: Call this method where we need auditing and Send correct itemType
+  private Future<Void> handleAuditLogs(RoutingContext context) {
+    LOGGER.debug("handleAuditLogs started");
+    HttpServerRequest request = context.request();
+    HttpServerResponse response = context.response();
+    User user = context.get(USER);
+    JsonObject requestBody = context.body().asJsonObject();
+    String userId = user.getUserId();
+    long size = response.bytesWritten();
+
+    ZonedDateTime zst = ZonedDateTime.now(ZoneId.of("Asia/Kolkata"));
+    long time = zst.toInstant().toEpochMilli();
+    String isoTime = zst.truncatedTo(ChronoUnit.SECONDS).toString();
+
+    JsonObject auditLog = new JsonObject();
+    auditLog.put(USER_ID, userId);
+    auditLog.put(BODY, requestBody);
+    auditLog.put(API, request.uri());
+    auditLog.put(HTTP_METHOD, request.method().toString());
+    auditLog.put(EPOCH_TIME, time);
+    auditLog.put(ISO_TIME, isoTime);
+    auditLog.put(RESPONSE_SIZE, size);
+
+    Promise<Void> promise = Promise.promise();
+    LOGGER.debug("AuditLog: " + auditLog);
+    auditingService
+        .insertAuditlogIntoRmq(auditLog)
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                LOGGER.info("Audit data published into RMQ.");
+                promise.complete();
+              } else {
+                LOGGER.error("failed: " + handler.cause().getMessage());
+                promise.complete();
+              }
+            });
+
+    return promise.future();
   }
 }

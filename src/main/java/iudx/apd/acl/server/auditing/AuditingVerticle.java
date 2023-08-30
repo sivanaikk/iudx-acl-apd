@@ -1,10 +1,11 @@
 package iudx.apd.acl.server.auditing;
 
-import static iudx.apd.acl.server.auditing.util.Constant.METERING_SERVICE_ADDRESS;
+import static iudx.apd.acl.server.common.Constants.AUDITING_SERVICE_ADDRESS;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.rabbitmq.RabbitMQClient;
 import io.vertx.rabbitmq.RabbitMQOptions;
@@ -15,7 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class AuditingVerticle extends AbstractVerticle {
-  private static final Logger LOGGER = LogManager.getLogger(AuditingVerticle.class);
+
 
   private RabbitMQOptions config;
   private RabbitMQClient client;
@@ -54,15 +55,31 @@ public class AuditingVerticle extends AbstractVerticle {
 
     /* Configure the RabbitMQ Data Broker client with input from config files. */
 
-    config = new RabbitMQOptions().setUser(dataBrokerUserName).setPassword(dataBrokerPassword)
-        .setHost(dataBrokerIp).setPort(dataBrokerPort).setVirtualHost(dataBrokerVhost)
-        .setConnectionTimeout(connectionTimeout).setRequestedHeartbeat(requestedHeartbeat)
-        .setHandshakeTimeout(handshakeTimeout).setRequestedChannelMax(requestedChannelMax)
-        .setNetworkRecoveryInterval(networkRecoveryInterval).setAutomaticRecoveryEnabled(true);
+    config =
+        new RabbitMQOptions()
+            .setUser(dataBrokerUserName)
+            .setPassword(dataBrokerPassword)
+            .setHost(dataBrokerIp)
+            .setPort(dataBrokerPort)
+            .setVirtualHost(dataBrokerVhost)
+            .setConnectionTimeout(connectionTimeout)
+            .setRequestedHeartbeat(requestedHeartbeat)
+            .setHandshakeTimeout(handshakeTimeout)
+            .setRequestedChannelMax(requestedChannelMax)
+            .setNetworkRecoveryInterval(networkRecoveryInterval)
+            .setAutomaticRecoveryEnabled(true);
 
-    webConfig = new WebClientOptions().setKeepAlive(true).setConnectTimeout(86400000)
-        .setDefaultHost(dataBrokerIp).setDefaultPort(dataBrokerManagementPort)
-        .setKeepAliveTimeout(86400000);
+    webConfig =
+        new WebClientOptions()
+            .setKeepAlive(true)
+            .setConnectTimeout(86400000)
+            .setDefaultHost(dataBrokerIp)
+            .setDefaultPort(dataBrokerManagementPort)
+            .setKeepAliveTimeout(86400000);
+    /* Create a Vertx Web Client with the configuration and vertx cluster instance. */
+
+    WebClient.create(vertx, webConfig);
+
     /*
      * Create a RabbitMQ Client with the configuration and vertx cluster instance.
      */
@@ -73,11 +90,11 @@ public class AuditingVerticle extends AbstractVerticle {
     binder = new ServiceBinder(vertx);
     /* Publish the Data Broker service with the Event Bus against an address. */
     consumer =
-        binder.setAddress(METERING_SERVICE_ADDRESS).register(AuditingService.class, metering);
+        binder.setAddress(AUDITING_SERVICE_ADDRESS).register(AuditingService.class, metering);
   }
+
   @Override
   public void stop() {
     binder.unregister(consumer);
   }
-
 }
