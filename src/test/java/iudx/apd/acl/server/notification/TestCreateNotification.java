@@ -70,7 +70,6 @@ public class TestCreateNotification {
         utility = new Utility();
         pgService = utility.setUp(container);
         catClient = mock(CatalogueClient.class);
-
         utility.testInsert().onComplete(handler -> {
             if (handler.succeeded()) {
                 itemId = UUID.randomUUID();
@@ -111,9 +110,11 @@ public class TestCreateNotification {
     @DisplayName("Test initiateCreateNotification : Success")
     public void testInitiateCreateNotification(VertxTestContext vertxTestContext) {
         catClient = mock(CatalogueClient.class);
+        EmailNotification emailNotification = mock(EmailNotification.class);
         List<ResourceObj> resourceObjList = mock(List.class);
 
-        createNotification = new CreateNotification(pgService, catClient);
+        when(emailNotification.sendEmail(any(User.class), any(User.class), anyString())).thenReturn(Future.succeededFuture(true));
+        createNotification = new CreateNotification(pgService, catClient, emailNotification);
         when(catClient.fetchItems(any())).thenReturn(resourceInfo);
 
         AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
@@ -159,12 +160,13 @@ public class TestCreateNotification {
     @DisplayName("Test initiateCreateNotification method when policy is already created : Failure")
     public void testWithPolicyAlreadyCreated(VertxTestContext vertxTestContext) {
         catClient = mock(CatalogueClient.class);
+        EmailNotification emailNotification = mock(EmailNotification.class);
         List<ResourceObj> resourceObjList = mock(List.class);
         JsonObject notification = new JsonObject()
                 .put("itemId", utility.getResourceId())
                 .put("itemType", utility.getResourceType());
 
-        createNotification = new CreateNotification(pgService, catClient);
+        createNotification = new CreateNotification(pgService, catClient, emailNotification);
         when(catClient.fetchItems(any())).thenReturn(resourceInfo);
 
         AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
@@ -200,10 +202,11 @@ public class TestCreateNotification {
     @DisplayName("Test initiateCreateNotification method when policy is already created : Failure")
     public void testWithNotificationAlreadyCreated(VertxTestContext vertxTestContext) {
         catClient = mock(CatalogueClient.class);
+        EmailNotification emailNotification = mock(EmailNotification.class);
         List<ResourceObj> resourceObjList = mock(List.class);
         UUID itemIdValue = UUID.randomUUID();
 
-        createNotification = new CreateNotification(pgService, catClient);
+        createNotification = new CreateNotification(pgService, catClient, emailNotification);
         when(catClient.fetchItems(any())).thenReturn(resourceInfo);
         JsonObject notification = new JsonObject()
                 .put("itemId", itemIdValue)
@@ -252,9 +255,9 @@ public class TestCreateNotification {
     public void testWithFailedResponseFromCat(VertxTestContext vertxTestContext) {
         catClient = mock(CatalogueClient.class);
         List<ResourceObj> resourceObjList = mock(List.class);
+        EmailNotification emailNotification = mock(EmailNotification.class);
 
-
-        createNotification = new CreateNotification(pgService, catClient);
+        createNotification = new CreateNotification(pgService, catClient, emailNotification);
         when(catClient.fetchItems(any())).thenReturn(resourceInfo);
 
         AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
@@ -288,10 +291,10 @@ public class TestCreateNotification {
     @DisplayName("Test initiateCreateNotification when something goes wrong while fetching items from CAT: Failure")
     public void testWhileFetchingItemFromCatFailed(VertxTestContext vertxTestContext) {
         catClient = mock(CatalogueClient.class);
-        List<ResourceObj> resourceObjList = mock(List.class);
+        EmailNotification emailNotification = mock(EmailNotification.class);
 
 
-        createNotification = new CreateNotification(pgService, catClient);
+        createNotification = new CreateNotification(pgService, catClient, emailNotification);
         when(catClient.fetchItems(any())).thenReturn(resourceInfo);
 
         AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
@@ -326,9 +329,11 @@ public class TestCreateNotification {
     @DisplayName("Test createNotification method when there is a database failure : Failure")
     public void testCreateNotificationWithDbFailure(VertxTestContext vertxTestContext) {
         UUID resourceId = UUID.randomUUID();
+        EmailNotification emailNotification = mock(EmailNotification.class);
+
         when(postgresService.getPool()).thenReturn(pool);
         when(pool.withConnection(any())).thenReturn(Future.failedFuture("Something went wrong :("));
-        CreateNotification createNotification = new CreateNotification(postgresService, catalogueClient);
+        CreateNotification createNotification = new CreateNotification(postgresService, catalogueClient, emailNotification);
 
         createNotification.createNotification(CREATE_NOTIFICATION_QUERY, resourceId, TYPE_RESOURCE_GROUP, consumer, utility.getOwnerId()).onComplete(handler -> {
             if (handler.succeeded()) {
@@ -347,10 +352,12 @@ public class TestCreateNotification {
     @DisplayName("Test createNotification method when there is empty response from database : Failure")
     public void testCreateNotificationWithEmptyResponse(VertxTestContext vertxTestContext)
     {
+        EmailNotification emailNotification = mock(EmailNotification.class);
+
         UUID resourceId = UUID.randomUUID();
         when(postgresService.getPool()).thenReturn(pool);
         when(pool.withConnection(any())).thenReturn(Future.succeededFuture(List.of()));
-        CreateNotification createNotification = new CreateNotification(postgresService,catalogueClient);
+        CreateNotification createNotification = new CreateNotification(postgresService,catalogueClient, emailNotification);
 
         createNotification.createNotification(CREATE_NOTIFICATION_QUERY, resourceId, TYPE_RESOURCE_GROUP, consumer, utility.getOwnerId()).onComplete(handler -> {
             if (handler.succeeded()) {

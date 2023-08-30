@@ -1,5 +1,6 @@
 package iudx.apd.acl.server.notification;
 
+import static iudx.apd.acl.server.apiserver.util.Constants.EMAIL_OPTIONS;
 import static iudx.apd.acl.server.common.Constants.NOTIFICATION_SERVICE_ADDRESS;
 
 import io.vertx.core.AbstractVerticle;
@@ -15,12 +16,14 @@ public class NotificationVerticle extends AbstractVerticle {
   private NotificationServiceImpl notificationService;
   private CreateNotification createNotification;
   private CatalogueClient catalogueClient;
+  private EmailNotification emailNotification;
 
   @Override
   public void start() {
     postgresService = new PostgresService(config(), vertx);
     catalogueClient = new CatalogueClient(config());
-    createNotification = new CreateNotification(postgresService, catalogueClient);
+    emailNotification = new EmailNotification(vertx, config().getJsonObject(EMAIL_OPTIONS));
+    createNotification = new CreateNotification(postgresService, catalogueClient, emailNotification);
     deleteNotification = new DeleteNotification(postgresService);
     updateNotification = new UpdateNotification(postgresService);
     getNotification = new GetNotification(postgresService);

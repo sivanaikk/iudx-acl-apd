@@ -41,10 +41,15 @@ public class CreateNotification {
   private String resourceType;
   private PgPool pool;
   private User provider;
+  private EmailNotification emailNotification;
 
-  public CreateNotification(PostgresService postgresService, CatalogueClient catalogueClient) {
+  public CreateNotification(
+      PostgresService postgresService,
+      CatalogueClient catalogueClient,
+      EmailNotification emailNotification) {
     this.postgresService = postgresService;
     this.catalogueClient = catalogueClient;
+    this.emailNotification = emailNotification;
   }
 
   /**
@@ -367,6 +372,10 @@ public class CreateNotification {
                       .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
                       .put(RESULT, "Request inserted successfully")
                       .put(STATUS_CODE, HttpStatusCode.SUCCESS.getValue());
+
+              /* send email to the provider saying this consumer has requested for the access of this resource */
+              emailNotification.sendEmail(consumer, this.getProviderInfo(), resourceId.toString());
+
               promise.complete(response);
             }
           } else {

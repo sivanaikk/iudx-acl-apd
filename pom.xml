@@ -184,6 +184,13 @@
       <scope>test</scope>
     </dependency>
 
+  <!--    Vertx Mail Client dependency -->
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-mail-client</artifactId>
+      <version>4.4.4</version>
+    </dependency>
+
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-pg-client</artifactId>
