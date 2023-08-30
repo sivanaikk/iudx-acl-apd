@@ -208,7 +208,7 @@ public class TestCreatePolicy {
 
     mockUUIDList.add(mockResourceId);
     JsonObject request = getRequest(Utility.generateRandomEmailId(),mockResourceId);
-    when(catalogueClient.fetchItems(mockUUIDList)).thenReturn(Future.failedFuture("Id/Ids does not present in CAT"));
+    when(catalogueClient.fetchItems(mockUUIDList)).thenReturn(Future.failedFuture("Item is not found"));
 
     createPolicy
       .initiateCreatePolicy(request, owner)

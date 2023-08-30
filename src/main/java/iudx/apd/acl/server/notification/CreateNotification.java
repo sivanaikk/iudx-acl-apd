@@ -424,7 +424,7 @@ public class CreateNotification {
                 if (handler
                     .cause()
                     .getMessage()
-                    .equalsIgnoreCase("Id/Ids does not present in CAT")) {
+                    .equalsIgnoreCase("Item is not found")) {
                   /*id not present in the catalogue*/
                   JsonObject failureMessage =
                       new JsonObject()
