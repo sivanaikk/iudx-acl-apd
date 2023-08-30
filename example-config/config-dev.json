@@ -55,14 +55,18 @@
       "poolSize": 25,
       "emailOptions": {
         "emailHostName": "",
-        "emailPort" : 2587,
-        "emailUserName":"",
+        "emailPort": 2587,
+        "emailUserName": "",
         "emailPassword": "",
-        "emailSender" : "",
-        "emailSupport" : ["", ""],
+        "emailSender": "",
+        "emailSupport": [
+          "",
+          ""
+        ],
         "publisherPanelUrl": "",
-        "notifyByEmail" : true,
-        "senderName" : ""
-      },
+        "notifyByEmail": true,
+        "senderName": ""
+      }
+      }
   ]
 }
