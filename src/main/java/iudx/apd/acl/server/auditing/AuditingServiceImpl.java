@@ -21,8 +21,8 @@ public class AuditingServiceImpl implements AuditingService {
   }
 
   /**
-   * @param request
-   * @return
+   * @param request JsonObject
+   * @return void future
    */
   @Override
   public Future<Void> insertAuditlogIntoRmq(JsonObject request) {
