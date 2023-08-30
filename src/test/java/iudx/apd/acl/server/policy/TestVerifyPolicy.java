@@ -231,7 +231,7 @@ public class TestVerifyPolicy {
     ResourceObj resourceObj =
       new ResourceObj(
         Utility.generateRandomUuid(), utility.getOwnerId(), Utility.generateRandomUuid(),
-          "resourceServerURL");
+          Utility.generateRandomUrl());
     resourceObjList.add(resourceObj);
 
     when(catalogueClient.fetchItems(mockUUIDList))

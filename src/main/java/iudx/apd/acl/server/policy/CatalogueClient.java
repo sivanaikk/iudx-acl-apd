@@ -25,17 +25,13 @@ public class CatalogueClient implements CatalogueClientInterface {
   private final WebClient client;
   private final String catHost;
   private final Integer catPort;
-  private final String catServerRelationShipPath;
 
   public CatalogueClient(JsonObject options) {
-    LOGGER.info("CONFIG "+options);
     WebClientOptions clientOptions =
         new WebClientOptions().setSsl(true).setVerifyHost(false).setTrustAll(true);
-
     this.client = WebClient.create(Vertx.vertx(), clientOptions);
     this.catHost = options.getString("catServerHost");
     this.catPort = options.getInteger("catServerPort");
-    this.catServerRelationShipPath = options.getString("catServerRelationShipPath");
   }
 
   @Override
@@ -44,7 +40,7 @@ public class CatalogueClient implements CatalogueClientInterface {
     List<ResourceObj> resourceObjList = new ArrayList<>();
     for (UUID id : ids) {
       client
-          .get(catPort, catHost, catServerRelationShipPath)
+          .get(catPort, catHost, RELATIONSHIP_PATH)
           .addQueryParam("id", String.valueOf(id))
           .addQueryParam("rel", "all")
           .send()
@@ -61,7 +57,6 @@ public class CatalogueClient implements CatalogueClientInterface {
                       resultBody.getJsonArray(RESULTS).stream()
                           .map(obj -> (JsonObject) obj)
                           .collect(Collectors.toList());
-
                   UUID provider = null;
                   UUID resourceGroup = null;
                   String resServerURL=null;

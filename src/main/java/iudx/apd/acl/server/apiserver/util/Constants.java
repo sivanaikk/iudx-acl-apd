@@ -54,6 +54,7 @@ public class Constants {
   public static final String RESULT = "results";
   public static final String DETAIL = "detail";
   public static final String EMAIL_OPTIONS = "emailOptions";
+  public static final String RELATIONSHIP_PATH = "/iudx/cat/v1/relationship";
 
   // endpoints
   public static final String POLICIES_API = "/policies";

@@ -65,6 +65,12 @@ public class Utility {
                 + generateRandomString().substring(0, 3)
                 + ".com";
     }
+  public static String generateRandomUrl() {
+    return generateRandomString().substring(0, 2)
+      + "."
+      + generateRandomString().substring(0, 4)
+      + ".io";
+  }
     public PostgresService setUp(PostgreSQLContainer container) {
         Vertx vertx = Vertx.vertx();
         Integer port = container.getFirstMappedPort();
