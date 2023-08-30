@@ -58,6 +58,16 @@ public class ResourceObj {
     return resourceGroupId;
   }
 
+
+  /**
+   * Get the resource server URL of the resource.
+   *
+   * @return The resource server URL as a String.
+   */
+  public String getResourceServerURL() {
+    return resourceServerURL;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
