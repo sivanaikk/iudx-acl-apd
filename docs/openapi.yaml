@@ -680,7 +680,7 @@ paths:
               description: application/json
         '400':
           description: |-
-            Bad Request 
+            Bad Request
             - Schema validation, missing or incorrect fields & values
           content:
             application/json:
@@ -699,7 +699,7 @@ paths:
               description: application/json
         '401':
           description: |-
-            Unauthorized 
+            Unauthorized
             - `token` invalid/expired
             - A user with non-consumer role trying to create a request
           content:
@@ -1715,15 +1715,15 @@ components:
         type: 'urn:dx:acl:success'
         title: Success
         results:
-          - policy_id: e03c2e31-910b-4dd6-b3ec-a490773b5463
-            user_emailId: abc@xyz.com
-            item_id: b34eb955-c691-4fd3-b200-f18bc78810a2
-            expiry_at: '2022-08-04T20:00:19'
-          - policy_id: 06b3ca12-de0d-4a29-bf98-074de1fa4c6b
-            user_emailId: tester@example.com
-            item_id: d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2
-            expiry_at: '2023-08-05T20:00:19'
-          - owner_id: 4e563a5f-35f0-4f32-92be-8830775a1c5e
+          - policyId: e03c2e31-910b-4dd6-b3ec-a490773b5463
+            userEmailId: abc@xyz.com
+            itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
+            expiryAt: '2022-08-04T20:00:19'
+          - policyId: 06b3ca12-de0d-4a29-bf98-074de1fa4c6b
+            userEmailId: tester@example.com
+            itemId: d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2
+            expiryAt: '2023-08-05T20:00:19'
+          - ownerId: 4e563a5f-35f0-4f32-92be-8830775a1c5e
     conflictResponse:
       title: standardPolicyAlreadyExistErrorResponse
       properties:
