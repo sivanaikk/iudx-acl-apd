@@ -271,7 +271,7 @@ public class TestCreateNotification {
         }).when(resourceInfo).onComplete(any());
         when(asyncResult.succeeded()).thenReturn(false);
         when(asyncResult.cause()).thenReturn(throwable);
-        when(throwable.getMessage()).thenReturn("Id/Ids does not present in CAT");
+        when(throwable.getMessage()).thenReturn("Item is not found");
 
         createNotification.initiateCreateNotification(notification, consumer).onComplete(handler -> {
             if (handler.succeeded()) {
