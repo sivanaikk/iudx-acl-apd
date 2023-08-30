@@ -575,7 +575,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"014ef385-31b8-4d9b-a6a9-041e75dc4959\"\n}"
+							"raw": "{\n\"id\": \"014ef385-31b8-4d9b-a6a9-041e75dc4959\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies",
@@ -648,7 +653,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"b5dd534d-231c-4674-8167-2e39467d0643\"\n}"
+							"raw": "{\n\"id\": \"b5dd534d-231c-4674-8167-2e39467d0643\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies",
@@ -786,7 +796,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"ae2b8b01-f642-411a-babb-cbd1b75fa2a9\"\n}"
+							"raw": "{\n\"id\": \"ae2b8b01-f642-411a-babb-cbd1b75fa2a9\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies",
@@ -859,7 +874,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"394608f9-b370-4606-a947-1cf300dab04c\"\n}"
+							"raw": "{\n\"id\": \"394608f9-b370-4606-a947-1cf300dab04c\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies",
@@ -1232,7 +1252,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"0450be67-db7b-4eb1-9e70-13f5284fdc75\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}"
+							"raw": "{\n    \"requestId\": \"0450be67-db7b-4eb1-9e70-13f5284fdc75\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
@@ -1297,7 +1322,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"d9e85db7-c4b7-4471-a95d-75b4e39f4b50\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}"
+							"raw": "{\n    \"requestId\": \"d9e85db7-c4b7-4471-a95d-75b4e39f4b50\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
@@ -1362,7 +1392,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"d9e85db7-c4b7-4471-a95d-75b4e39f4b50\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}"
+							"raw": "{\n    \"requestId\": \"d9e85db7-c4b7-4471-a95d-75b4e39f4b50\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
@@ -1428,7 +1463,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"d9e85db7-c4b7-4471-a95d-75b4e39f4b50\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}"
+							"raw": "{\n    \"requestId\": \"d9e85db7-c4b7-4471-a95d-75b4e39f4b50\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
@@ -1494,7 +1534,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"d9e86db7-c4b7-4471-a95d-75b4e39f4b50\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}"
+							"raw": "{\n    \"requestId\": \"d9e86db7-c4b7-4471-a95d-75b4e39f4b50\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
@@ -1559,7 +1604,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"0450be67-db7b-4eb1-9e70-13f5284fdc75\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}"
+							"raw": "{\n    \"requestId\": \"0450be67-db7b-4eb1-9e70-13f5284fdc75\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
@@ -1918,7 +1968,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"0450be67-db7b-4eb1-9e70-13f5284fdc75\"\n}\n"
+							"raw": "{\n\"id\": \"0450be67-db7b-4eb1-9e70-13f5284fdc75\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
@@ -1983,7 +2038,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"e9a329aa-352a-417e-82c0-0f68f08e0d12\"\n}\n"
+							"raw": "{\n\"id\": \"e9a329aa-352a-417e-82c0-0f68f08e0d12\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
@@ -2048,7 +2108,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"e9a329aa-352a-417e-82c0-0f68f08e0d13\"\n}\n"
+							"raw": "{\n\"id\": \"e9a329aa-352a-417e-82c0-0f68f08e0d13\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
@@ -2114,7 +2179,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"e9a329aa-352a-417e-82c0-0f68f08e0d12\"\n}\n"
+							"raw": "{\n\"id\": \"e9a329aa-352a-417e-82c0-0f68f08e0d12\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
@@ -2180,7 +2250,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"e9a329aa-352a-417e-82c0-0f68f08e0d11\"\n}\n"
+							"raw": "{\n\"id\": \"e9a329aa-352a-417e-82c0-0f68f08e0d11\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
@@ -2245,7 +2320,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"itemId\": \"ae2b8b01-f642-411a-babb-cbd1b75fa2a1\",\n\"itemType\": \"RESOURCE\"\n}"
+							"raw": "{\n\"itemId\": \"ae2b8b01-f642-411a-babb-cbd1b75fa2a1\",\n\"itemType\": \"RESOURCE\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
@@ -2310,7 +2390,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"itemId\": \"a347c5b6-5281-4749-9eab-89784d8f8f9b\",\n\"itemType\": \"RESOURCE\"\n}"
+							"raw": "{\n\"itemId\": \"a347c5b6-5281-4749-9eab-89784d8f8f9b\",\n\"itemType\": \"RESOURCE\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
@@ -2375,7 +2460,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"itemId\": \"a347c5b6-5281-4749-9eab-89784d8f8f9b\",\n\"itemType\": \"RESOURCE\"\n}"
+							"raw": "{\n\"itemId\": \"a347c5b6-5281-4749-9eab-89784d8f8f9b\",\n\"itemType\": \"RESOURCE\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
@@ -2440,7 +2530,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"itemId\": \"ae2b8b01-f642-411a-babb-cbd1b75fa2a1\",\n\"itemType\": \"RESOURCE\"\n}"
+							"raw": "{\n\"itemId\": \"ae2b8b01-f642-411a-babb-cbd1b75fa2a1\",\n\"itemType\": \"RESOURCE\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
