@@ -7,9 +7,7 @@
   "commonConfig": {
     "dxApiBasePath": "/ngsi-ld/v1",
     "dxCatalogueBasePath": "/iudx/cat/v1",
-    "dxAuthBasePath": "/auth/v1",
-    "catServerHost": "",
-    "catServerPort": 443
+    "dxAuthBasePath": "/auth/v1"
   },
   "host": "acl-apd.iudx.io",
   "modules": [
@@ -21,6 +19,22 @@
       "httpPort": 8443
     },
     {
+      "id": "iudx.apd.acl.server.policy.PolicyVerticle",
+      "isWorkerVerticle": false,
+      "verticleInstances": 1,
+      "databaseIp": "localhost",
+      "databasePort": 5432,
+      "databaseName": "",
+      "databaseUserName": "",
+      "databasePassword": "",
+      "poolSize": 25,
+      "defaultExpiryDays": 12,
+      "catServerHost": "",
+      "catServerPort": 123,
+      "catServerRelationShipPath": "",
+      "domain" : ""
+    },
+    {
       "id": "iudx.apd.acl.server.authentication.AuthenticationVerticle",
       "isWorkerVerticle": false,
       "verticleInstances": 1
@@ -29,26 +43,30 @@
       "id": "iudx.apd.acl.server.notification.NotificationVerticle",
       "isWorkerVerticle": false,
       "verticleInstances": 1,
-      "databaseIP": "",
+      "databaseIP": "localhost",
       "databasePort": 5433,
       "databaseName": "",
       "databaseUserName": "",
       "databasePassword": "",
-      "domain": "iudx.io",
-      "poolSize": 25
-    },
-    {
-      "id": "iudx.apd.acl.server.policy.PolicyVerticle",
-      "isWorkerVerticle": false,
-      "verticleInstances": 1,
-      "databaseIP": "",
-      "databasePort": 5433,
-      "databaseName": "",
-      "databaseUserName": "",
-      "databasePassword": "",
+      "catServerHost": "",
+      "catServerPort": 443,
+      "catServerRelationShipPath": "",
+      "domain" : "",
       "poolSize": 25,
-      "defaultExpiryDays": 12,
-      "domain": ""
-    }
+      "emailOptions": {
+        "emailHostName": "",
+        "emailPort": 2587,
+        "emailUserName": "",
+        "emailPassword": "",
+        "emailSender": "",
+        "emailSupport": [
+          "",
+          ""
+        ],
+        "publisherPanelUrl": "",
+        "notifyByEmail": true,
+        "senderName": ""
+      }
+      }
   ]
 }

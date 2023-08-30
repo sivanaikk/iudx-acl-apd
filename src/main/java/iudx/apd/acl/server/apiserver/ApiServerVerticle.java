@@ -1,5 +1,12 @@
 package iudx.apd.acl.server.apiserver;
 
+import static iudx.apd.acl.server.apiserver.response.ResponseUtil.generateResponse;
+import static iudx.apd.acl.server.apiserver.util.Constants.*;
+import static iudx.apd.acl.server.apiserver.util.Util.errorResponse;
+import static iudx.apd.acl.server.common.Constants.NOTIFICATION_SERVICE_ADDRESS;
+import static iudx.apd.acl.server.common.Constants.POLICY_SERVICE_ADDRESS;
+import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
@@ -21,17 +28,9 @@ import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.notification.NotificationService;
 import iudx.apd.acl.server.policy.PolicyService;
 import iudx.apd.acl.server.validation.FailureHandler;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.stream.Stream;
-
-import static iudx.apd.acl.server.apiserver.response.ResponseUtil.generateResponse;
-import static iudx.apd.acl.server.apiserver.util.Constants.*;
-import static iudx.apd.acl.server.apiserver.util.Util.errorResponse;
-import static iudx.apd.acl.server.common.Constants.NOTIFICATION_SERVICE_ADDRESS;
-import static iudx.apd.acl.server.common.Constants.POLICY_SERVICE_ADDRESS;
-import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
 
 /**
  * The ACL-APD Server API Verticle.
@@ -53,476 +52,470 @@ import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
  */
 public class ApiServerVerticle extends AbstractVerticle {
 
-    private static final Logger LOGGER = LogManager.getLogger(ApiServerVerticle.class);
+  private static final Logger LOGGER = LogManager.getLogger(ApiServerVerticle.class);
+  Api api;
+  private HttpServer server;
+  private Router router;
+  private int port;
+  private boolean isSsl;
+  private String dxApiBasePath;
+  private PolicyService policyService;
+  private String detail;
+  private NotificationService notificationService;
 
-    private HttpServer server;
-    private Router router;
-    private int port;
-    private boolean isSsl;
-    private String dxApiBasePath;
-    private Api api;
-    private PolicyService policyService;
-    private String detail;
-    private NotificationService notificationService;
+  private static User getConsumer() {
+    JsonObject consumer =
+        new JsonObject()
+            .put("userId", "e5d3ef22-5b25-4d61-aa85-6b3f47ce7121")
+            .put("firstName", "Test")
+            .put("lastName", "User 1")
+            .put("emailId", "test_user_1@example.com")
+            .put("userRole", "consumer");
+    return new User(consumer);
+  }
 
-    private static User getConsumer() {
-        JsonObject consumer =
-                new JsonObject()
-                        .put("userId", "e5d3ef22-5b25-4d61-aa85-6b3f47ce7121")
-                        .put("firstName", "Test")
-                        .put("lastName", "User 1")
-                        .put("emailId", "test_user_1@example.com")
-                        .put("userRole", "consumer");
-        return new User(consumer);
-    }
-
-    private static User getProvider() {
-        JsonObject provider =
-                new JsonObject()
-                        .put("userId", "b2c27f3f-2524-4a84-816e-91f9ab23f837")
-                        .put("firstName", "Test")
-                        .put("lastName", "Provider")
-                        .put("emailId", "testprovider@example.com")
-                        .put("userRole", "provider");
-        return new User(provider);
-    }
+  private static User getProvider() {
+    JsonObject provider =
+        new JsonObject()
+            .put("userId", "b2c27f3f-2524-4a84-816e-91f9ab23f837")
+            .put("firstName", "Test")
+            .put("lastName", "Provider")
+            .put("emailId", "testprovider@example.com")
+            .put("userRole", "provider");
+    return new User(provider);
+  }
 
   /**
-     * This method is used to start the Verticle. It deploys a verticle in a cluster, reads the
-     * configuration, obtains a proxy for the Event bus services exposed through service discovery,
-     * start an HTTPs server at port 8443 or an HTTP server at port 8080.
-     *
-     * @throws Exception which is a startup exception
-     */
-    @Override
-    public void start() throws Exception {
+   * This method is used to start the Verticle. It deploys a verticle in a cluster, reads the
+   * configuration, obtains a proxy for the Event bus services exposed through service discovery,
+   * start an HTTPs server at port 8443 or an HTTP server at port 8080.
+   *
+   * @throws Exception which is a startup exception
+   */
+  @Override
+  public void start() throws Exception {
 
-        /* Define the APIs, methods, endpoints and associated methods. */
-        dxApiBasePath = config().getString("dxApiBasePath");
-        api = Api.getInstance(dxApiBasePath);
+    /* Define the APIs, methods, endpoints and associated methods. */
+    dxApiBasePath = config().getString("dxApiBasePath");
+    this.api = Api.getInstance(dxApiBasePath);
 
-        FailureHandler failureHandler = new FailureHandler();
-        /* Initialize service proxy */
-        policyService = PolicyService.createProxy(vertx, POLICY_SERVICE_ADDRESS);
-        notificationService = NotificationService.createProxy(vertx, NOTIFICATION_SERVICE_ADDRESS);
+    FailureHandler failureHandler = new FailureHandler();
+    /* Initialize service proxy */
+    policyService = PolicyService.createProxy(vertx, POLICY_SERVICE_ADDRESS);
+    notificationService = NotificationService.createProxy(vertx, NOTIFICATION_SERVICE_ADDRESS);
 
-        /* Initialize Router builder */
-        RouterBuilder.create(vertx, "docs/openapi.yaml")
-                .onSuccess(
-                        routerBuilder -> {
-                            routerBuilder.securityHandler("authorization", new Authentication());
+    /* Initialize Router builder */
+    RouterBuilder.create(vertx, "docs/openapi.yaml")
+        .onSuccess(
+            routerBuilder -> {
+              routerBuilder.securityHandler("authorization", new Authentication());
 
-                            routerBuilder
-                                    .operation(CREATE_POLICY_API)
-//                                    .handler(AuthHandler.create(vertx,api))
-                                    .handler(this::postPoliciesHandler)
-                                    .failureHandler(failureHandler);
+              routerBuilder
+                  .operation(CREATE_POLICY_API)
+                  //                                    .handler(AuthHandler.create(vertx,api))
+                  .handler(this::postPoliciesHandler)
+                  .failureHandler(failureHandler);
 
-                            routerBuilder
-                                    .operation(GET_POLICY_API)
-                                    .handler(this::getPoliciesHandler)
-                                    .failureHandler(failureHandler);
+              routerBuilder
+                  .operation(GET_POLICY_API)
+                  .handler(this::getPoliciesHandler)
+                  .failureHandler(failureHandler);
 
-                            routerBuilder
-                                    .operation(DELETE_POLICY_API)
-                                    .handler(this::deletePoliciesHandler)
-                                    .failureHandler(failureHandler);
+              routerBuilder
+                  .operation(DELETE_POLICY_API)
+                  .handler(this::deletePoliciesHandler)
+                  .failureHandler(failureHandler);
 
-                            routerBuilder
-                                    .operation(CREATE_NOTIFICATIONS_API)
-                                    .handler(this::postAccessRequestHandler)
-                                    .failureHandler(failureHandler);
+              routerBuilder
+                  .operation(CREATE_NOTIFICATIONS_API)
+                  .handler(this::postAccessRequestHandler)
+                  .failureHandler(failureHandler);
 
-                            routerBuilder
-                                    .operation(UPDATE_NOTIFICATIONS_API)
-                                    .handler(this::putAccessRequestHandler)
-                                    .failureHandler(failureHandler);
+              routerBuilder
+                  .operation(UPDATE_NOTIFICATIONS_API)
+                  .handler(this::putAccessRequestHandler)
+                  .failureHandler(failureHandler);
 
-                            routerBuilder
-                                    .operation(GET_NOTIFICATIONS_API)
-                                    .handler(this::getAccessRequestHandler)
-                                    .failureHandler(failureHandler);
+              routerBuilder
+                  .operation(GET_NOTIFICATIONS_API)
+                  .handler(this::getAccessRequestHandler)
+                  .failureHandler(failureHandler);
 
-                            routerBuilder
-                                    .operation(DELETE_NOTIFICATIONS_API)
-                                    .handler(this::deleteAccessRequestHandler)
-                                    .failureHandler(failureHandler);
+              routerBuilder
+                  .operation(DELETE_NOTIFICATIONS_API)
+                  .handler(this::deleteAccessRequestHandler)
+                  .failureHandler(failureHandler);
 
-                            routerBuilder
-                            .operation(VERIFY_API)
-                            .handler(this::verifyRequestHandler)
-                            .failureHandler(failureHandler);
+              routerBuilder
+                  .operation(VERIFY_API)
+                  .handler(this::verifyRequestHandler)
+                  .failureHandler(failureHandler);
 
-                            routerBuilder.rootHandler(TimeoutHandler.create(100000, 408));
-                            configureCorsHandler(routerBuilder);
-                            routerBuilder.rootHandler(BodyHandler.create());
-                            router = routerBuilder.createRouter();
-                            putCommonResponseHeaders();
-                            configureErrorHandlers(router);
+              routerBuilder.rootHandler(TimeoutHandler.create(100000, 408));
+              configureCorsHandler(routerBuilder);
+              routerBuilder.rootHandler(BodyHandler.create());
+              router = routerBuilder.createRouter();
+              putCommonResponseHeaders();
+              configureErrorHandlers(router);
 
+              /* Documentation routes */
+              /* Static Resource Handler */
+              /* Get openapiv3 spec */
+              router
+                  .get(ROUTE_STATIC_SPEC)
+                  .produces(APPLICATION_JSON)
+                  .handler(
+                      routingContext -> {
+                        HttpServerResponse response = routingContext.response();
+                        response.sendFile("docs/openapi.yaml");
+                      });
+              /* Get redoc */
+              router
+                  .get(ROUTE_DOC)
+                  .produces(MIME_TEXT_HTML)
+                  .handler(
+                      routingContext -> {
+                        HttpServerResponse response = routingContext.response();
+                        response.sendFile("docs/apidoc.html");
+                      });
 
-                            /* Documentation routes */
-                            /* Static Resource Handler */
-                            /* Get openapiv3 spec */
-                            router
-                                    .get(ROUTE_STATIC_SPEC)
-                                    .produces(APPLICATION_JSON)
-                                    .handler(
-                                            routingContext -> {
-                                                HttpServerResponse response = routingContext.response();
-                                                response.sendFile("docs/openapi.yaml");
-                                            });
-                            /* Get redoc */
-                            router
-                                    .get(ROUTE_DOC)
-                                    .produces(MIME_TEXT_HTML)
-                                    .handler(
-                                            routingContext -> {
-                                                HttpServerResponse response = routingContext.response();
-                                                response.sendFile("docs/apidoc.html");
-                                            });
+              /* Read ssl configuration. */
+              HttpServerOptions serverOptions = new HttpServerOptions();
+              setServerOptions(serverOptions);
+              serverOptions.setCompressionSupported(true).setCompressionLevel(5);
+              server = vertx.createHttpServer(serverOptions);
+              server.requestHandler(router).listen(port);
 
-                            /* Read ssl configuration. */
-                            HttpServerOptions serverOptions = new HttpServerOptions();
-                            setServerOptions(serverOptions);
-                            serverOptions.setCompressionSupported(true).setCompressionLevel(5);
-                            server = vertx.createHttpServer(serverOptions);
-                            server.requestHandler(router).listen(port);
-
-                            printDeployedEndpoints(router);
-                            /* Print the deployed endpoints */
-                            LOGGER.info("API server deployed on: " + port);
-                        })
-                .onFailure(
-                        failure -> {
-                            LOGGER.error(
-                                    "Failed to initialize router builder {}", failure.getCause().getMessage());
-                        });
-    }
+              printDeployedEndpoints(router);
+              /* Print the deployed endpoints */
+              LOGGER.info("API server deployed on: " + port);
+            })
+        .onFailure(
+            failure -> {
+              LOGGER.error(
+                  "Failed to initialize router builder {}", failure.getCause().getMessage());
+            });
+  }
 
   private void verifyRequestHandler(RoutingContext routingContext) {
     JsonObject requestBody = routingContext.body().asJsonObject();
-    policyService.verifyPolicy(requestBody)
-      .onComplete(
-        handler -> {
-          if (handler.succeeded()) {
-            LOGGER.info("Policy verified successfully ");
-            handleSuccessResponse(
-              routingContext, HttpStatusCode.SUCCESS.getValue(), handler.result().toString());
-          } else {
-            LOGGER.error("Policy could not be verified");
-            handleFailureResponse(routingContext, handler.cause().getMessage());
-          }
-        });
+    policyService
+        .verifyPolicy(requestBody)
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                LOGGER.info("Policy verified successfully ");
+                handleSuccessResponse(
+                    routingContext, HttpStatusCode.SUCCESS.getValue(), handler.result().toString());
+              } else {
+                LOGGER.error("Policy could not be verified");
+                handleFailureResponse(routingContext, handler.cause().getMessage());
+              }
+            });
   }
 
-    private void postAccessRequestHandler(RoutingContext routingContext) {
-        JsonObject request = routingContext.body().asJsonObject();
-        User consumer = getConsumer();
-        notificationService
-                .createNotification(request, consumer)
-                .onComplete(handler -> {
-                    if(handler.succeeded()){
-                        LOGGER.info("Notification created successfully : {}", handler.result().encode());
-                        JsonObject response = new JsonObject()
-                                .put(TYPE, handler.result().getString(TYPE))
-                                .put(TITLE, handler.result().getString(TITLE))
-                                .put(RESULT, handler.result().getValue(RESULT));
-                        handleSuccessResponse(routingContext, handler.result().getInteger(STATUS_CODE), response.toString());
+  private void postAccessRequestHandler(RoutingContext routingContext) {
+    JsonObject request = routingContext.body().asJsonObject();
+    User consumer = getConsumer();
+    notificationService
+        .createNotification(request, consumer)
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                LOGGER.info("Notification created successfully : {}", handler.result().encode());
+                JsonObject response =
+                    new JsonObject()
+                        .put(TYPE, handler.result().getString(TYPE))
+                        .put(TITLE, handler.result().getString(TITLE))
+                        .put(RESULT, handler.result().getValue(RESULT));
+                handleSuccessResponse(
+                    routingContext, handler.result().getInteger(STATUS_CODE), response.toString());
+              } else {
+                LOGGER.error("Failed to create notification : {}", handler.cause().getMessage());
+                handleFailureResponse(routingContext, handler.cause().getMessage());
+              }
+            });
+  }
+
+  private void printDeployedEndpoints(Router router) {
+    for (Route route : router.getRoutes()) {
+      if (route.getPath() != null) {
+        LOGGER.debug("API Endpoints deployed : " + route.methods() + " : " + route.getPath());
+      }
+    }
+  }
+
+  private void putAccessRequestHandler(RoutingContext routingContext) {
+    JsonObject notification = routingContext.body().asJsonObject();
+    User provider = getProvider();
+    notificationService
+        .updateNotification(notification, provider)
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                LOGGER.info("Update Notification succeeded : {} ", handler.result().encode());
+                JsonObject response =
+                    new JsonObject()
+                        .put(TYPE, handler.result().getString(TYPE))
+                        .put(TITLE, handler.result().getString(TITLE))
+                        .put(RESULT, handler.result().getValue(RESULT));
+                handleSuccessResponse(
+                    routingContext, handler.result().getInteger(STATUS_CODE), response.toString());
+              } else {
+                LOGGER.error("Update Notification failed : {} ", handler.cause().getMessage());
+                handleFailureResponse(routingContext, handler.cause().getMessage());
+              }
+            });
+  }
+
+  private void deleteAccessRequestHandler(RoutingContext routingContext) {
+    JsonObject notification = routingContext.body().asJsonObject();
+    User consumer = getConsumer();
+    notificationService
+        .deleteNotification(notification, consumer)
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                LOGGER.info("Delete Notification succeeded : {} ", handler.result().encode());
+                JsonObject response =
+                    new JsonObject()
+                        .put(TYPE, handler.result().getString(TYPE))
+                        .put(TITLE, handler.result().getString(TITLE))
+                        .put(RESULT, handler.result().getValue(RESULT));
+                handleSuccessResponse(
+                    routingContext, handler.result().getInteger(STATUS_CODE), response.toString());
+              } else {
+                LOGGER.error("Delete Notification failed : {} ", handler.cause().getMessage());
+                handleFailureResponse(routingContext, handler.cause().getMessage());
+              }
+            });
+  }
+
+  private void getAccessRequestHandler(RoutingContext routingContext) {
+    User consumer = getConsumer();
+    //        User provider = getProvider();
+    notificationService
+        .getNotification(consumer)
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                handleSuccessResponse(
+                    routingContext,
+                    handler.result().getInteger(STATUS_CODE),
+                    handler.result().getString(RESULT));
+              } else {
+                handleFailureResponse(routingContext, handler.cause().getMessage());
+              }
+            });
+  }
+
+  private void postPoliciesHandler(RoutingContext routingContext) {
+    JsonObject requestBody = routingContext.body().asJsonObject();
+    // TODO: to add user object in the requestBody before calling createPolicy method
+    policyService
+        .createPolicy(requestBody, getProvider())
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                LOGGER.info("Policy created successfully ");
+                handleSuccessResponse(
+                    routingContext, HttpStatusCode.SUCCESS.getValue(), handler.result().toString());
+              } else {
+                LOGGER.error("Policy could not be created");
+                handleFailureResponse(routingContext, handler.cause().getMessage());
+              }
+            });
+  }
+
+  private void deletePoliciesHandler(RoutingContext routingContext) {
+    JsonObject policy = routingContext.body().asJsonObject();
+
+    User provider = getProvider();
+    policyService
+        .deletePolicy(policy, provider)
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                LOGGER.info("Delete policy succeeded : {} ", handler.result().encode());
+                JsonObject response =
+                    new JsonObject()
+                        .put(TYPE, handler.result().getString(TYPE))
+                        .put(TITLE, handler.result().getString(TITLE))
+                        .put(RESULT, handler.result().getValue(RESULT));
+                handleSuccessResponse(
+                    routingContext, handler.result().getInteger(STATUS_CODE), response.toString());
+              } else {
+                LOGGER.error("Delete policy failed : {} ", handler.cause().getMessage());
+                handleFailureResponse(routingContext, handler.cause().getMessage());
+              }
+            });
+  }
+
+  private void getPoliciesHandler(RoutingContext routingContext) {
+
+    //        User consumer = getConsumer();
+    User provider = getProvider();
+    policyService
+        .getPolicy(provider)
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                handleSuccessResponse(
+                    routingContext,
+                    handler.result().getInteger(STATUS_CODE),
+                    handler.result().getString(RESULT));
+              } else {
+                handleFailureResponse(routingContext, handler.cause().getMessage());
+              }
+            });
+  }
+
+  /**
+   * Configures the CORS handler on the provided router.
+   *
+   * @param routerBuilder The router builder instance to configure the CORS handler on.
+   */
+  private void configureCorsHandler(RouterBuilder routerBuilder) {
+    routerBuilder.rootHandler(
+        CorsHandler.create("*").allowedHeaders(ALLOWED_HEADERS).allowedMethods(ALLOWED_METHODS));
+  }
+
+  /**
+   * Configures error handlers for the specified status codes on the provided router.
+   *
+   * @param router The router instance to configure the error handlers on.
+   */
+  private void configureErrorHandlers(Router router) {
+    HttpStatusCode[] statusCodes = HttpStatusCode.values();
+    Stream.of(statusCodes)
+        .forEach(
+            code -> {
+              router.errorHandler(
+                  code.getValue(),
+                  errorHandler -> {
+                    HttpServerResponse response = errorHandler.response();
+                    if (response.headWritten()) {
+                      try {
+                        response.close();
+                      } catch (RuntimeException e) {
+                        LOGGER.error("Error: " + e);
+                      }
+                      return;
                     }
-                    else
-                    {
-                        LOGGER.error("Failed to create notification : {}", handler.cause().getMessage());
-                        handleFailureResponse(routingContext, handler.cause().getMessage());
-                    }
-                });
-    }
-
-    private void printDeployedEndpoints(Router router) {
-        for (Route route : router.getRoutes()) {
-            if (route.getPath() != null) {
-                LOGGER.debug("API Endpoints deployed : " + route.methods() + " : " + route.getPath());
-            }
-        }
-    }
-
-    private void putAccessRequestHandler(RoutingContext routingContext) {
-        JsonObject notification = routingContext.body().asJsonObject();
-        User provider = getProvider();
-        notificationService
-                .updateNotification(notification, provider)
-                .onComplete(
-                        handler -> {
-                            if (handler.succeeded()) {
-                                LOGGER.info("Update Notification succeeded : {} ", handler.result().encode());
-                                JsonObject response =
-                                        new JsonObject()
-                                                .put(TYPE, handler.result().getString(TYPE))
-                                                .put(TITLE, handler.result().getString(TITLE))
-                                                .put(RESULT, handler.result().getValue(RESULT));
-                                handleSuccessResponse(
-                                        routingContext, handler.result().getInteger(STATUS_CODE), response.toString());
-                            } else {
-                                LOGGER.error("Update Notification failed : {} ", handler.cause().getMessage());
-                                handleFailureResponse(routingContext, handler.cause().getMessage());
-                            }
-                        });
-    }
-
-    private void deleteAccessRequestHandler(RoutingContext routingContext) {
-        JsonObject notification = routingContext.body().asJsonObject();
-        User consumer = getConsumer();
-        notificationService
-                .deleteNotification(notification, consumer)
-                .onComplete(
-                        handler -> {
-                            if (handler.succeeded()) {
-                                LOGGER.info("Delete Notification succeeded : {} ", handler.result().encode());
-                                JsonObject response =
-                                        new JsonObject()
-                                                .put(TYPE, handler.result().getString(TYPE))
-                                                .put(TITLE, handler.result().getString(TITLE))
-                                                .put(RESULT, handler.result().getValue(RESULT));
-                                handleSuccessResponse(
-                                        routingContext, handler.result().getInteger(STATUS_CODE), response.toString());
-                            } else {
-                                LOGGER.error("Delete Notification failed : {} ", handler.cause().getMessage());
-                                handleFailureResponse(routingContext, handler.cause().getMessage());
-                            }
-                        });
-    }
-
-    private void getAccessRequestHandler(RoutingContext routingContext) {
-        User consumer = getConsumer();
-        User provider = getProvider();
-        notificationService
-                .getNotification(consumer)
-                .onComplete(
-                        handler -> {
-                            if (handler.succeeded()) {
-                                handleSuccessResponse(
-                                        routingContext,
-                                        handler.result().getInteger(STATUS_CODE),
-                                        handler.result().getString(RESULT));
-                            } else {
-                                handleFailureResponse(routingContext, handler.cause().getMessage());
-                            }
-                        });
-    }
-
-    private void postPoliciesHandler(RoutingContext routingContext) {
-        JsonObject requestBody = routingContext.body().asJsonObject();
-        // TODO: to add user object in the requestBody before calling createPolicy method
-        policyService
-                .createPolicy(requestBody, getProvider())
-                .onComplete(
-                        handler -> {
-                            if (handler.succeeded()) {
-                                LOGGER.info("Policy created successfully ");
-                                handleSuccessResponse(
-                                        routingContext, HttpStatusCode.SUCCESS.getValue(), handler.result().toString());
-                            } else {
-                                LOGGER.error("Policy could not be created");
-                                handleFailureResponse(routingContext, handler.cause().getMessage());
-                            }
-                        });
-    }
-
-
-    private void deletePoliciesHandler(RoutingContext routingContext) {
-        JsonObject policy = routingContext.body().asJsonObject();
-
-        User provider = getProvider();
-        policyService
-                .deletePolicy(policy, provider)
-                .onComplete(
-                        handler -> {
-                            if (handler.succeeded()) {
-                                LOGGER.info("Delete policy succeeded : {} ", handler.result().encode());
-                                JsonObject response =
-                                        new JsonObject()
-                                                .put(TYPE, handler.result().getString(TYPE))
-                                                .put(TITLE, handler.result().getString(TITLE))
-                                                .put(RESULT, handler.result().getValue(RESULT));
-                                handleSuccessResponse(
-                                        routingContext, handler.result().getInteger(STATUS_CODE), response.toString());
-                            } else {
-                                LOGGER.error("Delete policy failed : {} ", handler.cause().getMessage());
-                                handleFailureResponse(routingContext, handler.cause().getMessage());
-                            }
-                        });
-    }
-
-    private void getPoliciesHandler(RoutingContext routingContext) {
-
-        User consumer = getConsumer();
-        User provider = getProvider();
-        policyService
-                .getPolicy(provider)
-                .onComplete(
-                        handler -> {
-                            if (handler.succeeded()) {
-                                handleSuccessResponse(
-                                        routingContext,
-                                        handler.result().getInteger(STATUS_CODE),
-                                        handler.result().getString(RESULT));
-                            } else {
-                                handleFailureResponse(routingContext, handler.cause().getMessage());
-                            }
-                        });
-    }
-
-    /**
-     * Configures the CORS handler on the provided router.
-     *
-     * @param routerBuilder The router builder instance to configure the CORS handler on.
-     */
-    private void configureCorsHandler(RouterBuilder routerBuilder) {
-        routerBuilder.rootHandler(CorsHandler.create("*")
-                .allowedHeaders(ALLOWED_HEADERS)
-                .allowedMethods(ALLOWED_METHODS));
-    }
-
-    /**
-     * Configures error handlers for the specified status codes on the provided router.
-     *
-     * @param router The router instance to configure the error handlers on.
-     */
-    private void configureErrorHandlers(Router router) {
-        HttpStatusCode[] statusCodes = HttpStatusCode.values();
-        Stream.of(statusCodes)
-                .forEach(
-                        code -> {
-                            router.errorHandler(
-                                    code.getValue(),
-                                    errorHandler -> {
-                                        HttpServerResponse response = errorHandler.response();
-                                        if (response.headWritten()) {
-                                            try {
-                                                response.close();
-                                            } catch (RuntimeException e) {
-                                                LOGGER.error("Error: " + e);
-                                            }
-                                            return;
-                                        }
-                                        response
-                                                .putHeader(CONTENT_TYPE, APPLICATION_JSON)
-                                                .setStatusCode(code.getValue())
-                                                .end(errorResponse(code));
-                                    });
-                        });
-    }
-
-    /**
-     * Sets common response headers to be included in HTTP responses.
-     */
-    private void putCommonResponseHeaders() {
-        router
-                .route()
-                .handler(
-                        requestHandler -> {
-                            requestHandler
-                                    .response()
-                                    .putHeader("Cache-Control", "no-cache, no-store,  must-revalidate,max-age=0")
-                                    .putHeader("Pragma", "no-cache")
-                                    .putHeader("Expires", "0")
-                                    .putHeader("X-Content-Type-Options", "nosniff");
-                            requestHandler.next();
-                        });
-    }
-
-    /**
-     * Sets the server options based on the configuration settings. If SSL is enabled, starts an HTTPS
-     * server with the specified HTTP port. If SSL is disabled, starts an HTTP server with the
-     * specified HTTP port. If the HTTP port is not specified in the configuration, default ports
-     * (8080 for HTTP and 8443 for HTTPS) will be used.
-     *
-     * @param serverOptions The server options to be configured.
-     */
-    private void setServerOptions(HttpServerOptions serverOptions) {
-        isSsl = config().getBoolean("ssl");
-        if (isSsl) {
-            LOGGER.debug("Info: Starting HTTPs server");
-            port = config().getInteger("httpPort") == null ? 8443 : config().getInteger("httpPort");
-        } else {
-            LOGGER.debug("Info: Starting HTTP server");
-            serverOptions.setSsl(false);
-            port = config().getInteger("httpPort") == null ? 8080 : config().getInteger("httpPort");
-        }
-    }
-
-    /**
-     * Handles HTTP Success response from the server
-     *
-     * @param routingContext Routing context object
-     * @param statusCode     statusCode to respond with
-     * @param result         respective result returned from the service
-     */
-    private void handleSuccessResponse(RoutingContext routingContext, int statusCode, String result) {
-        HttpServerResponse response = routingContext.response();
-        response.putHeader(CONTENT_TYPE, APPLICATION_JSON).setStatusCode(statusCode).end(result);
-    }
-
-    /**
-     * Handles Failed HTTP Response
-     *
-     * @param routingContext Routing context object
-     * @param failureMessage Failure message for response
-     */
-    private void handleFailureResponse(RoutingContext routingContext, String failureMessage) {
-        HttpServerResponse response = routingContext.response();
-        LOGGER.debug("Failure Message : {} ", failureMessage);
-
-        try {
-            JsonObject jsonObject = new JsonObject(failureMessage);
-            int type = jsonObject.getInteger(TYPE);
-            String title = jsonObject.getString(TITLE);
-
-            HttpStatusCode status = HttpStatusCode.getByValue(type);
-
-            ResponseUrn urn;
-
-            // get the urn by either type or title
-            if (title != null) {
-                urn = ResponseUrn.fromCode(title);
-            } else {
-
-                urn = ResponseUrn.fromCode(String.valueOf(type));
-            }
-            if (jsonObject.getString(DETAIL) != null) {
-                detail = jsonObject.getString(DETAIL);
-                response
+                    response
                         .putHeader(CONTENT_TYPE, APPLICATION_JSON)
-                        .setStatusCode(type)
-                        .end(generateResponse(status, urn, detail).toString());
-            } else {
-                response
-                        .putHeader(CONTENT_TYPE, APPLICATION_JSON)
-                        .setStatusCode(type)
-                        .end(generateResponse(status, urn).toString());
-            }
+                        .setStatusCode(code.getValue())
+                        .end(errorResponse(code));
+                  });
+            });
+  }
 
-        } catch (DecodeException exception) {
-            LOGGER.error("Error : Expecting JSON from backend service [ jsonFormattingException ] ");
-            handleResponse(response, BAD_REQUEST, ResponseUrn.BACKING_SERVICE_FORMAT_URN);
-        }
+  /** Sets common response headers to be included in HTTP responses. */
+  private void putCommonResponseHeaders() {
+    router
+        .route()
+        .handler(
+            requestHandler -> {
+              requestHandler
+                  .response()
+                  .putHeader("Cache-Control", "no-cache, no-store,  must-revalidate,max-age=0")
+                  .putHeader("Pragma", "no-cache")
+                  .putHeader("Expires", "0")
+                  .putHeader("X-Content-Type-Options", "nosniff");
+              requestHandler.next();
+            });
+  }
+
+  /**
+   * Sets the server options based on the configuration settings. If SSL is enabled, starts an HTTPS
+   * server with the specified HTTP port. If SSL is disabled, starts an HTTP server with the
+   * specified HTTP port. If the HTTP port is not specified in the configuration, default ports
+   * (8080 for HTTP and 8443 for HTTPS) will be used.
+   *
+   * @param serverOptions The server options to be configured.
+   */
+  private void setServerOptions(HttpServerOptions serverOptions) {
+    isSsl = config().getBoolean("ssl");
+    if (isSsl) {
+      LOGGER.debug("Info: Starting HTTPs server");
+      port = config().getInteger("httpPort") == null ? 8443 : config().getInteger("httpPort");
+    } else {
+      LOGGER.debug("Info: Starting HTTP server");
+      serverOptions.setSsl(false);
+      port = config().getInteger("httpPort") == null ? 8080 : config().getInteger("httpPort");
     }
+  }
 
-    private void handleResponse(
-            HttpServerResponse response, HttpStatusCode statusCode, ResponseUrn urn) {
-        handleResponse(response, statusCode, urn, statusCode.getDescription());
-    }
+  /**
+   * Handles HTTP Success response from the server
+   *
+   * @param routingContext Routing context object
+   * @param statusCode statusCode to respond with
+   * @param result respective result returned from the service
+   */
+  private void handleSuccessResponse(RoutingContext routingContext, int statusCode, String result) {
+    HttpServerResponse response = routingContext.response();
+    response.putHeader(CONTENT_TYPE, APPLICATION_JSON).setStatusCode(statusCode).end(result);
+  }
 
-    private void handleResponse(
-            HttpServerResponse response,
-            HttpStatusCode statusCode,
-            ResponseUrn urn,
-            String failureMessage) {
+  /**
+   * Handles Failed HTTP Response
+   *
+   * @param routingContext Routing context object
+   * @param failureMessage Failure message for response
+   */
+  private void handleFailureResponse(RoutingContext routingContext, String failureMessage) {
+    HttpServerResponse response = routingContext.response();
+    LOGGER.debug("Failure Message : {} ", failureMessage);
+
+    try {
+      JsonObject jsonObject = new JsonObject(failureMessage);
+      int type = jsonObject.getInteger(TYPE);
+      String title = jsonObject.getString(TITLE);
+
+      HttpStatusCode status = HttpStatusCode.getByValue(type);
+
+      ResponseUrn urn;
+
+      // get the urn by either type or title
+      if (title != null) {
+        urn = ResponseUrn.fromCode(title);
+      } else {
+
+        urn = ResponseUrn.fromCode(String.valueOf(type));
+      }
+      if (jsonObject.getString(DETAIL) != null) {
+        detail = jsonObject.getString(DETAIL);
         response
-                .putHeader(CONTENT_TYPE, APPLICATION_JSON)
-                .setStatusCode(statusCode.getValue())
-                .end(generateResponse(statusCode, urn, failureMessage).toString());
+            .putHeader(CONTENT_TYPE, APPLICATION_JSON)
+            .setStatusCode(type)
+            .end(generateResponse(status, urn, detail).toString());
+      } else {
+        response
+            .putHeader(CONTENT_TYPE, APPLICATION_JSON)
+            .setStatusCode(type)
+            .end(generateResponse(status, urn).toString());
+      }
+
+    } catch (DecodeException exception) {
+      LOGGER.error("Error : Expecting JSON from backend service [ jsonFormattingException ] ");
+      handleResponse(response, BAD_REQUEST, ResponseUrn.BACKING_SERVICE_FORMAT_URN);
     }
+  }
 
+  private void handleResponse(
+      HttpServerResponse response, HttpStatusCode statusCode, ResponseUrn urn) {
+    handleResponse(response, statusCode, urn, statusCode.getDescription());
+  }
+
+  private void handleResponse(
+      HttpServerResponse response,
+      HttpStatusCode statusCode,
+      ResponseUrn urn,
+      String failureMessage) {
+    response
+        .putHeader(CONTENT_TYPE, APPLICATION_JSON)
+        .setStatusCode(statusCode.getValue())
+        .end(generateResponse(statusCode, urn, failureMessage).toString());
+  }
 }
-

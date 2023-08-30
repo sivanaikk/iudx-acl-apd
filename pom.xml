@@ -184,6 +184,13 @@
       <scope>test</scope>
     </dependency>
 
+  <!--    Vertx Mail Client dependency -->
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-mail-client</artifactId>
+      <version>4.4.4</version>
+    </dependency>
+
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-pg-client</artifactId>
@@ -343,6 +350,16 @@
           </execution>
         </executions>
         <configuration>
+          <excludes>
+          <!-- excluding classes from JaCoCo test coverage -->
+            <exclude>**/*VertxEBProxy.class</exclude>
+            <exclude>**/*VertxProxyHandler.class</exclude>
+            <exclude>**/*Verticle.class</exclude>
+            <exclude>**/*Service.class</exclude>
+
+            <exclude>iudx/apd/acl/server/deploy/*</exclude>
+            <exclude>**/*Constants.class</exclude>
+          </excludes>
           <systemPropertyVariables>
             <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
           </systemPropertyVariables>

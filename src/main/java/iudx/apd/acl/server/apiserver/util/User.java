@@ -2,9 +2,6 @@ package iudx.apd.acl.server.apiserver.util;
 
 import io.vertx.codegen.annotations.DataObject;
 import io.vertx.core.json.JsonObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Objects;
 
 /**
@@ -15,7 +12,7 @@ import java.util.Objects;
  */
 @DataObject(generateConverter = true)
 public class User {
-  private static final Logger LOG = LoggerFactory.getLogger(User.class);
+  //  private static final Logger LOG = LoggerFactory.getLogger(User.class);
   private final String userId;
   private final Role userRole;
   private final String emailId;
@@ -63,22 +60,38 @@ public class User {
   public String getUserId() {
     return userId;
   }
-  public String toString(){
-    return  "User details :: \nuserId - " + userId + ",\n emailId - " + emailId + ",\n userRole - " + userRole + ",\n firstName - " + firstName + ",\n lastName - " + lastName;
-  }
 
+  public String toString() {
+    return "User details :: \nuserId - "
+        + userId
+        + ",\n emailId - "
+        + emailId
+        + ",\n userRole - "
+        + userRole
+        + ",\n firstName - "
+        + firstName
+        + ",\n lastName - "
+        + lastName;
+  }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof User)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof User)) {
+      return false;
+    }
     User user = (User) o;
-    return Objects.equals(userId, user.userId) && userRole == user.userRole && Objects.equals(emailId, user.emailId) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName);
+    return Objects.equals(userId, user.userId)
+        && userRole == user.userRole
+        && Objects.equals(emailId, user.emailId)
+        && Objects.equals(firstName, user.firstName)
+        && Objects.equals(lastName, user.lastName);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(userId, userRole, emailId, firstName, lastName);
   }
-
 }

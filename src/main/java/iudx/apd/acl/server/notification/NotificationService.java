@@ -15,19 +15,19 @@ import iudx.apd.acl.server.policy.PolicyServiceVertxEBProxy;
 @ProxyGen
 public interface NotificationService {
 
-    /* factory method */
-    @GenIgnore
-    static NotificationService createProxy(Vertx vertx, String address) {
-        return new NotificationServiceVertxEBProxy(vertx, address);
-    }
+  /* factory method */
+  @GenIgnore
+  static NotificationService createProxy(Vertx vertx, String address) {
+    return new NotificationServiceVertxEBProxy(vertx, address);
+  }
 
-    /* service operation */
+  /* service operation */
 
-    Future<JsonObject> createNotification(JsonObject request, User user);
+  Future<JsonObject> createNotification(JsonObject request, User user);
 
-    Future<JsonObject> deleteNotification(JsonObject notification, User user);
+  Future<JsonObject> deleteNotification(JsonObject notification, User user);
 
-    Future<JsonObject> getNotification(User user);
+  Future<JsonObject> getNotification(User user);
 
-    Future<JsonObject> updateNotification(JsonObject request, User user);
+  Future<JsonObject> updateNotification(JsonObject request, User user);
 }

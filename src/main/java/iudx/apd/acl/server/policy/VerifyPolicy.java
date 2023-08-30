@@ -1,7 +1,6 @@
 package iudx.apd.acl.server.policy;
 
 import static iudx.apd.acl.server.apiserver.util.Constants.DETAIL;
-
 import static iudx.apd.acl.server.apiserver.util.Constants.TITLE;
 import static iudx.apd.acl.server.apiserver.util.Constants.TYPE;
 import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
@@ -10,17 +9,14 @@ import static iudx.apd.acl.server.policy.util.Constants.CHECK_EXISTING_POLICY;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
-
 import io.vertx.core.json.JsonObject;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.Tuple;
-
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.policy.util.ItemType;
 import iudx.apd.acl.server.policy.util.Status;
 import java.util.HashSet;
-
 import java.util.Set;
 import java.util.UUID;
 import org.apache.logging.log4j.LogManager;

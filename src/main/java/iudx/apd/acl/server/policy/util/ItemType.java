@@ -1,5 +1,6 @@
 package iudx.apd.acl.server.policy.util;
 
 public enum ItemType {
-  RESOURCE_GROUP,RESOURCE;
+  RESOURCE_GROUP,
+  RESOURCE;
 }

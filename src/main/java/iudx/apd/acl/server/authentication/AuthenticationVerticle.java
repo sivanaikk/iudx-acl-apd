@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class AuthenticationVerticle extends AbstractVerticle {
 
-  private static final Logger LOGGER = LogManager.getLogger(AuthenticationVerticle.class);
+  //  private static final Logger LOGGER = LogManager.getLogger(AuthenticationVerticle.class);
   private AuthenticationService jwtAuthenticationService;
   private ServiceBinder binder;
   private MessageConsumer<JsonObject> consumer;
