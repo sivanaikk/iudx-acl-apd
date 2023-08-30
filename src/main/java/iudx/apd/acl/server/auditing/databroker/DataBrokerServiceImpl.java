@@ -17,10 +17,10 @@ public class DataBrokerServiceImpl implements DataBrokerService {
   }
 
   /**
-   * @param toExchange
-   * @param routingKey
-   * @param messageBody
-   * @return
+   * @param toExchange Exchange name
+   * @param routingKey routingKey
+   * @param messageBody JsonObject
+   * @return void future
    */
   @Override
   public Future<Void> publishMessage(String toExchange, String routingKey, JsonObject messageBody) {
