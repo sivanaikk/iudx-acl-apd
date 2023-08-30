@@ -38,6 +38,31 @@
       "id": "iudx.apd.acl.server.authentication.AuthenticationVerticle",
       "isWorkerVerticle": false,
       "verticleInstances": 1
-    }
+    },
+    {
+      "id": "iudx.apd.acl.server.notification.NotificationVerticle",
+      "isWorkerVerticle": false,
+      "verticleInstances": 1,
+      "databaseIP": "localhost",
+      "databasePort": 5433,
+      "databaseName": "",
+      "databaseUserName": "",
+      "databasePassword": "",
+      "catServerHost": "",
+      "catServerPort": 443,
+      "catServerRelationShipPath": "",
+      "domain" : "",
+      "poolSize": 25,
+      "emailOptions": {
+        "emailHostName": "",
+        "emailPort" : 2587,
+        "emailUserName":"",
+        "emailPassword": "",
+        "emailSender" : "",
+        "emailSupport" : ["", ""],
+        "publisherPanelUrl": "",
+        "notifyByEmail" : true,
+        "senderName" : ""
+      },
   ]
 }
