@@ -68,19 +68,6 @@ paths:
               schema:
                 type: string
               description: application/json
-        '403':
-          description: |-
-            Forbidden
-            - User does not own the policy or is not a delegate to the owner of the policy
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/getPolicyInvalidUserResponse'
-          headers:
-            Content-Type:
-              schema:
-                type: string
-              description: application/json
       security:
         - authorization: [ ]
 
@@ -579,19 +566,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
-          headers:
-            Content-Type:
-              schema:
-                type: string
-              description: application/json
-        '403':
-          description:  |-
-            Forbidden
-            - user trying to list requests that do not belong to the given consumer or delegate
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/getNotificationForbiddenResponse'
           headers:
             Content-Type:
               schema:
