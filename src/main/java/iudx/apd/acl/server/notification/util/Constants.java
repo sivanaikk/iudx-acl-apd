@@ -10,7 +10,7 @@ public class Constants {
   public static final String GET_REQUEST = "SELECT * FROM request WHERE _id = $1::uuid";
 
   public static final String GET_ACTIVE_CONSUMER_POLICY_1 = "SELECT * FROM policy WHERE user_emailid = $1";
-  public static final String GET_ACTIVE_CONSUMER_POLICY_2 = " AND item_id = $2::uuid AND item_type = $3";
+  public static final String GET_ACTIVE_CONSUMER_POLICY_2 = " AND item_id = $2::uuid";
   public static final String GET_ACTIVE_CONSUMER_POLICY_3 = " AND expiry_at > now() AND status = 'ACTIVE'";
   public static final String GET_ACTIVE_CONSUMER_POLICY =
           GET_ACTIVE_CONSUMER_POLICY_1 + GET_ACTIVE_CONSUMER_POLICY_2 + GET_ACTIVE_CONSUMER_POLICY_3;

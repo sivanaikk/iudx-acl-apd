@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith({MockitoExtension.class, VertxExtension.class})
@@ -26,6 +27,7 @@ public class TestDxRunTimeException {
         dxRuntimeException = new DxRuntimeException(statusCode, responseUrn);
         verify(responseUrn, atLeast(1)).getMessage();
         assertEquals(400, dxRuntimeException.getStatusCode());
+        assertNotNull(dxRuntimeException.getUrn());
         vertxTestContext.completeNow();
     }
 
@@ -36,6 +38,7 @@ public class TestDxRunTimeException {
         String errorMessage = "Something is wrong in the user's end";
         dxRuntimeException = new DxRuntimeException(statusCode, responseUrn, errorMessage);
         assertEquals(400, dxRuntimeException.getStatusCode());
+        assertNotNull(dxRuntimeException.getUrn());
         assertEquals("Something is wrong in the user's end", dxRuntimeException.getMessage());
         vertxTestContext.completeNow();
     }
@@ -49,6 +52,7 @@ public class TestDxRunTimeException {
         dxRuntimeException = new DxRuntimeException(statusCode, responseUrn, throwable);
         assertEquals(500, dxRuntimeException.getStatusCode());
         verify(responseUrn, atLeast(1)).getMessage();
+        assertNotNull(dxRuntimeException.getUrn());
         assertEquals("Something is wrong in the server's end", dxRuntimeException.getMessage());
         vertxTestContext.completeNow();
     }
