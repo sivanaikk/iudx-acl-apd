@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -113,7 +114,7 @@ public class TestCreateNotification {
         EmailNotification emailNotification = mock(EmailNotification.class);
         List<ResourceObj> resourceObjList = mock(List.class);
 
-        when(emailNotification.sendEmail(any(User.class), any(User.class), anyString())).thenReturn(Future.succeededFuture(true));
+        when(emailNotification.sendEmail(any(User.class), any(User.class), anyString(), anyString())).thenReturn(Future.succeededFuture(true));
         createNotification = new CreateNotification(pgService, catClient, emailNotification);
         when(catClient.fetchItems(any())).thenReturn(resourceInfo);
 
@@ -160,42 +161,103 @@ public class TestCreateNotification {
     @DisplayName("Test initiateCreateNotification method when policy is already created : Failure")
     public void testWithPolicyAlreadyCreated(VertxTestContext vertxTestContext) {
         catClient = mock(CatalogueClient.class);
+        UUID resourceId = Utility.generateRandomUuid();
+        Tuple resourceInsertionTuple =
+                Tuple.of(
+                        resourceId,
+                        utility.getOwnerId(),
+                        null,
+                        LocalDateTime.now(),
+                        LocalDateTime.of(2023, 12, 10, 3, 20, 10, 9));
+
+        LOG.info(
+                " user_emailid : "
+                        + consumer.getEmailId()
+                        + " | item_id: "
+                        + resourceId
+                        + " | item_type : "
+                        + utility.getResourceType());
+        Tuple policyInsertionTuple =
+                Tuple.of(
+                        Utility.generateRandomUuid(),
+                        consumer.getEmailId(),
+                        resourceId,
+                        utility.getResourceType(),
+                        utility.getOwnerId(),
+                        utility.getStatus(),
+                        LocalDateTime.of(2025, 12, 10, 3, 20, 20, 29),
+                        new JsonObject(),
+                        LocalDateTime.now(),
+                        LocalDateTime.of(2023, 12, 10, 3, 20, 10, 9));
+
         EmailNotification emailNotification = mock(EmailNotification.class);
         List<ResourceObj> resourceObjList = mock(List.class);
-        JsonObject notification = new JsonObject()
-                .put("itemId", utility.getResourceId())
-                .put("itemType", utility.getResourceType());
-
-        createNotification = new CreateNotification(pgService, catClient, emailNotification);
         when(catClient.fetchItems(any())).thenReturn(resourceInfo);
 
         AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
 
-        doAnswer(new Answer<AsyncResult<List<ResourceObj>>>() {
-            @Override
-            public AsyncResult<List<ResourceObj>> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<List<ResourceObj>>>) arg0.getArgument(0)).handle(asyncResult);
-                return null;
-            }
-        }).when(resourceInfo).onComplete(any());
+        doAnswer(
+                new Answer<AsyncResult<List<ResourceObj>>>() {
+                    @Override
+                    public AsyncResult<List<ResourceObj>> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<List<ResourceObj>>>) arg0.getArgument(0)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(resourceInfo)
+                .onComplete(any());
         when(asyncResult.succeeded()).thenReturn(true);
         when(asyncResult.result()).thenReturn(resourceObjList);
         when(resourceObjList.get(anyInt())).thenReturn(resourceObj);
         when(resourceObj.getResourceGroupId()).thenReturn(null);
         when(resourceObj.getProviderId()).thenReturn(utility.getOwnerId());
-        createNotification.initiateCreateNotification(notification, consumer).onComplete(handler -> {
-            if (handler.succeeded()) {
-                vertxTestContext.failNow("Succeeded when the policy was previously for the consumer");
+        JsonObject notification =
+                new JsonObject().put("itemId", resourceId).put("itemType", utility.getResourceType());
+        utility
+                .executeQuery(resourceInsertionTuple, Utility.INSERT_INTO_RESOURCE_ENTITY_TABLE)
+                .onComplete(
+                        handler -> {
+                            if (handler.succeeded()) {
+                                utility
+                                        .executeQuery(policyInsertionTuple, Utility.INSERT_INTO_POLICY_TABLE)
+                                        .onComplete(
+                                                policyInsertionHandler -> {
+                                                    if (policyInsertionHandler.succeeded()) {
+                                                        createNotification =
+                                                                new CreateNotification(pgService, catClient, emailNotification);
+                                                        createNotification
+                                                                .initiateCreateNotification(notification, consumer)
+                                                                .onComplete(
+                                                                        createNotificationHandler -> {
+                                                                            if (createNotificationHandler.succeeded()) {
+                                                                                vertxTestContext.failNow(
+                                                                                        "Succeeded when the policy was previously for the consumer");
 
-            } else {
-                JsonObject failureMessage = new JsonObject()
-                        .put(TYPE, 409)
-                        .put(TITLE, POLICY_ALREADY_EXIST_URN.getUrn())
-                        .put(DETAIL, "Request could not be created, as a policy is already present");
-                assertEquals(failureMessage.encode(), handler.cause().getMessage());
-                vertxTestContext.completeNow();
-            }
-        });
+                                                                            } else {
+                                                                                LOG.info(
+                                                                                        createNotificationHandler.cause().getMessage());
+                                                                                JsonObject failureMessage =
+                                                                                        new JsonObject()
+                                                                                                .put(TYPE, 409)
+                                                                                                .put(TITLE, POLICY_ALREADY_EXIST_URN.getUrn())
+                                                                                                .put(
+                                                                                                        DETAIL,
+                                                                                                        "Request could not be created, as a policy is already present");
+                                                                                assertEquals(
+                                                                                        failureMessage.encode(),
+                                                                                        createNotificationHandler.cause().getMessage());
+                                                                                vertxTestContext.completeNow();
+                                                                            }
+                                                                        });
+                                                    } else {
+                                                        vertxTestContext.failNow("Could not create policy");
+                                                    }
+                                                });
+
+                            } else {
+                                vertxTestContext.failNow("Could not insert resource in the table");
+                            }
+                        });
     }
 
     @Test
@@ -249,6 +311,7 @@ public class TestCreateNotification {
         });
     }
 
+    //1
 
     @Test
     @DisplayName("Test initiateCreateNotification when the catalogue returns failed response: Failure")
@@ -271,7 +334,7 @@ public class TestCreateNotification {
         }).when(resourceInfo).onComplete(any());
         when(asyncResult.succeeded()).thenReturn(false);
         when(asyncResult.cause()).thenReturn(throwable);
-        when(throwable.getMessage()).thenReturn("Item is not found");
+        when(throwable.getMessage()).thenReturn("Id/Ids does not present in CAT");
 
         createNotification.initiateCreateNotification(notification, consumer).onComplete(handler -> {
             if (handler.succeeded()) {

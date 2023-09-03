@@ -33,7 +33,7 @@ public class CreateNotification {
   private static final String FAILURE_MESSAGE = "Request could not be created";
   private static final String dummyProviderFirstName = "dummy_first_name";
   private static final String dummyProviderLastName = "dummy_last_name";
-  private static final String dummyProviderEmailId = "dummy@gmail.com";
+  private static final String dummyProviderEmailId = UUID.randomUUID() + "dummy@gmail.com";
   private final PostgresService postgresService;
   private final CatalogueClient catalogueClient;
   private UUID resourceId;
@@ -42,6 +42,7 @@ public class CreateNotification {
   private PgPool pool;
   private User provider;
   private EmailNotification emailNotification;
+  private String resourceServerUrl;
 
   public CreateNotification(
       PostgresService postgresService,
@@ -374,7 +375,8 @@ public class CreateNotification {
                       .put(STATUS_CODE, HttpStatusCode.SUCCESS.getValue());
 
               /* send email to the provider saying this consumer has requested for the access of this resource */
-              emailNotification.sendEmail(consumer, this.getProviderInfo(), resourceId.toString());
+              emailNotification.sendEmail(
+                  consumer, this.getProviderInfo(), resourceId.toString(), getResourceServerUrl());
 
               promise.complete(response);
             }
@@ -406,8 +408,10 @@ public class CreateNotification {
                 ResourceObj result = handler.result().get(0);
                 UUID ownerId = result.getProviderId();
                 UUID resourceGroupIdValue = result.getResourceGroupId();
+                String url = result.getResourceServerUrl();
 
-                /* set provider id and resourceGroupId */
+                /* set provider id, resourceGroupId, resourceType, resource server url */
+                setResourceServerUrl(url);
                 setResourceGroupId(resourceGroupIdValue);
                 JsonObject providerInfo =
                     new JsonObject()
@@ -419,10 +423,11 @@ public class CreateNotification {
                 setProviderInfo(new User(providerInfo));
                 promise.complete(true);
               } else {
-                if (handler
-                    .cause()
-                    .getMessage()
-                    .equalsIgnoreCase("Item is not found")) {
+                if (handler.cause().getMessage().equalsIgnoreCase("Item is not found")
+                    || handler
+                        .cause()
+                        .getMessage()
+                        .equalsIgnoreCase("Id/Ids does not present in CAT")) {
                   /*id not present in the catalogue*/
                   JsonObject failureMessage =
                       new JsonObject()
@@ -504,5 +509,14 @@ public class CreateNotification {
 
   public void setResourceGroupId(UUID resourceGroupId) {
     this.resourceGroupId = resourceGroupId;
+  }
+
+  // TODO: return the actual resource server url as currently url is null
+  public String getResourceServerUrl() {
+    return "rs.iudx.io";
+  }
+
+  public void setResourceServerUrl(String resourceServerUrl) {
+    this.resourceServerUrl = resourceServerUrl;
   }
 }

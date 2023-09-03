@@ -1,4 +1,4 @@
-package iudx.apd.acl.server.notification;
+ package iudx.apd.acl.server.notification;
 
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
@@ -247,7 +247,7 @@ public class TestUpdateNotifications {
                             if (approvedRequestHandler.succeeded()) {
                                 updateNotification.initiateUpdateNotification(rejectNotification, owner).onComplete(rejectRequestHandler -> {
                                     if (rejectRequestHandler.succeeded()) {
-                                        System.out.println("Succeeded for rejecting approved request");
+                                        LOG.info("Succeeded for rejecting approved request");
                                         vertxTestContext.failNow("Succeeded for rejecting approved request");
                                     } else {
                                         JsonObject failureMessage = new JsonObject()
