@@ -28,11 +28,12 @@ public class EmailNotification {
   private final String publisherPanelUrl;
   private final MailClient mailClient;
   private final boolean notifyByEmail;
-  private final GetDelegateEmails getDelegateEmails;
+  private final GetDelegateEmailIds getDelegateEmailIds;
   private List<String> supportEmailIds;
   private List<String> delegateEmailIds;
 
-  public EmailNotification(Vertx vertx, JsonObject config, GetDelegateEmails getDelegateEmails) {
+  public EmailNotification(
+      Vertx vertx, JsonObject config, GetDelegateEmailIds getDelegateEmailIds) {
     this.emailHostname = config.getString("emailHostName");
     this.emailPort = config.getInteger("emailPort");
     this.emailUserName = config.getString("emailUserName");
@@ -43,7 +44,7 @@ public class EmailNotification {
     this.publisherPanelUrl = config.getString("publisherPanelUrl");
     this.notifyByEmail = config.getBoolean("notifyByEmail");
     this.senderName = config.getString("senderName");
-    this.getDelegateEmails = getDelegateEmails;
+    this.getDelegateEmailIds = getDelegateEmailIds;
 
     MailConfig mailConfig = new MailConfig();
     mailConfig.setStarttls(StartTLSOptions.REQUIRED);
@@ -70,14 +71,14 @@ public class EmailNotification {
     String consumerLastName = consumer.getLastName();
     String consumerEmailId = consumer.getEmailId();
 
-    String providerEmailId = provider.getEmailId();
+    final String providerEmailId = provider.getEmailId();
 
     List<String> ccList = new ArrayList<>();
     /* add all the support emailIds to cc*/
     ccList.addAll(supportEmailIds);
 
     Future<JsonArray> getEmailIdFuture =
-        getDelegateEmails.getEmails(
+        getDelegateEmailIds.getEmails(
             provider.getUserId(), resourceServerUrl, Role.PROVIDER.getRole());
     getEmailIdFuture.onComplete(
         handler -> {

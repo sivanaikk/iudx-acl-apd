@@ -20,7 +20,7 @@ public class NotificationVerticle extends AbstractVerticle {
   private CreateNotification createNotification;
   private CatalogueClient catalogueClient;
   private EmailNotification emailNotification;
-  private GetDelegateEmails getDelegateEmails;
+  private GetDelegateEmailIds getDelegateEmailIds;
   private WebClient webClient;
   private WebClientOptions webClientOptions;
   private JsonObject authInfo;
@@ -34,10 +34,10 @@ public class NotificationVerticle extends AbstractVerticle {
     webClient = WebClient.create(vertx, webClientOptions);
     authInfo = config().getJsonObject("authInfo");
     authInfo.put("dxAuthBasePath", config().getString("dxAuthBasePath"));
-    getDelegateEmails = new GetDelegateEmails(authInfo, webClient);
+    getDelegateEmailIds = new GetDelegateEmailIds(authInfo, webClient);
 
     emailNotification =
-        new EmailNotification(vertx, config().getJsonObject(EMAIL_OPTIONS), getDelegateEmails);
+        new EmailNotification(vertx, config().getJsonObject(EMAIL_OPTIONS), getDelegateEmailIds);
     createNotification =
         new CreateNotification(postgresService, catalogueClient, emailNotification);
     deleteNotification = new DeleteNotification(postgresService);
