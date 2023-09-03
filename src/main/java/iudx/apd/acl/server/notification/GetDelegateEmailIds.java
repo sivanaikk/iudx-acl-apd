@@ -10,18 +10,16 @@ import io.vertx.ext.web.client.WebClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Fetches all the emails of the delegates of the user
- * */
-public class GetDelegateEmails {
-  private static final Logger LOGGER = LogManager.getLogger(GetDelegateEmails.class);
+/** Fetches all the emails of the delegates of the user */
+public class GetDelegateEmailIds {
+  private static final Logger LOGGER = LogManager.getLogger(GetDelegateEmailIds.class);
   private final String clientId;
   private final String clientSecret;
   private final String authHost;
   private final String authBasePath;
   private final WebClient webClient;
 
-  public GetDelegateEmails(JsonObject config, WebClient webClient) {
+  public GetDelegateEmailIds(JsonObject config, WebClient webClient) {
     this.clientId = config.getString("clientId");
     this.clientSecret = config.getString("clientSecret");
     this.authHost = config.getString("authHost");
@@ -31,12 +29,13 @@ public class GetDelegateEmails {
 
   /**
    * Returns the email Ids of the delegates as Json array
+   *
    * @param userId Id of the user to fetch the delegates of the provider/consumer
    * @param resourceServerUrl URL to which the resource belongs to
-   * @param role Role of the delegator. <br>Can be either {<b>provider</b>, <b>consumer</b>}
-   * @return Email ID(s) as Json array, if there are no delegates,
-   * or if something else goes wrong while fetching the emailIds
-   * it returns failure message with type Future
+   * @param role Role of the delegator. <br>
+   *     Can be either {<b>provider</b>, <b>consumer</b>}
+   * @return Email ID(s) as Json array, if there are no delegates, or if something else goes wrong
+   *     while fetching the emailIds it returns failure message with type Future
    */
   public Future<JsonArray> getEmails(String userId, String resourceServerUrl, String role) {
     Promise<JsonArray> promise = Promise.promise();
