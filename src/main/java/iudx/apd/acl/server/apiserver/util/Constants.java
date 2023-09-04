@@ -43,6 +43,7 @@ public class Constants {
   public static final String CONTENT_TYPE = "content-type";
   public static final String CAT_SUCCESS_URN = "urn:dx:cat:Success";
   public static final String RESULTS = "results";
+  public static final String TOTAL_HITS = "totalHits";
   public static final String APPLICATION_JSON = "application/json";
   public static final String ROUTE_STATIC_SPEC = "/apis/spec";
   public static final String ROUTE_DOC = "/apis";
@@ -64,7 +65,6 @@ public class Constants {
   public static final String RELATIONSHIP_PATH = "/relationship";
   public static final String EPOCH_TIME = "epochTime";
   public static final String ISO_TIME = "isoTime";
-  public static final String USER_ID = "userid";
   public static final String API = "api";
   public static final String RESPONSE_SIZE = "response_size";
   public static final String HTTP_METHOD = "httpMethod";

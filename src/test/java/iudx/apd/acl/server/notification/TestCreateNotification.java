@@ -130,7 +130,9 @@ public class TestCreateNotification {
         when(asyncResult.succeeded()).thenReturn(true);
         when(asyncResult.result()).thenReturn(resourceObjList);
         when(resourceObjList.get(anyInt())).thenReturn(resourceObj);
-        when(resourceObj.getResourceGroupId()).thenReturn(null);
+        when(resourceObj.getIsGroupLevelResource()).thenReturn(false);
+        when(resourceObj.getResourceServerUrl()).thenReturn("rs.iudx.io");
+        when(resourceObj.getResourceGroupId()).thenReturn(UUID.randomUUID());
         when(resourceObj.getProviderId()).thenReturn(utility.getOwnerId());
         createNotification.initiateCreateNotification(notification, consumer).onComplete(handler -> {
             if (handler.succeeded()) {

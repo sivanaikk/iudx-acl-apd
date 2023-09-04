@@ -404,12 +404,11 @@ public class CreateNotification {
 
                 /* set provider id, resourceGroupId, resourceType, resource server url */
                 setResourceServerUrl(url);
-                boolean isResourceGroupIdNull = resourceGroupIdValue == null;
                 /* set provider id, resourceGroupId, resourceType */
-                if (isResourceGroupIdNull) {
-                  setResourceType("RESOURCE");
-                } else {
+                if (result.getIsGroupLevelResource()) {
                   setResourceType("RESOURCE_GROUP");
+                } else {
+                  setResourceType("RESOURCE");
                 }
                 setResourceGroupId(resourceGroupIdValue);
                 JsonObject providerInfo =
@@ -510,9 +509,8 @@ public class CreateNotification {
     this.resourceGroupId = resourceGroupId;
   }
 
-  // TODO: return the actual resource server url as currently url is null
   public String getResourceServerUrl() {
-    return "rs.iudx.io";
+    return this.resourceServerUrl;
   }
 
   public void setResourceServerUrl(String resourceServerUrl) {

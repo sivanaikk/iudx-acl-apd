@@ -45,6 +45,7 @@ public class CatalogueClient implements CatalogueClientInterface {
           .get(catPort, catHost, catRelationShipPath)
           .addQueryParam("id", String.valueOf(id))
           .addQueryParam("rel", "all")
+          .addQueryParam("filter", "[id, type, resourceServerURL]")
           .send()
           .onFailure(
               ar -> {
@@ -55,6 +56,12 @@ public class CatalogueClient implements CatalogueClientInterface {
               catSuccessResponse -> {
                 JsonObject resultBody = catSuccessResponse.bodyAsJsonObject();
                 if (resultBody.getString(TYPE).equals(CAT_SUCCESS_URN)) {
+                  /* get totalHits from the response */
+                  /* if totalHits is 4 the given resource is resource group level */
+                  /* if totalHits is 5 the given resource is resource level */
+                  int totalHits = resultBody.getInteger(TOTAL_HITS);
+                  boolean isItemGroupLevelResource = totalHits == 4;
+
                   List<JsonObject> resultJsonList =
                       resultBody.getJsonArray(RESULTS).stream()
                           .map(obj -> (JsonObject) obj)
@@ -68,13 +75,13 @@ public class CatalogueClient implements CatalogueClientInterface {
                     if (typeArray.contains("iudx:ResourceGroup")) {
                       resourceGroup = UUID.fromString(resultJson.getString("id"));
                     } else if (typeArray.contains("iudx:Provider")) {
-                      provider = UUID.fromString(resultJson.getString("providerKcId"));
+                      provider = UUID.fromString(resultJson.getString("id"));
                     } else if (typeArray.contains("iudx:ResourceServer")) {
-                      resServerUrl = resultJson.getString("resourceServerHTTPAccessURL");
+                      resServerUrl = resultJson.getString("resourceServerURL");
                     }
                   }
                   ResourceObj resourceObj =
-                      new ResourceObj(id, provider, resourceGroup, resServerUrl);
+                      new ResourceObj(id, provider, resourceGroup, resServerUrl, isItemGroupLevelResource);
                   resourceObjList.add(resourceObj);
                   promise.complete(resourceObjList);
                 } else {

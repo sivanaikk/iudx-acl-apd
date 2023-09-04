@@ -156,7 +156,7 @@ public class TestVerifyPolicy {
     ResourceObj resourceObj =
         new ResourceObj(
             Utility.generateRandomUuid(), utility.getOwnerId(), utility.getResourceId(),
-            "resourceServerURL");
+            "resourceServerURL", false);
     resourceObjList.add(resourceObj);
     when(catalogueClient.fetchItems(mockUUIDList))
         .thenReturn(Future.succeededFuture(resourceObjList));
@@ -231,7 +231,7 @@ public class TestVerifyPolicy {
     ResourceObj resourceObj =
       new ResourceObj(
         Utility.generateRandomUuid(), utility.getOwnerId(), Utility.generateRandomUuid(),
-          Utility.generateRandomUrl());
+          Utility.generateRandomUrl(), false);
     resourceObjList.add(resourceObj);
 
     when(catalogueClient.fetchItems(mockUUIDList))
