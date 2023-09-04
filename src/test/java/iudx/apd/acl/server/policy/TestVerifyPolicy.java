@@ -195,18 +195,9 @@ public class TestVerifyPolicy {
 
     Set<UUID> mockUUIDList = new HashSet<>();
     mockUUIDList.add(mockResourceId);
-//        CatalogueClient catalogueClient = mock(CatalogueClient.class);
-//        VerifyPolicy verifyPolicy = new VerifyPolicy(postgresService, catalogueClient);
-    utility
-        .executeQuery(Tuple.tuple(), "SELECT * FROM policy")
-        .onComplete(
-            handler -> {
-              LOGGER.debug(handler.result().encode());
-            });
     when(catalogueClient.fetchItems(any(Set.class))).thenReturn(Future.succeededFuture(listMock));
     when(listMock.isEmpty()).thenReturn(true);
 
-    LOGGER.trace(request.encodePrettily());
     verifyPolicy
       .initiateVerifyPolicy(request)
       .onComplete(
@@ -222,7 +213,7 @@ public class TestVerifyPolicy {
             vertxTestContext.completeNow();
           }
         });
-//    verify(catalogueClient).fetchItems(any());
+    verify(catalogueClient).fetchItems(any());
   }
 
   @Test
