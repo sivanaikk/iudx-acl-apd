@@ -30,7 +30,7 @@ public class NotificationVerticle extends AbstractVerticle {
     postgresService = new PostgresService(config(), vertx);
     catalogueClient = new CatalogueClient(config());
     webClientOptions = new WebClientOptions();
-    webClientOptions.setTrustAll(true).setVerifyHost(false).setSsl(true);
+    webClientOptions.setTrustAll(false).setVerifyHost(true).setSsl(true);
     webClient = WebClient.create(vertx, webClientOptions);
     authInfo = config().getJsonObject("authInfo");
     authInfo.put("dxAuthBasePath", config().getString("dxAuthBasePath"));
