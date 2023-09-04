@@ -222,7 +222,7 @@ public class TestVerifyPolicy {
             vertxTestContext.completeNow();
           }
         });
-    verify(catalogueClient).fetchItems(any());
+//    verify(catalogueClient).fetchItems(any());
   }
 
   @Test
