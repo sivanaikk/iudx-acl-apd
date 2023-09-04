@@ -335,8 +335,6 @@ public class TestCreateNotification {
             });
   }
 
-  // 1
-
   @Test
   @DisplayName(
       "Test initiateCreateNotification when the catalogue returns failed response: Failure")
