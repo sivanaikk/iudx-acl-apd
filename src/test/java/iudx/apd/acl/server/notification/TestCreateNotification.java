@@ -1,9 +1,15 @@
 package iudx.apd.acl.server.notification;
 
+import static iudx.apd.acl.server.apiserver.util.Constants.*;
+import static iudx.apd.acl.server.common.ResponseUrn.POLICY_ALREADY_EXIST_URN;
+import static iudx.apd.acl.server.notification.util.Constants.CREATE_NOTIFICATION_QUERY;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
@@ -14,8 +20,10 @@ import iudx.apd.acl.server.apiserver.util.ResourceObj;
 import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.policy.CatalogueClient;
-import iudx.apd.acl.server.policy.DeletePolicy;
 import iudx.apd.acl.server.policy.PostgresService;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -26,17 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
-
-import static iudx.apd.acl.server.apiserver.util.Constants.*;
-import static iudx.apd.acl.server.common.ResponseUrn.POLICY_ALREADY_EXIST_URN;
-import static iudx.apd.acl.server.notification.util.Constants.CREATE_NOTIFICATION_QUERY;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @Testcontainers
 @ExtendWith({VertxExtension.class, MockitoExtension.class})
