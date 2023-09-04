@@ -54,7 +54,8 @@
       "authInfo": {
         "clientId" : "",
         "clientSecret": "",
-        "authHost": ""
+        "authHost": "",
+        "authPort": 443
       },
       "domain" : "",
       "poolSize": 25,

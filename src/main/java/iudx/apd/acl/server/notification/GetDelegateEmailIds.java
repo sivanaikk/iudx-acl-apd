@@ -18,6 +18,7 @@ public class GetDelegateEmailIds {
   private final String authHost;
   private final String authBasePath;
   private final WebClient webClient;
+  private final int authPort;
 
   public GetDelegateEmailIds(JsonObject config, WebClient webClient) {
     this.clientId = config.getString("clientId");
@@ -25,6 +26,7 @@ public class GetDelegateEmailIds {
     this.authHost = config.getString("authHost");
     this.authBasePath = config.getString("dxAuthBasePath");
     this.webClient = webClient;
+    this.authPort = config.getInteger("authPort");
   }
 
   /**
@@ -41,7 +43,7 @@ public class GetDelegateEmailIds {
     Promise<JsonArray> promise = Promise.promise();
 
     webClient
-        .get(authHost, authBasePath + REQUEST_EMAIL_IDS)
+        .get(authPort, authHost, authBasePath + REQUEST_EMAIL_IDS)
         .addQueryParam(USER_ID, userId)
         .addQueryParam(ROLE, role)
         .addQueryParam(RESOURCE_SERVER_URL, resourceServerUrl)
