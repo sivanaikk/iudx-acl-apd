@@ -398,7 +398,7 @@ public class CreateNotification {
             handler -> {
               if (handler.succeeded()) {
                 ResourceObj result = handler.result().get(0);
-                UUID ownerId = result.getProviderId();
+                final UUID ownerId = result.getProviderId();
                 UUID resourceGroupIdValue = result.getResourceGroupId();
                 String url = result.getResourceServerUrl();
 
