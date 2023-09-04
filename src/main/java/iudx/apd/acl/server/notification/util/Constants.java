@@ -10,7 +10,7 @@ public class Constants {
   public static final String GET_REQUEST = "SELECT * FROM request WHERE _id = $1::uuid";
 
   public static final String GET_ACTIVE_CONSUMER_POLICY_1 = "SELECT * FROM policy WHERE user_emailid = $1";
-  public static final String GET_ACTIVE_CONSUMER_POLICY_2 = " AND item_id = $2::uuid AND item_type = $3";
+  public static final String GET_ACTIVE_CONSUMER_POLICY_2 = " AND item_id = $2::uuid";
   public static final String GET_ACTIVE_CONSUMER_POLICY_3 = " AND expiry_at > now() AND status = 'ACTIVE'";
   public static final String GET_ACTIVE_CONSUMER_POLICY =
           GET_ACTIVE_CONSUMER_POLICY_1 + GET_ACTIVE_CONSUMER_POLICY_2 + GET_ACTIVE_CONSUMER_POLICY_3;
@@ -22,7 +22,7 @@ public class Constants {
           + " VALUES ($1::uuid, $2::uuid, $3::uuid, $4, $5::uuid, 'PENDING', NULL, NULL) RETURNING _id;";
 
   public static final String REJECT_NOTIFICATION =
-      "UPDATE request SET status = 'REJECTED' WHERE _id = $1::uuid AND expiry_at > NOW() RETURNING _id";
+      "UPDATE request SET status='REJECTED' WHERE _id=$1::uuid AND expiry_at>NOW() OR expiry_at IS NULL RETURNING _id";
   public static final String GET_CONSUMER_EMAIL_QUERY =
       "SELECT email_id FROM user_table WHERE _id = $1::uuid;";
   public static final String GET_EXISTING_POLICY_QUERY_1 = "SELECT * FROM policy WHERE owner_id = $1::uuid";
@@ -107,11 +107,10 @@ public class Constants {
 
   public static final String HTML_EMAIL_BODY_1 = "<!DOCTYPE html> <html> <head> <title>Page Title</title>";
   public static final String HTML_EMAIL_BODY_2 = "</head> <body> <p>Hello!</p> <p>A consumer with details - <br>";
-  public static final String HTML_EMAIL_BODY_3 = "Consumer ID : ${CONSUMER_ID}, <br>";
   public static final String HTML_EMAIL_BODY_4 = "First name : ${CONSUMER_FIRST_NAME}, <br>";
   public static final String HTML_EMAIL_BODY_5 = "Last name :  ${CONSUMER_LAST_NAME}, <br>";
   public static final String HTML_EMAIL_BODY_6 = "Email ID : ${CONSUMER_EMAIL_ID}, <br>";
-  public static final String HTML_EMAIL_BODY_7 = "has requested access to your dataset <b>${ITEM_ID}</b>.";
+  public static final String HTML_EMAIL_BODY_7 = "has requested access to one of your datasets.";
   public static final String HTML_EMAIL_BODY_9 = " to approve/reject this request.</p>";
   public static final String HTML_EMAIL_BODY_8 = " Please visit ${PUBLISHER_PANEL_URL}" + HTML_EMAIL_BODY_9;
   public static final String HTML_EMAIL_BODY_10 = "<footer> <p>Regards,<br> ${SENDER'S_NAME}</p>";
@@ -119,7 +118,6 @@ public class Constants {
   public static final String HTML_EMAIL_BODY =
                   HTML_EMAIL_BODY_1
                           + HTML_EMAIL_BODY_2
-                          + HTML_EMAIL_BODY_3
                           + HTML_EMAIL_BODY_4
                           + HTML_EMAIL_BODY_5
                           + HTML_EMAIL_BODY_6

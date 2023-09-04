@@ -174,7 +174,7 @@ public class TestCreatePolicy {
     List<ResourceObj> resourceObjList = new ArrayList<>();
 
     ResourceObj resourceObj = new ResourceObj(mockResourceId,utility.getOwnerId(),null,
-      Utility.generateRandomUrl());
+      Utility.generateRandomUrl(), false);
     resourceObjList.add(resourceObj);
     when(catalogueClient.fetchItems(mockUUIDList)).thenReturn(Future.succeededFuture(resourceObjList));
 
@@ -208,7 +208,7 @@ public class TestCreatePolicy {
 
     mockUUIDList.add(mockResourceId);
     JsonObject request = getRequest(Utility.generateRandomEmailId(),mockResourceId);
-    when(catalogueClient.fetchItems(mockUUIDList)).thenReturn(Future.failedFuture("Id/Ids does not present in CAT"));
+    when(catalogueClient.fetchItems(mockUUIDList)).thenReturn(Future.failedFuture("Item is not found"));
 
     createPolicy
       .initiateCreatePolicy(request, owner)

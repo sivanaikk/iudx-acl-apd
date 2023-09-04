@@ -4,13 +4,14 @@ import static iudx.apd.acl.server.apiserver.util.Constants.TITLE;
 import static iudx.apd.acl.server.apiserver.util.Constants.TYPE;
 import static iudx.apd.acl.server.common.HttpStatusCode.VERIFY_FORBIDDEN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import io.vertx.pgclient.PgPool;
+import io.vertx.sqlclient.Tuple;
 import iudx.apd.acl.server.Utility;
 import iudx.apd.acl.server.apiserver.util.ResourceObj;
 import iudx.apd.acl.server.common.ResponseUrn;
@@ -45,6 +46,7 @@ public class TestVerifyPolicy {
   @BeforeAll
   public static void setUp(VertxTestContext vertxTestContext) {
     utility = new Utility();
+    container.start();
     PostgresService pgService = utility.setUp(container);
 
     utility
@@ -156,7 +158,7 @@ public class TestVerifyPolicy {
     ResourceObj resourceObj =
         new ResourceObj(
             Utility.generateRandomUuid(), utility.getOwnerId(), utility.getResourceId(),
-            "resourceServerURL");
+            "resourceServerURL", false);
     resourceObjList.add(resourceObj);
     when(catalogueClient.fetchItems(mockUUIDList))
         .thenReturn(Future.succeededFuture(resourceObjList));
@@ -182,34 +184,30 @@ public class TestVerifyPolicy {
   public void testInitiateVerifyPolicyFailForResource(VertxTestContext vertxTestContext) {
     JsonObject request = getRequest();
     UUID mockResourceId = Utility.generateRandomUuid();
-
     JsonObject item =
-      new JsonObject()
-        .put("itemId", mockResourceId)
-        .put("itemType", ItemType.RESOURCE);
+        new JsonObject().put("itemId", mockResourceId).put("itemType", ItemType.RESOURCE);
     request.put("item", item);
-
     Set<UUID> mockUUIDList = new HashSet<>();
     mockUUIDList.add(mockResourceId);
-
-    when(catalogueClient.fetchItems(mockUUIDList)).thenReturn(Future.failedFuture(verifyPolicy.generateErrorResponse(
-      VERIFY_FORBIDDEN, "Resource Group not found in CAT")));
-
+    when(catalogueClient.fetchItems(mockUUIDList))
+        .thenReturn(
+            Future.failedFuture(
+                verifyPolicy.generateErrorResponse(
+                    VERIFY_FORBIDDEN, "Resource Group not found in CAT")));
     verifyPolicy
-      .initiateVerifyPolicy(request)
-      .onComplete(
-        handler -> {
-          if (handler.succeeded()) {
-            vertxTestContext.failNow("Succeeded by creating a policy");
-          } else {
-            JsonObject result = new JsonObject(handler.cause().getMessage());
-            assertEquals(VERIFY_FORBIDDEN.getValue(), result.getInteger(TYPE));
-            assertEquals(VERIFY_FORBIDDEN.getUrn(), result.getString(TITLE));
-            assertEquals(
-              "Resource Group not found in CAT", result.getString("detail"));
-            vertxTestContext.completeNow();
-          }
-        });
+        .initiateVerifyPolicy(request)
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                vertxTestContext.failNow("Succeeded by creating a policy");
+              } else {
+                JsonObject result = new JsonObject(handler.cause().getMessage());
+                assertEquals(VERIFY_FORBIDDEN.getValue(), result.getInteger(TYPE));
+                assertEquals(VERIFY_FORBIDDEN.getUrn(), result.getString(TITLE));
+                assertEquals("Resource Group not found in CAT", result.getString("detail"));
+                vertxTestContext.completeNow();
+              }
+            });
     verify(catalogueClient).fetchItems(mockUUIDList);
   }
 
@@ -231,7 +229,7 @@ public class TestVerifyPolicy {
     ResourceObj resourceObj =
       new ResourceObj(
         Utility.generateRandomUuid(), utility.getOwnerId(), Utility.generateRandomUuid(),
-          Utility.generateRandomUrl());
+          Utility.generateRandomUrl(), false);
     resourceObjList.add(resourceObj);
 
     when(catalogueClient.fetchItems(mockUUIDList))

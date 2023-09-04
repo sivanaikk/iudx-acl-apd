@@ -51,6 +51,12 @@
       "catServerHost": "",
       "catServerPort": 443,
       "catServerRelationShipPath": "",
+      "authInfo": {
+        "clientId" : "",
+        "clientSecret": "",
+        "authHost": "",
+        "authPort": 443
+      },
       "domain" : "",
       "poolSize": 25,
       "emailOptions": {

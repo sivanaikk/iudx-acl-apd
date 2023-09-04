@@ -8,10 +8,10 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.mail.*;
+import iudx.apd.acl.server.apiserver.util.Role;
 import iudx.apd.acl.server.apiserver.util.User;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,19 +28,23 @@ public class EmailNotification {
   private final String publisherPanelUrl;
   private final MailClient mailClient;
   private final boolean notifyByEmail;
+  private final GetDelegateEmailIds getDelegateEmailIds;
   private List<String> supportEmailIds;
+  private List<String> delegateEmailIds;
 
-  public EmailNotification(Vertx vertx, JsonObject config) {
+  public EmailNotification(
+      Vertx vertx, JsonObject config, GetDelegateEmailIds getDelegateEmailIds) {
     this.emailHostname = config.getString("emailHostName");
     this.emailPort = config.getInteger("emailPort");
     this.emailUserName = config.getString("emailUserName");
     this.emailPassword = config.getString("emailPassword");
     this.senderEmail = config.getString("emailSender");
     this.supportEmail = config.getJsonArray("emailSupport");
-    supportEmailIds = supportEmail.getList();
+    this.supportEmailIds = supportEmail.getList();
     this.publisherPanelUrl = config.getString("publisherPanelUrl");
     this.notifyByEmail = config.getBoolean("notifyByEmail");
     this.senderName = config.getString("senderName");
+    this.getDelegateEmailIds = getDelegateEmailIds;
 
     MailConfig mailConfig = new MailConfig();
     mailConfig.setStarttls(StartTLSOptions.REQUIRED);
@@ -55,7 +59,8 @@ public class EmailNotification {
     this.mailClient = MailClient.create(vertx, mailConfig);
   }
 
-  public Future<Boolean> sendEmail(User consumer, User provider, String itemId) {
+  public Future<Boolean> sendEmail(
+      User consumer, User provider, String itemId, String resourceServerUrl) {
     final Promise<Boolean> promise = Promise.promise();
 
     if (!notifyByEmail) {
@@ -66,15 +71,29 @@ public class EmailNotification {
     String consumerLastName = consumer.getLastName();
     String consumerEmailId = consumer.getEmailId();
 
-    String providerEmailId = provider.getEmailId();
+    final String providerEmailId = provider.getEmailId();
 
-    List<String> delegateEmailIds = getDelegateEmailIds();
-
-    List<String> ccList = new ArrayList<>(delegateEmailIds);
+    List<String> ccList = new ArrayList<>();
+    /* add all the support emailIds to cc*/
     ccList.addAll(supportEmailIds);
 
+    Future<JsonArray> getEmailIdFuture =
+        getDelegateEmailIds.getEmails(
+            provider.getUserId(), resourceServerUrl, Role.PROVIDER.getRole());
+    getEmailIdFuture.onComplete(
+        handler -> {
+          if (handler.succeeded()) {
+            JsonArray jsonArray = handler.result();
+            delegateEmailIds = jsonArray.getList();
+            /* add all the delegate email Ids to cc*/
+            ccList.addAll(delegateEmailIds);
+          } else {
+            LOGGER.error("Failure: {}", handler.cause().getMessage());
+          }
+        });
+
     String body =
-            HTML_EMAIL_BODY
+        HTML_EMAIL_BODY
             .replace("${CONSUMER_FIRST_NAME}", consumerFirstName)
             .replace("${CONSUMER_LAST_NAME}", consumerLastName)
             .replace("${CONSUMER_ID}", consumerId)
@@ -88,7 +107,7 @@ public class EmailNotification {
     message.setTo(providerEmailId);
     message.setCc(ccList);
     message.setHtml(body);
-    message.setSubject("Requesting for policy : " + itemId);
+    message.setSubject("Requesting for policy");
 
     mailClient
         .sendMail(message)
@@ -104,21 +123,5 @@ public class EmailNotification {
             });
 
     return promise.future();
-  }
-
-  // TODO: Auth call to get the delegate emailIds
-  public List<String> getDelegateEmailIds() {
-    return List.of(generateRandomEmailId(), generateRandomEmailId());
-  }
-
-  public String generateRandomString() {
-    return UUID.randomUUID().toString();
-  }
-
-  public String generateRandomEmailId() {
-    return generateRandomString().substring(0, 6)
-        + "@"
-        + generateRandomString().substring(0, 3)
-        + ".com";
   }
 }

@@ -1,6 +1,7 @@
 package iudx.apd.acl.server.notification;
 
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
@@ -25,6 +26,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static iudx.apd.acl.server.Utility.*;
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
@@ -244,6 +246,12 @@ public class TestDeleteNotifications {
         Tuple consumerTuple = Tuple.of( consumerId, consumerEmailId, consumerFirstName, consumerLastName, createdAt, updatedAt);
         utility.executeBatchQuery(List.of(ownerTuple, consumerTuple), INSERT_INTO_USER_TABLE);
         utility.executeQuery(tuple, INSERT_INTO_REQUEST_TABLE).onComplete(insertRequestHandler -> {
+            try {
+                vertxTestContext.awaitCompletion(5, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
             if(insertRequestHandler.succeeded())
             {
                 deleteNotification.initiateDeleteNotification(new JsonObject().put("id",notification),consumer).onComplete(handler -> {

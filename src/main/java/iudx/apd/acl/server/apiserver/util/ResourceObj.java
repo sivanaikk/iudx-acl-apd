@@ -12,6 +12,7 @@ public class ResourceObj {
   private final UUID providerId;
   private final UUID resourceGroupId;
   private final String resourceServerUrl;
+  private final boolean isGroupLevelResource;
 
   /**
    * Constructs a new ResourceObj with the given item ID, provider ID, and resource group ID. If the
@@ -23,12 +24,12 @@ public class ResourceObj {
    *     be null).
    * @param resourceServerUrl The resource server URL to which the resource item belong.
    */
-  public ResourceObj(UUID itemId, UUID providerId, UUID resourceGroupId, String resourceServerUrl) {
+  public ResourceObj(UUID itemId, UUID providerId, UUID resourceGroupId, String resourceServerUrl, boolean isGroupLevelResource) {
     this.itemId = itemId;
     this.providerId = providerId;
-    // in case of resourceGroup, 'resourceGroupId' will be null
     this.resourceGroupId = resourceGroupId;
     this.resourceServerUrl = resourceServerUrl;
+    this.isGroupLevelResource = isGroupLevelResource;
   }
 
   /**
@@ -66,6 +67,15 @@ public class ResourceObj {
    */
   public String getResourceServerUrl() {
     return resourceServerUrl;
+  }
+
+
+  /**
+   *  Tells if the resource is resource level or resource group level
+   * @return true, if the resource is resource group level, false if the item is resource level
+   */
+  public boolean getIsGroupLevelResource(){
+    return isGroupLevelResource;
   }
 
   @Override
