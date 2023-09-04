@@ -67,6 +67,27 @@
         "notifyByEmail": true,
         "senderName": ""
       }
-      }
+      },
+    {
+      "id": "iudx.apd.acl.server.auditing.AuditingVerticle",
+      "isWorkerVerticle": false,
+      "verticleInstances": 1,
+      "dataBrokerIP": "",
+      "dataBrokerPort": "",
+      "dataBrokerVhost": "",
+      "dataBrokerUserName": "",
+      "dataBrokerPassword": "",
+      "dataBrokerManagementPort":123 ,
+      "connectionTimeout": 123,
+      "requestedHeartbeat": 123,
+      "handshakeTimeout": 123,
+      "requestedChannelMax": 123,
+      "networkRecoveryInterval": 123,
+      "automaticRecoveryEnabled": "",
+      "prodVhost": "",
+      "internalVhost": "",
+      "externalVhost": ""
+
+    }
   ]
 }

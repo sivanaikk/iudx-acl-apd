@@ -309,6 +309,11 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web-openapi</artifactId>
     </dependency>
+    <!--RabbitMq dependency -->
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-rabbitmq-client</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
