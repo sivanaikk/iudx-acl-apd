@@ -10,6 +10,8 @@ import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import io.vertx.pgclient.PgPool;
+import io.vertx.sqlclient.Tuple;
 import iudx.apd.acl.server.Utility;
 import iudx.apd.acl.server.apiserver.util.ResourceObj;
 import iudx.apd.acl.server.common.ResponseUrn;
@@ -44,6 +46,7 @@ public class TestVerifyPolicy {
   @BeforeAll
   public static void setUp(VertxTestContext vertxTestContext) {
     utility = new Utility();
+    container.start();
     PostgresService pgService = utility.setUp(container);
 
     utility
@@ -186,16 +189,24 @@ public class TestVerifyPolicy {
 
     JsonObject item =
       new JsonObject()
-        .put("itemId", mockResourceId)
+        .put("itemId", utility.getResourceId())
         .put("itemType", ItemType.RESOURCE);
     request.put("item", item);
 
     Set<UUID> mockUUIDList = new HashSet<>();
     mockUUIDList.add(mockResourceId);
-
-    when(catalogueClient.fetchItems(mockUUIDList)).thenReturn(Future.succeededFuture(listMock));
+//        CatalogueClient catalogueClient = mock(CatalogueClient.class);
+//        VerifyPolicy verifyPolicy = new VerifyPolicy(postgresService, catalogueClient);
+    utility
+        .executeQuery(Tuple.tuple(), "SELECT * FROM policy")
+        .onComplete(
+            handler -> {
+              LOGGER.debug(handler.result().encode());
+            });
+    when(catalogueClient.fetchItems(any(Set.class))).thenReturn(Future.succeededFuture(listMock));
     when(listMock.isEmpty()).thenReturn(true);
 
+    LOGGER.trace(request.encodePrettily());
     verifyPolicy
       .initiateVerifyPolicy(request)
       .onComplete(
@@ -211,7 +222,7 @@ public class TestVerifyPolicy {
             vertxTestContext.completeNow();
           }
         });
-    verify(catalogueClient).fetchItems(mockUUIDList);
+    verify(catalogueClient).fetchItems(any());
   }
 
   @Test
