@@ -184,36 +184,31 @@ public class TestVerifyPolicy {
   public void testInitiateVerifyPolicyFailForResource(VertxTestContext vertxTestContext) {
     JsonObject request = getRequest();
     UUID mockResourceId = Utility.generateRandomUuid();
-    List<ResourceObj> listMock = mock(List.class);
-
-
     JsonObject item =
-      new JsonObject()
-        .put("itemId", utility.getResourceId())
-        .put("itemType", ItemType.RESOURCE);
+        new JsonObject().put("itemId", mockResourceId).put("itemType", ItemType.RESOURCE);
     request.put("item", item);
-
     Set<UUID> mockUUIDList = new HashSet<>();
     mockUUIDList.add(mockResourceId);
-    when(catalogueClient.fetchItems(any(Set.class))).thenReturn(Future.succeededFuture(listMock));
-    when(listMock.isEmpty()).thenReturn(true);
-
+    when(catalogueClient.fetchItems(mockUUIDList))
+        .thenReturn(
+            Future.failedFuture(
+                verifyPolicy.generateErrorResponse(
+                    VERIFY_FORBIDDEN, "Resource Group not found in CAT")));
     verifyPolicy
-      .initiateVerifyPolicy(request)
-      .onComplete(
-        handler -> {
-          if (handler.succeeded()) {
-            vertxTestContext.failNow("Succeeded by creating a policy");
-          } else {
-            JsonObject result = new JsonObject(handler.cause().getMessage());
-            assertEquals(VERIFY_FORBIDDEN.getValue(), result.getInteger(TYPE));
-            assertEquals(VERIFY_FORBIDDEN.getUrn(), result.getString(TITLE));
-            assertEquals(
-              "Resource Group not found in CAT", result.getString("detail"));
-            vertxTestContext.completeNow();
-          }
-        });
-    verify(catalogueClient).fetchItems(any());
+        .initiateVerifyPolicy(request)
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                vertxTestContext.failNow("Succeeded by creating a policy");
+              } else {
+                JsonObject result = new JsonObject(handler.cause().getMessage());
+                assertEquals(VERIFY_FORBIDDEN.getValue(), result.getInteger(TYPE));
+                assertEquals(VERIFY_FORBIDDEN.getUrn(), result.getString(TITLE));
+                assertEquals("Resource Group not found in CAT", result.getString("detail"));
+                vertxTestContext.completeNow();
+              }
+            });
+    verify(catalogueClient).fetchItems(mockUUIDList);
   }
 
   @Test
