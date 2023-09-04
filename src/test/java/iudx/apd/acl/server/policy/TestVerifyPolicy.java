@@ -4,8 +4,7 @@ import static iudx.apd.acl.server.apiserver.util.Constants.TITLE;
 import static iudx.apd.acl.server.apiserver.util.Constants.TYPE;
 import static iudx.apd.acl.server.common.HttpStatusCode.VERIFY_FORBIDDEN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
@@ -182,6 +181,8 @@ public class TestVerifyPolicy {
   public void testInitiateVerifyPolicyFailForResource(VertxTestContext vertxTestContext) {
     JsonObject request = getRequest();
     UUID mockResourceId = Utility.generateRandomUuid();
+    List<ResourceObj> listMock = mock(List.class);
+
 
     JsonObject item =
       new JsonObject()
@@ -192,8 +193,8 @@ public class TestVerifyPolicy {
     Set<UUID> mockUUIDList = new HashSet<>();
     mockUUIDList.add(mockResourceId);
 
-    when(catalogueClient.fetchItems(mockUUIDList)).thenReturn(Future.failedFuture(verifyPolicy.generateErrorResponse(
-      VERIFY_FORBIDDEN, "Resource Group not found in CAT")));
+    when(catalogueClient.fetchItems(mockUUIDList)).thenReturn(Future.succeededFuture(listMock));
+    when(listMock.isEmpty()).thenReturn(true);
 
     verifyPolicy
       .initiateVerifyPolicy(request)
