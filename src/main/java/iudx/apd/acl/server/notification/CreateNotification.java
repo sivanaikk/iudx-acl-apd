@@ -63,8 +63,6 @@ public class CreateNotification {
    */
   public Future<JsonObject> initiateCreateNotification(JsonObject notification, User user) {
     resourceId = UUID.fromString(notification.getString("itemId"));
-    resourceType = notification.getString("itemType");
-
     /* check if the resource exists in CAT */
     Future<Boolean> getItemFromCatFuture = isItemPresentInCatalogue(resourceId);
 
@@ -117,8 +115,7 @@ public class CreateNotification {
         resourceInsertionFuture.compose(
             isResourceAddedInDb -> {
               if (isResourceAddedInDb) {
-                return checkIfValidPolicyExists(
-                    GET_ACTIVE_CONSUMER_POLICY, resourceId, resourceType, user);
+                return checkIfValidPolicyExists(GET_ACTIVE_CONSUMER_POLICY, resourceId, user);
               }
               /* something went wrong while inserting the resource in DB */
               return Future.failedFuture(resourceInsertionFuture.cause().getMessage());
@@ -132,8 +129,7 @@ public class CreateNotification {
                 return Future.failedFuture(validPolicyExistsFuture.cause().getMessage());
               }
               /* Policy doesn't exist, or is DELETED, or was expired */
-              return checkIfValidNotificationExists(
-                  GET_VALID_NOTIFICATION, resourceId, resourceType, user);
+              return checkIfValidNotificationExists(GET_VALID_NOTIFICATION, resourceId, user);
             });
 
     Future<JsonObject> createNotificationFuture =
@@ -146,7 +142,7 @@ public class CreateNotification {
               return createNotification(
                   CREATE_NOTIFICATION_QUERY,
                   resourceId,
-                  resourceType,
+                  getResourceType(),
                   user,
                   UUID.fromString(getProviderInfo().getUserId()));
             });
@@ -250,17 +246,15 @@ public class CreateNotification {
    *
    * @param query A SELECT query to fetch details about policy
    * @param resourceId id of the resource with type UUID
-   * @param resourceType type of the resource, can be <b>RESOURCE</b> or <b>RESOURCE_GROUP</b>
    * @param consumer Details of the user requesting to create notification with type User
    * @return False if policy is not present, <b>DELETED</b>, or <b>EXPIRED</b>. Failure if it is in
    *     <b>ACTIVE</b> status
    */
-  public Future<Boolean> checkIfValidPolicyExists(
-      String query, UUID resourceId, String resourceType, User consumer) {
+  public Future<Boolean> checkIfValidPolicyExists(String query, UUID resourceId, User consumer) {
     Promise<Boolean> promise = Promise.promise();
     LOG.trace("inside checkIfValidPolicyExists method");
     String consumerEmail = consumer.getEmailId();
-    Tuple tuple = Tuple.of(consumerEmail, resourceId, resourceType);
+    Tuple tuple = Tuple.of(consumerEmail, resourceId);
     executeQuery(
         query,
         tuple,
@@ -293,13 +287,11 @@ public class CreateNotification {
    *
    * @param query A SELECT query to fetch details about the notification
    * @param resourceId id of the resource with type UUID
-   * @param resourceType type of the resource, can be <b>RESOURCE</b> or <b>RESOURCE_GROUP</b>
    * @param user consumer details with type User
    * @return false if the notification was not previously created, failure response if the
    *     notification was previously created
    */
-  public Future<Boolean> checkIfValidNotificationExists(
-      String query, UUID resourceId, String resourceType, User user) {
+  public Future<Boolean> checkIfValidNotificationExists(String query, UUID resourceId, User user) {
     Promise<Boolean> promise = Promise.promise();
     LOG.trace("inside checkIfValidNotificationExists method");
     UUID consumerId = UUID.fromString(user.getUserId());
@@ -412,6 +404,13 @@ public class CreateNotification {
 
                 /* set provider id, resourceGroupId, resourceType, resource server url */
                 setResourceServerUrl(url);
+                boolean isResourceGroupIdNull = resourceGroupIdValue == null;
+                /* set provider id, resourceGroupId, resourceType */
+                if (isResourceGroupIdNull) {
+                  setResourceType("RESOURCE");
+                } else {
+                  setResourceType("RESOURCE_GROUP");
+                }
                 setResourceGroupId(resourceGroupIdValue);
                 JsonObject providerInfo =
                     new JsonObject()
@@ -518,5 +517,13 @@ public class CreateNotification {
 
   public void setResourceServerUrl(String resourceServerUrl) {
     this.resourceServerUrl = resourceServerUrl;
+  }
+
+  public String getResourceType() {
+    return this.resourceType;
+  }
+
+  public void setResourceType(String resourceType) {
+    this.resourceType = resourceType;
   }
 }
