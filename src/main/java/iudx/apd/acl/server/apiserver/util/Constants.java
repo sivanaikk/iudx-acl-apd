@@ -18,31 +18,32 @@ public class Constants {
   public static final String HEADER_REFERER = "Referer";
   public static final String HEADER_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
   public static final Set<String> ALLOWED_HEADERS =
-      new HashSet<>(
-          Arrays.asList(
-              HEADER_ACCEPT,
-              HEADER_TOKEN,
-              HEADER_CONTENT_LENGTH,
-              HEADER_CONTENT_TYPE,
-              HEADER_HOST,
-              HEADER_ORIGIN,
-              HEADER_REFERER,
-              HEADER_ALLOW_ORIGIN));
+          new HashSet<>(
+                  Arrays.asList(
+                          HEADER_ACCEPT,
+                          HEADER_TOKEN,
+                          HEADER_CONTENT_LENGTH,
+                          HEADER_CONTENT_TYPE,
+                          HEADER_HOST,
+                          HEADER_ORIGIN,
+                          HEADER_REFERER,
+                          HEADER_ALLOW_ORIGIN));
 
   public static final Set<HttpMethod> ALLOWED_METHODS =
-      new HashSet<>(
-          Arrays.asList(
-              HttpMethod.GET,
-              HttpMethod.POST,
-              HttpMethod.OPTIONS,
-              HttpMethod.DELETE,
-              HttpMethod.PATCH,
-              HttpMethod.PUT));
+          new HashSet<>(
+                  Arrays.asList(
+                          HttpMethod.GET,
+                          HttpMethod.POST,
+                          HttpMethod.OPTIONS,
+                          HttpMethod.DELETE,
+                          HttpMethod.PATCH,
+                          HttpMethod.PUT));
   // request/response params
   public static final String ID = "id";
   public static final String CONTENT_TYPE = "content-type";
   public static final String CAT_SUCCESS_URN = "urn:dx:cat:Success";
   public static final String RESULTS = "results";
+  public static final String TOTAL_HITS = "totalHits";
   public static final String APPLICATION_JSON = "application/json";
   public static final String ROUTE_STATIC_SPEC = "/apis/spec";
   public static final String ROUTE_DOC = "/apis";
@@ -53,6 +54,12 @@ public class Constants {
   public static final String STATUS_CODE = "statusCode";
   public static final String RESULT = "results";
   public static final String DETAIL = "detail";
+  public static final String USER_ID = "userId";
+  public static final String ROLE = "role";
+  public static final String RESOURCE_SERVER_URL = "resourceServer";
+  public static final String CLIENT_ID = "clientId";
+  public static final String CLIENT_SECRET = "clientSecret";
+  public static final String DELEGATE_EMAILS = "delegateEmails";
   public static final String EMAIL_OPTIONS = "emailOptions";
 
   public static final String RELATIONSHIP_PATH = "/relationship";
@@ -60,11 +67,12 @@ public class Constants {
   // endpoints
   public static final String POLICIES_API = "/policies";
   public static final String REQUEST_POLICY_API = "/policies/requests";
+  public static final String REQUEST_EMAIL_IDS = "/delegations/emails";
 
   // validation
   public static final int POLICY_ID_MAX_LENGTH = 4000;
   public static final Pattern POLICY_ID_PATTERN =
-      Pattern.compile("[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$");
+          Pattern.compile("[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$");
 
   //  //operation ids
   public static final String GET_POLICY_API = "get-auth-v1-policies";

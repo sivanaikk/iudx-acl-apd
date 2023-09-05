@@ -174,7 +174,7 @@ public class TestCreatePolicy {
     List<ResourceObj> resourceObjList = new ArrayList<>();
 
     ResourceObj resourceObj = new ResourceObj(mockResourceId,utility.getOwnerId(),null,
-      Utility.generateRandomUrl());
+      Utility.generateRandomUrl(), false);
     resourceObjList.add(resourceObj);
     when(catalogueClient.fetchItems(mockUUIDList)).thenReturn(Future.succeededFuture(resourceObjList));
 
