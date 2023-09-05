@@ -17,7 +17,6 @@ import org.apache.logging.log4j.Logger;
 
 public class AuditingVerticle extends AbstractVerticle {
 
-
   private RabbitMQOptions config;
   private RabbitMQClient client;
   private String dataBrokerIp;
