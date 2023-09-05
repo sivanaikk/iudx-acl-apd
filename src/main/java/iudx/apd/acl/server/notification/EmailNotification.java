@@ -107,7 +107,7 @@ public class EmailNotification {
     message.setTo(providerEmailId);
     message.setCc(ccList);
     message.setHtml(body);
-    message.setSubject("Requesting for policy : " + itemId);
+    message.setSubject("Requesting for policy");
 
     mailClient
         .sendMail(message)
