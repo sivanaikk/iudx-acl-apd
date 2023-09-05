@@ -69,10 +69,10 @@ public class EmailNotification {
     if (!notifyByEmail) {
       return Future.succeededFuture(true);
     }
-    String consumerId = consumer.getUserId();
-    String consumerFirstName = consumer.getFirstName();
-    String consumerLastName = consumer.getLastName();
-    String consumerEmailId = consumer.getEmailId();
+    final String consumerId = consumer.getUserId();
+    final String consumerFirstName = consumer.getFirstName();
+    final String consumerLastName = consumer.getLastName();
+    final String consumerEmailId = consumer.getEmailId();
 
     final String providerEmailId = provider.getEmailId();
 

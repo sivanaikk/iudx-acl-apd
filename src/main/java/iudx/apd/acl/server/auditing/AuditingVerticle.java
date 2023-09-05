@@ -12,8 +12,6 @@ import io.vertx.rabbitmq.RabbitMQOptions;
 import io.vertx.serviceproxy.ServiceBinder;
 import iudx.apd.acl.server.auditing.databroker.DataBrokerService;
 import iudx.apd.acl.server.auditing.databroker.DataBrokerServiceImpl;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class AuditingVerticle extends AbstractVerticle {
 
