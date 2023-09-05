@@ -157,8 +157,11 @@ public class TestVerifyPolicy {
     List<ResourceObj> resourceObjList = new ArrayList<>();
     ResourceObj resourceObj =
         new ResourceObj(
-            Utility.generateRandomUuid(), utility.getOwnerId(), utility.getResourceId(),
-            "resourceServerURL",false);
+            Utility.generateRandomUuid(),
+            utility.getOwnerId(),
+            utility.getResourceId(),
+            "resourceServerURL",
+            false);
     resourceObjList.add(resourceObj);
     when(catalogueClient.fetchItems(mockUUIDList))
         .thenReturn(Future.succeededFuture(resourceObjList));
@@ -218,38 +221,38 @@ public class TestVerifyPolicy {
     UUID mockResourceId = Utility.generateRandomUuid();
 
     JsonObject item =
-      new JsonObject()
-        .put("itemId", mockResourceId)
-        .put("itemType", ItemType.RESOURCE);
+        new JsonObject().put("itemId", mockResourceId).put("itemType", ItemType.RESOURCE);
     request.put("item", item);
 
     Set<UUID> mockUUIDList = new HashSet<>();
     mockUUIDList.add(mockResourceId);
     List<ResourceObj> resourceObjList = new ArrayList<>();
     ResourceObj resourceObj =
-      new ResourceObj(
-        Utility.generateRandomUuid(), utility.getOwnerId(), Utility.generateRandomUuid(),
-          Utility.generateRandomUrl(), false);
+        new ResourceObj(
+            Utility.generateRandomUuid(),
+            utility.getOwnerId(),
+            Utility.generateRandomUuid(),
+            Utility.generateRandomUrl(),
+            false);
     resourceObjList.add(resourceObj);
 
     when(catalogueClient.fetchItems(mockUUIDList))
-      .thenReturn(Future.succeededFuture(resourceObjList));
+        .thenReturn(Future.succeededFuture(resourceObjList));
 
     verifyPolicy
-      .initiateVerifyPolicy(request)
-      .onComplete(
-        handler -> {
-          if (handler.succeeded()) {
-            vertxTestContext.failNow("Succeeded by creating a policy");
-          } else {
-            JsonObject result = new JsonObject(handler.cause().getMessage());
-            assertEquals(VERIFY_FORBIDDEN.getValue(), result.getInteger(TYPE));
-            assertEquals(VERIFY_FORBIDDEN.getUrn(), result.getString(TITLE));
-            assertEquals(
-              "No policy exist for given item's Resource Group", result.getString("detail"));
-            vertxTestContext.completeNow();
-          }
-        });
+        .initiateVerifyPolicy(request)
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                vertxTestContext.failNow("Succeeded by creating a policy");
+              } else {
+                JsonObject result = new JsonObject(handler.cause().getMessage());
+                assertEquals(VERIFY_FORBIDDEN.getValue(), result.getInteger(TYPE));
+                assertEquals(VERIFY_FORBIDDEN.getUrn(), result.getString(TITLE));
+                assertEquals(
+                    "No policy exist for given item's Resource Group", result.getString("detail"));
+                vertxTestContext.completeNow();
+              }
+            });
   }
-
 }
