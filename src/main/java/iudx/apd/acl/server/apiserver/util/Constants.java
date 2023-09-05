@@ -65,7 +65,6 @@ public class Constants {
   public static final String RELATIONSHIP_PATH = "/relationship";
   public static final String EPOCH_TIME = "epochTime";
   public static final String ISO_TIME = "isoTime";
-  public static final String USER_ID = "userid";
   public static final String API = "api";
   public static final String RESPONSE_SIZE = "response_size";
   public static final String HTTP_METHOD = "httpMethod";
