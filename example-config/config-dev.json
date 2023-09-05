@@ -31,7 +31,6 @@
       "defaultExpiryDays": 12,
       "catServerHost": "",
       "catServerPort": 123,
-      "catServerRelationShipPath": "",
       "domain" : ""
     },
     {
@@ -50,7 +49,6 @@
       "databasePassword": "",
       "catServerHost": "",
       "catServerPort": 443,
-      "catServerRelationShipPath": "",
       "authInfo": {
         "clientId" : "",
         "clientSecret": "",

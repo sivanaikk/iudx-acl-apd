@@ -57,7 +57,7 @@ public class EmailNotification {
     mailConfig.setPassword(emailPassword);
     mailConfig.setAllowRcptErrors(true);
 
-    if (mailClient != null) {
+    if (mailClient == null) {
       this.mailClient = MailClient.create(vertx, mailConfig);
     }
   }
