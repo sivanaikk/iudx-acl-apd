@@ -26,9 +26,9 @@ public class Constants {
   public static final String GET_CONSUMER_EMAIL_QUERY =
           "SELECT email_id FROM user_table WHERE _id = $1::uuid;";
   public static final String GET_EXISTING_POLICY_QUERY_1 = "SELECT * FROM policy WHERE owner_id = $1::uuid";
-  public static final String GET_EXISTING_POLICY_QUERY_3 = " AND status = 'ACTIVE' AND item_id = $2::uuid AND";
-  public static final String GET_EXISTING_POLICY_QUERY_7 = " AND user_emailid = $4";
-  public static final String GET_EXISTING_POLICY_QUERY_6 = " item_type = $3 AND expiry_at > now()";
+  public static final String GET_EXISTING_POLICY_QUERY_3 = " AND status = 'ACTIVE' AND item_id = $2::uuid";
+  public static final String GET_EXISTING_POLICY_QUERY_7 = " AND user_emailid = $3";
+  public static final String GET_EXISTING_POLICY_QUERY_6 = " AND expiry_at > now()";
   public static final String GET_EXISTING_POLICY_QUERY_4 = GET_EXISTING_POLICY_QUERY_6 + GET_EXISTING_POLICY_QUERY_7;
   public static final String GET_EXISTING_POLICY_QUERY =
           GET_EXISTING_POLICY_QUERY_1 + GET_EXISTING_POLICY_QUERY_3 + GET_EXISTING_POLICY_QUERY_4;
