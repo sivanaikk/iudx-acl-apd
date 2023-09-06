@@ -14,10 +14,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ProviderAuthStrategy implements AuthorizationStrategy {
-  private static final Logger LOGGER = LogManager.getLogger(ProviderAuthStrategy.class);
   private static volatile ProviderAuthStrategy instance;
-  Api apis1;
-
   Map<String, List<AuthorizationRequest>> providerAuthorizationRules = new HashMap<>();
 
   private ProviderAuthStrategy(Api apis) {
@@ -36,7 +33,6 @@ public class ProviderAuthStrategy implements AuthorizationStrategy {
   }
 
   private void buildPermissions(Api apis) {
-    apis1 = apis;
     // api access list/rules
     List<AuthorizationRequest> apiAccessList = new ArrayList<>();
     apiAccessList.add(new AuthorizationRequest(POST, apis.getPoliciesUrl()));
