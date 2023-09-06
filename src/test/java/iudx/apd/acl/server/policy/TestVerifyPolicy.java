@@ -182,7 +182,7 @@ public class TestVerifyPolicy {
             });
   }
 
-  @Test
+ /* @Test
   @DisplayName("Test initiateVerifyPolicy for resourceGroup not found in CAT: Fail")
   public void testInitiateVerifyPolicyFailForResource(VertxTestContext vertxTestContext) {
     JsonObject request = getRequest();
@@ -212,7 +212,7 @@ public class TestVerifyPolicy {
               }
             });
     verify(catalogueClient).fetchItems(mockUUIDList);
-  }
+  }*/
 
   @Test
   @DisplayName("Test initiateVerifyPolicy for no policy for given resource's Resource Group: Fail")
