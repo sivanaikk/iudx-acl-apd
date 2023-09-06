@@ -1,10 +1,8 @@
 package iudx.apd.acl.server.notification;
 
-import static iudx.apd.acl.server.apiserver.util.Constants.EMAIL_OPTIONS;
 import static iudx.apd.acl.server.common.Constants.NOTIFICATION_SERVICE_ADDRESS;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.serviceproxy.ServiceBinder;
@@ -23,7 +21,6 @@ public class NotificationVerticle extends AbstractVerticle {
   private GetDelegateEmailIds getDelegateEmailIds;
   private WebClient webClient;
   private WebClientOptions webClientOptions;
-  private JsonObject authInfo;
 
   @Override
   public void start() {
@@ -32,12 +29,9 @@ public class NotificationVerticle extends AbstractVerticle {
     webClientOptions = new WebClientOptions();
     webClientOptions.setTrustAll(false).setVerifyHost(true).setSsl(true);
     webClient = WebClient.create(vertx, webClientOptions);
-    authInfo = config().getJsonObject("authInfo");
-    authInfo.put("dxAuthBasePath", config().getString("dxAuthBasePath"));
-    getDelegateEmailIds = new GetDelegateEmailIds(authInfo, webClient);
+    getDelegateEmailIds = new GetDelegateEmailIds(config(), webClient);
 
-    emailNotification =
-        new EmailNotification(vertx, config().getJsonObject(EMAIL_OPTIONS), getDelegateEmailIds);
+    emailNotification = new EmailNotification(vertx, config(), getDelegateEmailIds);
     createNotification =
         new CreateNotification(postgresService, catalogueClient, emailNotification);
     deleteNotification = new DeleteNotification(postgresService);
