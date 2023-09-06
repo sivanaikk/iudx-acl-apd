@@ -2,7 +2,6 @@ package iudx.apd.acl.server.policy;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.apd.acl.server.apiserver.util.User;
 import org.slf4j.Logger;
@@ -33,7 +32,6 @@ public class PolicyServiceImpl implements PolicyService {
   @Override
   public Future<JsonObject> createPolicy(JsonObject request, User user) {
     Promise<JsonObject> promise = Promise.promise();
-
     request.put("defaultExpiryDays", config.getLong("defaultExpiryDays"));
     createPolicy
         .initiateCreatePolicy(request, user)

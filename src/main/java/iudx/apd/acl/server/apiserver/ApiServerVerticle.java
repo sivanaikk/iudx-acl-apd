@@ -27,12 +27,14 @@ import io.vertx.ext.web.handler.TimeoutHandler;
 import io.vertx.ext.web.openapi.RouterBuilder;
 import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.auditing.AuditingService;
+import iudx.apd.acl.server.authentication.AuthHandler;
 import iudx.apd.acl.server.authentication.Authentication;
 import iudx.apd.acl.server.common.Api;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.notification.NotificationService;
 import iudx.apd.acl.server.policy.PolicyService;
+import iudx.apd.acl.server.policy.PostgresService;
 import iudx.apd.acl.server.validation.FailureHandler;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -73,28 +75,6 @@ public class ApiServerVerticle extends AbstractVerticle {
   private NotificationService notificationService;
   private AuditingService auditingService;
 
-  private static User getConsumer() {
-    JsonObject consumer =
-        new JsonObject()
-            .put("userId", "e5d3ef22-5b25-4d61-aa85-6b3f47ce7121")
-            .put("firstName", "Test")
-            .put("lastName", "User 1")
-            .put("emailId", "test_user_1@example.com")
-            .put("userRole", "consumer");
-    return new User(consumer);
-  }
-
-  private static User getProvider() {
-    JsonObject provider =
-        new JsonObject()
-            .put("userId", "b2c27f3f-2524-4a84-816e-91f9ab23f837")
-            .put("firstName", "Test")
-            .put("lastName", "Provider")
-            .put("emailId", "testprovider@example.com")
-            .put("userRole", "provider");
-    return new User(provider);
-  }
-
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, reads the
    * configuration, obtains a proxy for the Event bus services exposed through service discovery,
@@ -124,42 +104,49 @@ public class ApiServerVerticle extends AbstractVerticle {
 
               routerBuilder
                   .operation(CREATE_POLICY_API)
-                  //                                    .handler(AuthHandler.create(vertx,api))
+                  .handler(AuthHandler.create(vertx, api, config()))
                   .handler(this::postPoliciesHandler)
                   .failureHandler(failureHandler);
 
               routerBuilder
                   .operation(GET_POLICY_API)
+                  .handler(AuthHandler.create(vertx, api, config()))
                   .handler(this::getPoliciesHandler)
                   .failureHandler(failureHandler);
 
               routerBuilder
                   .operation(DELETE_POLICY_API)
+                  .handler(AuthHandler.create(vertx, api, config()))
                   .handler(this::deletePoliciesHandler)
                   .failureHandler(failureHandler);
 
               routerBuilder
                   .operation(CREATE_NOTIFICATIONS_API)
+                  .handler(AuthHandler.create(vertx, api, config()))
                   .handler(this::postAccessRequestHandler)
                   .failureHandler(failureHandler);
 
               routerBuilder
                   .operation(UPDATE_NOTIFICATIONS_API)
+                  .handler(AuthHandler.create(vertx, api, config()))
                   .handler(this::putAccessRequestHandler)
                   .failureHandler(failureHandler);
 
               routerBuilder
                   .operation(GET_NOTIFICATIONS_API)
+                  .handler(AuthHandler.create(vertx, api, config()))
                   .handler(this::getAccessRequestHandler)
                   .failureHandler(failureHandler);
 
               routerBuilder
                   .operation(DELETE_NOTIFICATIONS_API)
+                  .handler(AuthHandler.create(vertx, api, config()))
                   .handler(this::deleteAccessRequestHandler)
                   .failureHandler(failureHandler);
 
               routerBuilder
                   .operation(VERIFY_API)
+                  .handler(AuthHandler.create(vertx, api, config()))
                   .handler(this::verifyRequestHandler)
                   .failureHandler(failureHandler);
 
@@ -221,7 +208,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                 handleSuccessResponse(
                     response, HttpStatusCode.SUCCESS.getValue(), handler.result().toString());
               } else {
-                LOGGER.error("Policy could not be verified");
+                LOGGER.error("Policy could not be verified {}",handler.cause().getMessage());
                 handleFailureResponse(routingContext, handler.cause().getMessage());
               }
             });
@@ -230,9 +217,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   private void postAccessRequestHandler(RoutingContext routingContext) {
     JsonObject request = routingContext.body().asJsonObject();
     HttpServerResponse response = routingContext.response();
-    User consumer = getConsumer();
+    User user = routingContext.get("user");
     notificationService
-        .createNotification(request, consumer)
+        .createNotification(request, user)
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
@@ -263,9 +250,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   private void putAccessRequestHandler(RoutingContext routingContext) {
     JsonObject notification = routingContext.body().asJsonObject();
     HttpServerResponse response = routingContext.response();
-    User provider = getProvider();
+    User user = routingContext.get("user");
     notificationService
-        .updateNotification(notification, provider)
+        .updateNotification(notification, user)
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
@@ -288,9 +275,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   private void deleteAccessRequestHandler(RoutingContext routingContext) {
     JsonObject notification = routingContext.body().asJsonObject();
     HttpServerResponse response = routingContext.response();
-    User consumer = getConsumer();
+    User user = routingContext.get("user");
     notificationService
-        .deleteNotification(notification, consumer)
+        .deleteNotification(notification, user)
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
@@ -312,10 +299,9 @@ public class ApiServerVerticle extends AbstractVerticle {
 
   private void getAccessRequestHandler(RoutingContext routingContext) {
     HttpServerResponse response = routingContext.response();
-    User consumer = getConsumer();
-    //        User provider = getProvider();
+    User user = routingContext.get("user");
     notificationService
-        .getNotification(consumer)
+        .getNotification(user)
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
@@ -332,9 +318,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   private void postPoliciesHandler(RoutingContext routingContext) {
     JsonObject requestBody = routingContext.body().asJsonObject();
     HttpServerResponse response = routingContext.response();
-    // TODO: to add user object in the requestBody before calling createPolicy method
+    User user = routingContext.get("user");
     policyService
-        .createPolicy(requestBody, getProvider())
+        .createPolicy(requestBody, user)
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
@@ -353,9 +339,9 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject policy = routingContext.body().asJsonObject();
     HttpServerResponse response = routingContext.response();
 
-    User provider = getProvider();
+    User user = routingContext.get("user");
     policyService
-        .deletePolicy(policy, provider)
+        .deletePolicy(policy, user)
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
@@ -378,10 +364,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   private void getPoliciesHandler(RoutingContext routingContext) {
     HttpServerResponse response = routingContext.response();
 
-    //        User consumer = getConsumer();
-    User provider = getProvider();
+    User user = routingContext.get("user");
     policyService
-        .getPolicy(provider)
+        .getPolicy(user)
         .onComplete(
             handler -> {
               if (handler.succeeded()) {

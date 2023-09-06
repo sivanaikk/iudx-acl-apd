@@ -89,7 +89,7 @@ public class CatalogueClient implements CatalogueClientInterface {
                   resourceObjList.add(resourceObj);
                   promise.complete(resourceObjList);
                 } else {
-                  promise.fail(resultBody.getString(TITLE));
+                  promise.fail(resultBody.getString(DETAIL));
                 }
               });
     }

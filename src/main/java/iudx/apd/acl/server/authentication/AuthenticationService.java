@@ -5,8 +5,10 @@ import io.vertx.codegen.annotations.GenIgnore;
 import io.vertx.codegen.annotations.ProxyGen;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -49,7 +51,8 @@ public interface AuthenticationService {
    * @param handler which is a request handler
    * @return AuthenticationService which is a service
    */
-  @Fluent
-  AuthenticationService tokenIntrospect(
-      JsonObject request, JsonObject authenticationInfo, Handler<AsyncResult<JsonObject>> handler);
+  Future<JsonObject> tokenIntrospect(
+      JsonObject authenticationInfo);
+
+  Future<Void> tokenIntrospectForVerify(JsonObject authenticationInfo);
 }

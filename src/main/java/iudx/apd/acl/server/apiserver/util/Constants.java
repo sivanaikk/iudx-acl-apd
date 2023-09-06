@@ -41,6 +41,7 @@ public class Constants {
   // request/response params
   public static final String ID = "id";
   public static final String CONTENT_TYPE = "content-type";
+  public static final String AUTHORIZATION_KEY="Authorization";
   public static final String CAT_SUCCESS_URN = "urn:dx:cat:Success";
   public static final String RESULTS = "results";
   public static final String TOTAL_HITS = "totalHits";
@@ -61,6 +62,8 @@ public class Constants {
   public static final String CLIENT_SECRET = "clientSecret";
   public static final String DELEGATE_EMAILS = "delegateEmails";
   public static final String EMAIL_OPTIONS = "emailOptions";
+  public static final String API_ENDPOINT = "apiEndpoint";
+  public static final String API_METHOD = "method";
 
   public static final String RELATIONSHIP_PATH = "/relationship";
   public static final String EPOCH_TIME = "epochTime";
@@ -76,6 +79,7 @@ public class Constants {
   public static final String POLICIES_API = "/policies";
   public static final String REQUEST_POLICY_API = "/policies/requests";
   public static final String REQUEST_EMAIL_IDS = "/delegations/emails";
+  public static final String VERIFY_POLICY_API = "/verify";
 
   // validation
   public static final int POLICY_ID_MAX_LENGTH = 4000;
