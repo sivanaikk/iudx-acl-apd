@@ -10,15 +10,14 @@ import static iudx.apd.acl.server.authentication.authorization.IudxRole.DELEGATE
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
-import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.authentication.TokenCredentials;
 import io.vertx.ext.auth.jwt.JWTAuth;
-import iudx.apd.acl.server.authentication.authorization.JwtAuthorization;
 import iudx.apd.acl.server.authentication.authorization.AuthorizationContextFactory;
 import iudx.apd.acl.server.authentication.authorization.AuthorizationRequest;
 import iudx.apd.acl.server.authentication.authorization.AuthorizationStrategy;
 import iudx.apd.acl.server.authentication.authorization.IudxRole;
+import iudx.apd.acl.server.authentication.authorization.JwtAuthorization;
 import iudx.apd.acl.server.authentication.authorization.Method;
 import iudx.apd.acl.server.authentication.model.JwtData;
 import iudx.apd.acl.server.common.Api;
@@ -33,8 +32,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   final Api apis;
   final String apdURL;
 
-  public JwtAuthenticationServiceImpl(
-      Vertx vertx, final JWTAuth jwtAuth, final JsonObject config, Api apis) {
+  public JwtAuthenticationServiceImpl(final JWTAuth jwtAuth, final JsonObject config, Api apis) {
     this.jwtAuth = jwtAuth;
     this.audience = config.getString("audience");
     this.issuer = config.getString("issuer");
@@ -90,7 +88,9 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
               } else if (!jwtData.getSub().equalsIgnoreCase(jwtData.getIss())) {
                 LOGGER.error("Incorrect subject value in JWT");
                 promise.fail("Incorrect subject value in JWT");
-              } else promise.complete();
+              } else {
+                promise.complete();
+              }
             })
         .onFailure(
             failureHandler -> {
@@ -112,7 +112,9 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     } else if (!jwtData.getAud().equalsIgnoreCase(jwtData.getIid().split(":")[1])) {
       LOGGER.error("Incorrect audience value in JWT");
       promise.fail("Incorrect audience value in JWT");
-    } else promise.complete(true);
+    } else {
+      promise.complete(true);
+    }
 
     return promise.future();
   }
@@ -120,7 +122,6 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   Future<JsonObject> validateAccess(JwtData jwtData, JsonObject authInfo) {
     LOGGER.info("Authorization check started");
     Promise<JsonObject> promise = Promise.promise();
-    String jwtId = jwtData.getIid().split(":")[1];
     Method method = Method.valueOf(authInfo.getString(API_METHOD));
     String api = authInfo.getString(API_ENDPOINT);
     AuthorizationRequest authRequest = new AuthorizationRequest(method, api);

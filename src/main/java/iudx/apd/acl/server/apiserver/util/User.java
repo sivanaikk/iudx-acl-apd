@@ -18,7 +18,7 @@ public class User {
   private final String firstName;
   private final String lastName;
 
-//  private final boolean isDelegate;
+  //  private final boolean isDelegate;
 
   private final String effectiveResourceServerUrl;
 
@@ -29,7 +29,7 @@ public class User {
     this.firstName = userDetails.getString("firstName");
     this.lastName = userDetails.getString("lastName");
     this.effectiveResourceServerUrl = userDetails.getString("aud");
-//    this.isDelegate = userDetails.getBoolean("isDelegate");
+    //    this.isDelegate = userDetails.getBoolean("isDelegate");
 
     /* Converts JsonObject to User class object or dataObject conversion [Deserialization] */
     UserConverter.fromJson(userDetails, this);
@@ -66,9 +66,9 @@ public class User {
     return userId;
   }
 
-//  public boolean isDelegate() {
-//    return isDelegate;
-//  }
+  //  public boolean isDelegate() {
+  //    return isDelegate;
+  //  }
 
   public String getEffectiveResourceServerUrl() {
     return effectiveResourceServerUrl;
@@ -87,9 +87,9 @@ public class User {
         + lastName
         + ",\n resourceServerUrl - "
         + effectiveResourceServerUrl
-//        + ",\n isDelegate "
-//        + isDelegate
-      ;
+        //  + ",\n isDelegate "
+        //  + isDelegate
+    ;
   }
 
   @Override

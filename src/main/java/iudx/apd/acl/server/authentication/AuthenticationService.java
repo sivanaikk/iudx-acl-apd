@@ -1,14 +1,10 @@
 package iudx.apd.acl.server.authentication;
 
-import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.GenIgnore;
 import io.vertx.codegen.annotations.ProxyGen;
 import io.vertx.codegen.annotations.VertxGen;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -45,14 +41,16 @@ public interface AuthenticationService {
    * APIs. It caches the result of the TIP from the auth server for a duration specified by the
    * Constants TIP_CACHE_TIMEOUT_AMOUNT and TIP_CACHE_TIMEOUT_UNIT.
    *
-   * @param request which is a JsonObject containing ids: [String]
    * @param authenticationInfo which is a JsonObject containing token: String and apiEndpoint:
-   *     String
-   * @param handler which is a request handler
-   * @return AuthenticationService which is a service
+   * @return Future of JsonObject containing information from the decoded token
    */
-  Future<JsonObject> tokenIntrospect(
-      JsonObject authenticationInfo);
+  Future<JsonObject> tokenIntrospect(JsonObject authenticationInfo);
 
+  /**
+   * The tokenIntrospectForVerify method implements the authentication module for IUDX Verify APIs.
+   *
+   * @param authenticationInfo which is a JsonObject containing token: String and apiEndpoint:
+   * @return Future of Void.
+   */
   Future<Void> tokenIntrospectForVerify(JsonObject authenticationInfo);
 }

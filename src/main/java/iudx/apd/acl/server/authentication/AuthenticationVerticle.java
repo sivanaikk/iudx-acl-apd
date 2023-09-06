@@ -2,7 +2,7 @@ package iudx.apd.acl.server.authentication;
 
 import static iudx.apd.acl.server.authentication.Constants.AUTH_CERTIFICATE_PATH;
 import static iudx.apd.acl.server.common.Constants.AUTH_SERVICE_ADDRESS;
-import iudx.apd.acl.server.common.Api;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -15,7 +15,7 @@ import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.serviceproxy.ServiceBinder;
-import iudx.apd.acl.server.policy.PostgresService;
+import iudx.apd.acl.server.common.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -87,8 +87,7 @@ public class AuthenticationVerticle extends AbstractVerticle {
               Api apis = Api.getInstance(dxApiBasePath);
               JWTAuth jwtAuth = JWTAuth.create(vertx, jwtAuthOptions);
 
-              jwtAuthenticationService =
-                  new JwtAuthenticationServiceImpl(vertx, jwtAuth, config(), apis);
+              jwtAuthenticationService = new JwtAuthenticationServiceImpl(jwtAuth, config(), apis);
 
               /* Publish the Authentication service with the Event Bus against an address. */
               consumer =

@@ -1,4 +1,5 @@
 package iudx.apd.acl.server.authentication.authorization;
+
 public final class JwtAuthorization {
   private final AuthorizationStrategy authStrategy;
 
@@ -9,5 +10,4 @@ public final class JwtAuthorization {
   public boolean isAuthorized(AuthorizationRequest authRequest) {
     return authStrategy.isAuthorized(authRequest);
   }
-
 }

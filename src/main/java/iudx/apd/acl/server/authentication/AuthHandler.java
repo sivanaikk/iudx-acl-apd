@@ -74,7 +74,7 @@ public class AuthHandler implements Handler<RoutingContext> {
               })
           .onFailure(
               fail -> {
-                LOGGER.error("User Verification Failed. "+fail.getMessage());
+                LOGGER.error("User Verification Failed. " + fail.getMessage());
                 processAuthFailure(context);
               });
     } else {
@@ -87,7 +87,7 @@ public class AuthHandler implements Handler<RoutingContext> {
               })
           .onFailure(
               fail -> {
-                LOGGER.error("User Verification Failed. "+fail.getMessage());
+                LOGGER.error("User Verification Failed. " + fail.getMessage());
                 processAuthFailure(context);
               });
     }
@@ -132,8 +132,8 @@ public class AuthHandler implements Handler<RoutingContext> {
                 userObj.put("emailId", result.getString("email_id"));
                 userObj.put("firstName", result.getString("first_name"));
                 userObj.put("lastName", result.getString("last_name"));
-                userObj.put("aud",jsonObject.getString(AUD));
-//                userObj.put(IS_DELEGATE,jsonObject.getBoolean(IS_DELEGATE));
+                userObj.put("aud", jsonObject.getString(AUD));
+                //                userObj.put(IS_DELEGATE,jsonObject.getBoolean(IS_DELEGATE));
 
                 User user = new User(userObj);
                 promise.complete(user);
@@ -191,16 +191,16 @@ public class AuthHandler implements Handler<RoutingContext> {
    * @return path without id.
    */
   private String getNormalizedPath(String url) {
-    LOGGER.debug("URL : " + url);
-    String path = null;
-    if (url.matches((api.getPoliciesUrl()))) {
-      path = api.getPoliciesUrl();
-    } else if (url.matches((api.getRequestPoliciesUrl()))) {
-      path = api.getRequestPoliciesUrl();
-    } else if (url.matches((api.getVerifyUrl()))) {
-      path = api.getVerifyUrl();
+    LOGGER.debug("URL: " + url);
+    String[] urlsToMatch = {api.getPoliciesUrl(), api.getRequestPoliciesUrl(), api.getVerifyUrl()};
+
+    for (String apiUrl : urlsToMatch) {
+      if (url.matches(apiUrl)) {
+        return apiUrl;
+      }
     }
-    return path;
+
+    return null;
   }
 
   private void processAuthFailure(RoutingContext ctx) {
@@ -219,6 +219,7 @@ public class AuthHandler implements Handler<RoutingContext> {
         .put(DETAIL, statusCode.getDescription());
   }
 
-  static final class UserContainer { User user;
+  static final class UserContainer {
+    User user;
   }
 }

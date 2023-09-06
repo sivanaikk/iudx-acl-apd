@@ -208,7 +208,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                 handleSuccessResponse(
                     response, HttpStatusCode.SUCCESS.getValue(), handler.result().toString());
               } else {
-                LOGGER.error("Policy could not be verified {}",handler.cause().getMessage());
+                LOGGER.error("Policy could not be verified {}", handler.cause().getMessage());
                 handleFailureResponse(routingContext, handler.cause().getMessage());
               }
             });
