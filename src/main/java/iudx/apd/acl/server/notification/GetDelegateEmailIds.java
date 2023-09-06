@@ -55,7 +55,7 @@ public class GetDelegateEmailIds {
                 JsonObject results =
                     responseHandler.result().bodyAsJsonObject().getJsonObject(RESULT);
                 if (results == null || results.isEmpty()) {
-                  promise.fail("Could not fetch emails");
+                  promise.fail("Could not fetch email Ids");
                 } else {
                   JsonArray emails = results.getJsonArray(DELEGATE_EMAILS);
                   boolean isDelegateEmailIdEmpty = emails.isEmpty();

@@ -425,7 +425,7 @@ public class UpdateNotification {
             } else {
               String consumerEmail = result.getJsonObject(0).getString("email_id");
               setConsumerEmailId(consumerEmail);
-              Tuple tuple = Tuple.of(getOwnerId(), getItemId(), getItemType(), consumerEmail);
+              Tuple tuple = Tuple.of(getOwnerId(), getItemId(), consumerEmail);
               executeQuery(
                   query,
                   tuple,

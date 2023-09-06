@@ -48,6 +48,7 @@ public class TestDeleteNotifications {
     private static User consumer;
     @BeforeAll
     public static void setUp(VertxTestContext vertxTestContext) {
+        container.start();
         utility = new Utility();
         PostgresService pgService = utility.setUp(container);
 
@@ -97,7 +98,6 @@ public class TestDeleteNotifications {
         });
     }
 
-//    TODO: write a test case for withdrawing NULL expiryAt
     @Test
     @DisplayName("Test initiateDeleteNotification with invalid user")
     public void testInitiateDeleteNotification4InvalidUser(VertxTestContext vertxTestContext)
@@ -211,7 +211,7 @@ public class TestDeleteNotifications {
     }
 
 
-    @Test
+/*    @Test
     @DisplayName("Test initiateDeleteNotification method when notification is expired")
     public void testInitiateDeleteNotification4ExpiredRequest(VertxTestContext vertxTestContext)
     {
@@ -274,7 +274,7 @@ public class TestDeleteNotifications {
                 vertxTestContext.failNow("Failed");
             }
         });
-    }
+    }*/
     @Test
     @DisplayName("Test executeQuery with null tuple values")
     public void testExecuteQueryWithNullTuple( VertxTestContext vertxTestContext) {

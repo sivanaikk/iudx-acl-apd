@@ -26,11 +26,12 @@ public class EmailNotification {
   private final String senderName;
   private final JsonArray supportEmail;
   private final String publisherPanelUrl;
-  private final MailClient mailClient;
   private final boolean notifyByEmail;
   private final GetDelegateEmailIds getDelegateEmailIds;
+  MailClient mailClient;
   private List<String> supportEmailIds;
   private List<String> delegateEmailIds;
+  private boolean hasFetchDelegateFailed;
 
   public EmailNotification(
       Vertx vertx, JsonObject config, GetDelegateEmailIds getDelegateEmailIds) {
@@ -56,7 +57,9 @@ public class EmailNotification {
     mailConfig.setPassword(emailPassword);
     mailConfig.setAllowRcptErrors(true);
 
-    this.mailClient = MailClient.create(vertx, mailConfig);
+    if (mailClient == null) {
+      this.mailClient = MailClient.create(vertx, mailConfig);
+    }
   }
 
   public Future<Boolean> sendEmail(
@@ -66,10 +69,10 @@ public class EmailNotification {
     if (!notifyByEmail) {
       return Future.succeededFuture(true);
     }
-    String consumerId = consumer.getUserId();
-    String consumerFirstName = consumer.getFirstName();
-    String consumerLastName = consumer.getLastName();
-    String consumerEmailId = consumer.getEmailId();
+    final String consumerId = consumer.getUserId();
+    final String consumerFirstName = consumer.getFirstName();
+    final String consumerLastName = consumer.getLastName();
+    final String consumerEmailId = consumer.getEmailId();
 
     final String providerEmailId = provider.getEmailId();
 
@@ -89,9 +92,14 @@ public class EmailNotification {
             ccList.addAll(delegateEmailIds);
           } else {
             LOGGER.error("Failure: {}", handler.cause().getMessage());
+            hasFetchDelegateFailed = true;
+            promise.fail("Failed to fetch delegate email Ids");
           }
         });
 
+    if (hasFetchDelegateFailed) {
+      return promise.future();
+    }
     String body =
         HTML_EMAIL_BODY
             .replace("${CONSUMER_FIRST_NAME}", consumerFirstName)

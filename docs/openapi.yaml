@@ -775,27 +775,25 @@ paths:
                 - status
               x-examples:
                 example-1:
-                  request:
-                    - requestId: bca11712-f381-46a5-afa3-a29b00568ace
-                      status: granted
-                      expiryAt: '2024-03-05T20:00:19'
-                      constraints:
-                        access:
-                          - api
-                          - sub
-                          - file
+                  requestId: bca11712-f381-46a5-afa3-a29b00568ace
+                  status: granted
+                  expiryAt: '2024-03-05T20:00:19'
+                  constraints:
+                    access:
+                      - api
+                      - sub
+                      - file
             examples:
               Update Approved access request:
                 value:
-                  request:
-                    - requestId: bca11712-f381-46a5-afa3-a29b00568ace
-                      status: granted
-                      expiryAt: '2024-03-05T20:00:19'
-                      constraints:
-                        access:
-                          - api
-                          - sub
-                          - file
+                  requestId: bca11712-f381-46a5-afa3-a29b00568ace
+                  status: granted
+                  expiryAt: '2024-03-05T20:00:19'
+                  constraints:
+                    access:
+                      - api
+                      - sub
+                      - file
               Update Rejected access request:
                 value:
                   request:

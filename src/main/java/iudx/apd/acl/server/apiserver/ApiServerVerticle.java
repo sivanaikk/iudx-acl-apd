@@ -3,6 +3,7 @@ package iudx.apd.acl.server.apiserver;
 import static iudx.apd.acl.server.apiserver.response.ResponseUtil.generateResponse;
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.apiserver.util.Util.errorResponse;
+import static iudx.apd.acl.server.auditing.util.Constant.USERID;
 import static iudx.apd.acl.server.common.Constants.AUDITING_SERVICE_ADDRESS;
 import static iudx.apd.acl.server.common.Constants.NOTIFICATION_SERVICE_ADDRESS;
 import static iudx.apd.acl.server.common.Constants.POLICY_SERVICE_ADDRESS;
@@ -557,7 +558,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     String isoTime = zst.truncatedTo(ChronoUnit.SECONDS).toString();
 
     JsonObject auditLog = new JsonObject();
-    auditLog.put(USER_ID, userId);
+    auditLog.put(USERID, userId);
     auditLog.put(BODY, requestBody);
     auditLog.put(API, request.uri());
     auditLog.put(HTTP_METHOD, request.method().toString());

@@ -24,7 +24,12 @@ public class ResourceObj {
    *     be null).
    * @param resourceServerUrl The resource server URL to which the resource item belong.
    */
-  public ResourceObj(UUID itemId, UUID providerId, UUID resourceGroupId, String resourceServerUrl, boolean isGroupLevelResource) {
+  public ResourceObj(
+      UUID itemId,
+      UUID providerId,
+      UUID resourceGroupId,
+      String resourceServerUrl,
+      boolean isGroupLevelResource) {
     this.itemId = itemId;
     this.providerId = providerId;
     this.resourceGroupId = resourceGroupId;
@@ -59,7 +64,6 @@ public class ResourceObj {
     return resourceGroupId;
   }
 
-
   /**
    * Get the resource server URL of the resource.
    *
@@ -69,12 +73,12 @@ public class ResourceObj {
     return resourceServerUrl;
   }
 
-
   /**
-   *  Tells if the resource is resource level or resource group level
+   * Tells if the resource is resource level or resource group level
+   *
    * @return true, if the resource is resource group level, false if the item is resource level
    */
-  public boolean getIsGroupLevelResource(){
+  public boolean getIsGroupLevelResource() {
     return isGroupLevelResource;
   }
 

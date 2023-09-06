@@ -15,31 +15,31 @@ public class Constants {
   public static final String GET_ACTIVE_CONSUMER_POLICY =
           GET_ACTIVE_CONSUMER_POLICY_1 + GET_ACTIVE_CONSUMER_POLICY_2 + GET_ACTIVE_CONSUMER_POLICY_3;
   public static final String GET_VALID_NOTIFICATION =
-      "SELECT * FROM request WHERE user_id = $1::uuid AND item_id = $2::uuid AND status = 'PENDING';";
+          "SELECT * FROM request WHERE user_id = $1::uuid AND item_id = $2::uuid AND status = 'PENDING';";
   public static final String CREATE_NOTIFICATION_QUERY =
-      "INSERT INTO request"
-          + "(_id, user_id, item_id, item_type, owner_id, status, expiry_at, constraints)"
-          + " VALUES ($1::uuid, $2::uuid, $3::uuid, $4, $5::uuid, 'PENDING', NULL, NULL) RETURNING _id;";
+          "INSERT INTO request"
+                  + "(_id, user_id, item_id, item_type, owner_id, status, expiry_at, constraints)"
+                  + " VALUES ($1::uuid, $2::uuid, $3::uuid, $4, $5::uuid, 'PENDING', NULL, NULL) RETURNING _id;";
 
   public static final String REJECT_NOTIFICATION =
       "UPDATE request SET status='REJECTED' WHERE _id=$1::uuid AND expiry_at>NOW() OR expiry_at IS NULL RETURNING _id";
   public static final String GET_CONSUMER_EMAIL_QUERY =
-      "SELECT email_id FROM user_table WHERE _id = $1::uuid;";
+          "SELECT email_id FROM user_table WHERE _id = $1::uuid;";
   public static final String GET_EXISTING_POLICY_QUERY_1 = "SELECT * FROM policy WHERE owner_id = $1::uuid";
-  public static final String GET_EXISTING_POLICY_QUERY_3 = " AND status = 'ACTIVE' AND item_id = $2::uuid AND";
-  public static final String GET_EXISTING_POLICY_QUERY_7 = " AND user_emailid = $4";
-  public static final String GET_EXISTING_POLICY_QUERY_6 = " item_type = $3 AND expiry_at > now()";
+  public static final String GET_EXISTING_POLICY_QUERY_3 = " AND status = 'ACTIVE' AND item_id = $2::uuid";
+  public static final String GET_EXISTING_POLICY_QUERY_7 = " AND user_emailid = $3";
+  public static final String GET_EXISTING_POLICY_QUERY_6 = " AND expiry_at > now()";
   public static final String GET_EXISTING_POLICY_QUERY_4 = GET_EXISTING_POLICY_QUERY_6 + GET_EXISTING_POLICY_QUERY_7;
   public static final String GET_EXISTING_POLICY_QUERY =
           GET_EXISTING_POLICY_QUERY_1 + GET_EXISTING_POLICY_QUERY_3 + GET_EXISTING_POLICY_QUERY_4;
   public static final String OWNERSHIP_CHECK_QUERY =
-      "SELECT * FROM resource_entity WHERE _id = $1::uuid AND provider_id = $2::uuid";
+          "SELECT * FROM resource_entity WHERE _id = $1::uuid AND provider_id = $2::uuid";
   public static final String CREATE_POLICY_QUERY_2 = " item_id, item_type, owner_id, status, expiry_at, constraints)";
   public static final String CREATE_POLICY_QUERY_1 = "INSERT INTO policy(_id, user_emailid," + CREATE_POLICY_QUERY_2;
   public static final String CREATE_POLICY_QUERY =
           CREATE_POLICY_QUERY_1 + " VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING _id;";
   public static final String INSERT_IN_APPROVED_ACCESS_REQUESTS_QUERY =
-      "INSERT INTO approved_access_requests(_id, request_id, policy_id) VALUES ($1, $2, $3) RETURNING _id";
+          "INSERT INTO approved_access_requests(_id, request_id, policy_id) VALUES ($1, $2, $3) RETURNING _id";
   public static final String APPROVE_REQUEST_QUERY_1 = "UPDATE request SET status = 'GRANTED', expiry_at = $1, ";
   public static final String APPROVE_REQUEST_QUERY =
           APPROVE_REQUEST_QUERY_1 + "constraints = $2 WHERE _id = $3 AND owner_id = $4 RETURNING _id";

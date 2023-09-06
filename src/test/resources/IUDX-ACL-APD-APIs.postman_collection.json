@@ -50,7 +50,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"user\": {\n    \"id\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n    \"name\": {\n    \"firstName\":\"demo\",\n    \"lastName\":\"name\"\n    },\n    \"email\": \"test_consumers@xyz.com\"\n  },\n  \"owner\": {\n    \"id\": \"bbeacb12-5e54-339d-92e0-d8e063b551a8\",\n    \"name\": {\n    \"firstName\":\"Test\",\n    \"lastName\":\"provider\"\n    },\n    \"email\": \"testprovider@example.com\"\n  },\n   \"item\": {\n     \"itemId\": \"83c2e5c2-3574-4e11-9530-2b1fbdfce832\",\n     \"itemType\": \"RESOURCE_GROUP\"\n   }\n}",
+							"raw": "{\n  \"user\": {\n    \"id\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n    \"name\": {\n    \"firstName\":\"Test\",\n    \"lastName\":\"User 1\"\n    },\n    \"email\": \"test_user_1@example.com\"\n  },\n  \"owner\": {\n    \"id\": \"b2c27f3f-2524-4a84-816e-91f9ab23f837\",\n    \"name\": {\n    \"firstName\":\"Test\",\n    \"lastName\":\"Provider\"\n    },\n    \"email\": \"testprovider@example.com\"\n  },\n   \"item\": {\n     \"itemId\": \"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\n     \"itemType\": \"RESOURCE_GROUP\"\n   }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -412,7 +412,7 @@
 									"    const body = pm.response.json();",
 									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:forbidden\");",
 									"    pm.expect(body).to.have.property(\"title\", \"Forbidden\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Ownership Error.\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Access Denied: You do not have ownership rights for this resource.\");",
 									"    }",
 									");"
 								],
@@ -437,7 +437,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"abd311111112c@xyz.com\",\n      \"itemId\": \"ae2b8b01-f642-411a-babb-cbd1b75fa2a9\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"abd311111112c@xyz.com\",\n      \"itemId\": \"695e222b-3fae-4325-8db0-3e29d01c4fc0\",\n      \"itemType\": \"RESOURCE\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -575,12 +575,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"014ef385-31b8-4d9b-a6a9-041e75dc4959\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
+							"raw": "{\n\"id\": \"014ef385-31b8-4d9b-a6a9-041e75dc4959\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies",
@@ -599,7 +594,7 @@
 					"response": []
 				},
 				{
-					"name": "400 Delete Policy: Bad Request",
+					"name": "400 Delete Policy: Bad Request [Policy not active, expired, or withdrawn]",
 					"event": [
 						{
 							"listen": "test",
@@ -653,12 +648,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"b5dd534d-231c-4674-8167-2e39467d0643\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
+							"raw": "{\n\"id\": \"b5dd534d-231c-4674-8167-2e39467d0643\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies",
@@ -796,12 +786,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"ae2b8b01-f642-411a-babb-cbd1b75fa2a9\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
+							"raw": "{\n\"id\": \"ae2b8b01-f642-411a-babb-cbd1b75fa2a9\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies",
@@ -839,7 +824,7 @@
 									"// Test the response",
 									"pm.test(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:general\");",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:resourceNotFound\");",
 									"    pm.expect(body).to.have.property(\"title\", \"Not Found\");",
 									"    pm.expect(body).to.have.property(\"detail\", \"Policy could not be deleted, as policy is not found\");",
 									"    }",
@@ -874,12 +859,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"394608f9-b370-4606-a947-1cf300dab04c\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
+							"raw": "{\n\"id\": \"394608f9-b370-4606-a947-1cf300dab04c\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies",
@@ -1040,87 +1020,6 @@
 					"response": []
 				},
 				{
-					"name": "403 Get Policy: Forbidden",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 403 (Forbidden)\", function () {",
-									"    pm.response.to.have.status(403);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:forbidden\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Access Denied\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Policy could not be fetched, user doesn't own the policy\");",
-									"    }",
-									");"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{providerToken}}"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerToken}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerDelegateToken}}",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8443",
-							"path": [
-								"ngsi-ld",
-								"v1",
-								"policies"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "404 Get Policy: Not Found",
 					"event": [
 						{
@@ -1204,10 +1103,10 @@
 			]
 		},
 		{
-			"name": "notification",
+			"name": "access request",
 			"item": [
 				{
-					"name": "200 Put Notification: Success",
+					"name": "200 Put Access Request: Success [Approve]",
 					"event": [
 						{
 							"listen": "test",
@@ -1252,7 +1151,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"0450be67-db7b-4eb1-9e70-13f5284fdc75\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
+							"raw": "{\n  \"requestId\": \"df2617a3-ce28-459a-b78a-d587a8e8a278\",\n  \"status\": \"granted\",\n  \"expiryAt\": \"2024-03-05T20:00:19\",\n  \"constraints\": {\n    \"access\": [\n      \"api\",\n      \"sub\",\n      \"file\"\n    ]\n  }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1277,7 +1176,77 @@
 					"response": []
 				},
 				{
-					"name": "400 Put Notification: Bad Request",
+					"name": "200 Put Access Request: Success [Reject]",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestId\": \"87d8a351-92bf-4c27-ac38-13cc0bd07221\",\n    \"status\": \"rejected\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"ngsi-ld",
+								"v1",
+								"policies",
+								"requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400 Put Access Request: Bad Request",
 					"event": [
 						{
 							"listen": "test",
@@ -1322,7 +1291,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"d9e85db7-c4b7-4471-a95d-75b4e39f4b50\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
+							"raw": "{\n  \"requestId\": \"df2617a3-ce28-459a-b78a-d587a8e8a278\",\n  \"status\": \"granted\",\n  \"expiryAt\": \"2024-03-05T20:00:19\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1347,7 +1316,7 @@
 					"response": []
 				},
 				{
-					"name": "401 Put Notification: Unauthorized",
+					"name": "401 Put Access Request: Unauthorized",
 					"event": [
 						{
 							"listen": "test",
@@ -1417,7 +1386,7 @@
 					"response": []
 				},
 				{
-					"name": "403 Put Notification: Forbidden",
+					"name": "403 Put Access Request: Forbidden",
 					"event": [
 						{
 							"listen": "test",
@@ -1438,7 +1407,7 @@
 									"    const body = pm.response.json();",
 									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:forbidden\");",
 									"    pm.expect(body).to.have.property(\"title\", \"Forbidden\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Request could not be withdrawn, as it is doesn't belong to the user\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Request could not be granted or rejected, as it is doesn't belong to the user\");",
 									"    }",
 									");"
 								],
@@ -1463,7 +1432,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"d9e85db7-c4b7-4471-a95d-75b4e39f4b50\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
+							"raw": "{\n    \"requestId\": \"7070ea8f-845b-4cdc-a204-a618edaa3e49\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\n        \"access\": [\n            \"api\",\n            \"sub\",\n            \"file\"\n        ]\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1488,7 +1457,7 @@
 					"response": []
 				},
 				{
-					"name": "404 Put Notification: Not Found",
+					"name": "404 Put Access Request: Not Found",
 					"event": [
 						{
 							"listen": "test",
@@ -1507,7 +1476,7 @@
 									"// Test the response",
 									"pm.test(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:general\");",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:resourceNotFound\");",
 									"    pm.expect(body).to.have.property(\"title\", \"Not Found\");",
 									"    pm.expect(body).to.have.property(\"detail\", \"Request could not be granted or rejected, as it is not found\");",
 									"    }",
@@ -1534,7 +1503,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"d9e86db7-c4b7-4471-a95d-75b4e39f4b50\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
+							"raw": "{\n    \"requestId\": \"d9e86db7-c4b7-4471-a95d-75b4e39f4b51\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1559,7 +1528,7 @@
 					"response": []
 				},
 				{
-					"name": "409 Put Notification: Conflict",
+					"name": "409 Put Access Request: Conflict [Policy already created]",
 					"event": [
 						{
 							"listen": "test",
@@ -1604,7 +1573,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"0450be67-db7b-4eb1-9e70-13f5284fdc75\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
+							"raw": "{\n    \"requestId\": \"f09b267d-8128-4a85-a610-d608465358a0\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1629,7 +1598,7 @@
 					"response": []
 				},
 				{
-					"name": "200 Get Notification: Success",
+					"name": "200 Get Access Request: Success",
 					"event": [
 						{
 							"listen": "test",
@@ -1702,7 +1671,7 @@
 					"response": []
 				},
 				{
-					"name": "401 Get Notification: Unauthorized",
+					"name": "401 Get Access Request: Unauthorized",
 					"event": [
 						{
 							"listen": "test",
@@ -1775,81 +1744,7 @@
 					"response": []
 				},
 				{
-					"name": "403 Get Notification: Forbidden",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 403 (Forbidden)\", function () {",
-									"    pm.response.to.have.status(403);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:forbidden\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Access Denied\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Policy could not be deleted, as policy doesn't belong to the user\");",
-									"    }",
-									");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{providerToken}}",
-								"type": "text"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerToken}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerDelegateToken}}",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8443",
-							"path": [
-								"ngsi-ld",
-								"v1",
-								"policies",
-								"requests"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "404 Get Notification: Not Found",
+					"name": "404 Get Access Request: Not Found",
 					"event": [
 						{
 							"listen": "test",
@@ -1923,7 +1818,7 @@
 					"response": []
 				},
 				{
-					"name": "200 Delete Notification: Success Copy",
+					"name": "200 Delete Access Request: Success",
 					"event": [
 						{
 							"listen": "test",
@@ -1968,7 +1863,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"0450be67-db7b-4eb1-9e70-13f5284fdc75\"\n}\n",
+							"raw": "{\n\"id\": \"82cc27fc-097a-485b-b5ec-34643bf29873\"\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1993,7 +1888,7 @@
 					"response": []
 				},
 				{
-					"name": "400 Delete Notification: Bad Request",
+					"name": "400 Delete Access Request: Bad Request",
 					"event": [
 						{
 							"listen": "test",
@@ -2038,7 +1933,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"e9a329aa-352a-417e-82c0-0f68f08e0d12\"\n}\n",
+							"raw": "{\n\"id\": \"82cc27fc-097a-485b-b5ec-34643bf29873\"\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2063,7 +1958,7 @@
 					"response": []
 				},
 				{
-					"name": "401 Delete Notification: Unauthorized",
+					"name": "401 Delete Access Request: Unauthorized",
 					"event": [
 						{
 							"listen": "test",
@@ -2133,7 +2028,7 @@
 					"response": []
 				},
 				{
-					"name": "403 Delete Notification: Forbidden",
+					"name": "403 Delete Access Request: Forbidden",
 					"event": [
 						{
 							"listen": "test",
@@ -2204,7 +2099,7 @@
 					"response": []
 				},
 				{
-					"name": "404 Delete Notification: Not Found",
+					"name": "404 Delete Access Request: Not Found",
 					"event": [
 						{
 							"listen": "test",
@@ -2275,7 +2170,7 @@
 					"response": []
 				},
 				{
-					"name": "200 Create Notification: Success",
+					"name": "200 Create Access Request: Success",
 					"event": [
 						{
 							"listen": "test",
@@ -2320,7 +2215,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"itemId\": \"ae2b8b01-f642-411a-babb-cbd1b75fa2a1\",\n\"itemType\": \"RESOURCE\"\n}",
+							"raw": "{\n\"itemId\": \"83c2e5c2-3574-4e11-9530-2b1fbdfce832\",\n\"itemType\": \"RESOURCE\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2345,7 +2240,77 @@
 					"response": []
 				},
 				{
-					"name": "401 Create Notification: Unauthorized",
+					"name": "400 Create Access Request: Bad Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"itemId\": \"ae2b8b01-f642-411a-babb-cbd1b75fa2a1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"ngsi-ld",
+								"v1",
+								"policies",
+								"requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "401 Create Access Request: Unauthorized",
 					"event": [
 						{
 							"listen": "test",
@@ -2415,7 +2380,7 @@
 					"response": []
 				},
 				{
-					"name": "404 Create Notification: Not Found",
+					"name": "404 Create Access Request: Not Found",
 					"event": [
 						{
 							"listen": "test",
@@ -2460,7 +2425,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"itemId\": \"a347c5b6-5281-4749-9eab-89784d8f8f9b\",\n\"itemType\": \"RESOURCE\"\n}",
+							"raw": "{\n\"itemId\": \"a347c5b6-5281-4749-9eab-89784d8f8f98\",\n\"itemType\": \"RESOURCE\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2485,7 +2450,7 @@
 					"response": []
 				},
 				{
-					"name": "409 Create Notification: Conflict",
+					"name": "409 Create Access Request: Conflict",
 					"event": [
 						{
 							"listen": "test",
@@ -2530,7 +2495,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"itemId\": \"ae2b8b01-f642-411a-babb-cbd1b75fa2a1\",\n\"itemType\": \"RESOURCE\"\n}",
+							"raw": "{\n\"itemId\": \"83c2e5c2-3574-4e11-9530-2b1fbdfce832\",\n\"itemType\": \"RESOURCE\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"

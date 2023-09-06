@@ -11,6 +11,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import iudx.apd.acl.server.apiserver.util.ResourceObj;
+import iudx.apd.acl.server.apiserver.util.Util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -22,15 +23,17 @@ import org.apache.logging.log4j.Logger;
 public class CatalogueClient implements CatalogueClientInterface {
 
   private static final Logger LOGGER = LogManager.getLogger(CatalogueClient.class);
-  private final WebClient client;
   private final String catHost;
   private final Integer catPort;
   private final String catRelationShipPath;
+  WebClient client;
 
   public CatalogueClient(JsonObject options) {
     WebClientOptions clientOptions =
         new WebClientOptions().setSsl(true).setVerifyHost(false).setTrustAll(true);
-    this.client = WebClient.create(Vertx.vertx(), clientOptions);
+    if (this.client == null) {
+      this.client = WebClient.create(Vertx.vertx(), clientOptions);
+    }
     this.catHost = options.getString("catServerHost");
     this.catPort = options.getInteger("catServerPort");
     this.catRelationShipPath = options.getString("dxCatalogueBasePath") + RELATIONSHIP_PATH;
@@ -45,23 +48,16 @@ public class CatalogueClient implements CatalogueClientInterface {
           .get(catPort, catHost, catRelationShipPath)
           .addQueryParam("id", String.valueOf(id))
           .addQueryParam("rel", "all")
-          .addQueryParam("filter", "[id, type, resourceServerURL]")
           .send()
           .onFailure(
               ar -> {
-                LOGGER.error("fetchItem error : " + ar.getCause());
+                LOGGER.error("fetchItem error : " + ar.getMessage());
                 promise.fail(INTERNAL_SERVER_ERROR.getDescription());
               })
           .onSuccess(
               catSuccessResponse -> {
                 JsonObject resultBody = catSuccessResponse.bodyAsJsonObject();
                 if (resultBody.getString(TYPE).equals(CAT_SUCCESS_URN)) {
-                  /* get totalHits from the response */
-                  /* if totalHits is 4 the given resource is resource group level */
-                  /* if totalHits is 5 the given resource is resource level */
-                  int totalHits = resultBody.getInteger(TOTAL_HITS);
-                  boolean isItemGroupLevelResource = totalHits == 4;
-
                   List<JsonObject> resultJsonList =
                       resultBody.getJsonArray(RESULTS).stream()
                           .map(obj -> (JsonObject) obj)
@@ -69,19 +65,27 @@ public class CatalogueClient implements CatalogueClientInterface {
                   UUID provider = null;
                   UUID resourceGroup = null;
                   String resServerUrl = null;
+                  boolean isItemGroupLevelResource = false;
 
                   for (JsonObject resultJson : resultJsonList) {
+                    String resourceId = resultJson.getString("id");
+                    if (resourceId != null && resourceId.equals(id.toString())) {
+                      List<String> tags = Util.toList(resultJson.getJsonArray(TYPE));
+                      isItemGroupLevelResource = tags.contains("iudx:ResourceGroup");
+                    }
+
                     JsonArray typeArray = resultJson.getJsonArray("type");
                     if (typeArray.contains("iudx:ResourceGroup")) {
                       resourceGroup = UUID.fromString(resultJson.getString("id"));
                     } else if (typeArray.contains("iudx:Provider")) {
-                      provider = UUID.fromString(resultJson.getString("id"));
+                      provider = UUID.fromString(resultJson.getString("ownerUserId"));
                     } else if (typeArray.contains("iudx:ResourceServer")) {
                       resServerUrl = resultJson.getString("resourceServerURL");
                     }
                   }
                   ResourceObj resourceObj =
-                      new ResourceObj(id, provider, resourceGroup, resServerUrl, isItemGroupLevelResource);
+                      new ResourceObj(
+                          id, provider, resourceGroup, resServerUrl, isItemGroupLevelResource);
                   resourceObjList.add(resourceObj);
                   promise.complete(resourceObjList);
                 } else {
