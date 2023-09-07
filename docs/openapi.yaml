@@ -537,7 +537,7 @@ paths:
                         itemId: pune-env-flood-FWR056"
                         itemType: RESOURCE
                         status: pending
-                        expiryAt: 2024-03-05T20:00:19
+                        expiryAt: '2024-03-05T20:00:19'
                         constraints:
                           access:
                             - api
