@@ -7,7 +7,7 @@
     <groupId>datakaveri.org</groupId>
     <artifactId>iudx.acl-apd.server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    
+
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -78,6 +78,10 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-service-proxy</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-auth-jwt</artifactId>
     </dependency>
 
     <dependency>
