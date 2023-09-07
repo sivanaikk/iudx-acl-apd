@@ -5,11 +5,20 @@
   ],
   "clusterId": "iudx-acl-apd-cluster",
   "commonConfig": {
-    "dxApiBasePath": "/ngsi-ld/v1",
-    "dxCatalogueBasePath": "/iudx/cat/v1",
-    "dxAuthBasePath": "/auth/v1",
+    "dxApiBasePath": "",
+    "dxCatalogueBasePath": "",
+    "dxAuthBasePath": "",
     "catServerHost": "",
-    "catServerPort": 443
+    "catServerPort": 443,
+    "authHost": "",
+    "databaseIP": "",
+    "databasePort": 5433,
+    "databaseName": "",
+    "databaseUserName": "",
+    "databasePassword": "",
+    "clientId": "",
+    "clientSecret": "",
+    "poolSize": 25
   },
   "host": "acl-apd.iudx.io",
   "modules": [
@@ -21,55 +30,58 @@
       "httpPort": 8443
     },
     {
-      "id": "iudx.apd.acl.server.authentication.AuthenticationVerticle",
+      "id": "iudx.apd.acl.server.policy.PolicyVerticle",
       "isWorkerVerticle": false,
-      "verticleInstances": 1
+      "verticleInstances": 1,
+      "defaultExpiryDays": 12,
+      "domain": "iudx.io"
     },
     {
       "id": "iudx.apd.acl.server.notification.NotificationVerticle",
       "isWorkerVerticle": false,
       "verticleInstances": 1,
-      "databaseIP": "",
-      "databasePort": 5433,
-      "databaseName": "",
-      "databaseUserName": "",
-      "databasePassword": "",
-      "domain": "iudx.io",
-      "poolSize": 25
+      "authPort": 443,
+      "domain": "",
+      "emailHostName": "",
+      "emailPort": 2587,
+      "emailUserName": "",
+      "emailPassword": "",
+      "emailSender": "",
+      "emailSupport": [
+        "supportEmail@xyz.com","dummyEmail@pqr.com"
+      ],
+      "publisherPanelUrl": "",
+      "notifyByEmail": true,
+      "senderName": ""
     },
     {
-      "id": "iudx.apd.acl.server.policy.PolicyVerticle",
+      "id": "iudx.apd.acl.server.authentication.AuthenticationVerticle",
       "isWorkerVerticle": false,
       "verticleInstances": 1,
-      "databaseIP": "",
-      "databasePort": 5433,
-      "databaseName": "",
-      "databaseUserName": "",
-      "databasePassword": "",
-      "poolSize": 25,
-      "defaultExpiryDays": 12,
-      "domain": ""
+      "issuer": "",
+      "apdURL": "",
+      "authServerHost": "",
+      "jwtIgnoreExpiry": false
     },
     {
       "id": "iudx.apd.acl.server.auditing.AuditingVerticle",
       "isWorkerVerticle": false,
       "verticleInstances": 1,
       "dataBrokerIP": "",
-      "dataBrokerPort": "",
+      "dataBrokerPort": 24568,
       "dataBrokerVhost": "",
       "dataBrokerUserName": "",
       "dataBrokerPassword": "",
-      "dataBrokerManagementPort":123 ,
-      "connectionTimeout": 123,
-      "requestedHeartbeat": 123,
-      "handshakeTimeout": 123,
-      "requestedChannelMax": 123,
-      "networkRecoveryInterval": 123,
-      "automaticRecoveryEnabled": "",
+      "dataBrokerManagementPort": 28041,
+      "connectionTimeout": 6000,
+      "requestedHeartbeat": 60,
+      "handshakeTimeout": 6000,
+      "requestedChannelMax": 5,
+      "networkRecoveryInterval": 500,
+      "automaticRecoveryEnabled": "true",
       "prodVhost": "",
       "internalVhost": "",
       "externalVhost": ""
-
     }
   ]
 }

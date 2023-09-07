@@ -24,6 +24,8 @@ import iudx.apd.acl.server.Utility;
 import iudx.apd.acl.server.apiserver.util.ResourceObj;
 import java.util.Set;
 import java.util.UUID;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -52,6 +54,7 @@ public class TestCatalogueClient {
   JsonArray providerJsonArray;
   JsonArray resourceServerJsonArray;
   String ownerId;
+  private static final Logger LOGGER = LogManager.getLogger(TestCatalogueClient.class);
 
   @BeforeEach
   public void init(VertxTestContext vertxTestContext) {
@@ -156,7 +159,7 @@ public class TestCatalogueClient {
   @DisplayName("Test fetchItems when Catalogue responds with Bad request error: Failure")
   public void testFetchItemsWithBadRequest(VertxTestContext vertxTestContext) {
     result.put(TYPE, "urn:dx:cat:badRequest");
-    result.put(TITLE, "Bad request");
+    result.put(DETAIL, "Bad request");
     when(bufferHttpResponse.bodyAsJsonObject()).thenReturn(result);
 
     catalogueClient

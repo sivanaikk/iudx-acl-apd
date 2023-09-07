@@ -12,12 +12,15 @@ import java.util.Objects;
  */
 @DataObject(generateConverter = true)
 public class User {
-  //  private static final Logger LOG = LoggerFactory.getLogger(User.class);
   private final String userId;
   private final Role userRole;
   private final String emailId;
   private final String firstName;
   private final String lastName;
+
+  //  private final boolean isDelegate;
+
+  private final String effectiveResourceServerUrl;
 
   public User(JsonObject userDetails) {
     this.userId = userDetails.getString("userId");
@@ -25,6 +28,8 @@ public class User {
     this.emailId = userDetails.getString("emailId");
     this.firstName = userDetails.getString("firstName");
     this.lastName = userDetails.getString("lastName");
+    this.effectiveResourceServerUrl = userDetails.getString("aud");
+    //    this.isDelegate = userDetails.getBoolean("isDelegate");
 
     /* Converts JsonObject to User class object or dataObject conversion [Deserialization] */
     UserConverter.fromJson(userDetails, this);
@@ -61,6 +66,14 @@ public class User {
     return userId;
   }
 
+  //  public boolean isDelegate() {
+  //    return isDelegate;
+  //  }
+
+  public String getEffectiveResourceServerUrl() {
+    return effectiveResourceServerUrl;
+  }
+
   public String toString() {
     return "User details :: \nuserId - "
         + userId
@@ -71,7 +84,12 @@ public class User {
         + ",\n firstName - "
         + firstName
         + ",\n lastName - "
-        + lastName;
+        + lastName
+        + ",\n resourceServerUrl - "
+        + effectiveResourceServerUrl
+        //  + ",\n isDelegate "
+        //  + isDelegate
+    ;
   }
 
   @Override
