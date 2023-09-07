@@ -18,6 +18,7 @@ import io.vertx.sqlclient.Tuple;
 import iudx.apd.acl.server.Utility;
 import iudx.apd.acl.server.apiserver.util.ResourceObj;
 import iudx.apd.acl.server.apiserver.util.User;
+import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.policy.CatalogueClient;
 import iudx.apd.acl.server.policy.PostgresService;
@@ -142,7 +143,7 @@ public class TestCreateNotification {
                 assertEquals(ResponseUrn.SUCCESS_URN.getUrn(), handler.result().getString(TYPE));
                 assertEquals(
                     ResponseUrn.SUCCESS_URN.getMessage(), handler.result().getString(TITLE));
-                assertEquals("Request inserted successfully", handler.result().getString(RESULT));
+                assertEquals("Request inserted successfully!", handler.result().getString(RESULT));
                 utility
                     .executeQuery(Tuple.tuple(), "SELECT * FROM request")
                     .onComplete(
@@ -270,7 +271,7 @@ public class TestCreateNotification {
   }
 
   @Test
-  @DisplayName("Test initiateCreateNotification method when policy is already created : Failure")
+  @DisplayName("Test initiateCreateNotification method when request is already created : Failure")
   public void testWithNotificationAlreadyCreated(VertxTestContext vertxTestContext) {
     catClient = mock(CatalogueClient.class);
     EmailNotification emailNotification = mock(EmailNotification.class);
@@ -306,7 +307,7 @@ public class TestCreateNotification {
                 assertEquals(ResponseUrn.SUCCESS_URN.getUrn(), handler.result().getString(TYPE));
                 assertEquals(
                     ResponseUrn.SUCCESS_URN.getMessage(), handler.result().getString(TITLE));
-                assertEquals("Request inserted successfully", handler.result().getString(RESULT));
+                assertEquals("Request inserted successfully!", handler.result().getString(RESULT));
                 createNotification
                     .initiateCreateNotification(notification, consumer)
                     .onComplete(
@@ -317,7 +318,7 @@ public class TestCreateNotification {
                           } else {
                             JsonObject failureMessage =
                                 new JsonObject()
-                                    .put(TYPE, 409)
+                                    .put(TYPE, HttpStatusCode.CONFLICT.getValue())
                                     .put(TITLE, POLICY_ALREADY_EXIST_URN.getUrn())
                                     .put(
                                         DETAIL,
@@ -376,7 +377,7 @@ public class TestCreateNotification {
                         .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
                         .put(
                             DETAIL,
-                            "");
+                            "Request could not be created, as resource was not found");
                 assertEquals(failureMessage.encode(), handler.cause().getMessage());
                 vertxTestContext.completeNow();
               }
