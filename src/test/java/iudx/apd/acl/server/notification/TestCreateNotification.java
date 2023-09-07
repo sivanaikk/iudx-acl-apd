@@ -376,7 +376,7 @@ public class TestCreateNotification {
                         .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
                         .put(
                             DETAIL,
-                            "Request could not be created, as resource was not found in the catalogue");
+                            "");
                 assertEquals(failureMessage.encode(), handler.cause().getMessage());
                 vertxTestContext.completeNow();
               }

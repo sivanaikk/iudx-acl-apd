@@ -363,7 +363,7 @@ public class CreateNotification {
                   new JsonObject()
                       .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
                       .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
-                      .put(RESULT, "Request inserted successfully")
+                      .put(RESULT, "Request inserted successfully!")
                       .put(STATUS_CODE, HttpStatusCode.SUCCESS.getValue());
 
               /* send email to the provider saying this consumer has requested for the access of this resource */
@@ -425,7 +425,11 @@ public class CreateNotification {
                     || handler
                         .cause()
                         .getMessage()
-                        .equalsIgnoreCase("Id/Ids does not present in CAT")) {
+                        .equalsIgnoreCase("Id/Ids does not present in CAT")
+                    || handler
+                        .cause()
+                        .getMessage()
+                        .equalsIgnoreCase("Item id given is not present")) {
                   /*id not present in the catalogue*/
                   JsonObject failureMessage =
                       new JsonObject()
@@ -433,7 +437,7 @@ public class CreateNotification {
                           .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
                           .put(
                               DETAIL,
-                              FAILURE_MESSAGE + ", as resource was not found in the catalogue");
+                              FAILURE_MESSAGE + ", as resource was not found");
                   promise.fail(failureMessage.encode());
                 } else {
                   /*something went wrong while fetching the item from catalogue*/

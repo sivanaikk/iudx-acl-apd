@@ -93,7 +93,7 @@ public class DeleteNotification {
             if (handler.result().getJsonArray(RESULT).isEmpty()) {
               JsonObject response = new JsonObject();
               response.put(TYPE, NOT_FOUND.getValue());
-              response.put(TITLE, NOT_FOUND.getUrn());
+              response.put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn());
               response.put(DETAIL, "Request could not be withdrawn, as it is not found");
               promise.fail(response.encode());
             } else {
@@ -118,7 +118,7 @@ public class DeleteNotification {
                 failureResponse.put(TYPE, FORBIDDEN.getValue());
                 failureResponse.put(TITLE, FORBIDDEN.getUrn());
                 failureResponse.put(
-                    DETAIL, "Request could not be withdrawn, as it is doesn't belong to the user");
+                    DETAIL, "Request could not be withdrawn, as it doesn't belong to the user");
                 promise.fail(failureResponse.encode());
               }
             }

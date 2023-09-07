@@ -530,14 +530,14 @@ paths:
               examples:
                 ListResults:
                   value:
-                    type: 'urn:dx:acl:Success'
+                    type: 'urn:dx:acl:success'
                     title: Success
                     results:
                       - requestId: ea48d233-5d3b-4bdb-9545-691680c99cee
                         itemId: pune-env-flood-FWR056"
                         itemType: RESOURCE
                         status: pending
-                        expiryDuration: P1Y2M10DT2H30M
+                        expiryAt: 2024-03-05T20:00:19
                         constraints:
                           access:
                             - api
@@ -809,7 +809,7 @@ paths:
               examples:
                 Update:
                   value:
-                    type: 'urn:dx:acl:Success'
+                    type: 'urn:dx:acl:success'
                     title: Success
                     results: 'Request updated successfully'
           headers:
@@ -1029,7 +1029,7 @@ components:
         - title
         - detail
       example:
-        type: urn:dx:acl:notFound
+        type: urn:dx:acl:resourceNotFound
         title: Not Found
         detail: Request could not be updated, as it is not found
 
@@ -1418,7 +1418,7 @@ components:
       example:
         type: urn:dx:acl:forbidden
         title: Forbidden
-        detail: Request could not be withdrawn, as it is doesn't belong to the user
+        detail: Request could not be withdrawn, as it doesn't belong to the user
 
     deleteNotificationNotFound:
       title: Delete notification not found
@@ -1438,7 +1438,7 @@ components:
         - title
         - detail
       example:
-        type: urn:dx:acl:notFound
+        type: urn:dx:acl:resourceNotFound
         title: Not Found
         detail: Request could not be withdrawn, as it is not found
 
@@ -1627,7 +1627,7 @@ components:
         - title
         - detail
       example:
-        type: urn:dx:acl:notFound
+        type: urn:dx:acl:resourceNotFound
         title: Not Found
         detail: Policy could not be deleted, as it doesn't exist
     Unauthorized:
@@ -1828,7 +1828,7 @@ components:
         - results
       x-examples:
         Example:
-          type: 'urn:dx:acl:Success'
+          type: 'urn:dx:acl:success'
           title: User permission requests
           results:
             - requestId: e4619679-f5d9-4eff-9f79-bbded6130bb1

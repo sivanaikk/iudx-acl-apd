@@ -107,7 +107,7 @@ public class TestDeleteNotifications {
                 JsonObject result = new JsonObject(handler.cause().getMessage());
                 assertEquals(HttpStatusCode.FORBIDDEN.getValue(), result.getInteger(TYPE));
                 assertEquals(HttpStatusCode.FORBIDDEN.getUrn(), result.getString(TITLE));
-                assertEquals("Request could not be withdrawn, as it is doesn't belong to the user", result.getString(DETAIL));
+                assertEquals("Request could not be withdrawn, as it doesn't belong to the user", result.getString(DETAIL));
                 vertxTestContext.completeNow();
 
             } else {
@@ -163,7 +163,7 @@ public class TestDeleteNotifications {
                 JsonObject result = new JsonObject(handler.cause().getMessage());
                 assertEquals(FORBIDDEN.getValue(), result.getInteger(TYPE));
                 assertEquals(FORBIDDEN.getUrn(), result.getString(TITLE));
-                assertEquals("Request could not be withdrawn, as it is doesn't belong to the user", result.getString(DETAIL));
+                assertEquals("Request could not be withdrawn, as it doesn't belong to the user", result.getString(DETAIL));
                 vertxTestContext.completeNow();
             }
         });

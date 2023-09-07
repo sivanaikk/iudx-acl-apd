@@ -156,7 +156,8 @@ public class TestCatalogueClient {
   @DisplayName("Test fetchItems when Catalogue responds with Bad request error: Failure")
   public void testFetchItemsWithBadRequest(VertxTestContext vertxTestContext) {
     result.put(TYPE, "urn:dx:cat:badRequest");
-    result.put(TITLE, "Bad request");
+    result.put(DETAIL, "Bad request");
+
     when(bufferHttpResponse.bodyAsJsonObject()).thenReturn(result);
 
     catalogueClient

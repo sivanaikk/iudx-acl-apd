@@ -167,7 +167,7 @@ public class UpdateNotification {
                   new JsonObject()
                       .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
                       .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
-                      .put(RESULT, "Request successfully approved!")
+                      .put(RESULT, "Request updated successfully")
                       .put(STATUS_CODE, SUCCESS.getValue());
               promise.complete(successResponse);
             }
@@ -441,7 +441,7 @@ public class UpdateNotification {
                                 .put(TITLE, CONFLICT.getUrn())
                                 .put(
                                     DETAIL,
-                                    "Request cannot be approved as, policy is previously created");
+                                    "Request cannot be approved as, policy is already created");
                         promise.fail(failureMessage.encode());
                       } else {
                         promise.complete(false);
@@ -480,7 +480,7 @@ public class UpdateNotification {
               JsonObject response = new JsonObject();
               response.put(TYPE, NOT_FOUND.getValue());
               response.put(TITLE, RESOURCE_NOT_FOUND_URN.getUrn());
-              response.put(DETAIL, "Request could not be granted or rejected, as it is not found");
+              response.put(DETAIL, "Request could not be updated, as it is not found");
               promise.fail(response.encode());
             } else {
               JsonObject response = handler.result().getJsonArray(RESULT).getJsonObject(0);
@@ -505,7 +505,7 @@ public class UpdateNotification {
                   failureResponse.put(TITLE, BAD_REQUEST.getUrn());
                   failureResponse.put(
                       DETAIL,
-                      "Request could not be granted or rejected, as it is not in pending status");
+                      "Request could not be updated, as it is not in pending status");
                   promise.fail(failureResponse.encode());
                 }
               } else {
@@ -514,7 +514,7 @@ public class UpdateNotification {
                 failureResponse.put(TITLE, FORBIDDEN.getUrn());
                 failureResponse.put(
                     DETAIL,
-                    "Request could not be granted or rejected, as it is doesn't belong to the user");
+                    "Request could not be updated, as it is doesn't belong to the user");
                 promise.fail(failureResponse.encode());
               }
             }
@@ -548,7 +548,7 @@ public class UpdateNotification {
                   new JsonObject()
                       .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
                       .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
-                      .put(RESULT, "Request rejected successfully!")
+                      .put(RESULT, "Request updated successfully")
                       .put(STATUS_CODE, SUCCESS.getValue());
               promise.complete(response);
             } else {
