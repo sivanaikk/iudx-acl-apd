@@ -149,7 +149,7 @@ public class DeletePolicy {
                   new JsonObject()
                       .put(TYPE, HttpStatusCode.NOT_FOUND.getValue())
                       .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
-                      .put(DETAIL, FAILURE_MESSAGE + ", as policy is not found");
+                      .put(DETAIL, FAILURE_MESSAGE + ", as it doesn't exist");
               promise.fail(failureResponse.encode());
             } else {
               JsonObject result = handler.result().getJsonArray(RESULT).getJsonObject(0);

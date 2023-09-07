@@ -1647,9 +1647,9 @@ components:
         - title
         - detail
       example:
-        type: urn:dx:acl:MissingAuthenticationToken
-        title: Missing auth details
-        detail: Missing auth details
+        type: urn:dx:acl:notAuthorized
+        title: Not Authorized
+        detail: Not Authorized
     createPolicyForbidden:
       type: object
       properties:
