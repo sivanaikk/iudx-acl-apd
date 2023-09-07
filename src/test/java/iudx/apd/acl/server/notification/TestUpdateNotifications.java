@@ -170,7 +170,7 @@ public class TestUpdateNotifications {
             if (handler.succeeded()) {
                 assertEquals(ResponseUrn.SUCCESS_URN.getUrn(), handler.result().getString(TYPE));
                 assertEquals(ResponseUrn.SUCCESS_URN.getMessage(), handler.result().getString(TITLE));
-                assertEquals("Request successfully approved!", handler.result().getString(RESULT));
+                assertEquals("Request updated successfully", handler.result().getString(RESULT));
                 assertEquals(HttpStatusCode.SUCCESS.getValue(), handler.result().getInteger(STATUS_CODE));
                 vertxTestContext.completeNow();
 
@@ -195,7 +195,7 @@ public class TestUpdateNotifications {
             if (handler.succeeded()) {
                 assertEquals(ResponseUrn.SUCCESS_URN.getUrn(), handler.result().getString(TYPE));
                 assertEquals(ResponseUrn.SUCCESS_URN.getMessage(), handler.result().getString(TITLE));
-                assertEquals("Request rejected successfully!", handler.result().getString(RESULT));
+                assertEquals("Request updated successfully", handler.result().getString(RESULT));
                 assertEquals(HttpStatusCode.SUCCESS.getValue(), handler.result().getInteger(STATUS_CODE));
                 vertxTestContext.completeNow();
             } else {
@@ -216,7 +216,7 @@ public class TestUpdateNotifications {
                         JsonObject failureMessage = new JsonObject()
                                 .put(TYPE, NOT_FOUND.getValue())
                                 .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
-                                .put(DETAIL, "Request could not be granted or rejected, as it is not found");
+                                .put(DETAIL, "Request could not be updated, as it is not found");
                         assertEquals(failureMessage.encode(), handler.cause().getMessage());
                         vertxTestContext.completeNow();
 
@@ -253,7 +253,7 @@ public class TestUpdateNotifications {
                                         JsonObject failureMessage = new JsonObject()
                                                 .put(TYPE, HttpStatusCode.BAD_REQUEST.getValue())
                                                 .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getUrn())
-                                                .put(DETAIL, "Request could not be granted or rejected, as it is not in pending status");
+                                                .put(DETAIL, "Request could not be updated, as it is not in pending status");
                                         assertEquals(failureMessage.encode(), rejectRequestHandler.cause().getMessage());
                                         vertxTestContext.completeNow();
                                     }
@@ -283,7 +283,7 @@ public class TestUpdateNotifications {
                 JsonObject failureMessage = new JsonObject()
                         .put(TYPE, HttpStatusCode.FORBIDDEN.getValue())
                         .put(TITLE, ResponseUrn.FORBIDDEN_URN.getUrn())
-                        .put(DETAIL, "Request could not be granted or rejected, as it is doesn't belong to the user");
+                        .put(DETAIL, "Request could not be updated, as it is doesn't belong to the user");
                 assertEquals(failureMessage.encode(), handler.cause().getMessage());
                 vertxTestContext.completeNow();
             }
@@ -425,7 +425,7 @@ public class TestUpdateNotifications {
                         JsonObject failureMessage = new JsonObject()
                                 .put(TYPE, HttpStatusCode.CONFLICT.getValue())
                                 .put(TITLE, POLICY_ALREADY_EXIST_URN.getUrn())
-                                .put(DETAIL, "Request cannot be approved as, policy is previously created");
+                                .put(DETAIL, "Request cannot be approved as, policy is already created");
                         assertEquals(failureMessage.encode(), handler.cause().getMessage());
                         vertxTestContext.completeNow();
                     }
