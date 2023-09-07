@@ -143,7 +143,7 @@ public class TestGetNotifications {
             if (handler.succeeded()) {
                 vertxTestContext.failNow("Succeeded for non-existing user Id");
             } else {
-                JsonObject failureMessage = new JsonObject().put(TYPE, HttpStatusCode.NOT_FOUND.getValue()).put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn()).put(DETAIL, "Request not found");
+                JsonObject failureMessage = new JsonObject().put(TYPE, HttpStatusCode.NOT_FOUND.getValue()).put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn()).put(DETAIL, "Access request not found");
                 assertEquals(failureMessage.encode(), handler.cause().getMessage());
                 vertxTestContext.completeNow();
             }

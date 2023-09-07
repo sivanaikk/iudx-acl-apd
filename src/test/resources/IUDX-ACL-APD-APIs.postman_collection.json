@@ -241,7 +241,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"test_consumers@xyz.com\",\n      \"itemId\": \"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    },\n        {\n      \"userEmail\": \"dummy_consumers@xyz.com\",\n      \"itemId\": \"a347c5b6-5281-4749-9eab-89784d8f8f9a\",\n      \"itemType\": \"RESOURCE\",\n      \"expiryTime\": \"2024-08-25T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\",\n          \"file\"\n        ]\n      }\n    }\n  ]\n}",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"test_user_1@example.com\",\n      \"itemId\": \"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -371,7 +371,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"test_consumers@xyz.com\",\n      \"itemId\": \"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    },\n        {\n      \"userEmail\": \"dummy_consumers@xyz.com\",\n      \"itemId\": \"a347c5b6-5281-4749-9eab-89784d8f8f9a\",\n      \"itemType\": \"RESOURCE\",\n      \"expiryTime\": \"2024-08-25T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\",\n          \"file\"\n        ]\n      }\n    }\n  ]\n}",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"test_user_1@example.com\",\n      \"itemId\": \"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2118,7 +2118,7 @@
 									"// Test the response",
 									"pm.test(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:general\");",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:resourceNotFound\");",
 									"    pm.expect(body).to.have.property(\"title\", \"Not Found\");",
 									"    pm.expect(body).to.have.property(\"detail\", \"Request could not be withdrawn, as it is not found\");",
 									"    }",
@@ -2247,8 +2247,8 @@
 							"script": {
 								"exec": [
 									"// Test the response code",
-									"pm.test(\"response is 200 (OK)\", function () {",
-									"    pm.response.to.have.status(200);",
+									"pm.test(\"response is 400 (Bad Request)\", function () {",
+									"    pm.response.to.have.status(400);",
 									"});",
 									"",
 									"// Test the response header",
@@ -2259,8 +2259,8 @@
 									"// Test the response",
 									"pm.test(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    pm.expect(body).to.have.property(\"type\", 400);",
+									"    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",
 									"    }",
 									");"
 								],
@@ -2317,8 +2317,8 @@
 							"script": {
 								"exec": [
 									"// Test the response code",
-									"pm.test(\"response is 404 (Not Found)\", function () {",
-									"    pm.response.to.have.status(404);",
+									"pm.test(\"response is 401 (Not Authorized)\", function () {",
+									"    pm.response.to.have.status(401);",
 									"});",
 									"",
 									"// Test the response header",
@@ -2329,8 +2329,8 @@
 									"// Test the response",
 									"pm.test(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:resourceNotFound\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Not Found\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Missing auth details\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Missing auth details\");",
 									"    }",
 									");"
 								],

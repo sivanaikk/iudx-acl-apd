@@ -160,6 +160,7 @@ public class TestCatalogueClient {
   public void testFetchItemsWithBadRequest(VertxTestContext vertxTestContext) {
     result.put(TYPE, "urn:dx:cat:badRequest");
     result.put(DETAIL, "Bad request");
+
     when(bufferHttpResponse.bodyAsJsonObject()).thenReturn(result);
 
     catalogueClient

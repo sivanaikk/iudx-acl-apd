@@ -139,7 +139,7 @@ public class GetNotification {
                       new JsonObject()
                           .put(TYPE, HttpStatusCode.NOT_FOUND.getValue())
                           .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
-                          .put(DETAIL, "Request not found");
+                          .put(DETAIL, "Access request not found");
                   LOG.error("No Request found!");
                   promise.fail(response.encode());
                 }
