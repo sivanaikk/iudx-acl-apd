@@ -71,6 +71,11 @@ pipeline {
     }
     
     stage('Push Images') {
+      when {
+        expression {
+          return env.GIT_BRANCH == 'origin/main';
+        }
+      }
       steps {
         script {
           docker.withRegistry( registryUri, registryCredential ) {
