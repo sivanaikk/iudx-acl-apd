@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "bcd5ff9f-c0b5-4e64-9b50-ef0f6985563e",
+		"_postman_id": "97093bc3-1a43-4ab5-9c1b-69b746e5503d",
 		"name": "IUDX-ACL-APD",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -50,7 +50,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"user\": {\n    \"id\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n    \"name\": {\n    \"firstName\":\"Test\",\n    \"lastName\":\"User 1\"\n    },\n    \"email\": \"test_user_1@example.com\"\n  },\n  \"owner\": {\n    \"id\": \"b2c27f3f-2524-4a84-816e-91f9ab23f837\",\n    \"name\": {\n    \"firstName\":\"Test\",\n    \"lastName\":\"Provider\"\n    },\n    \"email\": \"testprovider@example.com\"\n  },\n   \"item\": {\n     \"itemId\": \"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\n     \"itemType\": \"RESOURCE_GROUP\"\n   }\n}",
+							"raw": "{\n  \"user\": {\n    \"id\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n    \"name\": {\n    \"firstName\":\"Test\",\n    \"lastName\":\"User 1\"\n    },\n    \"email\": \"vasanth.rajaraman@datakaveri.org\"\n  },\n  \"owner\": {\n    \"id\": \"b2c27f3f-2524-4a84-816e-91f9ab23f837\",\n    \"name\": {\n    \"firstName\":\"Test\",\n    \"lastName\":\"Provider\"\n    },\n    \"email\": \"testprovider@example.com\"\n  },\n   \"item\": {\n     \"itemId\": \"a347c5b6-5281-4749-9eab-89784d8f8f9a\",\n     \"itemType\": \"RESOURCE_GROUP\"\n   }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -230,18 +230,150 @@
 							{
 								"key": "Authorization",
 								"value": "{{providerToken}}",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							},
 							{
 								"key": "Authorization",
 								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"test_user_1@example.com\",\n      \"itemId\": \"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"vasanth.rajaraman@datakaveri.org\",\n      \"itemId\": \"a347c5b6-5281-4749-9eab-89784d8f8f9a\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400 Create Policy : Bad Request Item Not Present",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 400 (Bad Request)\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:badRequest\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Item id given is not present\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"abd311111112c@xyz.com\",\n      \"itemId\": \"d67a19d5-0a26-5d7c-b0e7-58e7f3b222e3\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400 Create Policy : Bad Request Expiry Time in Past",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 400 (Bad Request)\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:badRequest\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Expiry time must be a future date/time\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"abd311111112c@xyz.com\",\n      \"itemId\": \"d67a19d5-0a26-5d7c-b0e7-58e7f3b222e3\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2021-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -280,9 +412,9 @@
 									"// Test the response",
 									"pm.test(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:MissingAuthenticationToken\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Missing auth details\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Missing auth details\");",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:invalidAuthorizationToken\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Not Authorized\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Not Authorized\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -294,84 +426,13 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{providerToken}}",
+								"value": "{{consumerDelegateToken}}",
 								"type": "text"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
 							}
 						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"test_consumers@xyz.com\",\n      \"itemId\": \"83c2e5c2-3574-4e11-9530-2b1fbdfce832\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    },\n        {\n      \"userEmail\": \"dummy_consumers@xyz.com\",\n      \"itemId\": \"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-25T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\",\n          \"file\"\n        ]\n      }\n    }\n  ]\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "409 Create Policy : Conflict Duplicate Policy",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 409 (Conflict)\", function () {",
-									"    pm.response.to.have.status(409);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:conflict\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Conflict\");",
-									"    }",
-									");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{providerToken}}",
-								"type": "text"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerToken}}",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"test_user_1@example.com\",\n      \"itemId\": \"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -426,18 +487,18 @@
 							{
 								"key": "Authorization",
 								"value": "{{providerToken}}",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							},
 							{
 								"key": "Authorization",
 								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"abd311111112c@xyz.com\",\n      \"itemId\": \"695e222b-3fae-4325-8db0-3e29d01c4fc0\",\n      \"itemType\": \"RESOURCE\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"abd311111112c@xyz.com\",\n      \"itemId\": \"a347c5b6-5281-4749-9eab-89784d8f8f9a\",\n      \"itemType\": \"RESOURCE\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -457,15 +518,15 @@
 					"response": []
 				},
 				{
-					"name": "400 Create Policy : Bad Request",
+					"name": "409 Create Policy : Conflict Duplicate Policy",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"// Test the response code",
-									"pm.test(\"response is 400 (Bad Request)\", function () {",
-									"    pm.response.to.have.status(400);",
+									"pm.test(\"response is 409 (Conflict)\", function () {",
+									"    pm.response.to.have.status(409);",
 									"});",
 									"",
 									"// Test the response header",
@@ -476,9 +537,8 @@
 									"// Test the response",
 									"pm.test(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:badRequest\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Bad Request\");",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:conflict\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Conflict\");",
 									"    }",
 									");"
 								],
@@ -492,18 +552,18 @@
 							{
 								"key": "Authorization",
 								"value": "{{providerToken}}",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							},
 							{
 								"key": "Authorization",
 								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"abd311111112c@xyz.com\",\n      \"itemId\": \"d67a19d5-0a26-5d7c-b0e7-58e7f3b222e2\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"vasanth.rajaraman@datakaveri.org\",\n      \"itemId\": \"a347c5b6-5281-4749-9eab-89784d8f8f9a\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -564,18 +624,18 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "{{providerToken}}"
+								"value": "{{providerToken}}",
+								"disabled": true
 							},
 							{
 								"key": "Authorization",
 								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"014ef385-31b8-4d9b-a6a9-041e75dc4959\"\n}"
+							"raw": "{\n\"id\": \"b51d1f41-62d1-4e21-98c3-68433a842dce\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies",
@@ -686,9 +746,9 @@
 									"// Test the response",
 									"pm.test(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:MissingAuthenticationToken\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Missing auth details\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Missing auth details\");",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:invalidAuthorizationToken\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Not Authorized\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Not Authorized\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -700,14 +760,8 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{providerToken}}",
+								"value": "{{consumerToken}}",
 								"type": "text"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
 							}
 						],
 						"body": {
@@ -786,7 +840,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"ae2b8b01-f642-411a-babb-cbd1b75fa2a9\"\n}"
+							"raw": "{\n\"id\": \"b51d1f41-62d1-4e21-98c3-68433a842dce\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8443/ngsi-ld/v1/policies",
@@ -911,13 +970,13 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{providerToken}}"
+								"value": "{{providerToken}}",
+								"disabled": true
 							},
 							{
 								"key": "Authorization",
 								"value": "{{consumerToken}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							},
 							{
 								"key": "Authorization",
@@ -968,9 +1027,9 @@
 									"// Test the response",
 									"pm.test(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:MissingAuthenticationToken\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Missing auth details\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Missing auth details\");",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:invalidAuthorizationToken\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Not Authorized\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Not Authorized\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -982,25 +1041,8 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{providerToken}}"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerToken}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerDelegateToken}}",
-								"type": "text",
-								"disabled": true
+								"value": "{{authToken}}",
+								"type": "text"
 							}
 						],
 						"url": {
@@ -1335,9 +1377,9 @@
 									"// Test the response",
 									"pm.test(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:MissingAuthenticationToken\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Missing auth details\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Missing auth details\");",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:invalidAuthorizationToken\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Not Authorized\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Not Authorized\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1349,14 +1391,8 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{providerToken}}",
+								"value": "{{consumerToken}}",
 								"type": "text"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
 							}
 						],
 						"body": {
@@ -1562,18 +1598,18 @@
 							{
 								"key": "Authorization",
 								"value": "{{providerToken}}",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							},
 							{
 								"key": "Authorization",
 								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"f09b267d-8128-4a85-a610-d608465358a0\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
+							"raw": "{\n    \"requestId\": \"4f5b2e63-f9bf-4572-be51-35dd7361cb31\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1632,7 +1668,8 @@
 							{
 								"key": "Authorization",
 								"value": "{{providerToken}}",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							},
 							{
 								"key": "Authorization",
@@ -1649,8 +1686,7 @@
 							{
 								"key": "Authorization",
 								"value": "{{consumerDelegateToken}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"url": {
@@ -1690,9 +1726,9 @@
 									"// Test the response",
 									"pm.test(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:MissingAuthenticationToken\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Missing auth details\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Missing auth details\");",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:invalidAuthorizationToken\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Not Authorized\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Not Authorized\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1704,26 +1740,8 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{providerToken}}",
+								"value": "{{authToken}}",
 								"type": "text"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerToken}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerDelegateToken}}",
-								"type": "text",
-								"disabled": true
 							}
 						],
 						"url": {
@@ -1977,9 +1995,9 @@
 									"// Test the response",
 									"pm.test(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:MissingAuthenticationToken\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Missing auth details\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Missing auth details\");",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:invalidAuthorizationToken\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Not Authorized\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Not Authorized\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1991,14 +2009,8 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{consumerToken}}",
+								"value": "{{providerToken}}",
 								"type": "text"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerDelegateToken}}",
-								"type": "text",
-								"disabled": true
 							}
 						],
 						"body": {
@@ -2118,7 +2130,7 @@
 									"// Test the response",
 									"pm.test(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:resourceNotFound\");",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:general\");",
 									"    pm.expect(body).to.have.property(\"title\", \"Not Found\");",
 									"    pm.expect(body).to.have.property(\"detail\", \"Request could not be withdrawn, as it is not found\");",
 									"    }",
@@ -2247,8 +2259,8 @@
 							"script": {
 								"exec": [
 									"// Test the response code",
-									"pm.test(\"response is 400 (Bad Request)\", function () {",
-									"    pm.response.to.have.status(400);",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
 									"});",
 									"",
 									"// Test the response header",
@@ -2259,8 +2271,8 @@
 									"// Test the response",
 									"pm.test(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", 400);",
-									"    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
 									"    }",
 									");"
 								],
@@ -2317,7 +2329,7 @@
 							"script": {
 								"exec": [
 									"// Test the response code",
-									"pm.test(\"response is 401 (Not Authorized)\", function () {",
+									"pm.test(\"response is 404 (Not Found)\", function () {",
 									"    pm.response.to.have.status(401);",
 									"});",
 									"",
@@ -2329,10 +2341,10 @@
 									"// Test the response",
 									"pm.test(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"title\", \"Missing auth details\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Missing auth details\");",
-									"    }",
-									");"
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:invalidAuthorizationToken\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Not Authorized\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Not Authorized\");",
+									"});"
 								],
 								"type": "text/javascript"
 							}
@@ -2343,14 +2355,8 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{consumerToken}}",
+								"value": "{{providerToken}}",
 								"type": "text"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerDelegateToken}}",
-								"type": "text",
-								"disabled": true
 							}
 						],
 						"body": {

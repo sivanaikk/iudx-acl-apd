@@ -47,53 +47,56 @@ public class CreatePolicy {
     Promise<JsonObject> promise = Promise.promise();
     JsonArray policyList = request.getJsonArray("request");
     UUID userId = UUID.fromString(user.getUserId());
-    List<CreatePolicyRequest> createPolicyRequestList =
-        CreatePolicyRequest.jsonArrayToList(policyList, request.getLong("defaultExpiryDays"));
+    try {
+      List<CreatePolicyRequest> createPolicyRequestList =
+          CreatePolicyRequest.jsonArrayToList(policyList, request.getLong("defaultExpiryDays"));
+      Set<UUID> itemIdList =
+          createPolicyRequestList.stream()
+              .map(CreatePolicyRequest::getItemId)
+              .collect(Collectors.toSet());
 
-    Set<UUID> itemIdList =
-        createPolicyRequestList.stream()
-            .map(CreatePolicyRequest::getItemId)
-            .collect(Collectors.toSet());
+      Future<Set<UUID>> checkIfItemPresent = checkForItemsInDb(itemIdList);
 
-    Future<Set<UUID>> checkIfItemPresent = checkForItemsInDb(itemIdList);
+      Future<Boolean> isPolicyAlreadyExist =
+          checkIfItemPresent.compose(
+              providerIdSet -> {
+                if (providerIdSet.size() == 1 && providerIdSet.contains(userId)) {
+                  return checkExistingPoliciesForId(createPolicyRequestList, userId);
+                } else {
+                  LOGGER.error("Item does not belong to the policy creator.");
+                  return Future.failedFuture(
+                      generateErrorResponse(
+                          FORBIDDEN,
+                          "Access Denied: You do not have ownership rights for this resource."));
+                }
+              });
 
-    Future<Boolean> isPolicyAlreadyExist =
-        checkIfItemPresent.compose(
-            providerIdSet -> {
-              if (providerIdSet.size() == 1 && providerIdSet.contains(userId)) {
-                return checkExistingPoliciesForId(createPolicyRequestList, userId);
-              } else {
-                LOGGER.error("Item does not belong to the policy creator.");
-                return Future.failedFuture(
-                    generateErrorResponse(
-                        FORBIDDEN,
-                        "Access Denied: You do not have ownership rights for this resource."));
-              }
-            });
+      Future<JsonObject> insertPolicy =
+          isPolicyAlreadyExist.compose(
+              policyDoesNotExist -> {
+                return createPolicy(createPolicyRequestList, userId)
+                    .compose(
+                        createPolicySuccessHandler -> {
+                          JsonArray responseArray = createResponseArray(createPolicySuccessHandler);
+                          JsonObject responseJson =
+                              new JsonObject()
+                                  .put("type", ResponseUrn.SUCCESS_URN.getUrn())
+                                  .put("title", ResponseUrn.SUCCESS_URN.getMessage())
+                                  .put("results", responseArray);
+                          return Future.succeededFuture(responseJson);
+                        });
+              });
 
-    Future<JsonObject> insertPolicy =
-        isPolicyAlreadyExist.compose(
-            policyDoesNotExist -> {
-              return createPolicy(createPolicyRequestList, userId)
-                  .compose(
-                      createPolicySuccessHandler -> {
-                        JsonArray responseArray = createResponseArray(createPolicySuccessHandler);
-                        JsonObject responseJson =
-                            new JsonObject()
-                                .put("type", ResponseUrn.SUCCESS_URN.getUrn())
-                                .put("title", ResponseUrn.SUCCESS_URN.getMessage())
-                                .put("result", responseArray);
-                        return Future.succeededFuture(responseJson);
-                      });
-            });
-
-    insertPolicy
-        .onSuccess(promise::complete)
-        .onFailure(
-            f -> {
-              LOGGER.info("Policy could not be created {}", f.getLocalizedMessage());
-              promise.fail(f);
-            });
+      insertPolicy
+          .onSuccess(promise::complete)
+          .onFailure(
+              f -> {
+                LOGGER.info("Policy could not be created {}", f.getLocalizedMessage());
+                promise.fail(f);
+              });
+    } catch (IllegalArgumentException e) {
+      promise.fail(generateErrorResponse(BAD_REQUEST, e.getMessage()));
+    }
     return promise.future();
   }
 
@@ -146,7 +149,8 @@ public class CreatePolicy {
 
                                       promise.fail(
                                           generateErrorResponse(
-                                              BAD_REQUEST, BAD_REQUEST.getDescription()));
+                                              BAD_REQUEST,
+                                              insertItemsFailureHandler.getLocalizedMessage()));
                                     });
                           } else {
                             promise.complete(providerIdSet);
