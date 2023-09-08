@@ -367,7 +367,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/generalBadRequest'
+                $ref: '#/components/schemas/createPolicyBadRequest'
           headers:
             Content-Type:
               schema:
@@ -1650,6 +1650,27 @@ components:
         type: urn:dx:acl:notAuthorized
         title: Not Authorized
         detail: Not Authorized
+    createPolicyBadRequest:
+      title: Create policy bad request
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        detail:
+          type: string
+          minLength: 1
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:badRequest
+        title: Bad Request
+        detail: Item id given is not present or Expiry time must be a future date/time
     createPolicyForbidden:
       type: object
       properties:
@@ -1706,7 +1727,7 @@ components:
         detail:
           type: string
       example:
-        type: 'urn:dx:acl:general'
+        type: 'urn:dx:acl:conflict'
         title: Conflict
         detail: >-
           Policy already exist for some of the request objects
