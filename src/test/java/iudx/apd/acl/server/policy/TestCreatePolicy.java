@@ -104,7 +104,7 @@ public class TestCreatePolicy {
                 assertTrue(
                     handler
                         .result()
-                        .getJsonArray("result")
+                        .getJsonArray("results")
                         .getJsonObject(0)
                         .containsKey("policyId"));
                 vertxTestContext.completeNow();
@@ -189,7 +189,7 @@ public class TestCreatePolicy {
             assertTrue(
               handler
                 .result()
-                .getJsonArray("result")
+                .getJsonArray("results")
                 .getJsonObject(0)
                 .containsKey("policyId"));
             vertxTestContext.completeNow();
@@ -220,9 +220,35 @@ public class TestCreatePolicy {
             JsonObject result = new JsonObject(handler.cause().getMessage());
             assertEquals(BAD_REQUEST.getValue(), result.getInteger(TYPE));
             assertEquals(BAD_REQUEST.getUrn(), result.getString(TITLE));
-            assertEquals("Bad Request", result.getString("detail"));
+            assertEquals("Item is not found", result.getString("detail"));
             vertxTestContext.completeNow();
           }
         });
   }
+
+  @Test
+  @DisplayName("Test initiateCreatePolicy where expiry time is in past: Fail")
+  public void testInitiateCreatePolicyExpiryTimeFailure(VertxTestContext vertxTestContext) {
+
+
+
+    JsonObject request = getRequest(Utility.generateRandomEmailId(),utility.getResourceId());
+    request.getJsonArray("request").getJsonObject(0).put("expiryTime","2021-08-04T20:00:19");
+    createPolicy
+      .initiateCreatePolicy(request, owner)
+      .onComplete(
+        handler -> {
+          LOGGER.info("h "+handler.result());
+          if (handler.succeeded()) {
+            vertxTestContext.failNow("Succeeded by creating a policy");
+          } else {
+            JsonObject result = new JsonObject(handler.cause().getMessage());
+            assertEquals(BAD_REQUEST.getValue(), result.getInteger(TYPE));
+            assertEquals(BAD_REQUEST.getUrn(), result.getString(TITLE));
+            assertEquals("Expiry time must be a future date/time", result.getString("detail"));
+            vertxTestContext.completeNow();
+          }
+        });
+  }
+
 }
