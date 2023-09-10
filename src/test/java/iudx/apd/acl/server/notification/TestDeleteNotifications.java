@@ -89,7 +89,7 @@ public class TestDeleteNotifications {
             if (handler.succeeded()) {
                 assertEquals(ResponseUrn.SUCCESS_URN.getUrn(), handler.result().getString(TYPE));
                 assertEquals(ResponseUrn.SUCCESS_URN.getMessage(), handler.result().getString(TITLE));
-                assertEquals("Request deleted successfully", handler.result().getString(RESULT));
+                assertEquals("Request deleted successfully", handler.result().getString(DETAIL));
                 vertxTestContext.completeNow();
 
             } else {

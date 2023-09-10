@@ -162,7 +162,7 @@ public class TestCreateNotification {
                 assertEquals(ResponseUrn.SUCCESS_URN.getUrn(), handler.result().getString(TYPE));
                 assertEquals(
                     ResponseUrn.SUCCESS_URN.getMessage(), handler.result().getString(TITLE));
-                assertEquals("Request inserted successfully!", handler.result().getString(RESULT));
+                assertEquals("Request inserted successfully!", handler.result().getString(DETAIL));
                 utility
                     .executeQuery(Tuple.tuple(), "SELECT * FROM request")
                     .onComplete(
@@ -423,7 +423,7 @@ public class TestCreateNotification {
                 assertEquals(ResponseUrn.SUCCESS_URN.getUrn(), handler.result().getString(TYPE));
                 assertEquals(
                     ResponseUrn.SUCCESS_URN.getMessage(), handler.result().getString(TITLE));
-                assertEquals("Request inserted successfully!", handler.result().getString(RESULT));
+                assertEquals("Request inserted successfully!", handler.result().getString(DETAIL));
                 createNotification
                     .initiateCreateNotification(notification, consumer)
                     .onComplete(

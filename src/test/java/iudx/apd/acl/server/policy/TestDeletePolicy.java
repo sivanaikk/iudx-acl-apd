@@ -73,7 +73,7 @@ public class TestDeletePolicy {
             if (handler.succeeded()) {
                 assertEquals(ResponseUrn.SUCCESS_URN.getUrn(), handler.result().getString(TYPE));
                 assertEquals(ResponseUrn.SUCCESS_URN.getMessage(), handler.result().getString(TITLE));
-                assertEquals("Policy deleted successfully", handler.result().getString(RESULT));
+                assertEquals("Policy deleted successfully", handler.result().getString(DETAIL));
                 vertxTestContext.completeNow();
 
             } else {
