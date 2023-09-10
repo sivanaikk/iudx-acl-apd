@@ -1,8 +1,16 @@
 package iudx.apd.acl.server.notification;
 
+import static iudx.apd.acl.server.Utility.*;
+import static iudx.apd.acl.server.apiserver.util.Constants.*;
+import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
+import static iudx.apd.acl.server.common.HttpStatusCode.FORBIDDEN;
+import static iudx.apd.acl.server.notification.util.Constants.GET_REQUEST;
+import static iudx.apd.acl.server.notification.util.Constants.WITHDRAW_REQUEST;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+
 import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
@@ -12,6 +20,8 @@ import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.policy.PostgresService;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,21 +32,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
-import static iudx.apd.acl.server.Utility.*;
-import static iudx.apd.acl.server.apiserver.util.Constants.*;
-import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
-import static iudx.apd.acl.server.common.HttpStatusCode.FORBIDDEN;
-import static iudx.apd.acl.server.notification.util.Constants.GET_REQUEST;
-import static iudx.apd.acl.server.notification.util.Constants.WITHDRAW_REQUEST;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
 
 @Testcontainers
 @ExtendWith({VertxExtension.class, MockitoExtension.class})
@@ -191,7 +186,7 @@ public class TestDeleteNotifications {
         UUID requestId = UUID.randomUUID();
 
         Tuple tuple = Tuple.of(requestId, utility.getConsumerId(),
-                utility.getResourceId(), utility.getResourceType(),
+                utility.getResourceId(),
                 utility.getOwnerId(), "WITHDRAWN",
                 LocalDateTime.of(2030, 1, 1, 1, 1, 1, 1),
                 LocalDateTime.of(2023, 1, 1, 1, 1, 1, 1), LocalDateTime.of(2024, 1, 1, 1, 1, 1, 1),

@@ -40,7 +40,7 @@ public class VerifyPolicy {
     UUID itemId = UUID.fromString(request.getJsonObject("item").getString("itemId"));
     ItemType itemType = ItemType.valueOf(request.getJsonObject("item").getString("itemType"));
     Future<JsonObject> checkForExistingPolicy =
-        checkExistingPoliciesForId(itemId, itemType, ownerId, userEmail);
+        checkExistingPoliciesForId(itemId, ownerId, userEmail);
 
     Future<JsonObject> getPolicyDetail =
         checkForExistingPolicy.compose(
@@ -61,8 +61,7 @@ public class VerifyPolicy {
                           }
                           UUID rsGrpId = resourceObjList.get(0).getResourceGroupId();
 
-                          return checkExistingPoliciesForId(
-                                  rsGrpId, ItemType.RESOURCE_GROUP, ownerId, userEmail)
+                          return checkExistingPoliciesForId(rsGrpId, ownerId, userEmail)
                               .compose(
                                   rsPolicy -> {
                                     if (rsPolicy.containsKey("id")) {
@@ -97,8 +96,8 @@ public class VerifyPolicy {
   }
 
   private Future<JsonObject> checkExistingPoliciesForId(
-      UUID itemId, ItemType itemType, UUID ownerId, String userEmailId) {
-    Tuple selectTuples = Tuple.of(itemId, itemType, ownerId, Status.ACTIVE, userEmailId);
+      UUID itemId, UUID ownerId, String userEmailId) {
+    Tuple selectTuples = Tuple.of(itemId, ownerId, Status.ACTIVE, userEmailId);
     Promise<JsonObject> promise = Promise.promise();
     postgresService
         .getPool()

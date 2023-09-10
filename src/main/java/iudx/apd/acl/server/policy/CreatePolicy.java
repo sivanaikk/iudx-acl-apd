@@ -23,6 +23,7 @@ import iudx.apd.acl.server.apiserver.util.ResourceObj;
 import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
+import iudx.apd.acl.server.policy.util.ItemType;
 import iudx.apd.acl.server.policy.util.Status;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -54,8 +55,12 @@ public class CreatePolicy {
           createPolicyRequestList.stream()
               .map(CreatePolicyRequest::getItemId)
               .collect(Collectors.toSet());
+      Set<ItemType> itemType =
+          createPolicyRequestList.stream()
+              .map(CreatePolicyRequest::getItemType)
+              .collect(Collectors.toSet());
 
-      Future<Set<UUID>> checkIfItemPresent = checkForItemsInDb(itemIdList);
+      Future<Set<UUID>> checkIfItemPresent = checkForItemsInDb(itemIdList, itemType);
 
       Future<Boolean> isPolicyAlreadyExist =
           checkIfItemPresent.compose(
@@ -100,7 +105,7 @@ public class CreatePolicy {
     return promise.future();
   }
 
-  private Future<Set<UUID>> checkForItemsInDb(Set<UUID> itemIdList) {
+  private Future<Set<UUID>> checkForItemsInDb(Set<UUID> itemIdList, Set<ItemType> itemTypeRequest) {
     Promise<Set<UUID>> promise = Promise.promise();
 
     postgresService
@@ -123,10 +128,12 @@ public class CreatePolicy {
                         existingIdSuccessHandler -> {
                           Set<UUID> providerIdSet = new HashSet<>();
                           Set<UUID> existingItemIds = new HashSet<>();
+                          Set<ItemType> itemTypeDb = new HashSet<>();
                           if (existingIdSuccessHandler.size() > 0) {
                             for (Row row : existingIdSuccessHandler) {
                               providerIdSet.add(row.getUUID("provider_id"));
                               existingItemIds.add(row.getUUID("_id"));
+                              itemTypeDb.add(ItemType.valueOf(row.getString("item_type")));
                             }
                             itemIdList.removeAll(existingItemIds);
                           }
@@ -134,7 +141,18 @@ public class CreatePolicy {
                             Future<List<ResourceObj>> resourceObjList =
                                 catalogueClient.fetchItems(itemIdList);
                             Future<Set<UUID>> providerIdsFromCat =
-                                resourceObjList.compose(this::insertItemsIntoDb);
+                                resourceObjList.compose(
+                                    success -> {
+                                      Set<ItemType> itemTypeCat =
+                                          success.stream()
+                                              .map(ResourceObj::getItemType)
+                                              .collect(Collectors.toSet());
+                                      if (itemTypeRequest.containsAll(itemTypeCat)) {
+                                        return insertItemsIntoDb(success);
+                                      } else {
+                                        return Future.failedFuture("Invalid item type.");
+                                      }
+                                    });
                             providerIdsFromCat
                                 .onSuccess(
                                     insertItemsSuccessHandler -> {
@@ -153,7 +171,12 @@ public class CreatePolicy {
                                               insertItemsFailureHandler.getLocalizedMessage()));
                                     });
                           } else {
-                            promise.complete(providerIdSet);
+                            if (!itemTypeDb.containsAll(itemTypeRequest)) {
+                              promise.fail(
+                                  generateErrorResponse(BAD_REQUEST, "Invalid item type."));
+                            } else {
+                              promise.complete(providerIdSet);
+                            }
                           }
                         }));
     return promise.future();
@@ -169,7 +192,9 @@ public class CreatePolicy {
       UUID id = resourceObj.getItemId();
       UUID provider = resourceObj.getProviderId();
       UUID resourceGroupId = resourceObj.getResourceGroupId();
-      batch.add(Tuple.of(id, provider, resourceGroupId));
+      ItemType itemType = resourceObj.getItemType();
+      String resourceServerUrl = resourceObj.getResourceServerUrl();
+      batch.add(Tuple.of(id, provider, resourceGroupId, itemType, resourceServerUrl));
     }
 
     postgresService
@@ -199,7 +224,6 @@ public class CreatePolicy {
                 createPolicyRequest ->
                     Tuple.of(
                         createPolicyRequest.getItemId(),
-                        createPolicyRequest.getItemType(),
                         providerId,
                         Status.ACTIVE,
                         createPolicyRequest.getUserEmail()))
@@ -252,7 +276,6 @@ public class CreatePolicy {
                         createPolicyRequest.getUserEmail(),
                         createPolicyRequest.getItemId(),
                         userId,
-                        createPolicyRequest.getItemType(),
                         createPolicyRequest.getExpiryTime(),
                         createPolicyRequest.getConstraints()))
             .collect(Collectors.toList());

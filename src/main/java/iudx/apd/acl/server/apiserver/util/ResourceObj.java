@@ -1,5 +1,6 @@
 package iudx.apd.acl.server.apiserver.util;
 
+import iudx.apd.acl.server.policy.util.ItemType;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -12,6 +13,7 @@ public class ResourceObj {
   private final UUID providerId;
   private final UUID resourceGroupId;
   private final String resourceServerUrl;
+  private final ItemType itemType;
   private final boolean isGroupLevelResource;
 
   /**
@@ -23,6 +25,7 @@ public class ResourceObj {
    * @param resourceGroupId The unique ID of the resource group to which the resource belongs (can
    *     be null).
    * @param resourceServerUrl The resource server URL to which the resource item belong.
+   * @param isGroupLevelResource Boolean which is true when the resource is Rs-Group and vice-verse.
    */
   public ResourceObj(
       UUID itemId,
@@ -35,6 +38,7 @@ public class ResourceObj {
     this.resourceGroupId = resourceGroupId;
     this.resourceServerUrl = resourceServerUrl;
     this.isGroupLevelResource = isGroupLevelResource;
+    this.itemType = isGroupLevelResource ? ItemType.RESOURCE_GROUP : ItemType.RESOURCE;
   }
 
   /**
@@ -76,8 +80,18 @@ public class ResourceObj {
   /**
    * Tells if the resource is resource level or resource group level
    *
+   * @return RESOURCE_GROUP, if the resource is resource group level, RESOURCE if the item is
+   *     resource level
+   */
+  public ItemType getItemType() {
+    return itemType;
+  }
+  /**
+   * Tells if the resource is resource level or resource group level
+   *
    * @return true, if the resource is resource group level, false if the item is resource level
    */
+
   public boolean getIsGroupLevelResource() {
     return isGroupLevelResource;
   }

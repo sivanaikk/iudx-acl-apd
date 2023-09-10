@@ -87,9 +87,9 @@ public class User {
         + lastName
         + ",\n resourceServerUrl - "
         + effectiveResourceServerUrl
-        //  + ",\n isDelegate "
-        //  + isDelegate
-    ;
+    //  + ",\n isDelegate "
+    //  + isDelegate
+        ;
   }
 
   @Override

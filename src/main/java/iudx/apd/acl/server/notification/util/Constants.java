@@ -18,8 +18,8 @@ public class Constants {
           "SELECT * FROM request WHERE user_id = $1::uuid AND item_id = $2::uuid AND status = 'PENDING';";
   public static final String CREATE_NOTIFICATION_QUERY =
           "INSERT INTO request"
-                  + "(_id, user_id, item_id, item_type, owner_id, status, expiry_at, constraints)"
-                  + " VALUES ($1::uuid, $2::uuid, $3::uuid, $4, $5::uuid, 'PENDING', NULL, NULL) RETURNING _id;";
+                  + "(_id, user_id, item_id,owner_id, status, expiry_at, constraints)"
+                  + " VALUES ($1::uuid, $2::uuid, $3::uuid,$4::uuid, 'PENDING', NULL, NULL) RETURNING _id;";
 
   public static final String REJECT_NOTIFICATION =
       "UPDATE request SET status='REJECTED' WHERE _id=$1::uuid AND expiry_at>NOW() OR expiry_at IS NULL RETURNING _id";
@@ -34,10 +34,10 @@ public class Constants {
           GET_EXISTING_POLICY_QUERY_1 + GET_EXISTING_POLICY_QUERY_3 + GET_EXISTING_POLICY_QUERY_4;
   public static final String OWNERSHIP_CHECK_QUERY =
           "SELECT * FROM resource_entity WHERE _id = $1::uuid AND provider_id = $2::uuid";
-  public static final String CREATE_POLICY_QUERY_2 = " item_id, item_type, owner_id, status, expiry_at, constraints)";
+  public static final String CREATE_POLICY_QUERY_2 = " item_id, owner_id, status, expiry_at, constraints)";
   public static final String CREATE_POLICY_QUERY_1 = "INSERT INTO policy(_id, user_emailid," + CREATE_POLICY_QUERY_2;
   public static final String CREATE_POLICY_QUERY =
-          CREATE_POLICY_QUERY_1 + " VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING _id;";
+          CREATE_POLICY_QUERY_1 + " VALUES ($1, $2, $3, $4, $5, $6,$7) RETURNING _id;";
   public static final String INSERT_IN_APPROVED_ACCESS_REQUESTS_QUERY =
           "INSERT INTO approved_access_requests(_id, request_id, policy_id) VALUES ($1, $2, $3) RETURNING _id";
   public static final String APPROVE_REQUEST_QUERY_1 = "UPDATE request SET status = 'GRANTED', expiry_at = $1, ";
@@ -46,15 +46,16 @@ public class Constants {
   public static final String INSERT_USER_INFO_QUERY_1 = "INSERT INTO user_table (_id, email_id, first_name, last_name)";
   public static final String INSERT_USER_INFO_QUERY =
           INSERT_USER_INFO_QUERY_1 + " VALUES ($1::uuid, $2, $3, $4) ON CONFLICT (_id) DO NOTHING;";
-  public static final String INSERT_RESOURCE_INFO_QUERY_3 = "(_id, provider_id, resource_group_id)";
+  public static final String INSERT_RESOURCE_INFO_QUERY_3 = "(_id, provider_id, resource_group_id,"
+          + "resource_server_url,item_type)";
   public static final String INSERT_RESOURCE_INFO_QUERY_2 = "INSERT INTO resource_entity ";
   public static final String INSERT_RESOURCE_INFO_QUERY_1 = INSERT_RESOURCE_INFO_QUERY_2 + INSERT_RESOURCE_INFO_QUERY_3;
   public static final String INSERT_RESOURCE_INFO_QUERY =
-          INSERT_RESOURCE_INFO_QUERY_1 + " VALUES ($1::uuid, $2::uuid, $3::uuid) ON CONFLICT (_id) DO NOTHING;";
+          INSERT_RESOURCE_INFO_QUERY_1 + " VALUES ($1::uuid, $2::uuid, $3::uuid,$4,$5) ON CONFLICT (_id) DO NOTHING;";
 
   public static final String GET_CONSUMER_NOTIFICATION_1 = "SELECT R._id AS \"requestId\", R.item_id AS \"itemId\", ";
   public static final String GET_CONSUMER_NOTIFICATION_13 = " AS \"status\", R.expiry_at AS \"expiryAt\", ";
-  public static final String GET_CONSUMER_NOTIFICATION_14 = " R.item_type AS \"itemType\", R.status";
+  public static final String GET_CONSUMER_NOTIFICATION_14 = " R.status";
   public static final String GET_CONSUMER_NOTIFICATION_2 = GET_CONSUMER_NOTIFICATION_14 + GET_CONSUMER_NOTIFICATION_13;
   public static final String GET_CONSUMER_NOTIFICATION_15 = "R.constraints AS \"constraints\",";
   public static final String GET_CONSUMER_NOTIFICATION_16 = " R.user_id AS \"consumerId\", ";
@@ -82,7 +83,6 @@ public class Constants {
                   + GET_CONSUMER_NOTIFICATION_12;
   public static final String GET_PROVIDER_NOTIFICATION_1 = "SELECT R._id AS \"requestId\", R.item_id AS \"itemId\", ";
   public static final String GET_PROVIDER_NOTIFICATION_3 = " R.status AS \"status\", R.expiry_at AS \"expiryAt\", ";
-  public static final String GET_PROVIDER_NOTIFICATION_2 = "R.item_type AS \"itemType\"," + GET_PROVIDER_NOTIFICATION_3;
   public static final String GET_PROVIDER_NOTIFICATION_5 = " R.user_id AS \"consumerId\", ";
   public static final String GET_PROVIDER_NOTIFICATION_6 = "R.constraints AS \"constraints\",";
   public static final String GET_PROVIDER_NOTIFICATION_4 = GET_PROVIDER_NOTIFICATION_6 + GET_PROVIDER_NOTIFICATION_5;
@@ -96,7 +96,7 @@ public class Constants {
   public static final String GET_PROVIDER_NOTIFICATION_14 = "WHERE R.owner_id=$1::uuid; ";
   public static final String GET_PROVIDER_NOTIFICATION_QUERY =
           GET_PROVIDER_NOTIFICATION_1
-                  + GET_PROVIDER_NOTIFICATION_2
+                  + GET_PROVIDER_NOTIFICATION_3
                   + GET_PROVIDER_NOTIFICATION_4
                   + GET_PROVIDER_NOTIFICATION_7 + GET_PROVIDER_NOTIFICATION_8
                   + GET_PROVIDER_NOTIFICATION_9 + GET_PROVIDER_NOTIFICATION_10
