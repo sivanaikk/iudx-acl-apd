@@ -311,7 +311,7 @@ public class TestUpdateNotifications {
                                         updateNotification.initiateUpdateNotification(approveNotification, owner)
                                                 .onComplete(handler -> {
                                                     if (handler.succeeded()) {
-                                                        System.out.println("Success");
+                                                        LOG.info("Success");
                                                         vertxTestContext.failNow("Succeeded for invalid expiryAt value");
                                                     } else {
                                                         JsonObject failureMessage = new JsonObject()
@@ -354,7 +354,7 @@ public class TestUpdateNotifications {
                                         updateNotification.initiateUpdateNotification(rejectNotification, owner)
                                                 .onComplete(handler -> {
                                                     if (handler.succeeded()) {
-                                                        System.out.println("Success");
+                                                        LOG.info("Success");
                                                         vertxTestContext.failNow("Succeeded for invalid expiryAt value");
                                                     } else {
                                                         JsonObject failureMessage = new JsonObject()
