@@ -70,7 +70,7 @@ public class DeletePolicy {
                   handler
                       .result()
                       .put(STATUS_CODE, HttpStatusCode.SUCCESS.getValue())
-                      .put(RESULT, "Policy deleted successfully");
+                      .put(DETAIL, "Policy deleted successfully");
               promise.complete(responseJson);
             }
           } else {

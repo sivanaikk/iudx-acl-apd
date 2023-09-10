@@ -320,7 +320,7 @@ public class CreateNotification {
                   new JsonObject()
                       .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
                       .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
-                      .put(RESULT, "Request inserted successfully!")
+                      .put(DETAIL, "Request inserted successfully!")
                       .put(STATUS_CODE, HttpStatusCode.SUCCESS.getValue());
 
               /* send email to the provider saying this consumer has requested for the access of this resource */

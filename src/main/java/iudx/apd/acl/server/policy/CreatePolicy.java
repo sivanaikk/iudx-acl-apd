@@ -82,7 +82,7 @@ public class CreatePolicy {
                               new JsonObject()
                                   .put("type", ResponseUrn.SUCCESS_URN.getUrn())
                                   .put("title", ResponseUrn.SUCCESS_URN.getMessage())
-                                  .put("results", responseArray);
+                                  .put(DETAIL, "Policy created successfully");
                           return Future.succeededFuture(responseJson);
                         });
               });

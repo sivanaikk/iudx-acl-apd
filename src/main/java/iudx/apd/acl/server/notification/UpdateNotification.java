@@ -167,7 +167,7 @@ public class UpdateNotification {
                   new JsonObject()
                       .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
                       .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
-                      .put(RESULT, "Request updated successfully")
+                      .put(DETAIL, "Request updated successfully")
                       .put(STATUS_CODE, SUCCESS.getValue());
               promise.complete(successResponse);
             }
@@ -548,7 +548,7 @@ public class UpdateNotification {
                   new JsonObject()
                       .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
                       .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
-                      .put(RESULT, "Request updated successfully")
+                      .put(DETAIL, "Request updated successfully")
                       .put(STATUS_CODE, SUCCESS.getValue());
               promise.complete(response);
             } else {

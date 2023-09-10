@@ -60,7 +60,7 @@ public class DeleteNotification {
                 new JsonObject()
                     .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
                     .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
-                    .put(RESULT, "Request deleted successfully")
+                    .put(DETAIL, "Request deleted successfully")
                     .put(STATUS_CODE, SUCCESS.getValue());
             return Future.succeededFuture(response);
           }
