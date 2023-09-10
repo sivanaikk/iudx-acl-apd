@@ -89,7 +89,7 @@ public class User {
         + effectiveResourceServerUrl
         //  + ",\n isDelegate "
         //  + isDelegate
-    ;
+        ;
   }
 
   @Override
