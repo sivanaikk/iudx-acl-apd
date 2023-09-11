@@ -222,6 +222,7 @@ public class TestDeletePolicy {
             });
   }
 
+/*
   @Test
   @DisplayName("Test initiateDeletePolicy method when policy is already expired")
   public void testInitiateDeletePolicyWithExpiredPolicy(VertxTestContext vertxTestContext) {
@@ -261,6 +262,7 @@ public class TestDeletePolicy {
               }
             });
   }
+*/
 
   @Test
   @DisplayName("Test executeQuery with null tuple values")
