@@ -685,6 +685,21 @@ paths:
               schema:
                 type: string
               description: application/json
+        '403':
+          description: |-
+            Forbidden
+            - Resource being requested for is forbidden to access
+            - Consumer trying to access a resource not belonging to the same server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createNotificationForbiddenResponse'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
+
         '404':
           description: |-
             Not Found
@@ -987,7 +1002,27 @@ components:
         type: urn:dx:acl:resourceNotFound
         title: Not Found
         detail: Access request not found
-
+    createNotificationForbiddenResponse:
+      title: Create notification forbidden
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        detail:
+          type: string
+          minLength: 1
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:forbidden
+        title: Forbidden
+        detail: Resource is forbidden to access
     updateNotificationForbiddenResponse:
       title: Update notification forbidden
       type: object

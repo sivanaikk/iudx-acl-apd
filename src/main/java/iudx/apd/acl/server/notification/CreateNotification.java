@@ -4,6 +4,7 @@ import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.authentication.Constants.AUD;
 import static iudx.apd.acl.server.authentication.Constants.IS_DELEGATE;
 import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
+import static iudx.apd.acl.server.common.ResponseUrn.FORBIDDEN_URN;
 import static iudx.apd.acl.server.common.ResponseUrn.POLICY_ALREADY_EXIST_URN;
 import static iudx.apd.acl.server.notification.util.Constants.*;
 
@@ -45,6 +46,7 @@ public class CreateNotification {
   private User provider;
   private String resourceServerUrl;
   private AuthClient authClient;
+  private String consumerRsUrl;
 
   public CreateNotification(
       PostgresService postgresService,
@@ -67,6 +69,9 @@ public class CreateNotification {
    */
   public Future<JsonObject> initiateCreateNotification(JsonObject notification, User user) {
     resourceId = UUID.fromString(notification.getString("itemId"));
+
+    setConsumerRsUrl(user.getEffectiveResourceServerUrl());
+
     /* check if the resource exists in CAT */
     Future<Boolean> getItemFromCatFuture = isItemPresentInCatalogue(resourceId);
 
@@ -379,26 +384,38 @@ public class CreateNotification {
                         .put(AUD, url)
                         .put(IS_DELEGATE, false);
 
-                authClient
-                    .fetchUserInfo(provider)
-                    .onComplete(
-                        authHandler -> {
-                          if (authHandler.succeeded()) {
-                            User providerInfo = authHandler.result();
-                            setProviderInfo(providerInfo);
-                            promise.complete(true);
-                          } else {
-                            LOG.debug(
-                                "Something went wrong while fetching provider information from Auth {}",
-                                authHandler.cause().getMessage());
-                            JsonObject failureMessage =
-                                new JsonObject()
-                                    .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
-                                    .put(TITLE, ResponseUrn.INTERNAL_SERVER_ERROR.getUrn())
-                                    .put(DETAIL, FAILURE_MESSAGE);
-                            promise.fail(failureMessage.encode());
-                          }
-                        });
+                /* check if the resource server url of the user matches with the resource */
+                boolean isConsumerBelongingToSameServerAsItem = url.equals(getConsumerRsUrl());
+
+                if (isConsumerBelongingToSameServerAsItem) {
+                  authClient
+                      .fetchUserInfo(provider)
+                      .onComplete(
+                          authHandler -> {
+                            if (authHandler.succeeded()) {
+                              User providerInfo = authHandler.result();
+                              setProviderInfo(providerInfo);
+                              promise.complete(true);
+                            } else {
+                              LOG.debug(
+                                  "Something went wrong while fetching provider information from Auth {}",
+                                  authHandler.cause().getMessage());
+                              JsonObject failureMessage =
+                                  new JsonObject()
+                                      .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
+                                      .put(TITLE, ResponseUrn.INTERNAL_SERVER_ERROR.getUrn())
+                                      .put(DETAIL, FAILURE_MESSAGE);
+                              promise.fail(failureMessage.encode());
+                            }
+                          });
+                } else {
+                  JsonObject failureMessage =
+                      new JsonObject()
+                          .put(TYPE, HttpStatusCode.FORBIDDEN.getValue())
+                          .put(TITLE, ResponseUrn.FORBIDDEN_URN.getUrn())
+                          .put(DETAIL, FORBIDDEN_URN.getMessage());
+                  promise.fail(failureMessage.encode());
+                }
               } else {
                 if (handler.cause().getMessage().equalsIgnoreCase("Item is not found")
                     || handler
@@ -504,5 +521,13 @@ public class CreateNotification {
 
   public void setResourceType(ItemType resourceType) {
     this.resourceType = resourceType;
+  }
+
+  public String getConsumerRsUrl() {
+    return consumerRsUrl;
+  }
+
+  public void setConsumerRsUrl(String consumerRsUrl) {
+    this.consumerRsUrl = consumerRsUrl;
   }
 }

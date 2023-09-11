@@ -1,6 +1,7 @@
 package iudx.apd.acl.server.notification;
 
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
+import static iudx.apd.acl.server.common.ResponseUrn.FORBIDDEN_URN;
 import static iudx.apd.acl.server.common.ResponseUrn.POLICY_ALREADY_EXIST_URN;
 import static iudx.apd.acl.server.notification.util.Constants.CREATE_NOTIFICATION_QUERY;
 import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
@@ -93,6 +94,7 @@ public class TestCreateNotification {
             .put("userRole", "provider")
             .put("emailId", utility.getOwnerEmailId())
             .put("firstName", utility.getOwnerFirstName())
+            .put("aud", "rs.iudx.io")
             .put("lastName", utility.getOwnerLastName());
     return new User(jsonObject);
   }
@@ -104,6 +106,7 @@ public class TestCreateNotification {
             .put("userRole", "consumer")
             .put("emailId", utility.getConsumerEmailId())
             .put("firstName", utility.getConsumerFirstName())
+            .put("aud","rs.iudx.io")
             .put("lastName", utility.getConsumerLastName());
     return new User(jsonObject);
   }
@@ -247,6 +250,51 @@ public class TestCreateNotification {
                             }
                         });
     }
+
+    @Test
+    @DisplayName("Test initiateCreateNotification when consumer and item's resource server url don't match")
+    public void testWhenAudienceFieldDoesNotMatch(VertxTestContext vertxTestContext) {
+        catClient = mock(CatalogueClient.class);
+        authClient = mock(AuthClient.class);
+        EmailNotification emailNotification = mock(EmailNotification.class);
+        List<ResourceObj> resourceObjList = mock(List.class);
+        createNotification = new CreateNotification(pgService, catClient, emailNotification, authClient);
+        when(catClient.fetchItems(any())).thenReturn(resourceInfo);
+        AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
+        doAnswer(
+                new Answer<AsyncResult<List<ResourceObj>>>() {
+                    @Override
+                    public AsyncResult<List<ResourceObj>> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<List<ResourceObj>>>) arg0.getArgument(0)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(resourceInfo)
+                .onComplete(any());
+        when(asyncResult.succeeded()).thenReturn(true);
+        when(asyncResult.result()).thenReturn(resourceObjList);
+        when(resourceObjList.get(anyInt())).thenReturn(resourceObj);
+        when(resourceObj.getItemType()).thenReturn(ItemType.valueOf(TYPE_RESOURCE));
+        when(resourceObj.getResourceServerUrl()).thenReturn("rs.adex.io");
+        when(resourceObj.getResourceGroupId()).thenReturn(UUID.randomUUID());
+        when(resourceObj.getProviderId()).thenReturn(utility.getOwnerId());
+        createNotification
+                .initiateCreateNotification(notification, consumer)
+                .onComplete(
+                        handler -> {
+                            if (handler.succeeded()) {
+                                vertxTestContext.failNow("Succeeded when consumer's resource server url does not match with the resource item's resource server url");
+                            } else {
+                                JsonObject failureMessage =
+                                        new JsonObject()
+                                                .put(TYPE, HttpStatusCode.FORBIDDEN.getValue())
+                                                .put(TITLE, ResponseUrn.FORBIDDEN_URN.getUrn())
+                                                .put(DETAIL, FORBIDDEN_URN.getMessage());
+                                assertEquals(failureMessage.encode(), handler.cause().getMessage());
+                                vertxTestContext.completeNow();
+                            }
+                        });
+    }
   @Test
   @DisplayName("Test initiateCreateNotification method when policy is already created : Failure")
   public void testWithPolicyAlreadyCreated(VertxTestContext vertxTestContext) {
@@ -313,7 +361,7 @@ public class TestCreateNotification {
     when(resourceObj.getResourceGroupId()).thenReturn(null);
     when(resourceObj.getProviderId()).thenReturn(utility.getOwnerId());
     when(resourceObj.getItemType()).thenReturn(ItemType.RESOURCE);
-    when(resourceObj.getResourceServerUrl()).thenReturn("rsUrl");
+    when(resourceObj.getResourceServerUrl()).thenReturn("rs.iudx.io");
     JsonObject notification = new JsonObject().put("itemId", resourceId);
 
     utility
@@ -408,7 +456,7 @@ public class TestCreateNotification {
     when(resourceObj.getResourceGroupId()).thenReturn(null);
     when(resourceObj.getProviderId()).thenReturn(utility.getOwnerId());
     when(resourceObj.getItemType()).thenReturn(ItemType.RESOURCE);
-    when(resourceObj.getResourceServerUrl()).thenReturn("rsUrl");
+    when(resourceObj.getResourceServerUrl()).thenReturn("rs.iudx.io");
     createNotification
         .initiateCreateNotification(notification, consumer)
         .onComplete(
