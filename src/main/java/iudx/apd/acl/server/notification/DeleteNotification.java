@@ -2,8 +2,7 @@ package iudx.apd.acl.server.notification;
 
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.common.HttpStatusCode.*;
-import static iudx.apd.acl.server.notification.util.Constants.GET_REQUEST;
-import static iudx.apd.acl.server.notification.util.Constants.WITHDRAW_REQUEST;
+import static iudx.apd.acl.server.notification.util.Constants.*;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -43,7 +42,7 @@ public class DeleteNotification {
    */
   public Future<JsonObject> initiateDeleteNotification(JsonObject notification, User user) {
     UUID requestUuid = UUID.fromString(notification.getString("id"));
-    Future<Boolean> verifyFuture = verifyRequest(GET_REQUEST, requestUuid, user);
+    Future<Boolean> verifyFuture = verifyRequest(GET_REQUEST_WITH_ITEM_TYPE, requestUuid, user);
 
     Future<Boolean> withDrawNotificationFuture =
         verifyFuture.compose(
@@ -100,11 +99,24 @@ public class DeleteNotification {
               JsonObject response = handler.result().getJsonArray(RESULT).getJsonObject(0);
               String consumerId = response.getString("user_id");
               String status = response.getString("status");
+              String resourceServerUrl = response.getString("resource_server_url");
+
               /* ownership check */
               if (consumerId.equals(consumer)) {
                 /* check if status is in pending state */
                 if (status.equals("PENDING")) {
-                  promise.complete(true);
+                  /*check if the resource server url from the audience field
+                  matches resource server url stored in the database*/
+                  if (resourceServerUrl.equals(user.getEffectiveResourceServerUrl())) {
+                    promise.complete(true);
+                  } else {
+                    JsonObject failureResponse = new JsonObject();
+                    failureResponse.put(TYPE, FORBIDDEN.getValue());
+                    failureResponse.put(TITLE, FORBIDDEN.getUrn());
+                    failureResponse.put(
+                        DETAIL, "Request could not be withdrawn, as it doesn't belong to the user");
+                    promise.fail(failureResponse.encode());
+                  }
                 } else {
                   JsonObject failureResponse = new JsonObject();
                   failureResponse.put(TYPE, BAD_REQUEST.getValue());
