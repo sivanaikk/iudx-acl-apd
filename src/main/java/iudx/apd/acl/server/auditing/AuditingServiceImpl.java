@@ -28,12 +28,10 @@ public class AuditingServiceImpl implements AuditingService {
   public Future<Void> insertAuditlogIntoRmq(JsonObject request) {
     Promise<Void> promise = Promise.promise();
     JsonObject writeMessage = queryBuilder.buildMessageForRmq(request);
-    LOGGER.info("write message =  {}", writeMessage);
     dataBrokerService
         .publishMessage(EXCHANGE_NAME, ROUTING_KEY, writeMessage)
         .onSuccess(
             successHandler -> {
-              LOGGER.info("Audit data Published into rmq");
               promise.complete();
             })
         .onFailure(

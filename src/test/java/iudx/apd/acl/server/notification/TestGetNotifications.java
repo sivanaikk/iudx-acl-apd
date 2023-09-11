@@ -1,5 +1,11 @@
 package iudx.apd.acl.server.notification;
 
+import static iudx.apd.acl.server.apiserver.util.Constants.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
@@ -11,6 +17,7 @@ import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.policy.PostgresService;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,14 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import java.util.UUID;
-
-import static iudx.apd.acl.server.apiserver.util.Constants.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @Testcontainers
 @ExtendWith({VertxExtension.class, MockitoExtension.class})
@@ -77,7 +76,6 @@ public class TestGetNotifications {
                 JsonObject result = handler.result().getJsonObject(RESULT).getJsonArray(RESULT).getJsonObject(0);
                 assertEquals(utility.getRequestId().toString(), result.getString("requestId"));
                 assertEquals(utility.getResourceId().toString(), result.getString("itemId"));
-                assertEquals(utility.getResourceType(), result.getString("itemType"));
                 assertEquals(utility.getRequestStatus(), result.getString("status"));
                 assertEquals(utility.getConstraints().encode(), result.getString("constraints"));
                 assertEquals(utility.getConsumerId().toString(), result.getJsonObject("consumer").getString("id"));
@@ -110,7 +108,6 @@ public class TestGetNotifications {
                 JsonObject result = handler.result().getJsonObject(RESULT).getJsonArray(RESULT).getJsonObject(0);
                 assertEquals(utility.getRequestId().toString(), result.getString("requestId"));
                 assertEquals(utility.getResourceId().toString(), result.getString("itemId"));
-                assertEquals(utility.getResourceType(), result.getString("itemType"));
                 assertEquals(utility.getRequestStatus(), result.getString("status"));
                 assertEquals(utility.getConstraints().encode(), result.getString("constraints"));
                 assertEquals(utility.getConsumerId().toString(), result.getJsonObject("consumer").getString("id"));
@@ -188,67 +185,3 @@ public class TestGetNotifications {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

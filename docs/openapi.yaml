@@ -796,9 +796,8 @@ paths:
                       - file
               Update Rejected access request:
                 value:
-                  request:
-                    - requestId: bca11712-f381-46a5-afa3-a29b00568ace
-                      status: rejected
+                   requestId: bca11712-f381-46a5-afa3-a29b00568ace
+                   status: rejected
       responses:
         '200':
           description: OK
