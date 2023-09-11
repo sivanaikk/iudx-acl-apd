@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 public class Constants {
 
   // Header params
+  public static final String HEADER_AUTHORIZATION = "Authorization";
   public static final String HEADER_TOKEN = "token";
   public static final String HEADER_HOST = "Host";
   public static final String HEADER_ACCEPT = "Accept";
@@ -20,6 +21,7 @@ public class Constants {
   public static final Set<String> ALLOWED_HEADERS =
       new HashSet<>(
           Arrays.asList(
+	      HEADER_AUTHORIZATION,
               HEADER_ACCEPT,
               HEADER_TOKEN,
               HEADER_CONTENT_LENGTH,
