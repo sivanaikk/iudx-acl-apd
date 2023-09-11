@@ -35,24 +35,31 @@ public class Constants {
   public static final String SELECT_QUERY_4_PROVIDER_QUERY =
       PROVIDER_QUERY_1 + PROVIDER_QUERY_2 + PROVIDER_QUERY_3 + PROVIDER_QUERY_8;
   public static final String GET_POLICY_4_PROVIDER_QUERY =
-      SELECT_QUERY_4_PROVIDER_QUERY
-          + " FROM policy AS P INNER JOIN user_table AS U ON P.user_emailid = U.email_id AND P.owner_id = $1;";
-  public static final String CONSUMER_QUERY_1 =
-      "SELECT P._id AS \"policyId\", P.item_id AS \"itemId\",";
-  public static final String CONSUMER_QUERY_2 = " P.owner_id AS \"ownerId\",";
-  public static final String CONSUMER_QUERY_3 = " U.first_name AS \"ownerFirstName\",";
-  public static final String CONSUMER_QUERY_4 =
-      "U.last_name AS \"ownerLastName\", U.email_id AS \"ownerEmailId\",";
-  public static final String CONSUMER_QUERY_5 = " U._id AS \"ownerId\", P.status as \"status\",";
-  public static final String CONSUMER_QUERY_6 =
-      " P.expiry_at AS \"expiryAt\", P.constraints AS \"constraints\"";
-  public static final String CONSUMER_QUERY_7 =
-      CONSUMER_QUERY_4 + CONSUMER_QUERY_5 + CONSUMER_QUERY_6;
-  public static final String SELECT_QUERY_4_CONSUMER_QUERY =
-      CONSUMER_QUERY_1 + CONSUMER_QUERY_2 + CONSUMER_QUERY_3 + CONSUMER_QUERY_7;
+      "SELECT P._id AS \"policyId\", P.item_id AS \"itemId\",\n"
+          + "RE.item_type AS \"itemType\",\n"
+          + "P.user_emailid AS \"consumerEmailId\",\n"
+          + "U.first_name AS \"consumerFirstName\",\n"
+          + "U.last_name AS \"consumerLastName\", U._id AS \"consumerId\",\n"
+          + "P.status AS \"status\", P.expiry_at AS \"expiryAt\",\n"
+          + "P.constraints AS \"constraints\" FROM policy AS P \n"
+          + "INNER JOIN user_table AS U\n"
+          + "ON P.user_emailid = U.email_id \n"
+          + "INNER JOIN resource_entity AS RE\n"
+          + "ON RE._id = P.item_id\n"
+          + "AND P.owner_id = $1::uuid;";
   public static final String GET_POLICY_4_CONSUMER_QUERY =
-      SELECT_QUERY_4_CONSUMER_QUERY
-          + " FROM policy AS P INNER JOIN user_table AS U ON P.owner_id = U._id AND P.user_emailid = $1;";
+      "SELECT P._id AS \"policyId\", P.item_id AS \"itemId\",\n"
+          + "RE.item_type AS \"itemType\",\n"
+          + "P.owner_id AS \"ownerId\", U.first_name AS \"ownerFirstName\",\n"
+          + "U.last_name AS \"ownerLastName\", U.email_id AS \"ownerEmailId\",\n"
+          + "U._id AS \"ownerId\", P.status as \"status\", P.expiry_at AS \"expiryAt\",\n"
+          + "P.constraints AS \"constraints\" \n"
+          + "FROM policy AS P \n"
+          + "INNER JOIN user_table AS U\n"
+          + "ON P.owner_id = U._id \n"
+          + "INNER JOIN resource_entity AS RE\n"
+          + "ON RE._id = P.item_id\n"
+          + "AND P.user_emailid = $1;";
   public static final String CHECK_IF_POLICY_PRESENT_QUERY = "SELECT * FROM policy WHERE _id = $1";
   public static final String DELETE_POLICY_QUERY_1 = "UPDATE policy SET status='DELETED'";
   public static final String DELETE_POLICY_QUERY_2 = " WHERE _id = $1::uuid AND expiry_at > NOW() ";

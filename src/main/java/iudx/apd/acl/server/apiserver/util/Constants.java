@@ -20,8 +20,7 @@ public class Constants {
   public static final String HEADER_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
   public static final Set<String> ALLOWED_HEADERS =
       new HashSet<>(
-          Arrays.asList(
-	      HEADER_AUTHORIZATION,
+          Arrays.asList(HEADER_AUTHORIZATION,
               HEADER_ACCEPT,
               HEADER_TOKEN,
               HEADER_CONTENT_LENGTH,

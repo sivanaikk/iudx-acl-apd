@@ -22,7 +22,9 @@ public class Constants {
                   + " VALUES ($1::uuid, $2::uuid, $3::uuid,$4::uuid, 'PENDING', NULL, NULL) RETURNING _id;";
 
   public static final String REJECT_NOTIFICATION =
-          "UPDATE request SET status='REJECTED' WHERE _id=$1::uuid AND expiry_at>NOW() OR expiry_at IS NULL RETURNING _id";
+          "UPDATE request SET status='REJECTED' WHERE "
+          +
+          "_id=$1::uuid AND expiry_at>NOW() OR expiry_at IS NULL RETURNING _id";
   public static final String GET_CONSUMER_EMAIL_QUERY =
           "SELECT email_id FROM user_table WHERE _id = $1::uuid;";
   public static final String GET_EXISTING_POLICY_QUERY_1 = "SELECT * FROM policy WHERE owner_id = $1::uuid";
@@ -53,57 +55,56 @@ public class Constants {
   public static final String INSERT_RESOURCE_INFO_QUERY =
           INSERT_RESOURCE_INFO_QUERY_1 + " VALUES ($1::uuid, $2::uuid, $3::uuid,$4,$5) ON CONFLICT (_id) DO NOTHING;";
 
-  public static final String GET_CONSUMER_NOTIFICATION_1 = "SELECT R._id AS \"requestId\", R.item_id AS \"itemId\", ";
-  public static final String GET_CONSUMER_NOTIFICATION_13 = " AS \"status\", R.expiry_at AS \"expiryAt\", ";
-  public static final String GET_CONSUMER_NOTIFICATION_14 = " R.status";
-  public static final String GET_CONSUMER_NOTIFICATION_2 = GET_CONSUMER_NOTIFICATION_14 + GET_CONSUMER_NOTIFICATION_13;
-  public static final String GET_CONSUMER_NOTIFICATION_15 = "R.constraints AS \"constraints\",";
-  public static final String GET_CONSUMER_NOTIFICATION_16 = " R.user_id AS \"consumerId\", ";
-  public static final String GET_CONSUMER_NOTIFICATION_3 = GET_CONSUMER_NOTIFICATION_15 + GET_CONSUMER_NOTIFICATION_16;
-  public static final String GET_CONSUMER_NOTIFICATION_17 = "R.owner_id AS \"ownerId\",";
-  public static final String GET_CONSUMER_NOTIFICATION_18 = " U.first_name AS \"ownerFirstName\", ";
-  public static final String GET_CONSUMER_NOTIFICATION_4 = GET_CONSUMER_NOTIFICATION_17 + GET_CONSUMER_NOTIFICATION_18;
-  public static final String GET_CONSUMER_NOTIFICATION_19 = "U.last_name AS \"ownerLastName\",";
-  public static final String GET_CONSUMER_NOTIFICATION_20 = " U.email_id AS \"ownerEmailId\" ";
-  public static final String GET_CONSUMER_NOTIFICATION_5 = GET_CONSUMER_NOTIFICATION_19 + GET_CONSUMER_NOTIFICATION_20;
-  public static final String GET_CONSUMER_NOTIFICATION_6 = "FROM request AS R ";
-  public static final String GET_CONSUMER_NOTIFICATION_7 = "INNER JOIN user_table AS U ";
-  public static final String GET_CONSUMER_NOTIFICATION_8 = "ON U._id = R.owner_id ";
-  public static final String GET_CONSUMER_NOTIFICATION_9 = "WHERE R.user_id=$1::uuid; ";
-  public static final String GET_CONSUMER_NOTIFICATION_10 = GET_CONSUMER_NOTIFICATION_7
-          + GET_CONSUMER_NOTIFICATION_8
-          + GET_CONSUMER_NOTIFICATION_9;
-  public static final String GET_CONSUMER_NOTIFICATION_11 = GET_CONSUMER_NOTIFICATION_4
-          + GET_CONSUMER_NOTIFICATION_5
-          + GET_CONSUMER_NOTIFICATION_6;
-  public static final String GET_CONSUMER_NOTIFICATION_12 = GET_CONSUMER_NOTIFICATION_11
-          + GET_CONSUMER_NOTIFICATION_10;
-  public static final String GET_CONSUMER_NOTIFICATION_QUERY =
-          GET_CONSUMER_NOTIFICATION_1 + GET_CONSUMER_NOTIFICATION_2 + GET_CONSUMER_NOTIFICATION_3
-                  + GET_CONSUMER_NOTIFICATION_12;
-  public static final String GET_PROVIDER_NOTIFICATION_1 = "SELECT R._id AS \"requestId\", R.item_id AS \"itemId\", ";
-  public static final String GET_PROVIDER_NOTIFICATION_3 = " R.status AS \"status\", R.expiry_at AS \"expiryAt\", ";
-  public static final String GET_PROVIDER_NOTIFICATION_5 = " R.user_id AS \"consumerId\", ";
-  public static final String GET_PROVIDER_NOTIFICATION_6 = "R.constraints AS \"constraints\",";
-  public static final String GET_PROVIDER_NOTIFICATION_4 = GET_PROVIDER_NOTIFICATION_6 + GET_PROVIDER_NOTIFICATION_5;
-  public static final String GET_PROVIDER_NOTIFICATION_7 = "R.owner_id AS \"ownerId\", ";
-  public static final String GET_PROVIDER_NOTIFICATION_8 = "U.first_name AS \"consumerFirstName\", ";
-  public static final String GET_PROVIDER_NOTIFICATION_9 = "U.last_name AS \"consumerLastName\",";
-  public static final String GET_PROVIDER_NOTIFICATION_10 = " U.email_id AS \"consumerEmailId\" ";
-  public static final String GET_PROVIDER_NOTIFICATION_11 = "FROM request AS R ";
-  public static final String GET_PROVIDER_NOTIFICATION_12 = "INNER JOIN user_table AS U ";
-  public static final String GET_PROVIDER_NOTIFICATION_13 = "ON U._id = R.user_id ";
-  public static final String GET_PROVIDER_NOTIFICATION_14 = "WHERE R.owner_id=$1::uuid; ";
-  public static final String GET_PROVIDER_NOTIFICATION_QUERY =
-          GET_PROVIDER_NOTIFICATION_1
-                  + GET_PROVIDER_NOTIFICATION_3
-                  + GET_PROVIDER_NOTIFICATION_4
-                  + GET_PROVIDER_NOTIFICATION_7 + GET_PROVIDER_NOTIFICATION_8
-                  + GET_PROVIDER_NOTIFICATION_9 + GET_PROVIDER_NOTIFICATION_10
-                  + GET_PROVIDER_NOTIFICATION_11
-                  + GET_PROVIDER_NOTIFICATION_12
-                  + GET_PROVIDER_NOTIFICATION_13
-                  + GET_PROVIDER_NOTIFICATION_14;
+  public static String GET_CONSUMER_NOTIFICATION_QUERY = "SELECT R._id AS \"requestId\", R.item_id AS \"itemId\",  \n"
+          +
+          "RE.item_type AS \"itemType\",\n"
+          +
+          "R.status AS \"status\", R.expiry_at AS \"expiryAt\", \n"
+          +
+          "R.constraints AS \"constraints\",\n"
+          +
+          "R.user_id AS \"consumerId\", R.owner_id AS \"ownerId\",\n"
+          +
+          "U.first_name AS \"ownerFirstName\", \n"
+          +
+          "U.last_name AS \"ownerLastName\", U.email_id AS \"ownerEmailId\" \n"
+          +
+          "FROM request AS R \n"
+          +
+          "INNER JOIN user_table AS U \n"
+          +
+          "ON U._id = R.owner_id \n"
+          +
+          "INNER JOIN resource_entity AS RE\n"
+          +
+          "ON RE._id = R.item_id\n"
+          +
+          "WHERE R.user_id=$1::uuid;";
+  public static final String GET_PROVIDER_NOTIFICATION_QUERY = "SELECT R._id AS \"requestId\",\n"
+          +
+          "R.item_id AS \"itemId\", \n"
+          +
+          "RE.item_type AS \"itemType\",\n"
+          +
+          "R.status AS \"status\", R.expiry_at AS \"expiryAt\", \n"
+          +
+          "R.constraints AS \"constraints\", R.user_id AS \"consumerId\",\n"
+          +
+          "R.owner_id AS \"ownerId\", U.first_name AS \"consumerFirstName\", \n"
+          +
+          "U.last_name AS \"consumerLastName\", U.email_id AS \"consumerEmailId\" \n"
+          +
+          "FROM request AS R \n"
+          +
+          "INNER JOIN user_table AS U \n"
+          +
+          "ON U._id = R.user_id \n"
+          +
+          "INNER JOIN resource_entity AS RE\n"
+          +
+          "ON RE._id = R.item_id\n"
+          +
+          "WHERE R.owner_id=$1::uuid; ";
 
   public static final String HTML_EMAIL_BODY_1 = "<!DOCTYPE html> <html> <head> <title>Page Title</title>";
   public static final String HTML_EMAIL_BODY_2 = "</head> <body> <p>Hello!</p> <p>A consumer with details - <br>";
