@@ -20,6 +20,7 @@ import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.policy.CatalogueClient;
 import iudx.apd.acl.server.policy.PostgresService;
+import iudx.apd.acl.server.policy.util.ItemType;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -36,12 +37,12 @@ public class CreateNotification {
   private static final String dummyProviderEmailId = UUID.randomUUID() + "dummy@gmail.com";
   private final PostgresService postgresService;
   private final CatalogueClient catalogueClient;
+  private final EmailNotification emailNotification;
   private UUID resourceId;
   private UUID resourceGroupId;
-  private String resourceType;
+  private ItemType resourceType;
   private PgPool pool;
   private User provider;
-  private EmailNotification emailNotification;
   private String resourceServerUrl;
 
   public CreateNotification(
@@ -81,7 +82,6 @@ public class CreateNotification {
               return Future.failedFuture(getItemFromCatFuture.cause().getMessage());
             });
 
-
     Future<Boolean> resourceInsertionFuture =
         providerInsertionFuture.compose(
             isProviderAddedSuccessfully -> {
@@ -91,7 +91,9 @@ public class CreateNotification {
                     INSERT_RESOURCE_INFO_QUERY,
                     resourceId,
                     getResourceGroupId(),
-                    UUID.fromString(getProviderInfo().getUserId()));
+                    UUID.fromString(getProviderInfo().getUserId()),
+                    getResourceServerUrl(),
+                    getResourceType());
               }
               return Future.failedFuture(getItemFromCatFuture.cause().getMessage());
             });
@@ -127,7 +129,6 @@ public class CreateNotification {
               return createNotification(
                   CREATE_NOTIFICATION_QUERY,
                   resourceId,
-                  getResourceType(),
                   user,
                   UUID.fromString(getProviderInfo().getUserId()));
             });
@@ -172,13 +173,20 @@ public class CreateNotification {
    * @param resourceId id of the resource with type UUID
    * @param resourceGroupId if present for the resource with type UUID or null
    * @param providerId id of the owner of the resource with type UUID
+   * @param resourceServerUrl string containing resource-server-url of the item
+   * @param itemType itemType of the item,can be either RESOURCE_GROUP or RESOURCE
    * @return True, if the insertion is successful or Failure if there is any DB failure
    */
   public Future<Boolean> addResourceInDb(
-      String query, UUID resourceId, UUID resourceGroupId, UUID providerId) {
+      String query,
+      UUID resourceId,
+      UUID resourceGroupId,
+      UUID providerId,
+      String resourceServerUrl,
+      ItemType itemType) {
     Promise<Boolean> promise = Promise.promise();
     LOG.trace("inside addResourceInDb method");
-    Tuple tuple = Tuple.of(resourceId, providerId, resourceGroupId);
+    Tuple tuple = Tuple.of(resourceId, providerId, resourceGroupId, resourceServerUrl, itemType);
     executeQuery(
         query,
         tuple,
@@ -284,18 +292,17 @@ public class CreateNotification {
    *
    * @param query Insert query to create notification
    * @param resourceId id for which the consumer or consumer delegate wants access to with type UUID
-   * @param resourceType type of the resource, can be <b>RESOURCE</b> or <b>RESOURCE_GROUP</b>
    * @param consumer details of the consumer with type User
    * @param providerId id of the owner of the resource with type UUID
    * @return JsonObject response, if notification is created successfully, failure if any
    */
   public Future<JsonObject> createNotification(
-      String query, UUID resourceId, String resourceType, User consumer, UUID providerId) {
+      String query, UUID resourceId, User consumer, UUID providerId) {
     Promise<JsonObject> promise = Promise.promise();
     LOG.trace("inside createNotification method");
     UUID notificationId = UUID.randomUUID();
     UUID consumerId = UUID.fromString(consumer.getUserId());
-    Tuple tuple = Tuple.of(notificationId, consumerId, resourceId, resourceType, providerId);
+    Tuple tuple = Tuple.of(notificationId, consumerId, resourceId, providerId);
     executeQuery(
         query,
         tuple,
@@ -356,15 +363,10 @@ public class CreateNotification {
                 final UUID ownerId = result.getProviderId();
                 UUID resourceGroupIdValue = result.getResourceGroupId();
                 String url = result.getResourceServerUrl();
-
+                setResourceType(result.getItemType());
                 /* set provider id, resourceGroupId, resourceType, resource server url */
                 setResourceServerUrl(url);
                 /* set provider id, resourceGroupId, resourceType */
-                if (result.getIsGroupLevelResource()) {
-                  setResourceType("RESOURCE_GROUP");
-                } else {
-                  setResourceType("RESOURCE");
-                }
                 setResourceGroupId(resourceGroupIdValue);
                 JsonObject providerInfo =
                     new JsonObject()
@@ -390,9 +392,7 @@ public class CreateNotification {
                       new JsonObject()
                           .put(TYPE, HttpStatusCode.NOT_FOUND.getValue())
                           .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
-                          .put(
-                              DETAIL,
-                              FAILURE_MESSAGE + ", as resource was not found");
+                          .put(DETAIL, FAILURE_MESSAGE + ", as resource was not found");
                   promise.fail(failureMessage.encode());
                 } else {
                   /*something went wrong while fetching the item from catalogue*/
@@ -476,11 +476,11 @@ public class CreateNotification {
     this.resourceServerUrl = resourceServerUrl;
   }
 
-  public String getResourceType() {
+  public ItemType getResourceType() {
     return this.resourceType;
   }
 
-  public void setResourceType(String resourceType) {
+  public void setResourceType(ItemType resourceType) {
     this.resourceType = resourceType;
   }
 }

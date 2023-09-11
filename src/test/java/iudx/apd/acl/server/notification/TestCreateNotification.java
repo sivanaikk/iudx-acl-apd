@@ -22,6 +22,7 @@ import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.policy.CatalogueClient;
 import iudx.apd.acl.server.policy.PostgresService;
+import iudx.apd.acl.server.policy.util.ItemType;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -131,10 +132,10 @@ public class TestCreateNotification {
     when(asyncResult.succeeded()).thenReturn(true);
     when(asyncResult.result()).thenReturn(resourceObjList);
     when(resourceObjList.get(anyInt())).thenReturn(resourceObj);
-    when(resourceObj.getIsGroupLevelResource()).thenReturn(false);
     when(resourceObj.getResourceServerUrl()).thenReturn("rs.iudx.io");
     when(resourceObj.getResourceGroupId()).thenReturn(UUID.randomUUID());
     when(resourceObj.getProviderId()).thenReturn(utility.getOwnerId());
+    when(resourceObj.getItemType()).thenReturn(ItemType.RESOURCE);
     createNotification
         .initiateCreateNotification(notification, consumer)
         .onComplete(
@@ -153,7 +154,6 @@ public class TestCreateNotification {
                           assertEquals(
                               utility.getOwnerId().toString(), response.getString("owner_id"));
                           assertEquals(itemId.toString(), response.getString("item_id"));
-                          assertEquals(TYPE_RESOURCE, response.getString("item_type"));
                           assertEquals(
                               utility.getConsumerId().toString(), response.getString("user_id"));
                           assertEquals("PENDING", response.getString("status"));
@@ -178,22 +178,19 @@ public class TestCreateNotification {
             resourceId,
             utility.getOwnerId(),
             null,
+            "rsUrl",
             LocalDateTime.now(),
-            LocalDateTime.of(2023, 12, 10, 3, 20, 10, 9));
-
+            LocalDateTime.of(2023, 12, 10, 3, 20, 10, 9),ItemType.RESOURCE);
     LOG.info(
         " user_emailid : "
             + consumer.getEmailId()
             + " | item_id: "
-            + resourceId
-            + " | item_type : "
-            + utility.getResourceType());
+            + resourceId);
     Tuple policyInsertionTuple =
         Tuple.of(
             Utility.generateRandomUuid(),
             consumer.getEmailId(),
             resourceId,
-            utility.getResourceType(),
             utility.getOwnerId(),
             utility.getStatus(),
             LocalDateTime.of(2025, 12, 10, 3, 20, 20, 29),
@@ -217,22 +214,29 @@ public class TestCreateNotification {
             })
         .when(resourceInfo)
         .onComplete(any());
+
     when(asyncResult.succeeded()).thenReturn(true);
     when(asyncResult.result()).thenReturn(resourceObjList);
     when(resourceObjList.get(anyInt())).thenReturn(resourceObj);
     when(resourceObj.getResourceGroupId()).thenReturn(null);
     when(resourceObj.getProviderId()).thenReturn(utility.getOwnerId());
+    when(resourceObj.getItemType()).thenReturn(ItemType.RESOURCE);
+    when(resourceObj.getResourceServerUrl()).thenReturn("rsUrl");
     JsonObject notification =
-        new JsonObject().put("itemId", resourceId).put("itemType", utility.getResourceType());
+        new JsonObject().put("itemId", resourceId);
+
     utility
         .executeQuery(resourceInsertionTuple, Utility.INSERT_INTO_RESOURCE_ENTITY_TABLE)
         .onComplete(
             handler -> {
+              LOG.info("Inserted in to rs");
               if (handler.succeeded()) {
                 utility
                     .executeQuery(policyInsertionTuple, Utility.INSERT_INTO_POLICY_TABLE)
                     .onComplete(
                         policyInsertionHandler -> {
+                          LOG.info("Inserted in to policy");
+
                           if (policyInsertionHandler.succeeded()) {
                             createNotification =
                                 new CreateNotification(pgService, catClient, emailNotification);
@@ -281,7 +285,7 @@ public class TestCreateNotification {
     createNotification = new CreateNotification(pgService, catClient, emailNotification);
     when(catClient.fetchItems(any())).thenReturn(resourceInfo);
     JsonObject notification =
-        new JsonObject().put("itemId", itemIdValue).put("itemType", TYPE_RESOURCE);
+        new JsonObject().put("itemId", itemIdValue);
     AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
 
     doAnswer(
@@ -299,6 +303,8 @@ public class TestCreateNotification {
     when(resourceObjList.get(anyInt())).thenReturn(resourceObj);
     when(resourceObj.getResourceGroupId()).thenReturn(null);
     when(resourceObj.getProviderId()).thenReturn(utility.getOwnerId());
+    when(resourceObj.getItemType()).thenReturn(ItemType.RESOURCE);
+    when(resourceObj.getResourceServerUrl()).thenReturn("rsUrl");
     createNotification
         .initiateCreateNotification(notification, consumer)
         .onComplete(
@@ -444,7 +450,6 @@ public class TestCreateNotification {
         .createNotification(
             CREATE_NOTIFICATION_QUERY,
             resourceId,
-            TYPE_RESOURCE_GROUP,
             consumer,
             utility.getOwnerId())
         .onComplete(
@@ -477,8 +482,7 @@ public class TestCreateNotification {
         .createNotification(
             CREATE_NOTIFICATION_QUERY,
             resourceId,
-            TYPE_RESOURCE_GROUP,
-            consumer,
+          consumer,
             utility.getOwnerId())
         .onComplete(
             handler -> {
