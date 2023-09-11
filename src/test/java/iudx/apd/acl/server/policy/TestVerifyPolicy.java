@@ -106,7 +106,7 @@ public class TestVerifyPolicy {
               if (handler.succeeded()) {
                 assertEquals(
                     ResponseUrn.VERIFY_SUCCESS_URN.getUrn(), handler.result().getString(TYPE));
-                assertEquals(new JsonObject(), handler.result().getJsonObject("constraints"));
+                assertEquals(new JsonObject(), handler.result().getJsonObject("apdConstraints"));
                 vertxTestContext.completeNow();
 
               } else {
@@ -173,7 +173,7 @@ public class TestVerifyPolicy {
               if (handler.succeeded()) {
                 assertEquals(
                     ResponseUrn.VERIFY_SUCCESS_URN.getUrn(), handler.result().getString(TYPE));
-                assertEquals(new JsonObject(), handler.result().getJsonObject("constraints"));
+                assertEquals(new JsonObject(), handler.result().getJsonObject("apdConstraints"));
                 vertxTestContext.completeNow();
 
               } else {
