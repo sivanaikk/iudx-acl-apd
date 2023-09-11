@@ -1043,7 +1043,7 @@ components:
       example:
         type: urn:dx:acl:forbidden
         title: Forbidden
-        detail: Request could not be updated, as it is doesn't belong to the user
+        detail: Request could not be updated, as it  doesn't belong to the user
 
     updateNotificationNotFound:
       title: Update notification not found

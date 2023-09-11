@@ -5,6 +5,7 @@ import static iudx.apd.acl.server.Utility.generateRandomString;
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.common.HttpStatusCode.*;
 import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
+import static iudx.apd.acl.server.common.ResponseUrn.FORBIDDEN_URN;
 import static iudx.apd.acl.server.common.ResponseUrn.POLICY_ALREADY_EXIST_URN;
 import static iudx.apd.acl.server.notification.util.Constants.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -168,6 +169,7 @@ public class TestUpdateNotifications {
             .put("userRole", "provider")
             .put("emailId", ownerEmailId)
             .put("firstName", ownerFirstName)
+            .put("aud", "rs.iudx.io")
             .put("lastName", ownerLastName);
     return new User(jsonObject);
   }
@@ -179,6 +181,7 @@ public class TestUpdateNotifications {
             .put("userRole", "consumer")
             .put("emailId", consumerEmailId)
             .put("firstName", consumerFirstName)
+            .put("aud", "rs.iudx.io")
             .put("lastName", consumerLastName);
     return new User(jsonObject);
   }
@@ -213,6 +216,7 @@ public class TestUpdateNotifications {
         new JsonObject()
             .put("userId", utility.getOwnerId())
             .put("userRole", "provider")
+            .put("aud", "rs.iudx.io")
             .put("emailId", utility.getOwnerEmailId())
             .put("firstName", utility.getOwnerFirstName())
             .put("lastName", utility.getOwnerLastName());
@@ -232,6 +236,37 @@ public class TestUpdateNotifications {
               } else {
                 LOG.error("Failed : {}", handler.cause().getMessage());
                 vertxTestContext.failNow("Failed");
+              }
+            });
+  }
+
+  @Test
+  @DisplayName(
+      "Test PUT notification by rejecting the request when resource server url of provider doesn't match with the resource")
+  public void testWhenResourceServerDoesNotMatch(VertxTestContext vertxTestContext) {
+    JsonObject jsonObject =
+        new JsonObject()
+            .put("userId", utility.getOwnerId())
+            .put("userRole", "provider")
+            .put("aud", "some.other.url.com")
+            .put("emailId", utility.getOwnerEmailId())
+            .put("firstName", utility.getOwnerFirstName())
+            .put("lastName", utility.getOwnerLastName());
+    User owner = new User(jsonObject);
+    updateNotification
+        .initiateUpdateNotification(rejectNotification, owner)
+        .onComplete(
+            handler -> {
+              if (handler.failed()) {
+                JsonObject expectedJson = new JsonObject(handler.cause().getMessage());
+                assertEquals(FORBIDDEN.getValue(), expectedJson.getInteger(TYPE));
+                assertEquals(FORBIDDEN_URN.getUrn(), expectedJson.getString(TITLE));
+                assertEquals(
+                    "Request could not be updated, as it doesn't belong to the user",
+                    expectedJson.getString(DETAIL));
+                vertxTestContext.completeNow();
+              } else {
+                vertxTestContext.failNow("Succeeded during resource server url mismatch");
               }
             });
   }
@@ -364,7 +399,7 @@ public class TestUpdateNotifications {
                         .put(TITLE, ResponseUrn.FORBIDDEN_URN.getUrn())
                         .put(
                             DETAIL,
-                            "Request could not be updated, as it is doesn't belong to the user");
+                            "Request could not be updated, as it doesn't belong to the user");
                 assertEquals(failureMessage.encode(), handler.cause().getMessage());
                 vertxTestContext.completeNow();
               }
@@ -556,6 +591,7 @@ public class TestUpdateNotifications {
                         .put("userId", utility1.getOwnerId())
                         .put("userRole", "provider")
                         .put("emailId", utility1.getOwnerEmailId())
+                        .put("aud", "rs.iudx.io")
                         .put("firstName", utility1.getOwnerFirstName())
                         .put("lastName", utility1.getOwnerLastName());
                 User provider = new User(jsonObject);
