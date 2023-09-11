@@ -35,7 +35,7 @@ public class ResourceObj {
       boolean isGroupLevelResource) {
     this.itemId = itemId;
     this.providerId = providerId;
-    this.resourceGroupId = isGroupLevelResource ? resourceGroupId : null;
+    this.resourceGroupId = isGroupLevelResource ? null : resourceGroupId;
     this.resourceServerUrl = resourceServerUrl;
     this.isGroupLevelResource = isGroupLevelResource;
     this.itemType = isGroupLevelResource ? ItemType.RESOURCE_GROUP : ItemType.RESOURCE;
