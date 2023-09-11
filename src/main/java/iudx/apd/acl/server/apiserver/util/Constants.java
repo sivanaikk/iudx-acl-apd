@@ -96,4 +96,12 @@ public class Constants {
   public static final String UPDATE_NOTIFICATIONS_API = "put-auth-v1-policies-requests";
   public static final String DELETE_NOTIFICATIONS_API = "delete-auth-v1-policies-requests";
   public static final String VERIFY_API = "get-auth-v1-verify";
+
+  public static final String RESOURCE_GROUP_TAG = "iudx:ResourceGroup";
+  public static final String PROVIDER_TAG = "iudx:Provider";
+  public static final String OWNER_ID = "ownerUserId";
+  public static final String RESOURCE_TAG = "iudx:ResourceServer";
+  public static final String KEY_RESOURCE_SERVER_URL = "resourceServerURL";
+
+
 }

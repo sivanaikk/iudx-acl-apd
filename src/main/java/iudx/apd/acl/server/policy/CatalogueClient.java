@@ -46,7 +46,7 @@ public class CatalogueClient implements CatalogueClientInterface {
     for (UUID id : ids) {
       client
           .get(catPort, catHost, catRelationShipPath)
-          .addQueryParam("id", String.valueOf(id))
+          .addQueryParam(ID, String.valueOf(id))
           .addQueryParam("rel", "all")
           .send()
           .onFailure(
@@ -68,19 +68,19 @@ public class CatalogueClient implements CatalogueClientInterface {
                   boolean isItemGroupLevelResource = false;
 
                   for (JsonObject resultJson : resultJsonList) {
-                    String resourceId = resultJson.getString("id");
+                    String resourceId = resultJson.getString(ID);
                     if (resourceId != null && resourceId.equals(id.toString())) {
                       List<String> tags = Util.toList(resultJson.getJsonArray(TYPE));
-                      isItemGroupLevelResource = tags.contains("iudx:ResourceGroup");
+                      isItemGroupLevelResource = tags.contains(RESOURCE_GROUP_TAG);
                     }
 
-                    JsonArray typeArray = resultJson.getJsonArray("type");
-                    if (typeArray.contains("iudx:ResourceGroup")) {
-                      resourceGroup = UUID.fromString(resultJson.getString("id"));
-                    } else if (typeArray.contains("iudx:Provider")) {
-                      provider = UUID.fromString(resultJson.getString("ownerUserId"));
-                    } else if (typeArray.contains("iudx:ResourceServer")) {
-                      resServerUrl = resultJson.getString("resourceServerURL");
+                    JsonArray typeArray = resultJson.getJsonArray(TYPE);
+                    if (typeArray.contains(RESOURCE_GROUP_TAG)) {
+                      resourceGroup = UUID.fromString(resultJson.getString(ID));
+                    } else if (typeArray.contains(PROVIDER_TAG)) {
+                      provider = UUID.fromString(resultJson.getString(OWNER_ID));
+                    } else if (typeArray.contains(RESOURCE_TAG)) {
+                      resServerUrl = resultJson.getString(KEY_RESOURCE_SERVER_URL);
                     }
                   }
                   ResourceObj resourceObj =
