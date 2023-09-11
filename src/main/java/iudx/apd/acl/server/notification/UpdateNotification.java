@@ -516,7 +516,7 @@ public class UpdateNotification {
                   failureResponse.put(TYPE, BAD_REQUEST.getValue());
                   failureResponse.put(TITLE, BAD_REQUEST.getUrn());
                   failureResponse.put(
-                      DETAIL, "Request could not be updated, as it not in pending status");
+                      DETAIL, "Request could not be updated, as it is not in pending status");
                   promise.fail(failureResponse.encode());
                 }
               } else {
@@ -524,7 +524,7 @@ public class UpdateNotification {
                 failureResponse.put(TYPE, FORBIDDEN.getValue());
                 failureResponse.put(TITLE, FORBIDDEN.getUrn());
                 failureResponse.put(
-                    DETAIL, "Request could not be updated, as it is doesn't belong to the user");
+                    DETAIL, "Request could not be updated, as it doesn't belong to the user");
                 promise.fail(failureResponse.encode());
               }
             }

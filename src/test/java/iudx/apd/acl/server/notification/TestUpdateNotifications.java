@@ -113,7 +113,7 @@ public class TestUpdateNotifications {
                     Tuple.of(consumerId, consumerEmailId, consumerFirstName, consumerLastName);
                 Tuple ownerTuple = Tuple.of(ownerId, ownerEmailId, ownerFirstName, ownerLastName);
                 Tuple resourceInsertionTuple =
-                    Tuple.of(resourceId, ownerId, null, "rsUrl", utility.getResourceType());
+                    Tuple.of(resourceId, ownerId, null, "rs.iudx.io", utility.getResourceType());
                 Tuple requestInsertionTuple =
                     Tuple.of(
                         requestId,
@@ -253,20 +253,40 @@ public class TestUpdateNotifications {
             .put("firstName", utility.getOwnerFirstName())
             .put("lastName", utility.getOwnerLastName());
     User owner = new User(jsonObject);
-    updateNotification
-        .initiateUpdateNotification(rejectNotification, owner)
+    JsonObject rejectNotification = new JsonObject();
+    rejectNotification.put("requestId", utility.getRequestId());
+    rejectNotification.put("status", "rejected");
+    Utility utility = new Utility();
+    PostgresService postgresService = utility.setUp(container);
+    utility
+        .testInsert()
         .onComplete(
-            handler -> {
-              if (handler.failed()) {
-                JsonObject expectedJson = new JsonObject(handler.cause().getMessage());
-                assertEquals(FORBIDDEN.getValue(), expectedJson.getInteger(TYPE));
-                assertEquals(FORBIDDEN_URN.getUrn(), expectedJson.getString(TITLE));
-                assertEquals(
-                    "Request could not be updated, as it doesn't belong to the user",
-                    expectedJson.getString(DETAIL));
-                vertxTestContext.completeNow();
+            setUpHandler -> {
+              if (setUpHandler.succeeded()) {
+                UpdateNotification updateNotification = new UpdateNotification(postgresService);
+                rejectNotification.put("requestId", utility.getRequestId());
+                rejectNotification.put("status", "rejected");
+
+                updateNotification
+                    .initiateUpdateNotification(rejectNotification, owner)
+                    .onComplete(
+                        handler -> {
+                          if (handler.failed()) {
+                            System.out.println(handler.cause().getMessage());
+                            JsonObject expectedJson = new JsonObject(handler.cause().getMessage());
+                            assertEquals(FORBIDDEN.getValue(), expectedJson.getInteger(TYPE));
+                            assertEquals(FORBIDDEN_URN.getUrn(), expectedJson.getString(TITLE));
+                            assertEquals(
+                                "Request could not be updated, as it doesn't belong to the user",
+                                expectedJson.getString(DETAIL));
+                            vertxTestContext.completeNow();
+                          } else {
+                            vertxTestContext.failNow(
+                                "Succeeded during resource server url mismatch");
+                          }
+                        });
               } else {
-                vertxTestContext.failNow("Succeeded during resource server url mismatch");
+                vertxTestContext.failNow("Failed to setup");
               }
             });
   }
@@ -311,7 +331,7 @@ public class TestUpdateNotifications {
             "83c2e5c2-3574-4e11-9530-2b1fbdfce832",
             ownerId,
             null,
-            "rsUrl",
+            "rs.iudx.io",
             utility.getResourceType());
     Tuple requestInsertionTuple =
         Tuple.of(
@@ -386,6 +406,9 @@ public class TestUpdateNotifications {
   @DisplayName(
       "Test initiateUpdateNotification method by rejecting the requesting that isn't for the user")
   public void testRejectingRequestNotBelongingToOwner(VertxTestContext vertxTestContext) {
+      JsonObject rejectNotification = new JsonObject();
+      rejectNotification.put("requestId", utility.getRequestId());
+      rejectNotification.put("status", "rejected");
     updateNotification
         .initiateUpdateNotification(rejectNotification, consumer)
         .onComplete(
@@ -393,7 +416,7 @@ public class TestUpdateNotifications {
               if (handler.succeeded()) {
                 vertxTestContext.failNow("Request ownership check failed");
               } else {
-                JsonObject failureMessage =
+                  JsonObject failureMessage =
                     new JsonObject()
                         .put(TYPE, HttpStatusCode.FORBIDDEN.getValue())
                         .put(TITLE, ResponseUrn.FORBIDDEN_URN.getUrn())
@@ -421,7 +444,7 @@ public class TestUpdateNotifications {
             "a347c5b6-5281-4749-9eab-89784d8f8f9a",
             ownerId,
             null,
-            "rsUrl",
+            "rs.iudx.io",
             utility.getResourceType());
     Tuple requestInsertionTuple =
         Tuple.of(
@@ -488,7 +511,7 @@ public class TestUpdateNotifications {
             "b58da193-23d9-43eb-b98a-a103d4b6103c",
             ownerId,
             null,
-            "rsUrl",
+            "rs.iudx.io",
             utility.getResourceType());
     Tuple requestInsertionTuple =
         Tuple.of(
