@@ -1154,18 +1154,18 @@
 							{
 								"key": "Authorization",
 								"value": "{{providerToken}}",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							},
 							{
 								"key": "Authorization",
 								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"requestId\": \"df2617a3-ce28-459a-b78a-d587a8e8a278\",\n  \"status\": \"granted\",\n  \"expiryAt\": \"2024-03-05T20:00:19\",\n  \"constraints\": {\n    \"access\": [\n      \"api\",\n      \"sub\",\n      \"file\"\n    ]\n  }\n}",
+							"raw": "{\n  \"requestId\": \"811b47a9-2e6f-43fa-8f65-43271b6787bb\",\n  \"status\": \"granted\",\n  \"expiryAt\": \"2024-03-05T20:00:19\",\n  \"constraints\": {\n    \"access\": [\n      \"api\",\n      \"sub\",\n      \"file\"\n    ]\n  }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1220,18 +1220,18 @@
 							{
 								"key": "Authorization",
 								"value": "{{providerToken}}",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							},
 							{
 								"key": "Authorization",
 								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"87d8a351-92bf-4c27-ac38-13cc0bd07221\",\n    \"status\": \"rejected\"\n}",
+							"raw": "{\n    \"requestId\": \"9237729d-d075-44ee-ac06-5ac4e1ed205f\",\n    \"status\": \"rejected\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
