@@ -3,6 +3,7 @@ package iudx.apd.acl.server.notification;
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.common.ResponseUrn.POLICY_ALREADY_EXIST_URN;
 import static iudx.apd.acl.server.notification.util.Constants.CREATE_NOTIFICATION_QUERY;
+import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -18,6 +19,7 @@ import io.vertx.sqlclient.Tuple;
 import iudx.apd.acl.server.Utility;
 import iudx.apd.acl.server.apiserver.util.ResourceObj;
 import iudx.apd.acl.server.apiserver.util.User;
+import iudx.apd.acl.server.authentication.AuthClient;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.policy.CatalogueClient;
@@ -58,7 +60,8 @@ public class TestCreateNotification {
   @Mock PostgresService postgresService;
   @Mock CatalogueClient catalogueClient;
   @Mock PgPool pool;
-
+  @Mock Future<User> userFuture;
+  AuthClient authClient;
   @BeforeAll
   public static void setUp(VertxTestContext vertxTestContext) {
     container.start();
@@ -111,14 +114,28 @@ public class TestCreateNotification {
     catClient = mock(CatalogueClient.class);
     EmailNotification emailNotification = mock(EmailNotification.class);
     List<ResourceObj> resourceObjList = mock(List.class);
-
+      authClient = mock(AuthClient.class);
     when(emailNotification.sendEmail(any(User.class), any(User.class), anyString(), anyString()))
         .thenReturn(Future.succeededFuture(true));
-    createNotification = new CreateNotification(pgService, catClient, emailNotification);
-    when(catClient.fetchItems(any())).thenReturn(resourceInfo);
+      createNotification = new CreateNotification(pgService, catClient, emailNotification, authClient);
+      when(catClient.fetchItems(any())).thenReturn(resourceInfo);
 
     AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
+      when(authClient.fetchUserInfo(any())).thenReturn(userFuture);
 
+      AsyncResult<User> authHandler = mock(AsyncResult.class);
+      doAnswer(
+              new Answer<AsyncResult<User>>() {
+                  @Override
+                  public AsyncResult<User> answer(InvocationOnMock arg0) throws Throwable {
+                      ((Handler<AsyncResult<User>>) arg0.getArgument(0)).handle(authHandler);
+                      return null;
+                  }
+              })
+              .when(userFuture)
+              .onComplete(any());
+      when(authHandler.succeeded()).thenReturn(true);
+      when(authHandler.result()).thenReturn(getOwner());
     doAnswer(
             new Answer<AsyncResult<List<ResourceObj>>>() {
               @Override
@@ -144,7 +161,7 @@ public class TestCreateNotification {
                 assertEquals(ResponseUrn.SUCCESS_URN.getUrn(), handler.result().getString(TYPE));
                 assertEquals(
                     ResponseUrn.SUCCESS_URN.getMessage(), handler.result().getString(TITLE));
-                assertEquals("Request inserted successfully!", handler.result().getString(RESULT));
+                assertEquals("Request inserted successfully!", handler.result().getString(DETAIL));
                 utility
                     .executeQuery(Tuple.tuple(), "SELECT * FROM request")
                     .onComplete(
@@ -168,10 +185,74 @@ public class TestCreateNotification {
             });
   }
 
+    @Test
+    @DisplayName("Test initiateCreateNotification when provider information could not be fetched")
+    public void testInitiateCreateNotificationWithAuthFailure(VertxTestContext vertxTestContext) {
+        catClient = mock(CatalogueClient.class);
+        authClient = mock(AuthClient.class);
+        EmailNotification emailNotification = mock(EmailNotification.class);
+        List<ResourceObj> resourceObjList = mock(List.class);
+
+
+        createNotification = new CreateNotification(pgService, catClient, emailNotification, authClient);
+        when(catClient.fetchItems(any())).thenReturn(resourceInfo);
+        when(authClient.fetchUserInfo(any())).thenReturn(userFuture);
+
+        AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
+        AsyncResult<User> authHandler = mock(AsyncResult.class);
+        doAnswer(
+                new Answer<AsyncResult<User>>() {
+                    @Override
+                    public AsyncResult<User> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<User>>) arg0.getArgument(0)).handle(authHandler);
+                        return null;
+                    }
+                })
+                .when(userFuture)
+                .onComplete(any());
+        when(authHandler.succeeded()).thenReturn(false);
+        when(authHandler.cause()).thenReturn(throwable);
+        when(throwable.getMessage()).thenReturn("Internal Server Error from Auth");
+        doAnswer(
+                new Answer<AsyncResult<List<ResourceObj>>>() {
+                    @Override
+                    public AsyncResult<List<ResourceObj>> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<List<ResourceObj>>>) arg0.getArgument(0)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(resourceInfo)
+                .onComplete(any());
+        when(asyncResult.succeeded()).thenReturn(true);
+        when(asyncResult.result()).thenReturn(resourceObjList);
+        when(resourceObjList.get(anyInt())).thenReturn(resourceObj);
+        when(resourceObj.getItemType()).thenReturn(ItemType.valueOf(TYPE_RESOURCE));
+        when(resourceObj.getResourceServerUrl()).thenReturn("rs.iudx.io");
+        when(resourceObj.getResourceGroupId()).thenReturn(UUID.randomUUID());
+        when(resourceObj.getProviderId()).thenReturn(utility.getOwnerId());
+        createNotification
+                .initiateCreateNotification(notification, consumer)
+                .onComplete(
+                        handler -> {
+                            if (handler.succeeded()) {
+                                vertxTestContext.failNow("Succeeded when provider information from Auth could not be fetched successfully");
+                            } else {
+                                JsonObject failureMessage =
+                                        new JsonObject()
+                                                .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
+                                                .put(TITLE, ResponseUrn.INTERNAL_SERVER_ERROR.getUrn())
+                                                .put(DETAIL, "Request could not be created");
+                                assertEquals(failureMessage.encode(), handler.cause().getMessage());
+                                vertxTestContext.completeNow();
+                            }
+                        });
+    }
   @Test
   @DisplayName("Test initiateCreateNotification method when policy is already created : Failure")
   public void testWithPolicyAlreadyCreated(VertxTestContext vertxTestContext) {
     catClient = mock(CatalogueClient.class);
+    authClient = mock(AuthClient.class);
+
     UUID resourceId = Utility.generateRandomUuid();
     Tuple resourceInsertionTuple =
         Tuple.of(
@@ -180,12 +261,9 @@ public class TestCreateNotification {
             null,
             "rsUrl",
             LocalDateTime.now(),
-            LocalDateTime.of(2023, 12, 10, 3, 20, 10, 9),ItemType.RESOURCE);
-    LOG.info(
-        " user_emailid : "
-            + consumer.getEmailId()
-            + " | item_id: "
-            + resourceId);
+            LocalDateTime.of(2023, 12, 10, 3, 20, 10, 9),
+            ItemType.RESOURCE);
+    LOG.info(" user_emailid : " + consumer.getEmailId() + " | item_id: " + resourceId);
     Tuple policyInsertionTuple =
         Tuple.of(
             Utility.generateRandomUuid(),
@@ -203,7 +281,21 @@ public class TestCreateNotification {
     when(catClient.fetchItems(any())).thenReturn(resourceInfo);
 
     AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
+      when(authClient.fetchUserInfo(any())).thenReturn(userFuture);
 
+      AsyncResult<User> authHandler = mock(AsyncResult.class);
+      doAnswer(
+              new Answer<AsyncResult<User>>() {
+                  @Override
+                  public AsyncResult<User> answer(InvocationOnMock arg0) throws Throwable {
+                      ((Handler<AsyncResult<User>>) arg0.getArgument(0)).handle(authHandler);
+                      return null;
+                  }
+              })
+              .when(userFuture)
+              .onComplete(any());
+      when(authHandler.succeeded()).thenReturn(true);
+      when(authHandler.result()).thenReturn(getOwner());
     doAnswer(
             new Answer<AsyncResult<List<ResourceObj>>>() {
               @Override
@@ -222,8 +314,7 @@ public class TestCreateNotification {
     when(resourceObj.getProviderId()).thenReturn(utility.getOwnerId());
     when(resourceObj.getItemType()).thenReturn(ItemType.RESOURCE);
     when(resourceObj.getResourceServerUrl()).thenReturn("rsUrl");
-    JsonObject notification =
-        new JsonObject().put("itemId", resourceId);
+    JsonObject notification = new JsonObject().put("itemId", resourceId);
 
     utility
         .executeQuery(resourceInsertionTuple, Utility.INSERT_INTO_RESOURCE_ENTITY_TABLE)
@@ -239,8 +330,7 @@ public class TestCreateNotification {
 
                           if (policyInsertionHandler.succeeded()) {
                             createNotification =
-                                new CreateNotification(pgService, catClient, emailNotification);
-                            createNotification
+                                    new CreateNotification(pgService, catClient, emailNotification, authClient);                            createNotification
                                 .initiateCreateNotification(notification, consumer)
                                 .onComplete(
                                     createNotificationHandler -> {
@@ -279,15 +369,29 @@ public class TestCreateNotification {
   public void testWithNotificationAlreadyCreated(VertxTestContext vertxTestContext) {
     catClient = mock(CatalogueClient.class);
     EmailNotification emailNotification = mock(EmailNotification.class);
+      authClient = mock(AuthClient.class);
     List<ResourceObj> resourceObjList = mock(List.class);
     UUID itemIdValue = UUID.randomUUID();
 
-    createNotification = new CreateNotification(pgService, catClient, emailNotification);
+    createNotification = new CreateNotification(pgService, catClient, emailNotification, authClient);
     when(catClient.fetchItems(any())).thenReturn(resourceInfo);
-    JsonObject notification =
-        new JsonObject().put("itemId", itemIdValue);
+    JsonObject notification = new JsonObject().put("itemId", itemIdValue);
     AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
+      when(authClient.fetchUserInfo(any())).thenReturn(userFuture);
 
+      AsyncResult<User> authHandler = mock(AsyncResult.class);
+      doAnswer(
+              new Answer<AsyncResult<User>>() {
+                  @Override
+                  public AsyncResult<User> answer(InvocationOnMock arg0) throws Throwable {
+                      ((Handler<AsyncResult<User>>) arg0.getArgument(0)).handle(authHandler);
+                      return null;
+                  }
+              })
+              .when(userFuture)
+              .onComplete(any());
+      when(authHandler.succeeded()).thenReturn(true);
+      when(authHandler.result()).thenReturn(getOwner());
     doAnswer(
             new Answer<AsyncResult<List<ResourceObj>>>() {
               @Override
@@ -313,7 +417,7 @@ public class TestCreateNotification {
                 assertEquals(ResponseUrn.SUCCESS_URN.getUrn(), handler.result().getString(TYPE));
                 assertEquals(
                     ResponseUrn.SUCCESS_URN.getMessage(), handler.result().getString(TITLE));
-                assertEquals("Request inserted successfully!", handler.result().getString(RESULT));
+                assertEquals("Request inserted successfully!", handler.result().getString(DETAIL));
                 createNotification
                     .initiateCreateNotification(notification, consumer)
                     .onComplete(
@@ -349,8 +453,8 @@ public class TestCreateNotification {
     catClient = mock(CatalogueClient.class);
     List<ResourceObj> resourceObjList = mock(List.class);
     EmailNotification emailNotification = mock(EmailNotification.class);
-
-    createNotification = new CreateNotification(pgService, catClient, emailNotification);
+      authClient = mock(AuthClient.class);
+    createNotification = new CreateNotification(pgService, catClient, emailNotification, authClient);
     when(catClient.fetchItems(any())).thenReturn(resourceInfo);
 
     AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
@@ -381,9 +485,7 @@ public class TestCreateNotification {
                     new JsonObject()
                         .put(TYPE, 404)
                         .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
-                        .put(
-                            DETAIL,
-                            "Request could not be created, as resource was not found");
+                        .put(DETAIL, "Request could not be created, as resource was not found");
                 assertEquals(failureMessage.encode(), handler.cause().getMessage());
                 vertxTestContext.completeNow();
               }
@@ -396,8 +498,8 @@ public class TestCreateNotification {
   public void testWhileFetchingItemFromCatFailed(VertxTestContext vertxTestContext) {
     catClient = mock(CatalogueClient.class);
     EmailNotification emailNotification = mock(EmailNotification.class);
-
-    createNotification = new CreateNotification(pgService, catClient, emailNotification);
+      authClient = mock(AuthClient.class);
+    createNotification = new CreateNotification(pgService, catClient, emailNotification, authClient);
     when(catClient.fetchItems(any())).thenReturn(resourceInfo);
 
     AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
@@ -440,18 +542,14 @@ public class TestCreateNotification {
   public void testCreateNotificationWithDbFailure(VertxTestContext vertxTestContext) {
     UUID resourceId = UUID.randomUUID();
     EmailNotification emailNotification = mock(EmailNotification.class);
-
+      authClient = mock(AuthClient.class);
     when(postgresService.getPool()).thenReturn(pool);
     when(pool.withConnection(any())).thenReturn(Future.failedFuture("Something went wrong :("));
     CreateNotification createNotification =
-        new CreateNotification(postgresService, catalogueClient, emailNotification);
+        new CreateNotification(postgresService, catalogueClient, emailNotification, authClient);
 
     createNotification
-        .createNotification(
-            CREATE_NOTIFICATION_QUERY,
-            resourceId,
-            consumer,
-            utility.getOwnerId())
+        .createNotification(CREATE_NOTIFICATION_QUERY, resourceId, consumer, utility.getOwnerId())
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
@@ -471,19 +569,15 @@ public class TestCreateNotification {
       "Test createNotification method when there is empty response from database : Failure")
   public void testCreateNotificationWithEmptyResponse(VertxTestContext vertxTestContext) {
     EmailNotification emailNotification = mock(EmailNotification.class);
-
+      authClient = mock(AuthClient.class);
     UUID resourceId = UUID.randomUUID();
     when(postgresService.getPool()).thenReturn(pool);
     when(pool.withConnection(any())).thenReturn(Future.succeededFuture(List.of()));
     CreateNotification createNotification =
-        new CreateNotification(postgresService, catalogueClient, emailNotification);
+        new CreateNotification(postgresService, catalogueClient, emailNotification, authClient);
 
     createNotification
-        .createNotification(
-            CREATE_NOTIFICATION_QUERY,
-            resourceId,
-          consumer,
-            utility.getOwnerId())
+        .createNotification(CREATE_NOTIFICATION_QUERY, resourceId, consumer, utility.getOwnerId())
         .onComplete(
             handler -> {
               if (handler.succeeded()) {

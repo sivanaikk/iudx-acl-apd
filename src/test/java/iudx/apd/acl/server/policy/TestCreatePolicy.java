@@ -76,6 +76,7 @@ public class TestCreatePolicy {
             .put("lastName", utility.getOwnerLastName());
     return new User(jsonObject);
   }
+
   public static JsonObject getRequest(String userEmail, UUID resourceId) {
     JsonObject jsonObject =
         new JsonObject()
@@ -102,12 +103,7 @@ public class TestCreatePolicy {
                 assertEquals(ResponseUrn.SUCCESS_URN.getUrn(), handler.result().getString(TYPE));
                 assertEquals(
                     ResponseUrn.SUCCESS_URN.getMessage(), handler.result().getString(TITLE));
-                assertTrue(
-                    handler
-                        .result()
-                        .getJsonArray("results")
-                        .getJsonObject(0)
-                        .containsKey("policyId"));
+                assertEquals("Policy created successfully", handler.result().getString(DETAIL));
                 vertxTestContext.completeNow();
 
               } else {
@@ -193,12 +189,7 @@ public class TestCreatePolicy {
                 assertEquals(ResponseUrn.SUCCESS_URN.getUrn(), handler.result().getString(TYPE));
                 assertEquals(
                     ResponseUrn.SUCCESS_URN.getMessage(), handler.result().getString(TITLE));
-                assertTrue(
-                    handler
-                        .result()
-                        .getJsonArray("results")
-                        .getJsonObject(0)
-                        .containsKey("policyId"));
+                assertEquals("Policy created successfully", handler.result().getString(DETAIL));
                 vertxTestContext.completeNow();
 
               } else {

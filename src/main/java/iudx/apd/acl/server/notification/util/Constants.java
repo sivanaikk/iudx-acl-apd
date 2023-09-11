@@ -22,7 +22,7 @@ public class Constants {
                   + " VALUES ($1::uuid, $2::uuid, $3::uuid,$4::uuid, 'PENDING', NULL, NULL) RETURNING _id;";
 
   public static final String REJECT_NOTIFICATION =
-      "UPDATE request SET status='REJECTED' WHERE _id=$1::uuid AND expiry_at>NOW() OR expiry_at IS NULL RETURNING _id";
+          "UPDATE request SET status='REJECTED' WHERE _id=$1::uuid AND expiry_at>NOW() OR expiry_at IS NULL RETURNING _id";
   public static final String GET_CONSUMER_EMAIL_QUERY =
           "SELECT email_id FROM user_table WHERE _id = $1::uuid;";
   public static final String GET_EXISTING_POLICY_QUERY_1 = "SELECT * FROM policy WHERE owner_id = $1::uuid";
@@ -116,15 +116,15 @@ public class Constants {
   public static final String HTML_EMAIL_BODY_10 = "<footer> <p>Regards,<br> ${SENDER'S_NAME}</p>";
   public static final String HTML_EMAIL_BODY_11 = "</footer> </body> </html>";
   public static final String HTML_EMAIL_BODY =
-                  HTML_EMAIL_BODY_1
-                          + HTML_EMAIL_BODY_2
-                          + HTML_EMAIL_BODY_4
-                          + HTML_EMAIL_BODY_5
-                          + HTML_EMAIL_BODY_6
-                          + HTML_EMAIL_BODY_7
-                          + HTML_EMAIL_BODY_8
-                          + HTML_EMAIL_BODY_10
-                          + HTML_EMAIL_BODY_11;
+          HTML_EMAIL_BODY_1
+                  + HTML_EMAIL_BODY_2
+                  + HTML_EMAIL_BODY_4
+                  + HTML_EMAIL_BODY_5
+                  + HTML_EMAIL_BODY_6
+                  + HTML_EMAIL_BODY_7
+                  + HTML_EMAIL_BODY_8
+                  + HTML_EMAIL_BODY_10
+                  + HTML_EMAIL_BODY_11;
 
 
 }

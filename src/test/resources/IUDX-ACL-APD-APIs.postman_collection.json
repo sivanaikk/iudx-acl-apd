@@ -638,15 +638,11 @@
 							"raw": "{\n\"id\": \"b51d1f41-62d1-4e21-98c3-68433a842dce\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies"
 							]
 						}
@@ -711,15 +707,11 @@
 							"raw": "{\n\"id\": \"b5dd534d-231c-4674-8167-2e39467d0643\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies"
 							]
 						}
@@ -848,15 +840,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies"
 							]
 						}
@@ -921,15 +909,11 @@
 							"raw": "{\n\"id\": \"394608f9-b370-4606-a947-1cf300dab04c\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies"
 							]
 						}
@@ -992,15 +976,11 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies"
 							]
 						}
@@ -1046,15 +1026,11 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies"
 							]
 						}
@@ -1127,15 +1103,11 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies"
 							]
 						}
@@ -1182,18 +1154,18 @@
 							{
 								"key": "Authorization",
 								"value": "{{providerToken}}",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							},
 							{
 								"key": "Authorization",
 								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"requestId\": \"df2617a3-ce28-459a-b78a-d587a8e8a278\",\n  \"status\": \"granted\",\n  \"expiryAt\": \"2024-03-05T20:00:19\",\n  \"constraints\": {\n    \"access\": [\n      \"api\",\n      \"sub\",\n      \"file\"\n    ]\n  }\n}",
+							"raw": "{\n  \"requestId\": \"811b47a9-2e6f-43fa-8f65-43271b6787bb\",\n  \"status\": \"granted\",\n  \"expiryAt\": \"2024-03-05T20:00:19\",\n  \"constraints\": {\n    \"access\": [\n      \"api\",\n      \"sub\",\n      \"file\"\n    ]\n  }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1201,15 +1173,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -1252,18 +1220,18 @@
 							{
 								"key": "Authorization",
 								"value": "{{providerToken}}",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							},
 							{
 								"key": "Authorization",
 								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"87d8a351-92bf-4c27-ac38-13cc0bd07221\",\n    \"status\": \"rejected\"\n}",
+							"raw": "{\n    \"requestId\": \"9237729d-d075-44ee-ac06-5ac4e1ed205f\",\n    \"status\": \"rejected\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1271,15 +1239,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -1341,15 +1305,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -1405,15 +1365,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -1476,15 +1432,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -1547,15 +1499,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -1617,15 +1565,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -1690,15 +1634,11 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -1745,15 +1685,11 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -1819,15 +1755,11 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -1889,15 +1821,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -1959,15 +1887,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -2023,15 +1947,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -2094,15 +2014,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -2165,15 +2081,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -2235,15 +2147,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -2305,15 +2213,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -2369,15 +2273,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -2439,15 +2339,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]
@@ -2509,15 +2405,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8443/ngsi-ld/v1/policies/requests",
-							"protocol": "http",
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
 							"host": [
-								"localhost"
+								"{{baseUrl}}{{basePath}}"
 							],
-							"port": "8443",
 							"path": [
-								"ngsi-ld",
-								"v1",
 								"policies",
 								"requests"
 							]

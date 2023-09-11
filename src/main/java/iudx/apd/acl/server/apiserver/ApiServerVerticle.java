@@ -228,7 +228,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                     new JsonObject()
                         .put(TYPE, handler.result().getString(TYPE))
                         .put(TITLE, handler.result().getString(TITLE))
-                        .put(RESULT, handler.result().getValue(RESULT));
+                        .put(DETAIL, handler.result().getValue(DETAIL));
                 handleSuccessResponse(
                     response, handler.result().getInteger(STATUS_CODE), responseJson.toString());
                 Future.future(fu -> handleAuditLogs(routingContext));
@@ -261,7 +261,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                     new JsonObject()
                         .put(TYPE, handler.result().getString(TYPE))
                         .put(TITLE, handler.result().getString(TITLE))
-                        .put(RESULT, handler.result().getValue(RESULT));
+                        .put(DETAIL, handler.result().getValue(DETAIL));
                 handleSuccessResponse(
                     response, handler.result().getInteger(STATUS_CODE), responseJson.toString());
                 Future.future(fu -> handleAuditLogs(routingContext));
@@ -286,7 +286,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                     new JsonObject()
                         .put(TYPE, handler.result().getString(TYPE))
                         .put(TITLE, handler.result().getString(TITLE))
-                        .put(RESULT, handler.result().getValue(RESULT));
+                        .put(DETAIL, handler.result().getValue(DETAIL));
                 handleSuccessResponse(
                     response, handler.result().getInteger(STATUS_CODE), responseJson.toString());
                 Future.future(fu -> handleAuditLogs(routingContext));
@@ -350,7 +350,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                     new JsonObject()
                         .put(TYPE, handler.result().getString(TYPE))
                         .put(TITLE, handler.result().getString(TITLE))
-                        .put(RESULT, handler.result().getValue(RESULT));
+                        .put(DETAIL, handler.result().getValue(DETAIL));
                 handleSuccessResponse(
                     response, handler.result().getInteger(STATUS_CODE), responseJson.toString());
                 Future.future(fu -> handleAuditLogs(routingContext));

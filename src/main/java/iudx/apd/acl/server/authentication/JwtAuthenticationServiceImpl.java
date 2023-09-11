@@ -30,13 +30,13 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   final String audience;
   final String issuer;
   final Api apis;
-  final String apdURL;
+  final String apdUrl;
 
   public JwtAuthenticationServiceImpl(final JWTAuth jwtAuth, final JsonObject config, Api apis) {
     this.jwtAuth = jwtAuth;
     this.audience = config.getString("audience");
     this.issuer = config.getString("issuer");
-    this.apdURL = config.getString("apdURL");
+    this.apdUrl = config.getString("apdURL");
     this.apis = apis;
   }
 
@@ -82,7 +82,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
               } else if (jwtData.getAud().isEmpty()) {
                 LOGGER.error("No audience value in JWT");
                 promise.fail("No audience value in JWT");
-              } else if (!jwtData.getAud().equalsIgnoreCase(apdURL)) {
+              } else if (!jwtData.getAud().equalsIgnoreCase(apdUrl)) {
                 LOGGER.error("Incorrect audience value in JWT");
                 promise.fail("Incorrect audience value in JWT");
               } else if (!jwtData.getSub().equalsIgnoreCase(jwtData.getIss())) {

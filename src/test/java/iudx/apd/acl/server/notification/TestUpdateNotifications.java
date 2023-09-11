@@ -194,7 +194,7 @@ public class TestUpdateNotifications {
                 assertEquals(ResponseUrn.SUCCESS_URN.getUrn(), handler.result().getString(TYPE));
                 assertEquals(
                     ResponseUrn.SUCCESS_URN.getMessage(), handler.result().getString(TITLE));
-                assertEquals("Request updated successfully", handler.result().getString(RESULT));
+                assertEquals("Request updated successfully", handler.result().getString(DETAIL));
                 assertEquals(
                     HttpStatusCode.SUCCESS.getValue(), handler.result().getInteger(STATUS_CODE));
                 vertxTestContext.completeNow();
@@ -225,7 +225,7 @@ public class TestUpdateNotifications {
                 assertEquals(ResponseUrn.SUCCESS_URN.getUrn(), handler.result().getString(TYPE));
                 assertEquals(
                     ResponseUrn.SUCCESS_URN.getMessage(), handler.result().getString(TITLE));
-                assertEquals("Request updated successfully", handler.result().getString(RESULT));
+                assertEquals("Request updated successfully", handler.result().getString(DETAIL));
                 assertEquals(
                     HttpStatusCode.SUCCESS.getValue(), handler.result().getInteger(STATUS_CODE));
                 vertxTestContext.completeNow();
