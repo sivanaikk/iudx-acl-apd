@@ -18,8 +18,8 @@ public class Constants {
           "SELECT * FROM request WHERE user_id = $1::uuid AND item_id = $2::uuid AND status = 'PENDING';";
   public static final String CREATE_NOTIFICATION_QUERY =
           "INSERT INTO request"
-                  + "(_id, user_id, item_id, item_type, owner_id, status, expiry_at, constraints)"
-                  + " VALUES ($1::uuid, $2::uuid, $3::uuid, $4, $5::uuid, 'PENDING', NULL, NULL) RETURNING _id;";
+                  + "(_id, user_id, item_id, owner_id, status, expiry_at, constraints)"
+                  + " VALUES ($1::uuid, $2::uuid, $3::uuid, $4::uuid, 'PENDING', NULL, NULL) RETURNING _id;";
 
   public static final String REJECT_NOTIFICATION =
       "UPDATE request SET status='REJECTED' WHERE _id=$1::uuid AND expiry_at>NOW() OR expiry_at IS NULL RETURNING _id";
@@ -46,11 +46,13 @@ public class Constants {
   public static final String INSERT_USER_INFO_QUERY_1 = "INSERT INTO user_table (_id, email_id, first_name, last_name)";
   public static final String INSERT_USER_INFO_QUERY =
           INSERT_USER_INFO_QUERY_1 + " VALUES ($1::uuid, $2, $3, $4) ON CONFLICT (_id) DO NOTHING;";
-  public static final String INSERT_RESOURCE_INFO_QUERY_3 = "(_id, provider_id, resource_group_id)";
+  public static final String INSERT_RESOURCE_INFO_QUERY_4 = "(_id, provider_id, resource_group_id,";
+  public static final String INSERT_RESOURCE_INFO_QUERY_5 = "resource_server_url, item_type)";
+  public static final String INSERT_RESOURCE_INFO_QUERY_3 = INSERT_RESOURCE_INFO_QUERY_4 + INSERT_RESOURCE_INFO_QUERY_5;
   public static final String INSERT_RESOURCE_INFO_QUERY_2 = "INSERT INTO resource_entity ";
   public static final String INSERT_RESOURCE_INFO_QUERY_1 = INSERT_RESOURCE_INFO_QUERY_2 + INSERT_RESOURCE_INFO_QUERY_3;
   public static final String INSERT_RESOURCE_INFO_QUERY =
-          INSERT_RESOURCE_INFO_QUERY_1 + " VALUES ($1::uuid, $2::uuid, $3::uuid) ON CONFLICT (_id) DO NOTHING;";
+          INSERT_RESOURCE_INFO_QUERY_1 + " VALUES ($1::uuid, $2::uuid, $3::uuid, $4, $5) ON CONFLICT (_id) DO NOTHING;";
 
   public static final String GET_CONSUMER_NOTIFICATION_1 = "SELECT R._id AS \"requestId\", R.item_id AS \"itemId\", ";
   public static final String GET_CONSUMER_NOTIFICATION_13 = " AS \"status\", R.expiry_at AS \"expiryAt\", ";

@@ -130,7 +130,6 @@ public class CreateNotification {
               return createNotification(
                   CREATE_NOTIFICATION_QUERY,
                   resourceId,
-                  getResourceType(),
                   user,
                   UUID.fromString(getProviderInfo().getUserId()));
             });
@@ -180,7 +179,7 @@ public class CreateNotification {
       String query, UUID resourceId, UUID resourceGroupId, UUID providerId) {
     Promise<Boolean> promise = Promise.promise();
     LOG.trace("inside addResourceInDb method");
-    Tuple tuple = Tuple.of(resourceId, providerId, resourceGroupId);
+    Tuple tuple = Tuple.of(resourceId, providerId, resourceGroupId, getResourceServerUrl(), getResourceType());
     executeQuery(
         query,
         tuple,
@@ -286,18 +285,17 @@ public class CreateNotification {
    *
    * @param query Insert query to create notification
    * @param resourceId id for which the consumer or consumer delegate wants access to with type UUID
-   * @param resourceType type of the resource, can be <b>RESOURCE</b> or <b>RESOURCE_GROUP</b>
    * @param consumer details of the consumer with type User
    * @param providerId id of the owner of the resource with type UUID
    * @return JsonObject response, if notification is created successfully, failure if any
    */
   public Future<JsonObject> createNotification(
-      String query, UUID resourceId, String resourceType, User consumer, UUID providerId) {
+      String query, UUID resourceId, User consumer, UUID providerId) {
     Promise<JsonObject> promise = Promise.promise();
     LOG.trace("inside createNotification method");
     UUID notificationId = UUID.randomUUID();
     UUID consumerId = UUID.fromString(consumer.getUserId());
-    Tuple tuple = Tuple.of(notificationId, consumerId, resourceId, resourceType, providerId);
+    Tuple tuple = Tuple.of(notificationId, consumerId, resourceId, providerId);
     executeQuery(
         query,
         tuple,
