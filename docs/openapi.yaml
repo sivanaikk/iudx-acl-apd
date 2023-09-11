@@ -810,7 +810,7 @@ paths:
                   value:
                     type: 'urn:dx:acl:success'
                     title: Success
-                    results: 'Request updated successfully'
+                    detail: 'Request updated successfully'
           headers:
             Content-Type:
               schema:
