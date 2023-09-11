@@ -1,8 +1,6 @@
 package iudx.apd.acl.server.notification;
 
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
-import static iudx.apd.acl.server.authentication.Constants.AUD;
-import static iudx.apd.acl.server.authentication.Constants.IS_DELEGATE;
 import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
 import static iudx.apd.acl.server.common.ResponseUrn.POLICY_ALREADY_EXIST_URN;
 import static iudx.apd.acl.server.notification.util.Constants.*;
@@ -18,7 +16,6 @@ import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.Tuple;
 import iudx.apd.acl.server.apiserver.util.ResourceObj;
 import iudx.apd.acl.server.apiserver.util.User;
-import iudx.apd.acl.server.authentication.AuthClient;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.policy.CatalogueClient;
@@ -35,6 +32,9 @@ import org.slf4j.LoggerFactory;
 public class CreateNotification {
   private static final Logger LOG = LoggerFactory.getLogger(CreateNotification.class);
   private static final String FAILURE_MESSAGE = "Request could not be created";
+  private static final String dummyProviderFirstName = "dummy_first_name";
+  private static final String dummyProviderLastName = "dummy_last_name";
+  private static final String dummyProviderEmailId = UUID.randomUUID() + "dummy@gmail.com";
   private final PostgresService postgresService;
   private final CatalogueClient catalogueClient;
   private final EmailNotification emailNotification;
@@ -44,17 +44,14 @@ public class CreateNotification {
   private PgPool pool;
   private User provider;
   private String resourceServerUrl;
-  private AuthClient authClient;
 
   public CreateNotification(
       PostgresService postgresService,
       CatalogueClient catalogueClient,
-      EmailNotification emailNotification,
-      AuthClient authClient) {
+      EmailNotification emailNotification) {
     this.postgresService = postgresService;
     this.catalogueClient = catalogueClient;
     this.emailNotification = emailNotification;
-    this.authClient = authClient;
   }
 
   /**
@@ -149,6 +146,7 @@ public class CreateNotification {
    * @param emailId Email id of the provider
    * @return True if the insertion is successfully done, failure if any
    */
+  // TODO: Auth call is required here
   public Future<Boolean> addProviderInDb(
       String query, UUID providerId, String firstName, String lastName, String emailId) {
     Promise<Boolean> promise = Promise.promise();
@@ -327,7 +325,7 @@ public class CreateNotification {
                   new JsonObject()
                       .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
                       .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
-                      .put(DETAIL, "Request inserted successfully!")
+                      .put(RESULT, "Request inserted successfully!")
                       .put(STATUS_CODE, HttpStatusCode.SUCCESS.getValue());
 
               /* send email to the provider saying this consumer has requested for the access of this resource */
@@ -370,34 +368,15 @@ public class CreateNotification {
                 setResourceServerUrl(url);
                 /* set provider id, resourceGroupId, resourceType */
                 setResourceGroupId(resourceGroupIdValue);
-                /* get information about the provider of the resource from Auth*/
-                JsonObject provider =
+                JsonObject providerInfo =
                     new JsonObject()
-                        .put(USER_ID, ownerId)
-                        .put(ROLE, "provider")
-                        .put(AUD, url)
-                        .put(IS_DELEGATE, false);
-
-                authClient
-                    .fetchUserInfo(provider)
-                    .onComplete(
-                        authHandler -> {
-                          if (authHandler.succeeded()) {
-                            User providerInfo = authHandler.result();
-                            setProviderInfo(providerInfo);
-                            promise.complete(true);
-                          } else {
-                            LOG.debug(
-                                "Something went wrong while fetching provider information from Auth {}",
-                                authHandler.cause().getMessage());
-                            JsonObject failureMessage =
-                                new JsonObject()
-                                    .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
-                                    .put(TITLE, ResponseUrn.INTERNAL_SERVER_ERROR.getUrn())
-                                    .put(DETAIL, FAILURE_MESSAGE);
-                            promise.fail(failureMessage.encode());
-                          }
-                        });
+                        .put("userId", ownerId.toString())
+                        .put("userRole", "provider")
+                        .put("emailId", dummyProviderEmailId)
+                        .put("firstName", dummyProviderFirstName)
+                        .put("lastName", dummyProviderLastName);
+                setProviderInfo(new User(providerInfo));
+                promise.complete(true);
               } else {
                 if (handler.cause().getMessage().equalsIgnoreCase("Item is not found")
                     || handler
