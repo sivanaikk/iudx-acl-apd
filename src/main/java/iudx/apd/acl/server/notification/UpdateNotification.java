@@ -232,9 +232,9 @@ public class UpdateNotification {
   public Future<Boolean> insertInApprovedAccessRequest(JsonObject notification, String query) {
     LOG.trace("inside insertInApprovedAccessRequest method");
     Promise<Boolean> promise = Promise.promise();
-    UUID id = UUID.randomUUID();
+
     UUID notificationId = UUID.fromString(notification.getString("requestId"));
-    Tuple tuple = Tuple.of(id, notificationId, getPolicyId());
+    Tuple tuple = Tuple.of(notificationId, getPolicyId());
     executeQuery(
         query,
         tuple,
@@ -252,6 +252,9 @@ public class UpdateNotification {
                       .put(DETAIL, "Failure while executing query");
               promise.fail(failureMessage.encode());
             } else {
+              LOG.debug(
+                  "Successfully inserted in approved_access_request with id {}",
+                  result.getString("_id"));
               promise.complete(true);
             }
           } else {
@@ -311,9 +314,6 @@ public class UpdateNotification {
   public Future<Boolean> createPolicy(JsonObject notification, String query) {
     LOG.trace("inside createPolicy method");
     Promise<Boolean> promise = Promise.promise();
-    UUID policyId = UUID.randomUUID();
-    /* set policyId */
-    setPolicyId(policyId);
     JsonObject constraints = null;
     try {
       constraints = new JsonObject(notification.getString("constraints"));
@@ -329,13 +329,7 @@ public class UpdateNotification {
 
     Tuple tuple =
         Tuple.of(
-            policyId,
-            getConsumerEmailId(),
-            getItemId(),
-            getOwnerId(),
-            "ACTIVE",
-            getExpiryAt(),
-            constraints);
+            getConsumerEmailId(), getItemId(), getOwnerId(), "ACTIVE", getExpiryAt(), constraints);
 
     executeQuery(
         query,
@@ -343,8 +337,11 @@ public class UpdateNotification {
         handler -> {
           if (handler.succeeded()) {
             JsonObject result = handler.result().getJsonArray(RESULT).getJsonObject(0);
+            /*policy is created successfully and the policy id is returned */
             if (!result.isEmpty()) {
-              /*policy is created successfully and the policy id is returned */
+              /* set policyId */
+              UUID policyId = UUID.fromString(result.getString("_id"));
+              setPolicyId(policyId);
               LOG.trace("Policy created successfully with policyId: {}", result.getString("_id"));
               promise.complete(true);
             } else {
@@ -507,8 +504,7 @@ public class UpdateNotification {
                     failureResponse.put(TYPE, FORBIDDEN.getValue());
                     failureResponse.put(TITLE, FORBIDDEN.getUrn());
                     failureResponse.put(
-                        DETAIL,
-                        "Request could not be updated, as it doesn't belong to the user");
+                        DETAIL, "Request could not be updated, as it doesn't belong to the user");
                     promise.fail(failureResponse.encode());
                   }
                 } else {

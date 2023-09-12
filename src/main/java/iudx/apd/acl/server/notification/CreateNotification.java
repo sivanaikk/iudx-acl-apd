@@ -307,9 +307,8 @@ public class CreateNotification {
       String query, UUID resourceId, User consumer, UUID providerId) {
     Promise<JsonObject> promise = Promise.promise();
     LOG.trace("inside createNotification method");
-    UUID notificationId = UUID.randomUUID();
     UUID consumerId = UUID.fromString(consumer.getUserId());
-    Tuple tuple = Tuple.of(notificationId, consumerId, resourceId, providerId);
+    Tuple tuple = Tuple.of(consumerId, resourceId, providerId);
     executeQuery(
         query,
         tuple,
@@ -413,7 +412,7 @@ public class CreateNotification {
                       new JsonObject()
                           .put(TYPE, HttpStatusCode.FORBIDDEN.getValue())
                           .put(TITLE, ResponseUrn.FORBIDDEN_URN.getUrn())
-                          .put(DETAIL, FORBIDDEN_URN.getMessage());
+                          .put(DETAIL, "Access Denied: You do not have ownership rights for this resource");
                   promise.fail(failureMessage.encode());
                 }
               } else {
