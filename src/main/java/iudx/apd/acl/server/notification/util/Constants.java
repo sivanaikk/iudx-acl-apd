@@ -8,6 +8,10 @@ public class Constants {
   public static final String WITHDRAW_REQUEST =
           WITHDRAWN_REQUEST_1 + WITHDRAWN_REQUEST_2 + WITHDRAWN_REQUEST_3;
   public static final String GET_REQUEST = "SELECT * FROM request WHERE _id = $1::uuid";
+  public static final String GET_REQUEST_WITH_ITEM_TYPE =
+      "SELECT RE.resource_server_url, RE.item_type, R.* "
+          + " FROM request AS R, resource_entity AS RE "
+          + "WHERE R._id = $1::uuid;";
 
   public static final String GET_ACTIVE_CONSUMER_POLICY_1 = "SELECT * FROM policy WHERE user_emailid = $1";
   public static final String GET_ACTIVE_CONSUMER_POLICY_2 = " AND item_id = $2::uuid";

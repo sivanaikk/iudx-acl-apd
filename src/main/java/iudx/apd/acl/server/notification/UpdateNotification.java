@@ -70,7 +70,7 @@ public class UpdateNotification {
     }
     /* check if the request is valid */
     Future<Boolean> checkNotificationFuture =
-        checkValidityOfRequest(GET_REQUEST, notificationId, user);
+        checkValidityOfRequest(GET_REQUEST_WITH_ITEM_TYPE, notificationId, user);
     switch (status) {
       case REJECTED:
         Future<JsonObject> rejectedNotificationFuture =
@@ -488,6 +488,7 @@ public class UpdateNotification {
               String consumer = response.getString("user_id");
               String itemId = response.getString("item_id");
               String itemType = response.getString("item_type");
+              String resourceServerUrl = response.getString("resource_server_url");
 
               /* ownership check */
               if (owner.equals(ownerId)) {
@@ -497,7 +498,19 @@ public class UpdateNotification {
                   setConsumerId(UUID.fromString(consumer));
                   setItemId(UUID.fromString(itemId));
                   setItemType(itemType);
-                  promise.complete(true);
+                  /* check if the resource server url in the token equals the resource server url for the resource */
+                  if (resourceServerUrl.equals(user.getEffectiveResourceServerUrl())) {
+                    promise.complete(true);
+
+                  } else {
+                    JsonObject failureResponse = new JsonObject();
+                    failureResponse.put(TYPE, FORBIDDEN.getValue());
+                    failureResponse.put(TITLE, FORBIDDEN.getUrn());
+                    failureResponse.put(
+                        DETAIL,
+                        "Request could not be updated, as it doesn't belong to the user");
+                    promise.fail(failureResponse.encode());
+                  }
                 } else {
                   JsonObject failureResponse = new JsonObject();
                   failureResponse.put(TYPE, BAD_REQUEST.getValue());
@@ -511,7 +524,7 @@ public class UpdateNotification {
                 failureResponse.put(TYPE, FORBIDDEN.getValue());
                 failureResponse.put(TITLE, FORBIDDEN.getUrn());
                 failureResponse.put(
-                    DETAIL, "Request could not be updated, as it is doesn't belong to the user");
+                    DETAIL, "Request could not be updated, as it doesn't belong to the user");
                 promise.fail(failureResponse.encode());
               }
             }
