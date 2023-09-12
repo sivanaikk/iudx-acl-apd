@@ -13,7 +13,6 @@ import static iudx.apd.acl.server.apiserver.util.Constants.VERIFY_POLICY_API;
 import static iudx.apd.acl.server.authentication.Constants.AUD;
 import static iudx.apd.acl.server.authentication.Constants.GET_USER;
 import static iudx.apd.acl.server.authentication.Constants.INSERT_USER_TABLE;
-import static iudx.apd.acl.server.authentication.Constants.IS_DELEGATE;
 import static iudx.apd.acl.server.authentication.Constants.ROLE;
 import static iudx.apd.acl.server.authentication.Constants.USER_ID;
 import static iudx.apd.acl.server.common.Constants.AUTH_SERVICE_ADDRESS;
@@ -132,8 +131,9 @@ public class AuthHandler implements Handler<RoutingContext> {
                 userObj.put("emailId", result.getString("email_id"));
                 userObj.put("firstName", result.getString("first_name"));
                 userObj.put("lastName", result.getString("last_name"));
-                userObj.put("aud", jsonObject.getString(AUD));
-                //                userObj.put(IS_DELEGATE,jsonObject.getBoolean(IS_DELEGATE));
+                userObj.put("resourceServerUrl", jsonObject.getString(AUD));
+                //
+                // userObj.put(IS_DELEGATE,jsonObject.getBoolean(IS_DELEGATE));
 
                 User user = new User(userObj);
                 promise.complete(user);

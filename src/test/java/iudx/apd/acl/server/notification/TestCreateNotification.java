@@ -94,7 +94,7 @@ public class TestCreateNotification {
             .put("userRole", "provider")
             .put("emailId", utility.getOwnerEmailId())
             .put("firstName", utility.getOwnerFirstName())
-            .put("aud", "rs.iudx.io")
+            .put("resourceServerUrl", "rs.iudx.io")
             .put("lastName", utility.getOwnerLastName());
     return new User(jsonObject);
   }
@@ -106,7 +106,7 @@ public class TestCreateNotification {
             .put("userRole", "consumer")
             .put("emailId", utility.getConsumerEmailId())
             .put("firstName", utility.getConsumerFirstName())
-            .put("aud","rs.iudx.io")
+            .put("resourceServerUrl","rs.iudx.io")
             .put("lastName", utility.getConsumerLastName());
     return new User(jsonObject);
   }

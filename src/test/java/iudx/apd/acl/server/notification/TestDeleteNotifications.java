@@ -66,7 +66,7 @@ public class TestDeleteNotifications {
         new JsonObject()
             .put("userId", utility.getConsumerId())
             .put("userRole", "consumer")
-            .put("aud", "rs.iudx.io")
+            .put("resourceServerUrl", "rs.iudx.io")
             .put("emailId", utility.getConsumerEmailId())
             .put("firstName", utility.getConsumerFirstName())
             .put("lastName", utility.getConsumerLastName());
@@ -78,7 +78,7 @@ public class TestDeleteNotifications {
         new JsonObject()
             .put("userId", utility.getOwnerId())
             .put("userRole", "provider")
-            .put("aud", "rs.iudx.io")
+            .put("resourceServerUrl", "rs.iudx.io")
             .put("emailId", utility.getOwnerEmailId())
             .put("firstName", utility.getOwnerFirstName())
             .put("lastName", utility.getOwnerLastName());

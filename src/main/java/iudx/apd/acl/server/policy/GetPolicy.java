@@ -231,15 +231,17 @@ public class GetPolicy {
     String consumerLastName = jsonObject.getString("consumerLastName");
     String consumerId = jsonObject.getString("consumerId");
     String consumerEmail = jsonObject.getString("consumerEmailId");
-    JsonObject consumerJson =
-        new JsonObject()
-            .put("email", consumerEmail)
-            .put(
-                "name",
-                new JsonObject()
-                    .put("firstName", consumerFirstName)
-                    .put("lastName", consumerLastName))
-            .put("id", consumerId);
+    JsonObject consumerJson = new JsonObject().put("email", consumerEmail);
+    //if the consumer is not present in the db then the response will only contain its email address
+    if (consumerFirstName!=null) {
+      consumerJson
+          .put(
+              "name",
+              new JsonObject()
+                  .put("firstName", consumerFirstName)
+                  .put("lastName", consumerLastName))
+          .put("id", consumerId);
+    }
     final JsonObject consumerInfo = new JsonObject().put("consumer", consumerJson);
     jsonObject.remove("consumerFirstName");
     jsonObject.remove("consumerLastName");

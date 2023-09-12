@@ -107,7 +107,7 @@ public class DeleteNotification {
                 if (status.equals("PENDING")) {
                   /*check if the resource server url from the audience field
                   matches resource server url stored in the database*/
-                  if (resourceServerUrl.equals(user.getEffectiveResourceServerUrl())) {
+                  if (resourceServerUrl.equals(user.getResourceServerUrl())) {
                     promise.complete(true);
                   } else {
                     JsonObject failureResponse = new JsonObject();
