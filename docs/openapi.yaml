@@ -412,7 +412,7 @@ paths:
         - authorization: []
 
   /verify:
-    get:
+    post:
       tags:
         - Verify API
       summary: Verify Policy

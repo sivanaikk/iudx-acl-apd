@@ -87,7 +87,7 @@ public class VerifyPolicy {
               JsonObject responseJson =
                   new JsonObject()
                       .put(TYPE, ResponseUrn.VERIFY_SUCCESS_URN.getUrn())
-                      .put("constraints", successHandler.getJsonObject("constraints"));
+                      .put("apdConstraints", successHandler.getJsonObject("constraints"));
               promise.complete(responseJson);
             })
         .onFailure(promise::fail);
