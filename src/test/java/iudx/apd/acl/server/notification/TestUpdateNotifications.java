@@ -277,7 +277,7 @@ public class TestUpdateNotifications {
                             assertEquals(FORBIDDEN.getValue(), expectedJson.getInteger(TYPE));
                             assertEquals(FORBIDDEN_URN.getUrn(), expectedJson.getString(TITLE));
                             assertEquals(
-                                "Request could not be updated, as it doesn't belong to the user",
+                                "Access Denied: You do not have ownership rights for this resource.",
                                 expectedJson.getString(DETAIL));
                             vertxTestContext.completeNow();
                           } else {
@@ -422,7 +422,7 @@ public class TestUpdateNotifications {
                         .put(TITLE, ResponseUrn.FORBIDDEN_URN.getUrn())
                         .put(
                             DETAIL,
-                            "Request could not be updated, as it doesn't belong to the user");
+                            "Access Denied: You do not have ownership rights for this resource.");
                 assertEquals(failureMessage.encode(), handler.cause().getMessage());
                 vertxTestContext.completeNow();
               }

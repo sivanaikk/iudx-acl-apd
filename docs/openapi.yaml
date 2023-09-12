@@ -1152,7 +1152,7 @@ components:
       example:
         type: urn:dx:acl:forbidden
         title: Access Denied
-        detail: Request could not be fetched, as it doesn't belong to the user
+        detail: 'Access Denied: You do not have ownership rights for this resource.'
     createNotificationSuccessResponse:
       title: Create notification success
       type: object
@@ -1452,7 +1452,7 @@ components:
       example:
         type: urn:dx:acl:forbidden
         title: Forbidden
-        detail: Request could not be withdrawn, as it doesn't belong to the user
+        detail: 'Access Denied: You do not have ownership rights for this resource.'
 
     deleteNotificationNotFound:
       title: Delete notification not found

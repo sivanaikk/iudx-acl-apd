@@ -126,7 +126,7 @@ public class TestDeleteNotifications {
                 assertEquals(HttpStatusCode.FORBIDDEN.getValue(), result.getInteger(TYPE));
                 assertEquals(HttpStatusCode.FORBIDDEN.getUrn(), result.getString(TITLE));
                 assertEquals(
-                    "Request could not be withdrawn, as it doesn't belong to the user",
+                    "Access Denied: You do not have ownership rights for this resource.",
                     result.getString(DETAIL));
                 vertxTestContext.completeNow();
 
@@ -149,7 +149,7 @@ public class TestDeleteNotifications {
                 assertEquals(HttpStatusCode.FORBIDDEN.getValue(), result.getInteger(TYPE));
                 assertEquals(HttpStatusCode.FORBIDDEN.getUrn(), result.getString(TITLE));
                 assertEquals(
-                    "Request could not be withdrawn, as it doesn't belong to the user",
+                    "Access Denied: You do not have ownership rights for this resource.",
                     result.getString(DETAIL));
                 vertxTestContext.completeNow();
 
@@ -218,7 +218,7 @@ public class TestDeleteNotifications {
                 assertEquals(FORBIDDEN.getValue(), result.getInteger(TYPE));
                 assertEquals(FORBIDDEN.getUrn(), result.getString(TITLE));
                 assertEquals(
-                    "Request could not be withdrawn, as it doesn't belong to the user",
+                    "Access Denied: You do not have ownership rights for this resource.",
                     result.getString(DETAIL));
                 vertxTestContext.completeNow();
               }
