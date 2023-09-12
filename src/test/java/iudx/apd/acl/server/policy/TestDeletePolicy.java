@@ -64,7 +64,8 @@ public class TestDeletePolicy {
             .put("userRole", "provider")
             .put("emailId", utility.getOwnerEmailId())
             .put("firstName", utility.getOwnerFirstName())
-            .put("lastName", utility.getOwnerLastName());
+            .put("lastName", utility.getOwnerLastName())
+            .put("resourceServerUrl", "rs.iudx.io");
     return new User(jsonObject);
   }
 
@@ -119,7 +120,8 @@ public class TestDeletePolicy {
             .put("userRole", "consumer")
             .put("emailId", utility.getConsumerEmailId())
             .put("firstName", utility.getConsumerFirstName())
-            .put("lastName", utility.getConsumerLastName());
+            .put("lastName", utility.getConsumerLastName())
+            .put("resourceServerUrl", "rs.iudx.io");
     User consumer = new User(jsonObject);
 
     deletePolicy
@@ -191,7 +193,8 @@ public class TestDeletePolicy {
             .put("userRole", "provider")
             .put("emailId", utility.getOwnerEmailId())
             .put("firstName", utility.getOwnerFirstName())
-            .put("lastName", utility.getOwnerLastName());
+            .put("lastName", utility.getOwnerLastName())
+            .put("resourceServerUrl", "rs.iudx.io");
     Tuple tuple =
         Tuple.of(
             policy,
@@ -222,47 +225,47 @@ public class TestDeletePolicy {
             });
   }
 
-/*
-  @Test
-  @DisplayName("Test initiateDeletePolicy method when policy is already expired")
-  public void testInitiateDeletePolicyWithExpiredPolicy(VertxTestContext vertxTestContext) {
-    UUID policy = UUID.randomUUID();
-    JsonObject jsonObject =
-        new JsonObject()
-            .put("userId", utility.getOwnerId())
-            .put("userRole", "provider")
-            .put("emailId", utility.getOwnerEmailId())
-            .put("firstName", utility.getOwnerFirstName())
-            .put("lastName", utility.getOwnerLastName());
-    Tuple tuple =
-        Tuple.of(
-            policy,
-            utility.getConsumerEmailId(),
-            utility.getResourceId(),
-            utility.getOwnerId(),
-            "ACTIVE",
-            LocalDateTime.of(2023, 8, 6, 9, 7, 30, 658254),
-            "{}",
-            LocalDateTime.of(2022, 1, 1, 1, 1, 1, 1),
-            LocalDateTime.of(2022, 2, 1, 1, 1, 1));
-    utility.executeQuery(tuple, INSERT_INTO_POLICY_TABLE);
-    deletePolicy
-        .initiateDeletePolicy(new JsonObject().put("id", policy), new User(jsonObject))
-        .onComplete(
-            handler -> {
-              if (handler.succeeded()) {
-                vertxTestContext.failNow("Succeeded for expired policy");
-              } else {
-                JsonObject result = new JsonObject(handler.cause().getMessage());
-                assertEquals(400, result.getInteger(TYPE));
-                assertEquals(ResponseUrn.BAD_REQUEST_URN.getUrn(), result.getString(TITLE));
-                assertEquals(
-                    "Policy could not be deleted , as policy is expired", result.getString(DETAIL));
-                vertxTestContext.completeNow();
-              }
-            });
-  }
-*/
+  /*
+    @Test
+    @DisplayName("Test initiateDeletePolicy method when policy is already expired")
+    public void testInitiateDeletePolicyWithExpiredPolicy(VertxTestContext vertxTestContext) {
+      UUID policy = UUID.randomUUID();
+      JsonObject jsonObject =
+          new JsonObject()
+              .put("userId", utility.getOwnerId())
+              .put("userRole", "provider")
+              .put("emailId", utility.getOwnerEmailId())
+              .put("firstName", utility.getOwnerFirstName())
+              .put("lastName", utility.getOwnerLastName());
+      Tuple tuple =
+          Tuple.of(
+              policy,
+              utility.getConsumerEmailId(),
+              utility.getResourceId(),
+              utility.getOwnerId(),
+              "ACTIVE",
+              LocalDateTime.of(2023, 8, 6, 9, 7, 30, 658254),
+              "{}",
+              LocalDateTime.of(2022, 1, 1, 1, 1, 1, 1),
+              LocalDateTime.of(2022, 2, 1, 1, 1, 1));
+      utility.executeQuery(tuple, INSERT_INTO_POLICY_TABLE);
+      deletePolicy
+          .initiateDeletePolicy(new JsonObject().put("id", policy), new User(jsonObject))
+          .onComplete(
+              handler -> {
+                if (handler.succeeded()) {
+                  vertxTestContext.failNow("Succeeded for expired policy");
+                } else {
+                  JsonObject result = new JsonObject(handler.cause().getMessage());
+                  assertEquals(400, result.getInteger(TYPE));
+                  assertEquals(ResponseUrn.BAD_REQUEST_URN.getUrn(), result.getString(TITLE));
+                  assertEquals(
+                      "Policy could not be deleted , as policy is expired", result.getString(DETAIL));
+                  vertxTestContext.completeNow();
+                }
+              });
+    }
+  */
 
   @Test
   @DisplayName("Test executeQuery with null tuple values")
@@ -294,5 +297,49 @@ public class TestDeletePolicy {
             vertxTestContext.completeNow();
           }
         });
+  }
+  @Test
+  @DisplayName("Fail: Test initiateDeletePolicy method for invalid resource server url")
+  public void testInitiateDeletePolicy4InvalidResourceServerUrl(VertxTestContext vertxTestContext) {
+    UUID policy = UUID.randomUUID();
+    policyList = new JsonArray();
+    policyList.add(new JsonObject().put("id", policy));
+
+    JsonObject jsonObject =
+        new JsonObject()
+            .put("userId", utility.getOwnerId())
+            .put("userRole", "provider")
+            .put("emailId", utility.getOwnerEmailId())
+            .put("firstName", utility.getOwnerFirstName())
+            .put("lastName", utility.getOwnerLastName())
+            .put("resourceServerUrl", "invalid.rs.url");
+    Tuple tuple =
+        Tuple.of(
+            policy,
+            utility.getConsumerEmailId(),
+            utility.getResourceId(),
+            utility.getOwnerId(),
+            "DELETED",
+            LocalDateTime.of(2030, 1, 1, 1, 1, 1, 1),
+            "{}",
+            LocalDateTime.of(2023, 1, 1, 1, 1, 1, 1),
+            LocalDateTime.of(2024, 1, 1, 1, 1, 1, 1));
+    utility.executeQuery(tuple, INSERT_INTO_POLICY_TABLE);
+    deletePolicy
+        .initiateDeletePolicy(new JsonObject().put("id", policy), new User(jsonObject))
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                vertxTestContext.failNow("Succeeded for previously deleted policy");
+              } else {
+                JsonObject result = new JsonObject(handler.cause().getMessage());
+                assertEquals(403, result.getInteger(TYPE));
+                assertEquals(ResponseUrn.FORBIDDEN_URN.getUrn(), result.getString(TITLE));
+                assertEquals(
+                    "Access Denied: You do not have ownership rights for this policy.",
+                    result.getString(DETAIL));
+                vertxTestContext.completeNow();
+              }
+            });
   }
 }

@@ -23,6 +23,7 @@ public class Constants {
           "UPDATE request SET status='REJECTED' WHERE "
           +
           "_id=$1::uuid AND expiry_at>NOW() OR expiry_at IS NULL RETURNING _id";
+
   public static final String GET_CONSUMER_EMAIL_QUERY =
           "SELECT email_id FROM user_table WHERE _id = $1::uuid;";
   public static final String GET_EXISTING_POLICY_QUERY = "SELECT * FROM policy WHERE owner_id = $1::uuid "

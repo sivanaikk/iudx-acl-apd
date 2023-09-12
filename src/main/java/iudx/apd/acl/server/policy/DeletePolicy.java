@@ -2,7 +2,9 @@ package iudx.apd.acl.server.policy;
 
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
-import static iudx.apd.acl.server.policy.util.Constants.*;
+import static iudx.apd.acl.server.common.HttpStatusCode.FORBIDDEN;
+import static iudx.apd.acl.server.policy.util.Constants.CHECK_IF_POLICY_PRESENT_QUERY;
+import static iudx.apd.acl.server.policy.util.Constants.DELETE_POLICY_QUERY;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -152,10 +154,21 @@ public class DeletePolicy {
               promise.fail(failureResponse.encode());
             } else {
               JsonObject result = handler.result().getJsonArray(RESULT).getJsonObject(0);
+              String rsServerUrl = result.getString("resource_server_url");
               String ownerIdValue = result.getString("owner_id");
               String status = result.getString("status");
               /* does the policy belong to the owner who is requesting */
-              if (ownerIdValue.equals(ownerId)) {
+              if (!rsServerUrl.equalsIgnoreCase(user.getResourceServerUrl())) {
+                LOG.error("Failure : OwnerShip error, rsServerUrl does not match");
+                promise.fail(
+                    new JsonObject()
+                        .put(TYPE, FORBIDDEN.getValue())
+                        .put(TITLE, FORBIDDEN.getUrn())
+                        .put(
+                            DETAIL,
+                            "Access Denied: You do not have ownership rights for this policy.")
+                        .encode());
+              } else if (ownerIdValue.equals(ownerId)) {
                 /* is policy in ACTIVE status */
                 if (status.equals("ACTIVE")) {
                   LOG.info("Success : policy verified");

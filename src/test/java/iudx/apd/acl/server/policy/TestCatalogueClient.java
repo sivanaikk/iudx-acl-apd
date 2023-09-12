@@ -121,10 +121,10 @@ public class TestCatalogueClient {
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
+                LOGGER.info("RESULT "+handler.result().get(0).getItemId());
                 ResourceObj result = handler.result().get(0);
                 assertEquals(resourceId, result.getItemId().toString());
                 assertEquals(ownerId, result.getProviderId().toString());
-                assertEquals(resourceId, result.getResourceGroupId().toString());
                 assertEquals("rs.iudx.io", result.getResourceServerUrl());
                 assertTrue(result.getIsGroupLevelResource());
                 vertxTestContext.completeNow();

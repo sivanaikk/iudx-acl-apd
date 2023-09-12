@@ -8,7 +8,7 @@ public class Constants {
           + " and user_emailid = $4::text and expiry_at > now()";
 
   public static final String ENTITY_TABLE_CHECK =
-      "Select _id,provider_id,item_type from resource_entity where _id = ANY ($1::UUID[]);";
+      "Select _id,provider_id,item_type,resource_server_url from resource_entity where _id = ANY ($1::UUID[]);";
   public static final String INSERT_ENTITY_TABLE =
       "insert into resource_entity(_id,provider_id,resource_group_id,item_type,resource_server_url)"
         + " values ($1,$2,$3,$4,$5);";
@@ -42,8 +42,11 @@ public class Constants {
           + "INNER JOIN resource_entity AS RE\n"
           + "ON RE._id = P.item_id\n"
           + "AND P.user_emailid = $1;";
-  public static final String CHECK_IF_POLICY_PRESENT_QUERY = "SELECT * FROM policy WHERE _id = $1";
   public static final String DELETE_POLICY_QUERY = "UPDATE policy SET status='DELETED' "
           + "WHERE _id = $1::uuid AND expiry_at > NOW() RETURNING _id";
-
+  public static final String CHECK_IF_POLICY_PRESENT_QUERY =
+      "SELECT p.owner_id, p.status, r.resource_server_url"
+          + " FROM policy p"
+          + " INNER JOIN resource_entity r ON p.item_id = r._id"
+          + " WHERE p._id = $1;";
 }

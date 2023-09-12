@@ -86,6 +86,7 @@ public class ResourceObj {
   public ItemType getItemType() {
     return itemType;
   }
+
   /**
    * Tells if the resource is resource level or resource group level
    *

@@ -60,8 +60,7 @@ public class CreatePolicy {
               .map(CreatePolicyRequest::getItemType)
               .collect(Collectors.toSet());
 
-      Future<Set<UUID>> checkIfItemPresent = checkForItemsInDb(itemIdList, itemType);
-
+      Future<Set<UUID>> checkIfItemPresent = checkForItemsInDb(itemIdList, itemType, user);
       Future<Boolean> isPolicyAlreadyExist =
           checkIfItemPresent.compose(
               providerIdSet -> {
@@ -82,7 +81,8 @@ public class CreatePolicy {
                 return createPolicy(createPolicyRequestList, userId)
                     .compose(
                         createPolicySuccessHandler -> {
-                          JsonArray responseArray = createResponseArray(createPolicySuccessHandler);
+                          //                          JsonArray responseArray =
+                          // createResponseArray(createPolicySuccessHandler);
                           JsonObject responseJson =
                               new JsonObject()
                                   .put("type", ResponseUrn.SUCCESS_URN.getUrn())
@@ -105,7 +105,8 @@ public class CreatePolicy {
     return promise.future();
   }
 
-  private Future<Set<UUID>> checkForItemsInDb(Set<UUID> itemIdList, Set<ItemType> itemTypeRequest) {
+  private Future<Set<UUID>> checkForItemsInDb(
+      Set<UUID> itemIdList, Set<ItemType> itemTypeRequest, User user) {
     Promise<Set<UUID>> promise = Promise.promise();
 
     postgresService
@@ -129,11 +130,13 @@ public class CreatePolicy {
                           Set<UUID> providerIdSet = new HashSet<>();
                           Set<UUID> existingItemIds = new HashSet<>();
                           Set<ItemType> itemTypeDb = new HashSet<>();
+                          Set<String> rsServerUrlSetDb = new HashSet<>();
                           if (existingIdSuccessHandler.size() > 0) {
                             for (Row row : existingIdSuccessHandler) {
                               providerIdSet.add(row.getUUID("provider_id"));
                               existingItemIds.add(row.getUUID("_id"));
                               itemTypeDb.add(ItemType.valueOf(row.getString("item_type")));
+                              rsServerUrlSetDb.add(row.getString("resource_server_url"));
                             }
                             itemIdList.removeAll(existingItemIds);
                           }
@@ -147,10 +150,18 @@ public class CreatePolicy {
                                           success.stream()
                                               .map(ResourceObj::getItemType)
                                               .collect(Collectors.toSet());
-                                      if (itemTypeRequest.containsAll(itemTypeCat)) {
-                                        return insertItemsIntoDb(success);
-                                      } else {
+                                      Set<String> rsServerUrlCat =
+                                          success.stream()
+                                              .map(ResourceObj::getResourceServerUrl)
+                                              .collect(Collectors.toSet());
+                                      if (!itemTypeRequest.containsAll(itemTypeCat)) {
                                         return Future.failedFuture("Invalid item type.");
+                                      } else if (!rsServerUrlCat.contains(
+                                          user.getResourceServerUrl())) {
+                                        return Future.failedFuture(
+                                            "Access Denied: You do not have ownership rights for this resource.");
+                                      } else {
+                                        return insertItemsIntoDb(success);
                                       }
                                     });
                             providerIdsFromCat
@@ -166,14 +177,27 @@ public class CreatePolicy {
                                               + insertItemsFailureHandler.getLocalizedMessage());
 
                                       promise.fail(
-                                          generateErrorResponse(
-                                              BAD_REQUEST,
-                                              insertItemsFailureHandler.getLocalizedMessage()));
+                                          insertItemsFailureHandler
+                                                  .getLocalizedMessage()
+                                                  .equalsIgnoreCase(
+                                                      "Access Denied: You do not have "
+                                                          + "ownership rights for this resource.")
+                                              ? generateErrorResponse(
+                                                  FORBIDDEN,
+                                                  insertItemsFailureHandler.getLocalizedMessage())
+                                              : generateErrorResponse(
+                                                  BAD_REQUEST,
+                                                  insertItemsFailureHandler.getLocalizedMessage()));
                                     });
                           } else {
                             if (!itemTypeDb.containsAll(itemTypeRequest)) {
                               promise.fail(
                                   generateErrorResponse(BAD_REQUEST, "Invalid item type."));
+                            } else if (!rsServerUrlSetDb.contains(user.getResourceServerUrl())) {
+                              promise.fail(
+                                  generateErrorResponse(
+                                      FORBIDDEN,
+                                      "Access Denied: You do not have ownership rights for this resource."));
                             } else {
                               promise.complete(providerIdSet);
                             }
@@ -310,29 +334,29 @@ public class CreatePolicy {
         .encode();
   }
 
-  private JsonArray createResponseArray(RowSet<Row> rows) {
-    JsonArray response = new JsonArray();
-    final JsonObject[] ownerJsonObject = {null};
-
-    for (RowSet<Row> rowSet = rows; rowSet != null; rowSet = rowSet.next()) {
-      rowSet.forEach(
-          row -> {
-            JsonObject jsonObject =
-                new JsonObject()
-                    .put("policyId", row.getUUID("_id").toString())
-                    .put("userEmailId", row.getString("user_emailid"))
-                    .put("itemId", row.getUUID("item_id").toString())
-                    .put("expiryAt", row.getLocalDateTime("expiry_at").toString());
-
-            if (ownerJsonObject[0] == null) {
-              ownerJsonObject[0] =
-                  new JsonObject().put("ownerId", row.getValue("owner_id").toString());
-            }
-            response.add(jsonObject);
-          });
-    }
-
-    response.add(ownerJsonObject[0]);
-    return response;
-  }
+  //  private JsonArray createResponseArray(RowSet<Row> rows) {
+  //    JsonArray response = new JsonArray();
+  //    final JsonObject[] ownerJsonObject = {null};
+  //
+  //    for (RowSet<Row> rowSet = rows; rowSet != null; rowSet = rowSet.next()) {
+  //      rowSet.forEach(
+  //          row -> {
+  //            JsonObject jsonObject =
+  //                new JsonObject()
+  //                    .put("policyId", row.getUUID("_id").toString())
+  //                    .put("userEmailId", row.getString("user_emailid"))
+  //                    .put("itemId", row.getUUID("item_id").toString())
+  //                    .put("expiryAt", row.getLocalDateTime("expiry_at").toString());
+  //
+  //            if (ownerJsonObject[0] == null) {
+  //              ownerJsonObject[0] =
+  //                  new JsonObject().put("ownerId", row.getValue("owner_id").toString());
+  //            }
+  //            response.add(jsonObject);
+  //          });
+  //    }
+  //
+  //    response.add(ownerJsonObject[0]);
+  //    return response;
+  //  }
 }
