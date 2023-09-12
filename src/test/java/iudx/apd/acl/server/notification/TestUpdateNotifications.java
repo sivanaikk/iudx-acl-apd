@@ -664,8 +664,8 @@ public class TestUpdateNotifications {
                 JsonObject failureMessage =
                     new JsonObject()
                         .put(TYPE, BAD_REQUEST.getValue())
-                        .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getMessage())
-                        .put(DETAIL, "Invalid constraints in the request body");
+                        .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getUrn())
+                        .put(DETAIL, "Invalid or null constraints in the request body");
                 assertEquals(failureMessage.encode(), handler.cause().getMessage());
                 vertxTestContext.completeNow();
               }
