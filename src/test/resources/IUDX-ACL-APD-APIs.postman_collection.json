@@ -1296,9 +1296,9 @@
               }
             },
             "url": {
-              "raw": "{{baseUrls}}{{basePath}}/policies/requests",
+              "raw": "{{baseUrl}}{{basePath}}/policies/requests",
               "host": [
-                "{{baseUrls}}{{basePath}}"
+                "{{baseUrl}}{{basePath}}"
               ],
               "path": [
                 "policies",
