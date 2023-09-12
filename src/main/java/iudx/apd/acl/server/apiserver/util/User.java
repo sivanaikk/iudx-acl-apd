@@ -20,7 +20,7 @@ public class User {
 
   //  private final boolean isDelegate;
 
-  private final String effectiveResourceServerUrl;
+  private final String resourceServerUrl;
 
   public User(JsonObject userDetails) {
     this.userId = userDetails.getString("userId");
@@ -28,7 +28,7 @@ public class User {
     this.emailId = userDetails.getString("emailId");
     this.firstName = userDetails.getString("firstName");
     this.lastName = userDetails.getString("lastName");
-    this.effectiveResourceServerUrl = userDetails.getString("aud");
+    this.resourceServerUrl = userDetails.getString("resourceServerUrl");
     //    this.isDelegate = userDetails.getBoolean("isDelegate");
 
     /* Converts JsonObject to User class object or dataObject conversion [Deserialization] */
@@ -70,26 +70,8 @@ public class User {
   //    return isDelegate;
   //  }
 
-  public String getEffectiveResourceServerUrl() {
-    return effectiveResourceServerUrl;
-  }
-
-  public String toString() {
-    return "User details :: \nuserId - "
-        + userId
-        + ",\n emailId - "
-        + emailId
-        + ",\n userRole - "
-        + userRole
-        + ",\n firstName - "
-        + firstName
-        + ",\n lastName - "
-        + lastName
-        + ",\n resourceServerUrl - "
-        + effectiveResourceServerUrl
-        //  + ",\n isDelegate "
-        //  + isDelegate
-        ;
+  public String getResourceServerUrl() {
+    return resourceServerUrl;
   }
 
   @Override
@@ -97,7 +79,7 @@ public class User {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof User)) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     User user = (User) o;
@@ -105,11 +87,35 @@ public class User {
         && userRole == user.userRole
         && Objects.equals(emailId, user.emailId)
         && Objects.equals(firstName, user.firstName)
-        && Objects.equals(lastName, user.lastName);
+        && Objects.equals(lastName, user.lastName)
+        && Objects.equals(resourceServerUrl, user.resourceServerUrl);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(userId, userRole, emailId, firstName, lastName);
+    return Objects.hash(userId, userRole, emailId, firstName, lastName, resourceServerUrl);
+  }
+
+  @Override
+  public String toString() {
+    return "User{"
+        + "userId='"
+        + userId
+        + '\''
+        + ", userRole="
+        + userRole
+        + ", emailId='"
+        + emailId
+        + '\''
+        + ", firstName='"
+        + firstName
+        + '\''
+        + ", lastName='"
+        + lastName
+        + '\''
+        + ", resourceServerUrl='"
+        + resourceServerUrl
+        + '\''
+        + '}';
   }
 }

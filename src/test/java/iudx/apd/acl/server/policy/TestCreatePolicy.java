@@ -73,7 +73,8 @@ public class TestCreatePolicy {
             .put("userRole", "provider")
             .put("emailId", utility.getOwnerEmailId())
             .put("firstName", utility.getOwnerFirstName())
-            .put("lastName", utility.getOwnerLastName());
+            .put("lastName", utility.getOwnerLastName())
+            .put("resourceServerUrl", "rs.iudx.io");
     return new User(jsonObject);
   }
 
@@ -175,8 +176,7 @@ public class TestCreatePolicy {
     List<ResourceObj> resourceObjList = new ArrayList<>();
 
     ResourceObj resourceObj =
-        new ResourceObj(
-            mockResourceId, utility.getOwnerId(), null, Utility.generateRandomUrl(), false);
+        new ResourceObj(mockResourceId, utility.getOwnerId(), null, "rs.iudx.io", false);
     resourceObjList.add(resourceObj);
     when(catalogueClient.fetchItems(mockUUIDList))
         .thenReturn(Future.succeededFuture(resourceObjList));
@@ -264,6 +264,39 @@ public class TestCreatePolicy {
                 assertEquals(BAD_REQUEST.getValue(), result.getInteger(TYPE));
                 assertEquals(BAD_REQUEST.getUrn(), result.getString(TITLE));
                 assertEquals("Invalid item type.", result.getString("detail"));
+                vertxTestContext.completeNow();
+              }
+            });
+  }
+
+  @Test
+  @DisplayName("Test initiateCreatePolicy where Invalid resource server url: Fail")
+  public void testInitiateCreatePolicyInvalidRsServerUrlFailure(VertxTestContext vertxTestContext) {
+    JsonObject request = getRequest(Utility.generateRandomEmailId(), utility.getResourceId());
+
+    JsonObject jsonObject =
+        new JsonObject()
+            .put("userId", utility.getOwnerId())
+            .put("userRole", "provider")
+            .put("emailId", utility.getOwnerEmailId())
+            .put("firstName", utility.getOwnerFirstName())
+            .put("lastName", utility.getOwnerLastName())
+            .put("resourceServerUrl", "invalid.rs.url");
+    User user = new User(jsonObject);
+
+    createPolicy
+        .initiateCreatePolicy(request, user)
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                vertxTestContext.failNow("Succeeded by creating a policy");
+              } else {
+                JsonObject result = new JsonObject(handler.cause().getMessage());
+                assertEquals(FORBIDDEN.getValue(), result.getInteger(TYPE));
+                assertEquals(FORBIDDEN.getUrn(), result.getString(TITLE));
+                assertEquals(
+                    "Access Denied: You do not have ownership rights for this resource.",
+                    result.getString("detail"));
                 vertxTestContext.completeNow();
               }
             });

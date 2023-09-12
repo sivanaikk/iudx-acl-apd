@@ -127,6 +127,7 @@
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
       <version>9.21.0</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
