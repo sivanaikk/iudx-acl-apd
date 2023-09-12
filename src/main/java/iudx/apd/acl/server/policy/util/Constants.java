@@ -24,7 +24,7 @@ public class Constants {
           + "U.last_name AS \"consumerLastName\", U._id AS \"consumerId\",\n"
           + "P.status AS \"status\", P.expiry_at AS \"expiryAt\",\n"
           + "P.constraints AS \"constraints\" FROM policy AS P \n"
-          + "INNER JOIN user_table AS U\n"
+          + "LEFT JOIN user_table AS U\n"
           + "ON P.user_emailid = U.email_id \n"
           + "INNER JOIN resource_entity AS RE\n"
           + "ON RE._id = P.item_id\n"

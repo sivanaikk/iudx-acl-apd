@@ -496,7 +496,7 @@ public class UpdateNotification {
                   setItemId(UUID.fromString(itemId));
                   setItemType(itemType);
                   /* check if the resource server url in the token equals the resource server url for the resource */
-                  if (resourceServerUrl.equals(user.getEffectiveResourceServerUrl())) {
+                  if (resourceServerUrl.equals(user.getResourceServerUrl())) {
                     promise.complete(true);
 
                   } else {
