@@ -1390,7 +1390,7 @@
                   "    const body = pm.response.json();",
                   "    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:forbidden\");",
                   "    pm.expect(body).to.have.property(\"title\", \"Forbidden\");",
-                  "    pm.expect(body).to.have.property(\"detail\", \"Request could not be updated, as it doesn't belong to the user\");",
+                  "    pm.expect(body).to.have.property(\"detail\", \"Access Denied: You do not have ownership rights for this resource.\");",
                   "    }",
                   ");"
                 ],
@@ -1972,7 +1972,7 @@
                   "    const body = pm.response.json();",
                   "    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:forbidden\");",
                   "    pm.expect(body).to.have.property(\"title\", \"Forbidden\");",
-                  "    pm.expect(body).to.have.property(\"detail\", \"Request could not be withdrawn, as it doesn't belong to the user\");",
+                  "    pm.expect(body).to.have.property(\"detail\", \"Access Denied: You do not have ownership rights for this resource.\");",
                   "    }",
                   ");"
                 ],

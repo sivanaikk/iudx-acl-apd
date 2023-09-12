@@ -114,7 +114,7 @@ public class DeleteNotification {
                     failureResponse.put(TYPE, FORBIDDEN.getValue());
                     failureResponse.put(TITLE, FORBIDDEN.getUrn());
                     failureResponse.put(
-                        DETAIL, "Request could not be withdrawn, as it doesn't belong to the user");
+                        DETAIL, "Access Denied: You do not have ownership rights for this resource.");
                     promise.fail(failureResponse.encode());
                   }
                 } else {
@@ -130,7 +130,7 @@ public class DeleteNotification {
                 failureResponse.put(TYPE, FORBIDDEN.getValue());
                 failureResponse.put(TITLE, FORBIDDEN.getUrn());
                 failureResponse.put(
-                    DETAIL, "Request could not be withdrawn, as it doesn't belong to the user");
+                    DETAIL, "Access Denied: You do not have ownership rights for this resource.");
                 promise.fail(failureResponse.encode());
               }
             }
