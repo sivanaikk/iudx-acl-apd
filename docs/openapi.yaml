@@ -10,7 +10,7 @@ info:
     name: MIT
 
 paths:
-  /ngsi-ld/v1/policies:
+  /dx/apd/acl/v1/policies:
     get:
       tags:
         - Policies APIs
@@ -494,7 +494,7 @@ paths:
       security:
         - authorization: [ ]
 
-  /ngsi-ld/v1/policies/requests:
+  /dx/apd/acl/v1/policies/requests:
     get:
       tags:
         - Access Request APIs
