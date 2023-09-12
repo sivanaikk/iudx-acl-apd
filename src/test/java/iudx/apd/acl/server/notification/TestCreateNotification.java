@@ -289,7 +289,7 @@ public class TestCreateNotification {
                                         new JsonObject()
                                                 .put(TYPE, HttpStatusCode.FORBIDDEN.getValue())
                                                 .put(TITLE, ResponseUrn.FORBIDDEN_URN.getUrn())
-                                                .put(DETAIL, FORBIDDEN_URN.getMessage());
+                                                .put(DETAIL, "Access Denied: You do not have ownership rights for this resource");
                                 assertEquals(failureMessage.encode(), handler.cause().getMessage());
                                 vertxTestContext.completeNow();
                             }
