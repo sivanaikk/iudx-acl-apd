@@ -169,7 +169,7 @@ public class TestUpdateNotifications {
             .put("userRole", "provider")
             .put("emailId", ownerEmailId)
             .put("firstName", ownerFirstName)
-            .put("aud", "rs.iudx.io")
+            .put("resourceServerUrl", "rs.iudx.io")
             .put("lastName", ownerLastName);
     return new User(jsonObject);
   }
@@ -181,7 +181,7 @@ public class TestUpdateNotifications {
             .put("userRole", "consumer")
             .put("emailId", consumerEmailId)
             .put("firstName", consumerFirstName)
-            .put("aud", "rs.iudx.io")
+            .put("resourceServerUrl", "rs.iudx.io")
             .put("lastName", consumerLastName);
     return new User(jsonObject);
   }
@@ -216,7 +216,7 @@ public class TestUpdateNotifications {
         new JsonObject()
             .put("userId", utility.getOwnerId())
             .put("userRole", "provider")
-            .put("aud", "rs.iudx.io")
+            .put("resourceServerUrl", "rs.iudx.io")
             .put("emailId", utility.getOwnerEmailId())
             .put("firstName", utility.getOwnerFirstName())
             .put("lastName", utility.getOwnerLastName());
@@ -248,7 +248,7 @@ public class TestUpdateNotifications {
         new JsonObject()
             .put("userId", utility.getOwnerId())
             .put("userRole", "provider")
-            .put("aud", "some.other.url.com")
+            .put("resourceServerUrl", "some.other.url.com")
             .put("emailId", utility.getOwnerEmailId())
             .put("firstName", utility.getOwnerFirstName())
             .put("lastName", utility.getOwnerLastName());
@@ -614,7 +614,7 @@ public class TestUpdateNotifications {
                         .put("userId", utility1.getOwnerId())
                         .put("userRole", "provider")
                         .put("emailId", utility1.getOwnerEmailId())
-                        .put("aud", "rs.iudx.io")
+                        .put("resourceServerUrl", "rs.iudx.io")
                         .put("firstName", utility1.getOwnerFirstName())
                         .put("lastName", utility1.getOwnerLastName());
                 User provider = new User(jsonObject);
