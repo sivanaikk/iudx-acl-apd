@@ -74,8 +74,10 @@ public class GetPolicy {
   public Future<JsonObject> getProviderPolicy(User provider, String query) {
     Promise<JsonObject> promise = Promise.promise();
     String ownerIdValue = provider.getUserId();
+    String resourceServerUrl = provider.getResourceServerUrl();
+
     LOG.trace(provider.toString());
-    Tuple tuple = Tuple.of(ownerIdValue);
+    Tuple tuple = Tuple.of(ownerIdValue, resourceServerUrl);
     JsonObject jsonObject =
         new JsonObject()
             .put("email", provider.getEmailId())
@@ -112,8 +114,9 @@ public class GetPolicy {
   public Future<JsonObject> getConsumerPolicy(User consumer, String query) {
     Promise<JsonObject> promise = Promise.promise();
     String emailId = consumer.getEmailId();
+    String resourceServerUrl = consumer.getResourceServerUrl();
     LOG.trace(consumer.toString());
-    Tuple tuple = Tuple.of(emailId);
+    Tuple tuple = Tuple.of(emailId, resourceServerUrl);
     JsonObject jsonObject =
         new JsonObject()
             .put("email", consumer.getEmailId())

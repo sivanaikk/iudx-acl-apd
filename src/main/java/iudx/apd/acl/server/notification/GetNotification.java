@@ -63,8 +63,9 @@ public class GetNotification {
     LOG.trace("inside getUserNotification method");
     Promise<JsonObject> promise = Promise.promise();
     UUID userId = UUID.fromString(user.getUserId());
+    String resourceServerUrl = user.getResourceServerUrl();
     LOG.trace(user.toString());
-    Tuple tuple = Tuple.of(userId);
+    Tuple tuple = Tuple.of(userId, resourceServerUrl);
     JsonObject jsonObject =
         new JsonObject()
             .put("email", user.getEmailId())

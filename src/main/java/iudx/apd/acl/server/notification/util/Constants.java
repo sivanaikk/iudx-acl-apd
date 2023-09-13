@@ -44,65 +44,44 @@ public class Constants {
   public static final String INSERT_RESOURCE_INFO_QUERY = "INSERT INTO resource_entity "
           + "(_id, provider_id, resource_group_id,resource_server_url,item_type)"
           + " VALUES ($1::uuid, $2::uuid, $3::uuid,$4,$5) ON CONFLICT (_id) DO NOTHING;";
-
-
-  public static String GET_CONSUMER_NOTIFICATION_QUERY = "SELECT R._id AS \"requestId\", R.item_id AS \"itemId\",  \n"
-          +
-          "RE.item_type AS \"itemType\",\n"
-          +
-          "R.status AS \"status\", R.expiry_at AS \"expiryAt\", \n"
-          +
-          "R.constraints AS \"constraints\",\n"
-          +
-          "R.user_id AS \"consumerId\", R.owner_id AS \"ownerId\",\n"
-          +
-          "U.first_name AS \"ownerFirstName\", \n"
-          +
-          "U.last_name AS \"ownerLastName\", U.email_id AS \"ownerEmailId\" \n"
-          +
-          "FROM request AS R \n"
-          +
-          "INNER JOIN user_table AS U \n"
-          +
-          "ON U._id = R.owner_id \n"
-          +
-          "INNER JOIN resource_entity AS RE\n"
-          +
-          "ON RE._id = R.item_id\n"
-          +
-          "WHERE R.user_id=$1::uuid;";
-  public static final String GET_PROVIDER_NOTIFICATION_QUERY = "SELECT R._id AS \"requestId\",\n"
-          +
-          "R.item_id AS \"itemId\", \n"
-          +
-          "RE.item_type AS \"itemType\",\n"
-          +
-          "R.status AS \"status\", R.expiry_at AS \"expiryAt\", \n"
-          +
-          "R.constraints AS \"constraints\", R.user_id AS \"consumerId\",\n"
-          +
-          "R.owner_id AS \"ownerId\", U.first_name AS \"consumerFirstName\", \n"
-          +
-          "U.last_name AS \"consumerLastName\", U.email_id AS \"consumerEmailId\" \n"
-          +
-          "FROM request AS R \n"
-          +
-          "INNER JOIN user_table AS U \n"
-          +
-          "ON U._id = R.user_id \n"
-          +
-          "INNER JOIN resource_entity AS RE\n"
-          +
-          "ON RE._id = R.item_id\n"
-          +
-          "WHERE R.owner_id=$1::uuid; ";
-
+  public static final String GET_PROVIDER_NOTIFICATION_QUERY =
+      "SELECT R._id AS \"requestId\",\n"
+          + "R.item_id AS \"itemId\", \n"
+          + "RE.item_type AS \"itemType\",\n"
+          + "RE.resource_server_url AS \"resourceServerUrl\",\n"
+          + "R.status AS \"status\", R.expiry_at AS \"expiryAt\", \n"
+          + "R.constraints AS \"constraints\", R.user_id AS \"consumerId\",\n"
+          + "R.owner_id AS \"ownerId\", U.first_name AS \"consumerFirstName\", \n"
+          + "U.last_name AS \"consumerLastName\", U.email_id AS \"consumerEmailId\" \n"
+          + "FROM request AS R \n"
+          + "INNER JOIN user_table AS U \n"
+          + "ON U._id = R.user_id \n"
+          + "INNER JOIN resource_entity AS RE\n"
+          + "ON RE._id = R.item_id\n"
+          + "WHERE R.owner_id=$1::uuid "
+          + "AND RE.resource_server_url = $2;";
   public static final String HTML_EMAIL_BODY = " <!DOCTYPE html> <html> <head> <title>Page Title</title></head>"
           + " <body> <p>Hello!</p> <p>A consumer with details - <br>First name : ${CONSUMER_FIRST_NAME},"
           + " <br>Last name :  ${CONSUMER_LAST_NAME}, <br>Email ID : ${CONSUMER_EMAIL_ID},"
           + " <br>has requested access to one of your datasets. "
           + "Please visit ${PUBLISHER_PANEL_URL} to approve/reject this request.</p><footer> "
           + "<p>Regards,<br> ${SENDER'S_NAME}</p></footer> </body> </html>";
+  public static String GET_CONSUMER_NOTIFICATION_QUERY =
+      "SELECT R._id AS \"requestId\", R.item_id AS \"itemId\",  \n"
+          + "RE.item_type AS \"itemType\",\n"
+          + "RE.resource_server_url AS \"resourceServerUrl\",\n"
+          + "R.status AS \"status\", R.expiry_at AS \"expiryAt\", \n"
+          + "R.constraints AS \"constraints\",\n"
+          + "R.user_id AS \"consumerId\", R.owner_id AS \"ownerId\",\n"
+          + "U.first_name AS \"ownerFirstName\", \n"
+          + "U.last_name AS \"ownerLastName\", U.email_id AS \"ownerEmailId\" \n"
+          + "FROM request AS R \n"
+          + "INNER JOIN user_table AS U \n"
+          + "ON U._id = R.owner_id \n"
+          + "INNER JOIN resource_entity AS RE\n"
+          + "ON RE._id = R.item_id\n"
+          + "WHERE R.user_id=$1::uuid "
+          + "AND RE.resource_server_url = $2;";
 
 
 }
