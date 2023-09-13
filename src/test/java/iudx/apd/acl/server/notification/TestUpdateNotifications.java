@@ -272,7 +272,7 @@ public class TestUpdateNotifications {
                     .onComplete(
                         handler -> {
                           if (handler.failed()) {
-                            System.out.println(handler.cause().getMessage());
+                            LOG.info(handler.cause().getMessage());
                             JsonObject expectedJson = new JsonObject(handler.cause().getMessage());
                             assertEquals(FORBIDDEN.getValue(), expectedJson.getInteger(TYPE));
                             assertEquals(FORBIDDEN_URN.getUrn(), expectedJson.getString(TITLE));

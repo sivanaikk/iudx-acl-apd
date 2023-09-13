@@ -675,7 +675,7 @@ paths:
                   value:
                     type: urn:dx:acl:badRequest
                     title: Bad Request
-                    detail: Invalid or missing fields
+                    detail: Request could not be created, as the item type is invalid
           headers:
             Content-Type:
               schema:

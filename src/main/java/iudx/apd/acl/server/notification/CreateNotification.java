@@ -3,6 +3,7 @@ package iudx.apd.acl.server.notification;
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.authentication.Constants.AUD;
 import static iudx.apd.acl.server.authentication.Constants.IS_DELEGATE;
+import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
 import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
 import static iudx.apd.acl.server.common.ResponseUrn.POLICY_ALREADY_EXIST_URN;
 import static iudx.apd.acl.server.notification.util.Constants.*;
@@ -68,17 +69,16 @@ public class CreateNotification {
    */
   public Future<JsonObject> initiateCreateNotification(JsonObject notification, User user) {
     resourceId = UUID.fromString(notification.getString("itemId"));
-
+    String itemType = notification.getString("itemType");
     setConsumerRsUrl(user.getResourceServerUrl());
 
     /* check if the resource exists in CAT */
-    Future<Boolean> getItemFromCatFuture = isItemPresentInCatalogue(resourceId);
-
+    Future<Boolean> getItemFromCatFuture = isItemPresentInCatalogue(resourceId, itemType);
     Future<Boolean> providerInsertionFuture =
         getItemFromCatFuture.compose(
             resourceExistsInCatalogue -> {
               if (resourceExistsInCatalogue) {
-                /* add the provider information if not already present in user_table */
+                  /* add the provider information if not already present in user_table */
                 return addProviderInDb(
                     INSERT_USER_INFO_QUERY,
                     UUID.fromString(getProviderInfo().getUserId()),
@@ -86,7 +86,7 @@ public class CreateNotification {
                     getProviderInfo().getLastName(),
                     getProviderInfo().getEmailId());
               }
-              return Future.failedFuture(getItemFromCatFuture.cause().getMessage());
+                return Future.failedFuture(getItemFromCatFuture.cause().getMessage());
             });
 
     Future<Boolean> resourceInsertionFuture =
@@ -352,10 +352,11 @@ public class CreateNotification {
    * resourceGroupId, providerId and stores these values to be used further
    *
    * @param resourceId or itemId of the given resource with type UUID
+   * @param itemType type of the resource present in the request body
    * @return True, if information is fetched successfully, failure if there is no resource in the
    *     CAT with the given id or if any other failure occurs
    */
-  public Future<Boolean> isItemPresentInCatalogue(UUID resourceId) {
+  public Future<Boolean> isItemPresentInCatalogue(UUID resourceId, String itemType) {
     Promise<Boolean> promise = Promise.promise();
     LOG.trace("inside isItemPresentInCatalogue method");
     Set<UUID> uuidSet = Set.of(resourceId);
@@ -368,50 +369,68 @@ public class CreateNotification {
                 final UUID ownerId = result.getProviderId();
                 UUID resourceGroupIdValue = result.getResourceGroupId();
                 String url = result.getResourceServerUrl();
-                setResourceType(result.getItemType());
-                /* set provider id, resourceGroupId, resourceType, resource server url */
-                setResourceServerUrl(url);
-                /* set provider id, resourceGroupId, resourceType */
-                setResourceGroupId(resourceGroupIdValue);
 
-                /* get information about the provider of the resource from Auth*/
-                JsonObject provider =
-                    new JsonObject()
-                        .put(USER_ID, ownerId)
-                        .put(ROLE, "provider")
-                        .put(AUD, url)
-                        .put(IS_DELEGATE, false);
+                boolean isItemTypeMatching = itemType.equals(result.getItemType().toString());
+                if (isItemTypeMatching) {
+                  setResourceType(result.getItemType());
+                  /* set provider id, resourceGroupId, resourceType, resource server url */
+                  setResourceServerUrl(url);
+                  /* set provider id, resourceGroupId, resourceType */
+                  setResourceGroupId(resourceGroupIdValue);
 
-                /* check if the resource server url of the user matches with the resource */
-                boolean isConsumerBelongingToSameServerAsItem = url.equals(getConsumerRsUrl());
+                  /* get information about the provider of the resource from Auth*/
+                  JsonObject provider =
+                      new JsonObject()
+                          .put(USER_ID, ownerId)
+                          .put(ROLE, "provider")
+                          .put(AUD, url)
+                          .put(IS_DELEGATE, false);
 
-                if (isConsumerBelongingToSameServerAsItem) {
-                  authClient
-                      .fetchUserInfo(provider)
-                      .onComplete(
-                          authHandler -> {
-                            if (authHandler.succeeded()) {
-                              User providerInfo = authHandler.result();
-                              setProviderInfo(providerInfo);
-                              promise.complete(true);
-                            } else {
-                              LOG.debug(
-                                  "Something went wrong while fetching provider information from Auth {}",
-                                  authHandler.cause().getMessage());
-                              JsonObject failureMessage =
-                                  new JsonObject()
-                                      .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
-                                      .put(TITLE, ResponseUrn.INTERNAL_SERVER_ERROR.getUrn())
-                                      .put(DETAIL, FAILURE_MESSAGE);
-                              promise.fail(failureMessage.encode());
-                            }
-                          });
+                  /* check if the resource server url of the user matches with the resource */
+                  boolean isConsumerBelongingToSameServerAsItem = url.equals(getConsumerRsUrl());
+
+                  if (isConsumerBelongingToSameServerAsItem) {
+                    authClient
+                        .fetchUserInfo(provider)
+                        .onComplete(
+                            authHandler -> {
+                              if (authHandler.succeeded()) {
+                                User providerInfo = authHandler.result();
+                                setProviderInfo(providerInfo);
+                                promise.complete(true);
+                              } else {
+                                LOG.debug(
+                                    "Something went wrong while fetching provider information from Auth {}",
+                                    authHandler.cause().getMessage());
+                                JsonObject failureMessage =
+                                    new JsonObject()
+                                        .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
+                                        .put(TITLE, ResponseUrn.INTERNAL_SERVER_ERROR.getUrn())
+                                        .put(DETAIL, FAILURE_MESSAGE);
+                                promise.fail(failureMessage.encode());
+                              }
+                            });
+                  } else {
+                    JsonObject failureMessage =
+                        new JsonObject()
+                            .put(TYPE, HttpStatusCode.FORBIDDEN.getValue())
+                            .put(TITLE, ResponseUrn.FORBIDDEN_URN.getUrn())
+                            .put(
+                                DETAIL,
+                                "Access Denied: You do not have ownership rights for this resource");
+                    promise.fail(failureMessage.encode());
+                  }
                 } else {
+                  /*item type in the request body does not match the item type from the catalogue*/
+                  LOG.debug(
+                      "Item type in the request body is {} and item type from catalogue is {}",
+                      itemType,
+                      result.getItemType().toString());
                   JsonObject failureMessage =
                       new JsonObject()
-                          .put(TYPE, HttpStatusCode.FORBIDDEN.getValue())
-                          .put(TITLE, ResponseUrn.FORBIDDEN_URN.getUrn())
-                          .put(DETAIL, "Access Denied: You do not have ownership rights for this resource");
+                          .put(TYPE, BAD_REQUEST.getValue())
+                          .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getUrn())
+                          .put(DETAIL, FAILURE_MESSAGE + ", as the item type is invalid");
                   promise.fail(failureMessage.encode());
                 }
               } else {
