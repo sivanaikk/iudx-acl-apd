@@ -1,5 +1,12 @@
 package iudx.apd.acl.server.apiserver.util;
 
+import static iudx.apd.acl.server.apiserver.util.Constants.EMAIL_ID;
+import static iudx.apd.acl.server.apiserver.util.Constants.FIRST_NAME;
+import static iudx.apd.acl.server.apiserver.util.Constants.LAST_NAME;
+import static iudx.apd.acl.server.apiserver.util.Constants.RS_SERVER_URL;
+import static iudx.apd.acl.server.apiserver.util.Constants.USER_ID;
+import static iudx.apd.acl.server.apiserver.util.Constants.USER_ROLE;
+
 import io.vertx.codegen.annotations.DataObject;
 import io.vertx.core.json.JsonObject;
 import java.util.Objects;
@@ -23,12 +30,12 @@ public class User {
   private final String resourceServerUrl;
 
   public User(JsonObject userDetails) {
-    this.userId = userDetails.getString("userId");
-    this.userRole = Role.fromString(userDetails.getString("userRole"));
-    this.emailId = userDetails.getString("emailId");
-    this.firstName = userDetails.getString("firstName");
-    this.lastName = userDetails.getString("lastName");
-    this.resourceServerUrl = userDetails.getString("resourceServerUrl");
+    this.userId = userDetails.getString(USER_ID);
+    this.userRole = Role.fromString(userDetails.getString(USER_ROLE));
+    this.emailId = userDetails.getString(EMAIL_ID);
+    this.firstName = userDetails.getString(FIRST_NAME);
+    this.lastName = userDetails.getString(LAST_NAME);
+    this.resourceServerUrl = userDetails.getString(RS_SERVER_URL);
     //    this.isDelegate = userDetails.getBoolean("isDelegate");
 
     /* Converts JsonObject to User class object or dataObject conversion [Deserialization] */

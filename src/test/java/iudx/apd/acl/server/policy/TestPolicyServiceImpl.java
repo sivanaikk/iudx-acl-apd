@@ -20,6 +20,12 @@ import org.mockito.stubbing.Answer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 
+import static iudx.apd.acl.server.apiserver.util.Constants.EMAIL_ID;
+import static iudx.apd.acl.server.apiserver.util.Constants.FIRST_NAME;
+import static iudx.apd.acl.server.apiserver.util.Constants.LAST_NAME;
+import static iudx.apd.acl.server.apiserver.util.Constants.USER;
+import static iudx.apd.acl.server.apiserver.util.Constants.USER_ID;
+import static iudx.apd.acl.server.apiserver.util.Constants.USER_ROLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -75,22 +81,22 @@ public class TestPolicyServiceImpl {
   public User getConsumer() {
     JsonObject jsonObject =
         new JsonObject()
-            .put("userId", Utility.generateRandomString())
-            .put("userRole", "consumer")
-            .put("emailId", Utility.generateRandomEmailId())
-            .put("firstName", Utility.generateRandomString())
-            .put("lastName", Utility.generateRandomString());
+            .put(USER_ID, Utility.generateRandomString())
+            .put(USER_ROLE, "consumer")
+            .put(EMAIL_ID, Utility.generateRandomEmailId())
+            .put(FIRST_NAME, Utility.generateRandomString())
+            .put(LAST_NAME, Utility.generateRandomString());
     return new User(jsonObject);
   }
 
   public User getOwner() {
     JsonObject jsonObject =
         new JsonObject()
-            .put("userId", Utility.generateRandomString())
-            .put("userRole", "provider")
-            .put("emailId", Utility.generateRandomEmailId())
-            .put("firstName", Utility.generateRandomString())
-            .put("lastName", Utility.generateRandomString());
+            .put(USER_ID, Utility.generateRandomString())
+            .put(USER_ROLE, "provider")
+            .put(EMAIL_ID, Utility.generateRandomEmailId())
+            .put(FIRST_NAME, Utility.generateRandomString())
+            .put(LAST_NAME, Utility.generateRandomString());
     return new User(jsonObject);
   }
 

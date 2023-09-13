@@ -1,5 +1,10 @@
 package iudx.apd.acl.server.authentication;
 
+import static iudx.apd.acl.server.apiserver.util.Constants.EMAIL_ID;
+import static iudx.apd.acl.server.apiserver.util.Constants.FIRST_NAME;
+import static iudx.apd.acl.server.apiserver.util.Constants.LAST_NAME;
+import static iudx.apd.acl.server.apiserver.util.Constants.RS_SERVER_URL;
+import static iudx.apd.acl.server.apiserver.util.Constants.USER_ROLE;
 import static iudx.apd.acl.server.authentication.Constants.AUD;
 import static iudx.apd.acl.server.authentication.Constants.IS_DELEGATE;
 import static iudx.apd.acl.server.authentication.Constants.ROLE;
@@ -64,12 +69,12 @@ public class AuthClient implements AuthClientInterface {
                 LOGGER.info("User found in auth.");
                 JsonObject result = authResult.getJsonObject("results");
                 JsonObject userObj = new JsonObject();
-                userObj.put("userId", userId);
-                userObj.put("userRole", iudxRole);
-                userObj.put("emailId", result.getString("email"));
-                userObj.put("firstName", result.getJsonObject("name").getString("firstName"));
-                userObj.put("lastName", result.getJsonObject("name").getString("lastName"));
-                userObj.put(AUD, resourceServer);
+                userObj.put(USER_ID, userId);
+                userObj.put(USER_ROLE, iudxRole);
+                userObj.put(EMAIL_ID, result.getString("email"));
+                userObj.put(FIRST_NAME, result.getJsonObject("name").getString("firstName"));
+                userObj.put(LAST_NAME, result.getJsonObject("name").getString("lastName"));
+                userObj.put(RS_SERVER_URL, resourceServer);
                 //                userObj.put(IS_DELEGATE,isDelegate);
                 User user = new User(userObj);
                 promise.complete(user);

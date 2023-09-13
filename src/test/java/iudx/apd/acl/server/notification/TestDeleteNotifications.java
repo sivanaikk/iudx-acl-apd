@@ -64,24 +64,24 @@ public class TestDeleteNotifications {
   public static User getConsumer() {
     JsonObject jsonObject =
         new JsonObject()
-            .put("userId", utility.getConsumerId())
-            .put("userRole", "consumer")
-            .put("resourceServerUrl", "rs.iudx.io")
-            .put("emailId", utility.getConsumerEmailId())
-            .put("firstName", utility.getConsumerFirstName())
-            .put("lastName", utility.getConsumerLastName());
+            .put(USER_ID, utility.getConsumerId())
+            .put(USER_ROLE, "consumer")
+            .put(RS_SERVER_URL, "rs.iudx.io")
+            .put(EMAIL_ID, utility.getConsumerEmailId())
+            .put(FIRST_NAME, utility.getConsumerFirstName())
+            .put(LAST_NAME, utility.getConsumerLastName());
     return new User(jsonObject);
   }
 
   public static User getOwner() {
     JsonObject jsonObject =
         new JsonObject()
-            .put("userId", utility.getOwnerId())
-            .put("userRole", "provider")
-            .put("resourceServerUrl", "rs.iudx.io")
-            .put("emailId", utility.getOwnerEmailId())
-            .put("firstName", utility.getOwnerFirstName())
-            .put("lastName", utility.getOwnerLastName());
+            .put(USER_ID, utility.getOwnerId())
+            .put(USER_ROLE, "provider")
+            .put(RS_SERVER_URL, "rs.iudx.io")
+            .put(EMAIL_ID, utility.getOwnerEmailId())
+            .put(FIRST_NAME, utility.getOwnerFirstName())
+            .put(LAST_NAME, utility.getOwnerLastName());
     return new User(jsonObject);
   }
 
@@ -110,12 +110,12 @@ public class TestDeleteNotifications {
   public void testInitiateDeleteNotificationWithRsUrlMismatch(VertxTestContext vertxTestContext) {
     JsonObject jsonObject =
         new JsonObject()
-            .put("userId", utility.getConsumerId())
-            .put("userRole", "consumer")
-            .put("aud", "some.dummy.url")
-            .put("emailId", utility.getConsumerEmailId())
-            .put("firstName", utility.getConsumerFirstName())
-            .put("lastName", utility.getConsumerLastName());
+            .put(USER_ID, utility.getConsumerId())
+            .put(USER_ROLE, "consumer")
+            .put(RS_SERVER_URL, "some.dummy.url")
+            .put(EMAIL_ID, utility.getConsumerEmailId())
+            .put(FIRST_NAME, utility.getConsumerFirstName())
+            .put(LAST_NAME, utility.getConsumerLastName());
     User consumer = new User(jsonObject);
     deleteNotification
         .initiateDeleteNotification(new JsonObject().put("id", utility.getRequestId()), consumer)
