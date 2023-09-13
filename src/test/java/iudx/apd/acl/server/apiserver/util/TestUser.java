@@ -1,5 +1,11 @@
 package iudx.apd.acl.server.apiserver.util;
 
+import static iudx.apd.acl.server.apiserver.util.Constants.EMAIL_ID;
+import static iudx.apd.acl.server.apiserver.util.Constants.FIRST_NAME;
+import static iudx.apd.acl.server.apiserver.util.Constants.LAST_NAME;
+import static iudx.apd.acl.server.apiserver.util.Constants.RS_SERVER_URL;
+import static iudx.apd.acl.server.apiserver.util.Constants.USER_ID;
+import static iudx.apd.acl.server.apiserver.util.Constants.USER_ROLE;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
@@ -39,11 +45,11 @@ public class TestUser {
             false,
             new User(
                 new JsonObject()
-                    .put("userId", Utility.generateRandomUuid())
-                    .put("userRole", Role.CONSUMER)
-                    .put("emailId", null)
-                    .put("firstName", Utility.generateRandomString())
-                    .put("lastName", Utility.generateRandomString()))));
+                    .put(USER_ID, Utility.generateRandomUuid())
+                    .put(USER_ROLE, Role.CONSUMER)
+                    .put(EMAIL_ID, null)
+                    .put(RS_SERVER_URL, Utility.generateRandomString())
+                    .put(LAST_NAME, Utility.generateRandomString()))));
   }
 
   @BeforeEach
@@ -56,11 +62,11 @@ public class TestUser {
 
     userDetails =
         new JsonObject()
-            .put("userId", userId)
-            .put("userRole", role)
-            .put("emailId", emailId)
-            .put("firstName", firstName)
-            .put("lastName", lastName);
+            .put(USER_ID, userId)
+            .put(USER_ROLE, role)
+            .put(EMAIL_ID, emailId)
+            .put(FIRST_NAME, firstName)
+            .put(LAST_NAME, lastName);
     user = new User(userDetails);
     vertxTestContext.completeNow();
   }
@@ -69,11 +75,11 @@ public class TestUser {
   @DisplayName("Test toJsonMethod : Success")
   public void testToJsonMethod(VertxTestContext vertxTestContext) {
     JsonObject expected = user.toJson();
-    assertEquals(emailId, expected.getString("emailId"));
-    assertEquals(firstName, expected.getString("firstName"));
-    assertEquals(lastName, expected.getString("lastName"));
-    assertEquals(userId.toString(), expected.getString("userId"));
-    assertEquals(Role.fromString(role).toString(), expected.getString("userRole"));
+    assertEquals(emailId, expected.getString(EMAIL_ID));
+    assertEquals(firstName, expected.getString(FIRST_NAME));
+    assertEquals(lastName, expected.getString(LAST_NAME));
+    assertEquals(userId.toString(), expected.getString(USER_ID));
+    assertEquals(Role.fromString(role).toString(), expected.getString(USER_ROLE));
     vertxTestContext.completeNow();
   }
 
@@ -88,11 +94,11 @@ public class TestUser {
 
     JsonObject userDetails =
         new JsonObject()
-            .put("userId", userId)
-            .put("userRole", role)
-            .put("emailId", emailId)
-            .put("firstName", firstName)
-            .put("lastName", lastName);
+            .put(USER_ID, userId)
+            .put(USER_ROLE, role)
+            .put(EMAIL_ID, emailId)
+            .put(FIRST_NAME, firstName)
+            .put(LAST_NAME, lastName);
     assertThrows(DxRuntimeException.class, () -> new User(userDetails));
     vertxTestContext.completeNow();
   }
@@ -108,18 +114,18 @@ public class TestUser {
 
     JsonObject userDetails =
         new JsonObject()
-            .put("userId", userId)
-            .put("userRole", role)
-            .put("emailId", emailId)
-            .put("firstName", firstName)
-            .put("lastName", lastName);
+            .put(USER_ID, userId)
+            .put(USER_ROLE, role)
+            .put(EMAIL_ID, emailId)
+            .put(FIRST_NAME, firstName)
+            .put(LAST_NAME, lastName);
     User user = new User(userDetails);
     JsonObject expected = user.toJson();
-    assertNull(expected.getString("emailId"));
-    assertEquals(firstName, expected.getString("firstName"));
-    assertEquals(lastName, expected.getString("lastName"));
-    assertEquals(userId.toString(), expected.getString("userId"));
-    assertEquals(Role.fromString(role).toString(), expected.getString("userRole"));
+    assertNull(expected.getString(EMAIL_ID));
+    assertEquals(firstName, expected.getString(FIRST_NAME));
+    assertEquals(lastName, expected.getString(LAST_NAME));
+    assertEquals(userId.toString(), expected.getString(USER_ID));
+    assertEquals(Role.fromString(role).toString(), expected.getString(USER_ROLE));
     vertxTestContext.completeNow();
   }
 
@@ -138,11 +144,11 @@ public class TestUser {
             false,
             new User(
                 new JsonObject()
-                    .put("userId", this.userId)
-                    .put("userRole", Role.CONSUMER.getRole())
-                    .put("emailId", this.emailId)
-                    .put("firstName", this.firstName)
-                    .put("lastName", this.lastName))));
+                    .put(USER_ID, this.userId)
+                    .put(USER_ROLE, Role.CONSUMER.getRole())
+                    .put(EMAIL_ID, this.emailId)
+                    .put(FIRST_NAME, this.firstName)
+                    .put(LAST_NAME, this.lastName))));
   }
 
   @Test
@@ -151,11 +157,11 @@ public class TestUser {
     User someUser =
         new User(
             new JsonObject()
-                .put("userId", this.userId)
-                .put("userRole", Role.CONSUMER.getRole())
-                .put("emailId", this.emailId)
-                .put("firstName", this.firstName)
-                .put("lastName", this.lastName));
+                .put(USER_ID, this.userId)
+                .put(USER_ROLE, Role.CONSUMER.getRole())
+                .put(EMAIL_ID, this.emailId)
+                .put(FIRST_NAME, this.firstName)
+                .put(LAST_NAME, this.lastName));
     assertTrue(user.equals(user));
     assertTrue(user.equals(someUser));
     assertEquals(user.hashCode(), user.hashCode());
