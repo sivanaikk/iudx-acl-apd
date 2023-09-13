@@ -317,13 +317,13 @@ public class UpdateNotification {
     JsonObject constraints = null;
     try {
       constraints = new JsonObject(notification.getString("constraints"));
-    } catch (DecodeException exception) {
+    } catch (Exception exception) {
       LOG.error("Error : {}", exception.getMessage());
       JsonObject failureMessage =
           new JsonObject()
               .put(TYPE, BAD_REQUEST.getValue())
-              .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getMessage())
-              .put(DETAIL, "Invalid constraints in the request body");
+              .put(TITLE, BAD_REQUEST.getUrn())
+              .put(DETAIL, "Invalid or null constraints in the request body");
       return Future.failedFuture(failureMessage.encode());
     }
 
@@ -504,7 +504,7 @@ public class UpdateNotification {
                     failureResponse.put(TYPE, FORBIDDEN.getValue());
                     failureResponse.put(TITLE, FORBIDDEN.getUrn());
                     failureResponse.put(
-                        DETAIL, "Request could not be updated, as it doesn't belong to the user");
+                        DETAIL, "Access Denied: You do not have ownership rights for this resource.");
                     promise.fail(failureResponse.encode());
                   }
                 } else {
@@ -520,7 +520,7 @@ public class UpdateNotification {
                 failureResponse.put(TYPE, FORBIDDEN.getValue());
                 failureResponse.put(TITLE, FORBIDDEN.getUrn());
                 failureResponse.put(
-                    DETAIL, "Request could not be updated, as it doesn't belong to the user");
+                    DETAIL, "Access Denied: You do not have ownership rights for this resource.");
                 promise.fail(failureResponse.encode());
               }
             }

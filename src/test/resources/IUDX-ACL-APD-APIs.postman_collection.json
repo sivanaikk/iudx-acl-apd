@@ -47,7 +47,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"user\": {\n    \"id\": \"b2c27f3f-2524-4a84-816e-91f9ab23f837\",\n    \"name\": {\n    \"firstName\":\"Test\",\n    \"lastName\":\"User 1\"\n    },\n    \"email\": \"vasanth.rajaraman@datakaveri.org\"\n  },\n  \"owner\": {\n    \"id\": \"b2c27f3f-2524-4a84-816e-91f9ab23f837\",\n    \"name\": {\n    \"firstName\":\"Test\",\n    \"lastName\":\"Provider\"\n    },\n    \"email\": \"testprovider@example.com\"\n  },\n   \"item\": {\n     \"itemId\": \"83c2e5c2-3574-4e11-9530-2b1fbdfce832\",\n     \"itemType\": \"RESOURCE\"\n   }\n}",
+              "raw": "{\n  \"user\": {\n    \"id\": \"fd47486b-3497-4248-ac1e-082e4d37a66c\",\n    \"name\": {\n    \"firstName\":\"Vasanth\",\n    \"lastName\":\"Rajaraman\"\n    },\n    \"email\": \"vasanth.rajaraman@datakaveri.org\"\n  },\n  \"owner\": {\n    \"id\": \"b2c27f3f-2524-4a84-816e-91f9ab23f837\",\n    \"name\": {\n    \"firstName\":\"B\",\n    \"lastName\":\"Robert A B C D\"\n    },\n    \"email\": \"bryanrobert@iisc.ac.in\"\n  },\n   \"item\": {\n     \"itemId\": \"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\n     \"itemType\": \"RESOURCE_GROUP\"\n   }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -232,7 +232,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"vasanth.rajaraman@datakaveri.org\",\n      \"itemId\": \"a347c5b6-5281-4749-9eab-89784d8f8f9a\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+              "raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"vasanth.rajaraman@datakaveri.org\",\n      \"itemId\": \"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -483,7 +483,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "{{providerDelegateToken}}",
+                "value": "{{providerDelegateTokenForbidden}}",
                 "type": "text"
               }
             ],
@@ -554,7 +554,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"vasanth.rajaraman@datakaveri.org\",\n      \"itemId\": \"a347c5b6-5281-4749-9eab-89784d8f8f9a\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+              "raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"vasanth.rajaraman@datakaveri.org\",\n      \"itemId\": \"a347c5b6-5281-4749-9eab-89784d8f8f9a\",\n      \"itemType\": \"RESOURCE\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -626,7 +626,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n\"id\": \"6e52bc67-7446-4954-b04a-623f30ee382b\"\n}"
+              "raw": "{\n\"id\": \"7fa2272e-780e-45a6-bed8-a365144ce995\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}{{basePath}}/policies",
@@ -680,7 +680,8 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "{{providerToken}}"
+                "value": "{{providerToken}}",
+                "disabled": true
               },
               {
                 "key": "Content-Type",
@@ -689,13 +690,12 @@
               {
                 "key": "Authorization",
                 "value": "{{providerDelegateToken}}",
-                "type": "text",
-                "disabled": true
+                "type": "text"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n\"id\": \"b5dd534d-231c-4674-8167-2e39467d0643\"\n}"
+              "raw": "{\n\"id\": \"7fa2272e-780e-45a6-bed8-a365144ce995\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}{{basePath}}/policies",
@@ -790,7 +790,7 @@
                   "    const body = pm.response.json();",
                   "    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:forbidden\");",
                   "    pm.expect(body).to.have.property(\"title\", \"Forbidden\");",
-                  "    pm.expect(body).to.have.property(\"detail\", \"Policy could not be deleted, as policy doesn't belong to the user\");",
+                  "    pm.expect(body).to.have.property(\"detail\", \"Access Denied: You do not have ownership rights for this policy.\");",
                   "    }",
                   ");"
                 ],
@@ -808,7 +808,8 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "{{providerToken}}"
+                "value": "{{providerToken}}",
+                "disabled": true
               },
               {
                 "key": "Content-Type",
@@ -816,14 +817,13 @@
               },
               {
                 "key": "Authorization",
-                "value": "{{providerDelegateToken}}",
-                "type": "text",
-                "disabled": true
+                "value": "{{providerDelegateTokenForbidden}}",
+                "type": "text"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n\"id\": \"b51d1f41-62d1-4e21-98c3-68433a842dce\"\n}",
+              "raw": "{\n\"id\": \"b94c65e4-6603-4ff4-a7f4-702a9c17081a\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -864,7 +864,7 @@
                   "    const body = pm.response.json();",
                   "    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:resourceNotFound\");",
                   "    pm.expect(body).to.have.property(\"title\", \"Not Found\");",
-                  "    pm.expect(body).to.have.property(\"detail\", \"Policy could not be deleted, as policy is not found\");",
+                  "    pm.expect(body).to.have.property(\"detail\", \"Policy could not be deleted, as it doesn't exist\");",
                   "    }",
                   ");"
                 ],
@@ -1156,7 +1156,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"requestId\": \"bf17c455-8bf7-44c9-b9fd-ef215da3c615\",\n  \"status\": \"granted\",\n  \"expiryAt\": \"2024-03-05T20:00:19\",\n  \"constraints\": {\n    \"access\": [\n      \"api\",\n      \"sub\",\n      \"file\"\n    ]\n  }\n}",
+              "raw": "{\n  \"requestId\": \"b6123b79-8cd1-4385-bb91-f4e2bb77ef99\",\n  \"status\": \"granted\",\n  \"expiryAt\": \"2024-03-05T20:00:19\",\n  \"constraints\": {\n    \"access\": [\n      \"api\",\n      \"sub\",\n      \"file\"\n    ]\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1222,7 +1222,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"requestId\": \"0ad501c0-52c8-40f7-8e63-c3cb9602dfbd\",\n    \"status\": \"rejected\"\n}",
+              "raw": "{\n    \"requestId\": \"80e5f127-2446-406a-8ff2-cfe7be4ea422\",\n    \"status\": \"rejected\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1277,18 +1277,18 @@
               {
                 "key": "Authorization",
                 "value": "{{providerToken}}",
-                "type": "text"
+                "type": "text",
+                "disabled": true
               },
               {
                 "key": "Authorization",
                 "value": "{{providerDelegateToken}}",
-                "type": "text",
-                "disabled": true
+                "type": "text"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"requestId\": \"df2617a3-ce28-459a-b78a-d587a8e8a278\",\n  \"status\": \"granted\",\n  \"expiryAt\": \"2024-03-05T20:00:19\"\n}",
+              "raw": "{\n    \"requestId\": \"b6123b79-8cd1-4385-bb91-f4e2bb77ef99\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2020-03-05T20:00:19\",\n    \"constraints\": {\n        \"access\": [\n            \"api\",\n            \"sub\",\n            \"file\"\n        ]\n    }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1390,7 +1390,7 @@
                   "    const body = pm.response.json();",
                   "    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:forbidden\");",
                   "    pm.expect(body).to.have.property(\"title\", \"Forbidden\");",
-                  "    pm.expect(body).to.have.property(\"detail\", \"Request could not be granted or rejected, as it is doesn't belong to the user\");",
+                  "    pm.expect(body).to.have.property(\"detail\", \"Access Denied: You do not have ownership rights for this resource.\");",
                   "    }",
                   ");"
                 ],
@@ -1404,18 +1404,18 @@
               {
                 "key": "Authorization",
                 "value": "{{providerToken}}",
-                "type": "text"
+                "type": "text",
+                "disabled": true
               },
               {
                 "key": "Authorization",
-                "value": "{{providerDelegateToken}}",
-                "type": "text",
-                "disabled": true
+                "value": "{{providerDelegateTokenForbidden}}",
+                "type": "text"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"requestId\": \"7070ea8f-845b-4cdc-a204-a618edaa3e49\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\n        \"access\": [\n            \"api\",\n            \"sub\",\n            \"file\"\n        ]\n    }\n}",
+              "raw": "{\n    \"requestId\": \"b6123b79-8cd1-4385-bb91-f4e2bb77ef99\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\n        \"access\": [\n            \"api\",\n            \"sub\",\n            \"file\"\n        ]\n    }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1457,7 +1457,7 @@
                   "    const body = pm.response.json();",
                   "    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:resourceNotFound\");",
                   "    pm.expect(body).to.have.property(\"title\", \"Not Found\");",
-                  "    pm.expect(body).to.have.property(\"detail\", \"Request could not be granted or rejected, as it is not found\");",
+                  "    pm.expect(body).to.have.property(\"detail\", \"Request could not be updated, as it is not found\");",
                   "    }",
                   ");"
                 ],
@@ -1548,7 +1548,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"requestId\": \"4f5b2e63-f9bf-4572-be51-35dd7361cb31\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
+              "raw": "{\n    \"requestId\": \"da5781d1-5479-4a93-a658-ee793362de1f\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1710,7 +1710,7 @@
                   "    const body = pm.response.json();",
                   "    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:resourceNotFound\");",
                   "    pm.expect(body).to.have.property(\"title\", \"Not Found\");",
-                  "    pm.expect(body).to.have.property(\"detail\", \"Request not found\");",
+                  "    pm.expect(body).to.have.property(\"detail\", \"Access request not found\");",
                   "    }",
                   ");"
                 ],
@@ -1804,7 +1804,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n\"id\": \"bc7b55ab-6062-4106-8e07-65a0927ee248\"\n}\n",
+              "raw": "{\n\"id\": \"da5781d1-5479-4a93-a658-ee793362de1f\"\n}\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1870,7 +1870,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n\"id\": \"82cc27fc-097a-485b-b5ec-34643bf29873\"\n}\n",
+              "raw": "{\n\"id\": \"da5781d1-5479-4a93-a658-ee793362de1f\"\n}\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1972,7 +1972,7 @@
                   "    const body = pm.response.json();",
                   "    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:forbidden\");",
                   "    pm.expect(body).to.have.property(\"title\", \"Forbidden\");",
-                  "    pm.expect(body).to.have.property(\"detail\", \"Request could not be withdrawn, as it is doesn't belong to the user\");",
+                  "    pm.expect(body).to.have.property(\"detail\", \"Access Denied: You do not have ownership rights for this resource.\");",
                   "    }",
                   ");"
                 ],
@@ -1986,18 +1986,18 @@
               {
                 "key": "Authorization",
                 "value": "{{consumerToken}}",
-                "type": "text"
+                "type": "text",
+                "disabled": true
               },
               {
                 "key": "Authorization",
-                "value": "{{consumerDelegateToken}}",
-                "type": "text",
-                "disabled": true
+                "value": "{{consumerTokenForbidden}}",
+                "type": "text"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n\"id\": \"e9a329aa-352a-417e-82c0-0f68f08e0d12\"\n}\n",
+              "raw": "{\n\"id\": \"b1a16834-f238-4458-b468-887c2955e3cb\"\n}\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2037,7 +2037,7 @@
                   "// Test the response",
                   "pm.test(\"Check response body\", function () {    ",
                   "    const body = pm.response.json();",
-                  "    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:general\");",
+                  "    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:resourceNotFound\");",
                   "    pm.expect(body).to.have.property(\"title\", \"Not Found\");",
                   "    pm.expect(body).to.have.property(\"detail\", \"Request could not be withdrawn, as it is not found\");",
                   "    }",
@@ -2130,7 +2130,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n\"itemId\": \"83c2e5c2-3574-4e11-9530-2b1fbdfce832\",\n\"itemType\": \"RESOURCE\"\n}",
+              "raw": "{\n\"itemId\": \"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\n\"itemType\": \"RESOURCE_GROUP\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2158,8 +2158,8 @@
               "script": {
                 "exec": [
                   "// Test the response code",
-                  "pm.test(\"response is 200 (OK)\", function () {",
-                  "    pm.response.to.have.status(200);",
+                  "pm.test(\"response is 400 (Bad Request)\", function () {",
+                  "    pm.response.to.have.status(400);",
                   "});",
                   "",
                   "// Test the response header",
@@ -2170,9 +2170,8 @@
                   "// Test the response",
                   "pm.test(\"Check response body\", function () {    ",
                   "    const body = pm.response.json();",
-                  "    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
-                  "    pm.expect(body).to.have.property(\"title\", \"Success\");",
-                  "    }",
+                  "    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:badRequest\");",
+                  "    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",                  "    }",
                   ");"
                 ],
                 "type": "text/javascript"
