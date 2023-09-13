@@ -2170,8 +2170,8 @@
                   "// Test the response",
                   "pm.test(\"Check response body\", function () {    ",
                   "    const body = pm.response.json();",
-                  "    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",
-                  "    }",
+                  "    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:badRequest\");",
+                  "    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",                  "    }",
                   ");"
                 ],
                 "type": "text/javascript"
