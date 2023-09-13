@@ -92,24 +92,24 @@ public class TestCreateNotification {
   public static User getOwner() {
     JsonObject jsonObject =
         new JsonObject()
-            .put("userId", utility.getOwnerId())
-            .put("userRole", "provider")
-            .put("emailId", utility.getOwnerEmailId())
-            .put("firstName", utility.getOwnerFirstName())
-            .put("resourceServerUrl", "rs.iudx.io")
-            .put("lastName", utility.getOwnerLastName());
+            .put(USER_ID, utility.getOwnerId())
+            .put(USER_ROLE, "provider")
+            .put(EMAIL_ID, utility.getOwnerEmailId())
+            .put(FIRST_NAME, utility.getOwnerFirstName())
+            .put(RS_SERVER_URL, "rs.iudx.io")
+            .put(LAST_NAME, utility.getOwnerLastName());
     return new User(jsonObject);
   }
 
   public static User getConsumer() {
     JsonObject jsonObject =
         new JsonObject()
-            .put("userId", utility.getConsumerId())
-            .put("userRole", "consumer")
-            .put("emailId", utility.getConsumerEmailId())
-            .put("firstName", utility.getConsumerFirstName())
-            .put("resourceServerUrl", "rs.iudx.io")
-            .put("lastName", utility.getConsumerLastName());
+            .put(USER_ID, utility.getConsumerId())
+            .put(USER_ROLE, "consumer")
+            .put(EMAIL_ID, utility.getConsumerEmailId())
+            .put(FIRST_NAME, utility.getConsumerFirstName())
+            .put(RS_SERVER_URL,"rs.iudx.io")
+            .put(LAST_NAME, utility.getConsumerLastName());
     return new User(jsonObject);
   }
 

@@ -103,5 +103,11 @@ public class Constants {
   public static final String RESOURCE_TAG = "iudx:ResourceServer";
   public static final String KEY_RESOURCE_SERVER_URL = "resourceServerURL";
 
+  public static final String FIRST_NAME = "firstName";
+  public static final String LAST_NAME = "lastName";
+  public static final String EMAIL_ID = "emailId";
+  public static final String RS_SERVER_URL = "resourceServerUrl";
+  public static final String USER_ROLE = "userRole";
+
 
 }
