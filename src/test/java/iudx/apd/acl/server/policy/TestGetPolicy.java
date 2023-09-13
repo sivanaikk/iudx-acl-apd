@@ -54,6 +54,7 @@ public class TestGetPolicy {
         new JsonObject()
             .put("userId", utility.getConsumerId())
             .put("firstName", utility.getConsumerFirstName())
+            .put("resourceServerUrl", "rs.iudx.io")
             .put("lastName", utility.getConsumerLastName())
             .put("emailId", utility.getConsumerEmailId())
             .put("userRole", "consumer");
@@ -65,6 +66,7 @@ public class TestGetPolicy {
         new JsonObject()
             .put("userId", utility.getOwnerId())
             .put("firstName", utility.getOwnerFirstName())
+            .put("resourceServerUrl", "rs.iudx.io")
             .put("lastName", utility.getOwnerLastName())
             .put("emailId", utility.getOwnerEmailId())
             .put("userRole", "provider");
@@ -85,6 +87,7 @@ public class TestGetPolicy {
 
                 assertEquals(utility.getPolicyId().toString(), actualResult.getString("policyId"));
                 assertEquals(utility.getConstraints(), actualResult.getJsonObject("constraints"));
+                  assertEquals("rs.iudx.io", actualResult.getString("resourceServerUrl"));
 
                 assertEquals(
                     utility.getConsumerId().toString(),
@@ -205,6 +208,7 @@ public class TestGetPolicy {
                     handler.result().getJsonObject(RESULT).getJsonArray(RESULT).getJsonObject(0);
                 assertEquals(utility.getPolicyId().toString(), actualResult.getString("policyId"));
                 assertEquals(utility.getConstraints(), actualResult.getJsonObject("constraints"));
+                  assertEquals("rs.iudx.io", actualResult.getString("resourceServerUrl"));
 
                 assertEquals(
                     utility.getConsumerId().toString(),
