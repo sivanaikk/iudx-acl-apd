@@ -16,10 +16,15 @@ paths:
         - Policies APIs
       summary: Get Policies
       description: |
-        Get policies related to a particular user, with respect to a particular server. The response depends on the roles the user has
+        Get policies related to a particular user. The response depends on the roles the user has
         - `provider` : returns all policies created by the provider/delegate of the provider.
         - `delegate` : returns all policies set by the delegate for the provider or set for the consumer the delegate is acting on behalf off.
         - `consumer` : returns the policies set for the consumer
+        <br>
+        <br>
+        
+        `Note:` The response displays the policies of / for a user with respect to a particular server.
+
       operationId: get-auth-v1-policies
       parameters:
         - name: Authorization
@@ -504,6 +509,11 @@ paths:
 
         - `provider` : The requests that are present for the items owned by a provider are returned.
         - `consumer` : The requests which are created by the consumer are returned.
+        <br>
+        <br>
+        
+        `Note:` The response displays the requests of / for a user with respect to a particular server.
+        
 
         ## Delegate
         A delegate may use the API to view policies on behalf of their provider. The user info of the delegator must be present in the token issued by the Data Exchange AAA
