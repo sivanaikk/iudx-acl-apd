@@ -70,7 +70,6 @@ public class CreateNotification {
   public Future<JsonObject> initiateCreateNotification(JsonObject notification, User user) {
     resourceId = UUID.fromString(notification.getString("itemId"));
     String itemType = notification.getString("itemType");
-    System.out.println(itemType);
     setConsumerRsUrl(user.getResourceServerUrl());
 
     /* check if the resource exists in CAT */
