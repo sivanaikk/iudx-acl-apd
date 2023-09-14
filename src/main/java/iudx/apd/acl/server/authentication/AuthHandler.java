@@ -80,7 +80,7 @@ public class AuthHandler implements Handler<RoutingContext> {
           .onFailure(
               fail -> {
                 LOGGER.error("User Verification Failed. " + fail.getMessage());
-                processAuthFailure(context);
+                processAuthFailure(context, fail.getMessage());
               });
     } else {
       checkIfAuth(authInfo)
@@ -93,7 +93,7 @@ public class AuthHandler implements Handler<RoutingContext> {
           .onFailure(
               fail -> {
                 LOGGER.error("User Verification Failed. " + fail.getMessage());
-                processAuthFailure(context);
+                processAuthFailure(context, fail.getMessage());
               });
     }
   }
@@ -209,13 +209,18 @@ public class AuthHandler implements Handler<RoutingContext> {
     return null;
   }
 
-  private void processAuthFailure(RoutingContext ctx) {
-    LOGGER.error("Error : Authentication Failure");
+  private void processAuthFailure(RoutingContext ctx, String failureMessage) {
+    ResponseUrn responseUrn = INVALID_TOKEN_URN;
     HttpStatusCode statusCode = HttpStatusCode.getByValue(401);
+    if (failureMessage.equalsIgnoreCase("User information is invalid")) {
+      responseUrn = ResponseUrn.INTERNAL_SERVER_ERROR;
+      statusCode = HttpStatusCode.INTERNAL_SERVER_ERROR;
+    }
+    LOGGER.error("Error : Authentication Failure");
     ctx.response()
         .putHeader(CONTENT_TYPE, APPLICATION_JSON)
         .setStatusCode(statusCode.getValue())
-        .end(generateResponse(INVALID_TOKEN_URN, statusCode).toString());
+        .end(generateResponse(responseUrn, statusCode).toString());
   }
 
   private JsonObject generateResponse(ResponseUrn urn, HttpStatusCode statusCode) {
