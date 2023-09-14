@@ -75,9 +75,20 @@ public class AuthClient implements AuthClientInterface {
                 userObj.put(FIRST_NAME, result.getJsonObject("name").getString("firstName"));
                 userObj.put(LAST_NAME, result.getJsonObject("name").getString("lastName"));
                 userObj.put(RS_SERVER_URL, resourceServer);
-                //                userObj.put(IS_DELEGATE,isDelegate);
-                User user = new User(userObj);
-                promise.complete(user);
+                boolean checkIfUserInfoIsInvalid =
+                    result.getString("email") == null
+                        || result.getJsonObject("name").getString("firstName") == null
+                        || result.getJsonObject("name").getString("lastName") == null;
+                if (checkIfUserInfoIsInvalid) {
+                  LOGGER.error("Some user info from Auth is null");
+                  LOGGER.error("Result from auth is {}", result.encode());
+                  promise.fail("User information is invalid");
+                } else {
+                  //                userObj.put(IS_DELEGATE,isDelegate);
+                  User user = new User(userObj);
+                  promise.complete(user);
+                }
+
               } else {
                 LOGGER.error("User not present in Auth.");
                 promise.fail("User not present in Auth.");

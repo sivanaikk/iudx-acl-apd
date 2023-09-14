@@ -6,7 +6,9 @@ public class Constants {
   public static final String GET_REQUEST = "SELECT * FROM request WHERE _id = $1::uuid";
   public static final String GET_REQUEST_WITH_ITEM_TYPE =
       "SELECT RE.resource_server_url, RE.item_type, R.* "
-          + " FROM request AS R, resource_entity AS RE "
+          + " FROM request AS R "
+          + "INNER JOIN resource_entity AS RE "
+          + "ON R.item_id = RE._id"
           + "WHERE R._id = $1::uuid;";
 
   public static final String GET_ACTIVE_CONSUMER_POLICY = "SELECT * FROM policy WHERE user_emailid = $1 "

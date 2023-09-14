@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import iudx.apd.acl.server.common.ResponseUrn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -83,11 +85,27 @@ public class CatalogueClient implements CatalogueClientInterface {
                       resServerUrl = resultJson.getString(KEY_RESOURCE_SERVER_URL);
                     }
                   }
-                  ResourceObj resourceObj =
-                      new ResourceObj(
-                          id, provider, resourceGroup, resServerUrl, isItemGroupLevelResource);
-                  resourceObjList.add(resourceObj);
-                  promise.complete(resourceObjList);
+                  boolean isInfoFromCatInvalid =
+                      id == null || provider == null || resServerUrl == null;
+                  if (isInfoFromCatInvalid) {
+                    LOGGER.error("Something from catalogue is null. The resourceId is {}", id);
+                    LOGGER.error("The ownerId is {}", provider);
+                    LOGGER.error("The resource server URL is {}", resServerUrl);
+                    JsonObject failureMessage =
+                        new JsonObject()
+                            .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
+                            .put(TITLE, ResponseUrn.INTERNAL_SERVER_ERROR.getUrn())
+                            .put(
+                                DETAIL,
+                                "Something went wrong while fetching resource info from Catalogue");
+                    promise.fail(failureMessage.encode());
+                  } else {
+                    ResourceObj resourceObj =
+                        new ResourceObj(
+                            id, provider, resourceGroup, resServerUrl, isItemGroupLevelResource);
+                    resourceObjList.add(resourceObj);
+                    promise.complete(resourceObjList);
+                  }
                 } else {
                   promise.fail(resultBody.getString(DETAIL));
                 }
