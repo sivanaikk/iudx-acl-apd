@@ -9,6 +9,8 @@ import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.PoolOptions;
 
+import java.util.Map;
+
 public class PostgresService {
   private final PgPool pool;
 
@@ -16,16 +18,19 @@ public class PostgresService {
     /* Database Properties */
     String databaseIp = config.getString("databaseIP");
     int databasePort = config.getInteger("databasePort");
+    String databaseSchema = config.getString("databaseSchema");
     String databaseName = config.getString("databaseName");
     String databaseUserName = config.getString("databaseUserName");
     String databasePassword = config.getString("databasePassword");
     int poolSize = config.getInteger("poolSize");
+    Map<String, String> schemaProp = Map.of("search_path", databaseSchema);
 
     /* Set Connection Object and schema */
     PgConnectOptions connectOptions =
         new PgConnectOptions()
             .setPort(databasePort)
             .setHost(databaseIp)
+            .setProperties(schemaProp)
             .setDatabase(databaseName)
             .setUser(databaseUserName)
             .setPassword(databasePassword)

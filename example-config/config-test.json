@@ -13,6 +13,7 @@
     "authHost": "",
     "databaseIP": "",
     "databasePort": 5433,
+    "databaseSchema" : "",
     "databaseName": "",
     "databaseUserName": "",
     "databasePassword": "",
