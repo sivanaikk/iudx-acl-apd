@@ -38,7 +38,7 @@ public class VerifyPolicy {
     UUID ownerId = UUID.fromString(request.getJsonObject("owner").getString("id"));
     String userEmail = request.getJsonObject("user").getString("email");
     UUID itemId = UUID.fromString(request.getJsonObject("item").getString("itemId"));
-    ItemType itemType = ItemType.valueOf(request.getJsonObject("item").getString("itemType"));
+    ItemType itemType = ItemType.valueOf(request.getJsonObject("item").getString("itemType").toUpperCase());
     Future<JsonObject> checkForExistingPolicy =
         checkExistingPoliciesForId(itemId, ownerId, userEmail);
 
