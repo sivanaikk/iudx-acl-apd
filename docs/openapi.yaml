@@ -22,7 +22,7 @@ paths:
         - `consumer` : returns the policies set for the consumer
         <br>
         <br>
-        
+
         `Note:` The response displays the policies of / for a user with respect to a particular server.
 
       operationId: get-auth-v1-policies
@@ -511,9 +511,9 @@ paths:
         - `consumer` : The requests which are created by the consumer are returned.
         <br>
         <br>
-        
+
         `Note:` The response displays the requests of / for a user with respect to a particular server.
-        
+
 
         ## Delegate
         A delegate may use the API to view policies on behalf of their provider. The user info of the delegator must be present in the token issued by the Data Exchange AAA
@@ -1974,8 +1974,8 @@ components:
           maxLength: 512
         itemType:
           enum:
-            - RESOURCE
-            - RESOURCE_GROUP
+            - resource
+            - resource_group
           minLength: 1
       required:
         - itemId
