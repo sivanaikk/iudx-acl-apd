@@ -71,9 +71,9 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     jwtDecodeFuture
         .onSuccess(
             jwtData -> {
-              if (!(jwtData.getRole() == null || jwtData.getIid() == null)) {
-                LOGGER.error("Cannot have role or iid in JWT");
-                promise.fail("Cannot have role or iid in JWT");
+              if (jwtData.getSub()==null){
+                LOGGER.error("No sub value in JWT");
+                promise.fail("No sub value in JWT");
               } else if (!(jwtData.getIss() != null && issuer.equalsIgnoreCase(jwtData.getIss()))) {
                 LOGGER.error("Incorrect issuer value in JWT");
                 promise.fail("Incorrect issuer value in JWT");

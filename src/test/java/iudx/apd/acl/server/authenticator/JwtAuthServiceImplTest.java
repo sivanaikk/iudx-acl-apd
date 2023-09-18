@@ -335,14 +335,13 @@ public class JwtAuthServiceImplTest {
   }
 
   @Test
-  @DisplayName("auth token failure - auth token can't have role or iid")
+  @DisplayName("auth token failure - auth token can't have null for sub")
   public void invalidAuthTokenFailInvalid1(VertxTestContext testContext) {
     authConfig.put(HEADER_TOKEN, JwtTokenHelper.authToken);
     authConfig.put("issuer", "wrongIssuer");
 
     JwtData mockedJwtData = mock(JwtData.class);
-    when(mockedJwtData.getRole()).thenReturn("consumer");
-    when(mockedJwtData.getIid()).thenReturn("someIid");
+    when(mockedJwtData.getSub()).thenReturn(null);
 
     JwtAuthenticationServiceImpl jwtAuthenticationServiceSpy = spy(jwtAuthenticationService);
     doReturn(Future.succeededFuture(mockedJwtData))
@@ -356,7 +355,7 @@ public class JwtAuthServiceImplTest {
               if (handler.succeeded()) {
                 testContext.failNow("invalid access");
               } else {
-                assertEquals("Cannot have role or iid in JWT", handler.cause().getMessage());
+                assertEquals("No sub value in JWT", handler.cause().getMessage());
                 testContext.completeNow();
               }
             });
@@ -368,6 +367,7 @@ public class JwtAuthServiceImplTest {
     authConfig.put(HEADER_TOKEN, JwtTokenHelper.authToken);
 
     JwtData mockedJwtData = mock(JwtData.class);
+    when(mockedJwtData.getSub()).thenReturn("sub");
     when(mockedJwtData.getIss()).thenReturn("wrongIssuer");
 
     JwtAuthenticationServiceImpl jwtAuthenticationServiceSpy = spy(jwtAuthenticationService);
@@ -394,6 +394,7 @@ public class JwtAuthServiceImplTest {
     authConfig.put(HEADER_TOKEN, JwtTokenHelper.authToken);
 
     JwtData mockedJwtData = mock(JwtData.class);
+    when(mockedJwtData.getSub()).thenReturn("sub");
     when(mockedJwtData.getIss()).thenReturn("authvertx.iudx.io");
     when(mockedJwtData.getAud()).thenReturn("");
 
@@ -421,6 +422,7 @@ public class JwtAuthServiceImplTest {
     authConfig.put(HEADER_TOKEN, JwtTokenHelper.authToken);
 
     JwtData mockedJwtData = mock(JwtData.class);
+    when(mockedJwtData.getSub()).thenReturn("sub");
     when(mockedJwtData.getIss()).thenReturn("authvertx.iudx.io");
     when(mockedJwtData.getAud()).thenReturn("wrongAud");
 

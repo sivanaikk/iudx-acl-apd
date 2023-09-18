@@ -70,6 +70,9 @@ public class AuthHandler implements Handler<RoutingContext> {
         new JsonObject().put(API_ENDPOINT, path).put(HEADER_TOKEN, token).put(API_METHOD, method);
 
     if (path.equals(VERIFY_POLICY_API)) {
+      if(token.trim().split(" ").length==2){
+        token=token.trim().split(" ")[1];
+      authInfo.put(HEADER_TOKEN,token);
       authenticator
           .tokenIntrospectForVerify(authInfo)
           .onSuccess(
@@ -82,6 +85,10 @@ public class AuthHandler implements Handler<RoutingContext> {
                 LOGGER.error("User Verification Failed. " + fail.getMessage());
                 processAuthFailure(context, fail.getMessage());
               });
+      }
+      else{
+        processAuthFailure(context, "invalid token");
+      }
     } else {
       checkIfAuth(authInfo)
           .onSuccess(
