@@ -27,14 +27,12 @@ import org.apache.logging.log4j.Logger;
 public class JwtAuthenticationServiceImpl implements AuthenticationService {
   private static final Logger LOGGER = LogManager.getLogger(JwtAuthenticationServiceImpl.class);
   final JWTAuth jwtAuth;
-  final String audience;
   final String issuer;
   final Api apis;
   final String apdUrl;
 
   public JwtAuthenticationServiceImpl(final JWTAuth jwtAuth, final JsonObject config, Api apis) {
     this.jwtAuth = jwtAuth;
-    this.audience = config.getString("audience");
     this.issuer = config.getString("issuer");
     this.apdUrl = config.getString("apdURL");
     this.apis = apis;
@@ -89,6 +87,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
                 LOGGER.error("Incorrect subject value in JWT");
                 promise.fail("Incorrect subject value in JWT");
               } else {
+                LOGGER.info("Auth token verified.");
                 promise.complete();
               }
             })
@@ -101,7 +100,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     return promise.future();
   }
 
-  Future<Boolean> validateJwtAccess(JwtData jwtData) {
+  public Future<Boolean> validateJwtAccess(JwtData jwtData) {
     Promise<Boolean> promise = Promise.promise();
     if (!(jwtData.getIss() != null && issuer.equalsIgnoreCase(jwtData.getIss()))) {
       LOGGER.error("Incorrect issuer value in JWT");
@@ -115,7 +114,6 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     } else {
       promise.complete(true);
     }
-
     return promise.future();
   }
 
@@ -148,7 +146,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     return promise.future();
   }
 
-  Future<JwtData> decodeJwt(String jwtToken) {
+  public Future<JwtData> decodeJwt(String jwtToken) {
     Promise<JwtData> promise = Promise.promise();
     TokenCredentials creds = new TokenCredentials(jwtToken);
 
