@@ -13,7 +13,6 @@ import static iudx.apd.acl.server.apiserver.util.Constants.LAST_NAME;
 import static iudx.apd.acl.server.apiserver.util.Constants.RS_SERVER_URL;
 import static iudx.apd.acl.server.apiserver.util.Constants.TITLE;
 import static iudx.apd.acl.server.apiserver.util.Constants.TYPE;
-import static iudx.apd.acl.server.apiserver.util.Constants.USER;
 import static iudx.apd.acl.server.apiserver.util.Constants.USER_ROLE;
 import static iudx.apd.acl.server.apiserver.util.Constants.VERIFY_POLICY_API;
 import static iudx.apd.acl.server.authentication.Constants.AUD;
@@ -70,23 +69,22 @@ public class AuthHandler implements Handler<RoutingContext> {
         new JsonObject().put(API_ENDPOINT, path).put(HEADER_TOKEN, token).put(API_METHOD, method);
 
     if (path.equals(VERIFY_POLICY_API)) {
-      if(token.trim().split(" ").length==2){
-        token=token.trim().split(" ")[1];
-      authInfo.put(HEADER_TOKEN,token);
-      authenticator
-          .tokenIntrospectForVerify(authInfo)
-          .onSuccess(
-              successHandler -> {
-                LOGGER.info("User Verified Successfully.");
-                context.next();
-              })
-          .onFailure(
-              fail -> {
-                LOGGER.error("User Verification Failed. " + fail.getMessage());
-                processAuthFailure(context, fail.getMessage());
-              });
-      }
-      else{
+      if (token.trim().split(" ").length == 2) {
+        token = token.trim().split(" ")[1];
+        authInfo.put(HEADER_TOKEN, token);
+        authenticator
+            .tokenIntrospectForVerify(authInfo)
+            .onSuccess(
+                successHandler -> {
+                  LOGGER.info("User Verified Successfully.");
+                  context.next();
+                })
+            .onFailure(
+                fail -> {
+                  LOGGER.error("User Verification Failed. " + fail.getMessage());
+                  processAuthFailure(context, fail.getMessage());
+                });
+      } else {
         processAuthFailure(context, "invalid token");
       }
     } else {

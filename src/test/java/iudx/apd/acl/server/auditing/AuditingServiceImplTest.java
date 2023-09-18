@@ -3,6 +3,7 @@ package iudx.apd.acl.server.auditing;
 import static iudx.apd.acl.server.apiserver.util.Constants.EPOCH_TIME;
 import static iudx.apd.acl.server.apiserver.util.Constants.ISO_TIME;
 import static iudx.apd.acl.server.apiserver.util.Constants.USER_ID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -42,6 +43,36 @@ class AuditingServiceImplTest {
   @Test
   @DisplayName("Testing Write Query Successful")
   void writeDataSuccessful(VertxTestContext vertxTestContext) {
+    DataBrokerService dataBrokerService = mock(DataBrokerService.class);
+    JsonObject request = new JsonObject();
+    ZonedDateTime zst = ZonedDateTime.now(ZoneId.of("Asia/Kolkata"));
+    long time = zst.toInstant().toEpochMilli();
+    String isoTime = zst.truncatedTo(ChronoUnit.SECONDS).toString();
+    request.put(EPOCH_TIME, time);
+    request.put(ISO_TIME, isoTime);
+    request.put(USER_ID, "15c7506f-c800-48d6-adeb-0542b03947c6");
+    AuditingServiceImpl auditingService = new AuditingServiceImpl(dataBrokerService);
+
+    when(dataBrokerService.publishMessage(anyString(), anyString(), any()))
+        .thenReturn(Future.succeededFuture());
+
+    auditingService
+        .insertAuditlogIntoRmq(request)
+        .onSuccess(
+            successHandler -> {
+              verify(dataBrokerService, times(1)).publishMessage(anyString(), anyString(), any());
+              vertxTestContext.completeNow();
+            })
+        .onFailure(
+            failure -> {
+              vertxTestContext.failNow(failure.getMessage());
+            });
+
+  }
+
+  @Test
+  @DisplayName("Testing Write Query Failure")
+  void writeDataSuccessful2(VertxTestContext vertxTestContext) {
     JsonObject request = new JsonObject();
     ZonedDateTime zst = ZonedDateTime.now(ZoneId.of("Asia/Kolkata"));
     long time = zst.toInstant().toEpochMilli();
@@ -52,18 +83,14 @@ class AuditingServiceImplTest {
     auditingService = new AuditingServiceImpl(databroker);
 
     when(databroker.publishMessage(anyString(), anyString(), any()))
-        .thenReturn(Future.succeededFuture());
+        .thenReturn(Future.failedFuture("failed"));
 
     auditingService
         .insertAuditlogIntoRmq(request)
-        .onSuccess(
-            successHandler -> {
-              vertxTestContext.completeNow();
-            })
-        .onFailure(
-            failure -> {
-              vertxTestContext.failNow(failure.getMessage());
-            });
-    verify(databroker, times(1)).publishMessage(anyString(), anyString(), any());
+        .onFailure(f ->
+        {
+          assertEquals(f.getMessage(), "failed");
+          vertxTestContext.completeNow();
+        });
   }
 }

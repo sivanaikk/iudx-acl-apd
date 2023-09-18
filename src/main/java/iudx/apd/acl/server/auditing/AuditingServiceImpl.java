@@ -1,7 +1,7 @@
 package iudx.apd.acl.server.auditing;
 
-import static iudx.apd.acl.server.auditing.util.Constant.EXCHANGE_NAME;
-import static iudx.apd.acl.server.auditing.util.Constant.ROUTING_KEY;
+import static iudx.apd.acl.server.auditing.util.Constants.EXCHANGE_NAME;
+import static iudx.apd.acl.server.auditing.util.Constants.ROUTING_KEY;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;

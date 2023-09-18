@@ -1,6 +1,17 @@
 package iudx.apd.acl.server.policy;
 
-import static iudx.apd.acl.server.apiserver.util.Constants.*;
+import static iudx.apd.acl.server.apiserver.util.Constants.CAT_SUCCESS_URN;
+import static iudx.apd.acl.server.apiserver.util.Constants.DETAIL;
+import static iudx.apd.acl.server.apiserver.util.Constants.ID;
+import static iudx.apd.acl.server.apiserver.util.Constants.KEY_RESOURCE_SERVER_URL;
+import static iudx.apd.acl.server.apiserver.util.Constants.OWNER_ID;
+import static iudx.apd.acl.server.apiserver.util.Constants.PROVIDER_TAG;
+import static iudx.apd.acl.server.apiserver.util.Constants.RELATIONSHIP_PATH;
+import static iudx.apd.acl.server.apiserver.util.Constants.RESOURCE_GROUP_TAG;
+import static iudx.apd.acl.server.apiserver.util.Constants.RESOURCE_TAG;
+import static iudx.apd.acl.server.apiserver.util.Constants.RESULTS;
+import static iudx.apd.acl.server.apiserver.util.Constants.TITLE;
+import static iudx.apd.acl.server.apiserver.util.Constants.TYPE;
 import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
 
 import io.vertx.core.Future;
@@ -12,13 +23,12 @@ import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import iudx.apd.acl.server.apiserver.util.ResourceObj;
 import iudx.apd.acl.server.apiserver.util.Util;
+import iudx.apd.acl.server.common.ResponseUrn;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import iudx.apd.acl.server.common.ResponseUrn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

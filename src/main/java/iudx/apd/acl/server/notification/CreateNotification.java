@@ -1,12 +1,22 @@
 package iudx.apd.acl.server.notification;
 
-import static iudx.apd.acl.server.apiserver.util.Constants.*;
+import static iudx.apd.acl.server.apiserver.util.Constants.DETAIL;
+import static iudx.apd.acl.server.apiserver.util.Constants.RESULT;
+import static iudx.apd.acl.server.apiserver.util.Constants.ROLE;
+import static iudx.apd.acl.server.apiserver.util.Constants.STATUS_CODE;
+import static iudx.apd.acl.server.apiserver.util.Constants.TITLE;
+import static iudx.apd.acl.server.apiserver.util.Constants.TYPE;
+import static iudx.apd.acl.server.apiserver.util.Constants.USER_ID;
 import static iudx.apd.acl.server.authentication.Constants.AUD;
 import static iudx.apd.acl.server.authentication.Constants.IS_DELEGATE;
 import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
 import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
 import static iudx.apd.acl.server.common.ResponseUrn.POLICY_ALREADY_EXIST_URN;
-import static iudx.apd.acl.server.notification.util.Constants.*;
+import static iudx.apd.acl.server.notification.util.Constants.CREATE_NOTIFICATION_QUERY;
+import static iudx.apd.acl.server.notification.util.Constants.GET_ACTIVE_CONSUMER_POLICY;
+import static iudx.apd.acl.server.notification.util.Constants.GET_VALID_NOTIFICATION;
+import static iudx.apd.acl.server.notification.util.Constants.INSERT_RESOURCE_INFO_QUERY;
+import static iudx.apd.acl.server.notification.util.Constants.INSERT_USER_INFO_QUERY;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -64,7 +74,7 @@ public class CreateNotification {
    * multiple checks
    *
    * @param notification request body for the POST Notification API with type JsonObject
-   * @param user details of the consumer
+   * @param user         details of the consumer
    * @return response as JsonObject with type Future
    */
   public Future<JsonObject> initiateCreateNotification(JsonObject notification, User user) {
@@ -78,7 +88,7 @@ public class CreateNotification {
         getItemFromCatFuture.compose(
             resourceExistsInCatalogue -> {
               if (resourceExistsInCatalogue) {
-                  /* add the provider information if not already present in user_table */
+                /* add the provider information if not already present in user_table */
                 return addProviderInDb(
                     INSERT_USER_INFO_QUERY,
                     UUID.fromString(getProviderInfo().getUserId()),
@@ -86,7 +96,7 @@ public class CreateNotification {
                     getProviderInfo().getLastName(),
                     getProviderInfo().getEmailId());
               }
-                return Future.failedFuture(getItemFromCatFuture.cause().getMessage());
+              return Future.failedFuture(getItemFromCatFuture.cause().getMessage());
             });
 
     Future<Boolean> resourceInsertionFuture =
@@ -146,11 +156,11 @@ public class CreateNotification {
   /**
    * Inserts provider information in the user_table if it is not already present
    *
-   * @param query An insert query
+   * @param query      An insert query
    * @param providerId id of the owner of the resource with type UUID
-   * @param firstName First name of the provider
-   * @param lastName Last name of the provider
-   * @param emailId Email id of the provider
+   * @param firstName  First name of the provider
+   * @param lastName   Last name of the provider
+   * @param emailId    Email id of the provider
    * @return True if the insertion is successfully done, failure if any
    */
   public Future<Boolean> addProviderInDb(
@@ -175,12 +185,12 @@ public class CreateNotification {
   /**
    * Adds resource in the database if the resource is not already present
    *
-   * @param query An insert query
-   * @param resourceId id of the resource with type UUID
-   * @param resourceGroupId if present for the resource with type UUID or null
-   * @param providerId id of the owner of the resource with type UUID
+   * @param query             An insert query
+   * @param resourceId        id of the resource with type UUID
+   * @param resourceGroupId   if present for the resource with type UUID or null
+   * @param providerId        id of the owner of the resource with type UUID
    * @param resourceServerUrl string containing resource-server-url of the item
-   * @param itemType itemType of the item,can be either RESOURCE_GROUP or RESOURCE
+   * @param itemType          itemType of the item,can be either RESOURCE_GROUP or RESOURCE
    * @return True, if the insertion is successful or Failure if there is any DB failure
    */
   public Future<Boolean> addResourceInDb(
@@ -234,7 +244,7 @@ public class CreateNotification {
             if (isPolicyAbsent) {
               promise.complete(false);
             } else
-            /* An active policy for the consumer is present */ {
+              /* An active policy for the consumer is present */ {
               JsonObject failureMessage =
                   new JsonObject()
                       .put(TYPE, HttpStatusCode.CONFLICT.getValue())
@@ -296,9 +306,9 @@ public class CreateNotification {
   /**
    * Creates notification for the consumer to access the given resource
    *
-   * @param query Insert query to create notification
+   * @param query      Insert query to create notification
    * @param resourceId id for which the consumer or consumer delegate wants access to with type UUID
-   * @param consumer details of the consumer with type User
+   * @param consumer   details of the consumer with type User
    * @param providerId id of the owner of the resource with type UUID
    * @return JsonObject response, if notification is created successfully, failure if any
    */
@@ -435,13 +445,13 @@ public class CreateNotification {
               } else {
                 if (handler.cause().getMessage().equalsIgnoreCase("Item is not found")
                     || handler
-                        .cause()
-                        .getMessage()
-                        .equalsIgnoreCase("Id/Ids does not present in CAT")
+                    .cause()
+                    .getMessage()
+                    .equalsIgnoreCase("Id/Ids does not present in CAT")
                     || handler
-                        .cause()
-                        .getMessage()
-                        .equalsIgnoreCase("Item id given is not present")) {
+                    .cause()
+                    .getMessage()
+                    .equalsIgnoreCase("Item id given is not present")) {
                   /*id not present in the catalogue*/
                   JsonObject failureMessage =
                       new JsonObject()
@@ -468,8 +478,8 @@ public class CreateNotification {
   /**
    * Executes the query by getting the Pgpool instance from postgres
    *
-   * @param query to be executes
-   * @param tuple exchangeable values to be added in the query
+   * @param query   to be executes
+   * @param tuple   exchangeable values to be added in the query
    * @param handler AsyncResult JsonObject handler
    */
   public void executeQuery(String query, Tuple tuple, Handler<AsyncResult<JsonObject>> handler) {

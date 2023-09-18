@@ -8,7 +8,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.PoolOptions;
-
 import java.util.Map;
 
 public class PostgresService {

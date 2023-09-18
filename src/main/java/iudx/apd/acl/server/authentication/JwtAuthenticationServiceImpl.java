@@ -71,7 +71,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     jwtDecodeFuture
         .onSuccess(
             jwtData -> {
-              if (jwtData.getSub()==null){
+              if (jwtData.getSub() == null) {
                 LOGGER.error("No sub value in JWT");
                 promise.fail("No sub value in JWT");
               } else if (!(jwtData.getIss() != null && issuer.equalsIgnoreCase(jwtData.getIss()))) {
