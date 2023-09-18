@@ -43,8 +43,8 @@ public class DataBrokerServiceImpl implements DataBrokerService {
             })
         .onFailure(
             failureHandler -> {
-              LOGGER.error(failureHandler);
-              promise.fail(failureHandler.toString());
+              LOGGER.error(failureHandler.getMessage());
+              promise.fail(failureHandler.getMessage());
             });
 
     return promise.future();
