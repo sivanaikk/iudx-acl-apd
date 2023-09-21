@@ -32,7 +32,8 @@ public class NotificationVerticle extends AbstractVerticle {
     webClientOptions.setTrustAll(false).setVerifyHost(true).setSsl(true);
     webClient = WebClient.create(vertx, webClientOptions);
     getDelegateEmailIds = new GetDelegateEmailIds(config(), webClient);
-    authClient = new AuthClient(config());
+
+    authClient = new AuthClient(config(), webClient);
 
     emailNotification = new EmailNotification(vertx, config(), getDelegateEmailIds);
     createNotification =

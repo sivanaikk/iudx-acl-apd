@@ -19,6 +19,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.TimeoutHandler;
@@ -77,6 +79,8 @@ public class ApiServerVerticle extends AbstractVerticle {
   private AuthenticationService authenticator;
   private AuthClient authClient;
   private PostgresService pgService;
+  private WebClient webClient;
+  private WebClientOptions webClientOptions;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, reads the
@@ -91,13 +95,16 @@ public class ApiServerVerticle extends AbstractVerticle {
     /* Define the APIs, methods, endpoints and associated methods. */
     dxApiBasePath = config().getString("dxApiBasePath");
     this.api = Api.getInstance(dxApiBasePath);
+    webClientOptions = new WebClientOptions();
+    webClientOptions.setTrustAll(false).setVerifyHost(true).setSsl(true);
+    webClient = WebClient.create(vertx, webClientOptions);
 
     /* Initialize service proxy */
     policyService = PolicyService.createProxy(vertx, POLICY_SERVICE_ADDRESS);
     notificationService = NotificationService.createProxy(vertx, NOTIFICATION_SERVICE_ADDRESS);
     auditingService = AuditingService.createProxy(vertx, AUDITING_SERVICE_ADDRESS);
     authenticator = AuthenticationService.createProxy(vertx, AUTH_SERVICE_ADDRESS);
-    authClient = new AuthClient(config());
+    authClient = new AuthClient(config(), webClient);
     pgService = new PostgresService(config(), vertx);
     FailureHandler failureHandler = new FailureHandler();
 
