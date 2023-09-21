@@ -4,9 +4,7 @@ import static iudx.apd.acl.server.apiserver.response.ResponseUtil.generateRespon
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.apiserver.util.Util.errorResponse;
 import static iudx.apd.acl.server.auditing.util.Constants.USERID;
-import static iudx.apd.acl.server.common.Constants.AUDITING_SERVICE_ADDRESS;
-import static iudx.apd.acl.server.common.Constants.NOTIFICATION_SERVICE_ADDRESS;
-import static iudx.apd.acl.server.common.Constants.POLICY_SERVICE_ADDRESS;
+import static iudx.apd.acl.server.common.Constants.*;
 import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
 
 import io.vertx.core.AbstractVerticle;
@@ -27,13 +25,16 @@ import io.vertx.ext.web.handler.TimeoutHandler;
 import io.vertx.ext.web.openapi.RouterBuilder;
 import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.auditing.AuditingService;
+import iudx.apd.acl.server.authentication.AuthClient;
 import iudx.apd.acl.server.authentication.AuthHandler;
 import iudx.apd.acl.server.authentication.Authentication;
+import iudx.apd.acl.server.authentication.AuthenticationService;
 import iudx.apd.acl.server.common.Api;
 import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.notification.NotificationService;
 import iudx.apd.acl.server.policy.PolicyService;
+import iudx.apd.acl.server.policy.PostgresService;
 import iudx.apd.acl.server.validation.FailureHandler;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -73,6 +74,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   private String detail;
   private NotificationService notificationService;
   private AuditingService auditingService;
+  private AuthenticationService authenticator;
+  private AuthClient authClient;
+  private PostgresService pgService;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, reads the
@@ -92,7 +96,9 @@ public class ApiServerVerticle extends AbstractVerticle {
     policyService = PolicyService.createProxy(vertx, POLICY_SERVICE_ADDRESS);
     notificationService = NotificationService.createProxy(vertx, NOTIFICATION_SERVICE_ADDRESS);
     auditingService = AuditingService.createProxy(vertx, AUDITING_SERVICE_ADDRESS);
-
+    authenticator = AuthenticationService.createProxy(vertx, AUTH_SERVICE_ADDRESS);
+    authClient = new AuthClient(config());
+    pgService = new PostgresService(config(), vertx);
     FailureHandler failureHandler = new FailureHandler();
 
     /* Initialize Router builder */
@@ -103,49 +109,49 @@ public class ApiServerVerticle extends AbstractVerticle {
 
               routerBuilder
                   .operation(CREATE_POLICY_API)
-                  .handler(AuthHandler.create(vertx, api, config()))
+                  .handler(AuthHandler.create(api, authenticator, authClient, pgService))
                   .handler(this::postPoliciesHandler)
                   .failureHandler(failureHandler);
 
               routerBuilder
                   .operation(GET_POLICY_API)
-                  .handler(AuthHandler.create(vertx, api, config()))
+                  .handler(AuthHandler.create(api, authenticator, authClient, pgService))
                   .handler(this::getPoliciesHandler)
                   .failureHandler(failureHandler);
 
               routerBuilder
                   .operation(DELETE_POLICY_API)
-                  .handler(AuthHandler.create(vertx, api, config()))
+                  .handler(AuthHandler.create(api, authenticator, authClient, pgService))
                   .handler(this::deletePoliciesHandler)
                   .failureHandler(failureHandler);
 
               routerBuilder
                   .operation(CREATE_NOTIFICATIONS_API)
-                  .handler(AuthHandler.create(vertx, api, config()))
+                  .handler(AuthHandler.create(api, authenticator, authClient, pgService))
                   .handler(this::postAccessRequestHandler)
                   .failureHandler(failureHandler);
 
               routerBuilder
                   .operation(UPDATE_NOTIFICATIONS_API)
-                  .handler(AuthHandler.create(vertx, api, config()))
+                  .handler(AuthHandler.create(api, authenticator, authClient, pgService))
                   .handler(this::putAccessRequestHandler)
                   .failureHandler(failureHandler);
 
               routerBuilder
                   .operation(GET_NOTIFICATIONS_API)
-                  .handler(AuthHandler.create(vertx, api, config()))
+                  .handler(AuthHandler.create(api, authenticator, authClient, pgService))
                   .handler(this::getAccessRequestHandler)
                   .failureHandler(failureHandler);
 
               routerBuilder
                   .operation(DELETE_NOTIFICATIONS_API)
-                  .handler(AuthHandler.create(vertx, api, config()))
+                  .handler(AuthHandler.create(api, authenticator, authClient, pgService))
                   .handler(this::deleteAccessRequestHandler)
                   .failureHandler(failureHandler);
 
               routerBuilder
                   .operation(VERIFY_API)
-                  .handler(AuthHandler.create(vertx, api, config()))
+                  .handler(AuthHandler.create(api, authenticator, authClient, pgService))
                   .handler(this::verifyRequestHandler)
                   .failureHandler(failureHandler);
 

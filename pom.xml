@@ -367,6 +367,9 @@
             <exclude>**/*Verticle.class</exclude>
             <exclude>**/*Service.class</exclude>
 
+            <!--auto-generated class is excluded in unit tests-->
+<!--            <exclude>**/*JwtDataConverter.class</exclude>-->
+
             <exclude>iudx/apd/acl/server/deploy/*</exclude>
             <exclude>**/*Constants.class</exclude>
           </excludes>
