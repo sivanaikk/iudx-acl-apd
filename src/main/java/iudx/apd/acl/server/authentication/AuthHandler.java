@@ -20,13 +20,11 @@ import static iudx.apd.acl.server.authentication.Constants.GET_USER;
 import static iudx.apd.acl.server.authentication.Constants.INSERT_USER_TABLE;
 import static iudx.apd.acl.server.authentication.Constants.ROLE;
 import static iudx.apd.acl.server.authentication.Constants.USER_ID;
-import static iudx.apd.acl.server.common.Constants.AUTH_SERVICE_ADDRESS;
 import static iudx.apd.acl.server.common.ResponseUrn.INVALID_TOKEN_URN;
 
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
-import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
@@ -49,11 +47,15 @@ public class AuthHandler implements Handler<RoutingContext> {
   private static PostgresService pgService;
   private HttpServerRequest request;
 
-  public static AuthHandler create(Vertx vertx, Api apis, JsonObject config) {
-    authenticator = AuthenticationService.createProxy(vertx, AUTH_SERVICE_ADDRESS);
+  public static AuthHandler create(
+      Api apis,
+      AuthenticationService authenticationService,
+      AuthClient client,
+      PostgresService postgresService) {
+    authenticator = authenticationService;
     api = apis;
-    authClient = new AuthClient(config);
-    pgService = new PostgresService(config, vertx);
+    authClient = client;
+    pgService = postgresService;
     return new AuthHandler();
   }
 
@@ -72,18 +74,17 @@ public class AuthHandler implements Handler<RoutingContext> {
       if (token.trim().split(" ").length == 2) {
         token = token.trim().split(" ")[1];
         authInfo.put(HEADER_TOKEN, token);
-        authenticator
-            .tokenIntrospectForVerify(authInfo)
-            .onSuccess(
-                successHandler -> {
-                  LOGGER.info("User Verified Successfully.");
-                  context.next();
-                })
-            .onFailure(
-                fail -> {
-                  LOGGER.error("User Verification Failed. " + fail.getMessage());
-                  processAuthFailure(context, fail.getMessage());
-                });
+        Future<Void> verifyFuture = authenticator.tokenIntrospectForVerify(authInfo);
+        verifyFuture.onComplete(
+            verifyHandler -> {
+              if (verifyHandler.succeeded()) {
+                LOGGER.info("User Verified Successfully.");
+                context.next();
+              } else if (verifyHandler.failed()) {
+                LOGGER.error("User Verification Failed. " + verifyHandler.cause().getMessage());
+                processAuthFailure(context, verifyHandler.cause().getMessage());
+              }
+            });
       } else {
         processAuthFailure(context, "invalid token");
       }
