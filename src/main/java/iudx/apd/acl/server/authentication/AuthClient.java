@@ -32,6 +32,7 @@ public class AuthClient implements AuthClientInterface {
   private final String authServerSearchPath;
   private final String clientId;
   private final String clientSecret;
+  private final int authPort;
 
   public AuthClient(JsonObject config, WebClient webClient) {
     this.client = webClient;
@@ -39,6 +40,7 @@ public class AuthClient implements AuthClientInterface {
     this.authServerSearchPath = config.getString("dxAuthBasePath") + SEARCH_PATH;
     this.clientId = config.getString("clientId");
     this.clientSecret = config.getString("clientSecret");
+    this.authPort = config.getInteger("authPort");
   }
 
   @Override
@@ -51,7 +53,7 @@ public class AuthClient implements AuthClientInterface {
 
     Future<HttpResponse<Buffer>> responseFuture =
         client
-            .get(authHost, authServerSearchPath)
+            .get(authPort, authHost, authServerSearchPath)
             .putHeader("clientId", this.clientId)
             .putHeader("clientSecret", this.clientSecret)
             .addQueryParam("role", iudxRole)

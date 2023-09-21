@@ -87,6 +87,7 @@ public class TestAuthClient {
     config =
         new JsonObject()
             .put("authHost", "dummyAuthHost")
+            .put("authPort", 443)
             .put("dxAuthBasePath", "dummy/base/path")
             .put("type", "urn:dx:as:Success")
             .put("clientId", Utility.generateRandomUuid())
@@ -260,6 +261,7 @@ public class TestAuthClient {
     JsonObject configJson =
         new JsonObject()
             .put("authHost", "dummyAuthHost")
+            .put("authPort", 443)
             .put("dxAuthBasePath", "dummy/base/path")
             .put("type", "urn:dx:as:Success")
             .put("clientId", Utility.generateRandomUuid())
