@@ -224,8 +224,7 @@ public class TestAuthHandler {
     vertxTestContext.completeNow();
   }
 
-  @Disabled
-  @Test
+ /* @Test
   @DisplayName("Test getUserInfo method when the user is not present in DB: Success")
   public void testGetUserInfoSuccess(VertxTestContext vertxTestContext) {
     UUID anotherConsumer = Utility.generateRandomUuid();
@@ -273,7 +272,7 @@ public class TestAuthHandler {
                 vertxTestContext.failNow("Failed to fetch inserted user from the DB");
               }
             });
-  }
+  }*/
 
   @Test
   @DisplayName("Test getUserInfo when authClient fails to fetch user details : Failure")
