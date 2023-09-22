@@ -93,7 +93,7 @@ public class TestAuthClient {
             .put("clientId", Utility.generateRandomUuid())
             .put("clientSecret", Utility.generateRandomUuid());
 
-    lenient().when(webClient.get(anyString(), anyString())).thenReturn(httpServerRequest);
+    lenient().when(webClient.get(anyInt(),anyString(), anyString())).thenReturn(httpServerRequest);
     lenient()
         .when(httpServerRequest.putHeader(anyString(), anyString()))
         .thenReturn(httpServerRequest);
@@ -186,7 +186,7 @@ public class TestAuthClient {
               if (handler.succeeded()) {
 
                 assertEquals(consumer, handler.result());
-                verify(webClient, times(1)).get(anyString(), anyString());
+                verify(webClient, times(1)).get(anyInt(), anyString(), anyString());
                 verify(httpServerRequest, times(2)).putHeader(anyString(), anyString());
                 verify(httpServerRequest, times(3)).addQueryParam(anyString(), anyString());
                 verify(httpServerRequest, times(1)).send();
@@ -214,7 +214,7 @@ public class TestAuthClient {
                 vertxTestContext.failNow("Succeeded when fetch user info from Auth failed");
               } else {
                 assertEquals("Internal Server Error", handler.cause().getMessage());
-                verify(webClient, times(1)).get(anyString(), anyString());
+                verify(webClient, times(1)).get(anyInt(),anyString(), anyString());
                 verify(httpServerRequest, times(2)).putHeader(anyString(), anyString());
                 verify(httpServerRequest, times(3)).addQueryParam(anyString(), anyString());
                 verify(httpServerRequest, times(1)).send();
@@ -239,7 +239,7 @@ public class TestAuthClient {
                 vertxTestContext.failNow("Succeeded when no user was found in AAA server");
               } else {
                 assertEquals("User not present in Auth.", handler.cause().getMessage());
-                verify(webClient, times(1)).get(anyString(), anyString());
+                verify(webClient, times(1)).get(anyInt(), anyString(), anyString());
                 verify(httpServerRequest, times(2)).putHeader(anyString(), anyString());
                 verify(httpServerRequest, times(3)).addQueryParam(anyString(), anyString());
                 verify(httpServerRequest, times(1)).send();
@@ -267,7 +267,7 @@ public class TestAuthClient {
             .put("clientId", Utility.generateRandomUuid())
             .put("clientSecret", Utility.generateRandomUuid());
 
-    lenient().when(webClient.get(anyString(), anyString())).thenReturn(httpServerRequest);
+    lenient().when(webClient.get(anyInt(), anyString(), anyString())).thenReturn(httpServerRequest);
     lenient()
         .when(httpServerRequest.putHeader(anyString(), anyString()))
         .thenReturn(httpServerRequest);
@@ -325,7 +325,7 @@ public class TestAuthClient {
                           } else {
                             assertEquals(
                                 "User information is invalid", authHandler.cause().getMessage());
-                            verify(webClient, times(1)).get(anyString(), anyString());
+                            verify(webClient, times(1)).get(anyInt(), anyString(), anyString());
                             verify(httpServerRequest, times(2)).putHeader(anyString(), anyString());
                             verify(httpServerRequest, times(3))
                                 .addQueryParam(anyString(), anyString());
