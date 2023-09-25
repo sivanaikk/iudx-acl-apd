@@ -47,7 +47,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"user\": {\n    \"id\": \"fd47486b-3497-4248-ac1e-082e4d37a66c\",\n    \"name\": {\n    \"firstName\":\"Vasanth\",\n    \"lastName\":\"Rajaraman\"\n    },\n    \"email\": \"vasanth.rajaraman@datakaveri.org\"\n  },\n  \"owner\": {\n    \"id\": \"b2c27f3f-2524-4a84-816e-91f9ab23f837\",\n    \"name\": {\n    \"firstName\":\"B\",\n    \"lastName\":\"Robert A B C D\"\n    },\n    \"email\": \"bryanrobert@iisc.ac.in\"\n  },\n   \"item\": {\n     \"itemId\": \"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\n     \"itemType\": \"RESOURCE_GROUP\"\n   }\n}",
+              "raw": "{\n  \"user\": {\n    \"id\": \"fd47486b-3497-4248-ac1e-082e4d37a66c\",\n    \"name\": {\n    \"firstName\":\"Vasanth\",\n    \"lastName\":\"Rajaraman\"\n    },\n    \"email\": \"vasanth.rajaraman@datakaveri.org\"\n  },\n  \"owner\": {\n    \"id\": \"b2c27f3f-2524-4a84-816e-91f9ab23f837\",\n    \"name\": {\n    \"firstName\":\"B\",\n    \"lastName\":\"Robert A B C D\"\n    },\n    \"email\": \"bryanrobert@iisc.ac.in\"\n  },\n   \"item\": {\n     \"itemId\": \"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\n     \"itemType\": \"resource_group\"\n   }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -107,7 +107,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"user\": {\n    \"id\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n    \"name\": {\n    \"firstName\":\"demo\",\n    \"lastName\":\"name\"\n    },\n    \"email\": \"abc31111111221ac@xyz.com\"\n  },\n  \"owner\": {\n    \"id\": \"4e563a5f-35f0-4f32-92be-8830775a1c5e\",\n    \"name\": {\n    \"firstName\":\"Test\",\n    \"lastName\":\"provider\"\n    },\n    \"email\": \"testprovider@example.com\"\n  },\n   \"item\": {\n     \"itemId\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n     \"itemType\": \"RESOURCE_GROUP\"\n   }\n}",
+              "raw": "{\n  \"user\": {\n    \"id\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n    \"name\": {\n    \"firstName\":\"demo\",\n    \"lastName\":\"name\"\n    },\n    \"email\": \"abc31111111221ac@xyz.com\"\n  },\n  \"owner\": {\n    \"id\": \"4e563a5f-35f0-4f32-92be-8830775a1c5e\",\n    \"name\": {\n    \"firstName\":\"Test\",\n    \"lastName\":\"provider\"\n    },\n    \"email\": \"testprovider@example.com\"\n  },\n   \"item\": {\n     \"itemId\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n     \"itemType\": \"resource_group\"\n   }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -167,7 +167,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"user\": {\n    \"id\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n    \"name\": {\n    \"firstName\":\"demo\",\n    \"lastName\":\"name\"\n    },\n    \"email\": \"abc31111111221ac@xyz.com\"\n  },\n  \"owner\": {\n    \"id\": \"4e563a5f-35f0-4f32-92be-8830775a1c5e\",\n    \"name\": {\n    \"firstName\":\"Test\",\n    \"lastName\":\"provider\"\n    },\n    \"email\": \"testprovider@example.com\"\n  },\n   \"item\": {\n     \"itemId\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n     \"itemType\": \"RESOURCE\"\n   }\n}",
+              "raw": "{\n  \"user\": {\n    \"id\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n    \"name\": {\n    \"firstName\":\"demo\",\n    \"lastName\":\"name\"\n    },\n    \"email\": \"abc31111111221ac@xyz.com\"\n  },\n  \"owner\": {\n    \"id\": \"4e563a5f-35f0-4f32-92be-8830775a1c5e\",\n    \"name\": {\n    \"firstName\":\"Test\",\n    \"lastName\":\"provider\"\n    },\n    \"email\": \"testprovider@example.com\"\n  },\n   \"item\": {\n     \"itemId\": \"d67a19d5-9a26-5d7c-b0e7-58e7f3b222e2\",\n     \"itemType\": \"resource\"\n   }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2171,7 +2171,8 @@
                   "pm.test(\"Check response body\", function () {    ",
                   "    const body = pm.response.json();",
                   "    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:badRequest\");",
-                  "    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",                  "    }",
+                  "    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",
+                  "    }",
                   ");"
                 ],
                 "type": "text/javascript"
