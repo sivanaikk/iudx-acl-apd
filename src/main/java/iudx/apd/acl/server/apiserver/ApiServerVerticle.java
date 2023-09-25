@@ -317,10 +317,8 @@ public class ApiServerVerticle extends AbstractVerticle {
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
-                handleSuccessResponse(
-                    response,
-                    handler.result().getInteger(STATUS_CODE),
-                    handler.result().getString(RESULT));
+                String result = handler.result().getJsonObject(RESULT).encode();
+                handleSuccessResponse(response, handler.result().getInteger(STATUS_CODE), result);
               } else {
                 handleFailureResponse(routingContext, handler.cause().getMessage());
               }
@@ -382,10 +380,8 @@ public class ApiServerVerticle extends AbstractVerticle {
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
-                handleSuccessResponse(
-                    response,
-                    handler.result().getInteger(STATUS_CODE),
-                    handler.result().getString(RESULT));
+                String result = handler.result().getJsonObject(RESULT).encode();
+                handleSuccessResponse(response, handler.result().getInteger(STATUS_CODE), result);
               } else {
                 handleFailureResponse(routingContext, handler.cause().getMessage());
               }
