@@ -81,9 +81,8 @@ public class CreatePolicy {
                 return createPolicy(createPolicyRequestList, userId)
                     .compose(
                         createPolicySuccessHandler -> {
-                                                    JsonArray responseArray =
-                           createResponseArray(createPolicySuccessHandler);
-                            LOGGER.debug("Policy is created with info {}", responseArray);
+                          JsonArray responseArray = createResponseArray(createPolicySuccessHandler);
+                          LOGGER.debug("Policy is created with info {}", responseArray);
                           JsonObject responseJson =
                               new JsonObject()
                                   .put("type", ResponseUrn.SUCCESS_URN.getUrn())
@@ -335,29 +334,29 @@ public class CreatePolicy {
         .encode();
   }
 
-    private JsonArray createResponseArray(RowSet<Row> rows) {
-      JsonArray response = new JsonArray();
-      final JsonObject[] ownerJsonObject = {null};
+  private JsonArray createResponseArray(RowSet<Row> rows) {
+    JsonArray response = new JsonArray();
+    final JsonObject[] ownerJsonObject = {null};
 
-      for (RowSet<Row> rowSet = rows; rowSet != null; rowSet = rowSet.next()) {
-        rowSet.forEach(
-            row -> {
-              JsonObject jsonObject =
-                  new JsonObject()
-                      .put("policyId", row.getUUID("_id").toString())
-                      .put("userEmailId", row.getString("user_emailid"))
-                      .put("itemId", row.getUUID("item_id").toString())
-                      .put("expiryAt", row.getLocalDateTime("expiry_at").toString());
+    for (RowSet<Row> rowSet = rows; rowSet != null; rowSet = rowSet.next()) {
+      rowSet.forEach(
+          row -> {
+            JsonObject jsonObject =
+                new JsonObject()
+                    .put("policyId", row.getUUID("_id").toString())
+                    .put("userEmailId", row.getString("user_emailid"))
+                    .put("itemId", row.getUUID("item_id").toString())
+                    .put("expiryAt", row.getLocalDateTime("expiry_at").toString());
 
-              if (ownerJsonObject[0] == null) {
-                ownerJsonObject[0] =
-                    new JsonObject().put("ownerId", row.getValue("owner_id").toString());
-              }
-              response.add(jsonObject);
-            });
-      }
-
-      response.add(ownerJsonObject[0]);
-      return response;
+            if (ownerJsonObject[0] == null) {
+              ownerJsonObject[0] =
+                  new JsonObject().put("ownerId", row.getValue("owner_id").toString());
+            }
+            response.add(jsonObject);
+          });
     }
+
+    response.add(ownerJsonObject[0]);
+    return response;
+  }
 }
