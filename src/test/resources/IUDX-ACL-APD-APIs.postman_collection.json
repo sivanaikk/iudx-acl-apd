@@ -1072,7 +1072,8 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "{{providerToken}}"
+                "value": "{{providerToken}}",
+                "disabled": true
               },
               {
                 "key": "Authorization",
@@ -1091,6 +1092,11 @@
                 "value": "{{consumerDelegateToken}}",
                 "type": "text",
                 "disabled": true
+              },
+              {
+                "key": "Authorization",
+                "value": "{{consumerTokenForbidden}}",
+                "type": "text"
               }
             ],
             "url": {
@@ -1724,7 +1730,8 @@
               {
                 "key": "Authorization",
                 "value": "{{providerToken}}",
-                "type": "text"
+                "type": "text",
+                "disabled": true
               },
               {
                 "key": "Authorization",
@@ -1743,6 +1750,11 @@
                 "value": "{{consumerDelegateToken}}",
                 "type": "text",
                 "disabled": true
+              },
+              {
+                "key": "Authorization",
+                "value": "{{consumerTokenForbidden}}",
+                "type": "text"
               }
             ],
             "url": {
