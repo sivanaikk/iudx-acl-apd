@@ -1947,7 +1947,6 @@ components:
           pattern: >-
             ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
           minLength: 1
-          maxLength: 36
       required:
         - id
         - name
@@ -1967,7 +1966,6 @@ components:
           pattern: >-
             ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
           minLength: 1
-          maxLength: 36
     item:
       type: object
       properties:
