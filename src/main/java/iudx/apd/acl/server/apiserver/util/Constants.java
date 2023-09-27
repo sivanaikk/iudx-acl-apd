@@ -102,6 +102,7 @@ public class Constants {
   public static final String OWNER_ID = "ownerUserId";
   public static final String RESOURCE_TAG = "iudx:ResourceServer";
   public static final String KEY_RESOURCE_SERVER_URL = "resourceServerURL";
+  public static final String RS_URL = "resourceServerRegURL";
 
   public static final String FIRST_NAME = "firstName";
   public static final String LAST_NAME = "lastName";
