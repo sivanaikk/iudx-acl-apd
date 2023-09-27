@@ -1,6 +1,7 @@
 package iudx.apd.acl.server.policy;
 
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
+import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
 import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
 
 import io.vertx.core.Future;
@@ -67,8 +68,19 @@ public class CatalogueClient implements CatalogueClientInterface {
                   UUID resourceGroup = null;
                   String resServerUrl = null;
                   boolean isItemGroupLevelResource = false;
+                  boolean isProviderId = false;
+                  boolean isResourceServerId = false;
 
                   for (JsonObject resultJson : resultJsonList) {
+                    /* check if the id being sent is a provider id*/
+                    if (resultJson.getString(TYPE).contains(PROVIDER_TAG)) {
+                      isProviderId = resultJson.getString(ID).equals(id.toString());
+                    }
+                    /* check if the id being sent is a resource server id*/
+                    if (resultJson.getString(TYPE).contains(RESOURCE_SERVER_TAG)) {
+                      isResourceServerId = resultJson.getString(ID).equals(id.toString());
+                    }
+
                     String resourceId = resultJson.getString(ID);
                     if (resourceId != null && resourceId.equals(id.toString())) {
                       List<String> tags = Util.toList(resultJson.getJsonArray(TYPE));
@@ -98,6 +110,15 @@ public class CatalogueClient implements CatalogueClientInterface {
                             .put(
                                 DETAIL,
                                 "Something went wrong while fetching resource info from Catalogue");
+                    promise.fail(failureMessage.encode());
+                  } else if (isProviderId || isResourceServerId) {
+                    LOGGER.error("isProviderId: {}", isProviderId);
+                    LOGGER.error("isResourceServerId: {}", isResourceServerId);
+                    JsonObject failureMessage =
+                        new JsonObject()
+                            .put(TYPE, BAD_REQUEST.getValue())
+                            .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getUrn())
+                            .put(DETAIL, "Given id is invalid");
                     promise.fail(failureMessage.encode());
                   } else {
                     ResourceObj resourceObj =
