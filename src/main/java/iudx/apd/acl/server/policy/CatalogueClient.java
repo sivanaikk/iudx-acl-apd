@@ -1,17 +1,6 @@
 package iudx.apd.acl.server.policy;
 
-import static iudx.apd.acl.server.apiserver.util.Constants.CAT_SUCCESS_URN;
-import static iudx.apd.acl.server.apiserver.util.Constants.DETAIL;
-import static iudx.apd.acl.server.apiserver.util.Constants.ID;
-import static iudx.apd.acl.server.apiserver.util.Constants.KEY_RESOURCE_SERVER_URL;
-import static iudx.apd.acl.server.apiserver.util.Constants.OWNER_ID;
-import static iudx.apd.acl.server.apiserver.util.Constants.PROVIDER_TAG;
-import static iudx.apd.acl.server.apiserver.util.Constants.RELATIONSHIP_PATH;
-import static iudx.apd.acl.server.apiserver.util.Constants.RESOURCE_GROUP_TAG;
-import static iudx.apd.acl.server.apiserver.util.Constants.RESOURCE_TAG;
-import static iudx.apd.acl.server.apiserver.util.Constants.RESULTS;
-import static iudx.apd.acl.server.apiserver.util.Constants.TITLE;
-import static iudx.apd.acl.server.apiserver.util.Constants.TYPE;
+import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
 
 import io.vertx.core.Future;
@@ -92,7 +81,7 @@ public class CatalogueClient implements CatalogueClientInterface {
                     } else if (typeArray.contains(PROVIDER_TAG)) {
                       provider = UUID.fromString(resultJson.getString(OWNER_ID));
                     } else if (typeArray.contains(RESOURCE_TAG)) {
-                      resServerUrl = resultJson.getString(KEY_RESOURCE_SERVER_URL);
+                      resServerUrl = resultJson.getString(RS_URL);
                     }
                   }
                   boolean isInfoFromCatInvalid =
@@ -100,6 +89,7 @@ public class CatalogueClient implements CatalogueClientInterface {
                   if (isInfoFromCatInvalid) {
                     LOGGER.error("Something from catalogue is null. The resourceId is {}", id);
                     LOGGER.error("The ownerId is {}", provider);
+                    LOGGER.error("The resource server URL is {}", resServerUrl);
                     LOGGER.error("The resource server URL is {}", resServerUrl);
                     JsonObject failureMessage =
                         new JsonObject()

@@ -80,7 +80,7 @@ public class TestCatalogueClient {
     jsonArray.add(
         new JsonObject()
             .put("type", resourceServerJsonArray)
-            .put("resourceServerURL", "rs.iudx.io"));
+            .put(RS_URL, "rs.iudx.io"));
     result.put(TYPE, CAT_SUCCESS_URN);
     result.put(RESULT, jsonArray);
 
