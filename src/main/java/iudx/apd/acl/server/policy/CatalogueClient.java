@@ -84,9 +84,8 @@ public class CatalogueClient implements CatalogueClientInterface {
                       isResourceServerId = idFromResponse.equals(id.toString());
                     }
 
-                    String resourceId = idFromResponse;
                      isInvalidId = isProviderId || isResourceServerId;
-                    if (!isInvalidId && resourceId != null && resourceId.equals(id.toString())) {
+                    if (!isInvalidId && idFromResponse != null && idFromResponse.equals(id.toString())) {
                       List<String> tags = Util.toList(resultJson.getJsonArray(TYPE));
                       isItemGroupLevelResource = tags.contains(RESOURCE_GROUP_TAG);
                     }
