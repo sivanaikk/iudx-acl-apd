@@ -70,26 +70,30 @@ public class CatalogueClient implements CatalogueClientInterface {
                   boolean isItemGroupLevelResource = false;
                   boolean isProviderId = false;
                   boolean isResourceServerId = false;
+                  boolean isInvalidId = false;
 
                   for (JsonObject resultJson : resultJsonList) {
+                    String type = resultJson.getString(TYPE);
+                    String idFromResponse = resultJson.getString(ID);
                     /* check if the id being sent is a provider id*/
-                    if (resultJson.getString(TYPE).contains(PROVIDER_TAG)) {
-                      isProviderId = resultJson.getString(ID).equals(id.toString());
+                    if (type.contains(PROVIDER_TAG)) {
+                      isProviderId = idFromResponse.equals(id.toString());
                     }
                     /* check if the id being sent is a resource server id*/
-                    if (resultJson.getString(TYPE).contains(RESOURCE_SERVER_TAG)) {
-                      isResourceServerId = resultJson.getString(ID).equals(id.toString());
+                    if (type.contains(RESOURCE_SERVER_TAG)) {
+                      isResourceServerId = idFromResponse.equals(id.toString());
                     }
 
-                    String resourceId = resultJson.getString(ID);
-                    if (resourceId != null && resourceId.equals(id.toString())) {
+                    String resourceId = idFromResponse;
+                     isInvalidId = isProviderId || isResourceServerId;
+                    if (!isInvalidId && resourceId != null && resourceId.equals(id.toString())) {
                       List<String> tags = Util.toList(resultJson.getJsonArray(TYPE));
                       isItemGroupLevelResource = tags.contains(RESOURCE_GROUP_TAG);
                     }
 
                     JsonArray typeArray = resultJson.getJsonArray(TYPE);
                     if (typeArray.contains(RESOURCE_GROUP_TAG)) {
-                      resourceGroup = UUID.fromString(resultJson.getString(ID));
+                      resourceGroup = UUID.fromString(idFromResponse);
                     } else if (typeArray.contains(PROVIDER_TAG)) {
                       provider = UUID.fromString(resultJson.getString(OWNER_ID));
                     } else if (typeArray.contains(RESOURCE_TAG)) {
@@ -98,10 +102,9 @@ public class CatalogueClient implements CatalogueClientInterface {
                   }
                   boolean isInfoFromCatInvalid =
                       id == null || provider == null || resServerUrl == null;
-                  if (isInfoFromCatInvalid) {
+                  if (isInfoFromCatInvalid && !isInvalidId) {
                     LOGGER.error("Something from catalogue is null. The resourceId is {}", id);
                     LOGGER.error("The ownerId is {}", provider);
-                    LOGGER.error("The resource server URL is {}", resServerUrl);
                     LOGGER.error("The resource server URL is {}", resServerUrl);
                     JsonObject failureMessage =
                         new JsonObject()
