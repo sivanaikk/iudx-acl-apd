@@ -1,6 +1,7 @@
 package iudx.apd.acl.server.policy;
 
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
+import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
 import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
 
 import io.vertx.core.Future;
@@ -67,17 +68,31 @@ public class CatalogueClient implements CatalogueClientInterface {
                   UUID resourceGroup = null;
                   String resServerUrl = null;
                   boolean isItemGroupLevelResource = false;
+                  boolean isProviderId = false;
+                  boolean isResourceServerId = false;
+                  boolean isInvalidId = false;
 
                   for (JsonObject resultJson : resultJsonList) {
-                    String resourceId = resultJson.getString(ID);
-                    if (resourceId != null && resourceId.equals(id.toString())) {
+                    String type = resultJson.getString(TYPE);
+                    String idFromResponse = resultJson.getString(ID);
+                    /* check if the id being sent is a provider id*/
+                    if (type.contains(PROVIDER_TAG)) {
+                      isProviderId = idFromResponse.equals(id.toString());
+                    }
+                    /* check if the id being sent is a resource server id*/
+                    if (type.contains(RESOURCE_SERVER_TAG)) {
+                      isResourceServerId = idFromResponse.equals(id.toString());
+                    }
+
+                     isInvalidId = isProviderId || isResourceServerId;
+                    if (!isInvalidId && idFromResponse != null && idFromResponse.equals(id.toString())) {
                       List<String> tags = Util.toList(resultJson.getJsonArray(TYPE));
                       isItemGroupLevelResource = tags.contains(RESOURCE_GROUP_TAG);
                     }
 
                     JsonArray typeArray = resultJson.getJsonArray(TYPE);
                     if (typeArray.contains(RESOURCE_GROUP_TAG)) {
-                      resourceGroup = UUID.fromString(resultJson.getString(ID));
+                      resourceGroup = UUID.fromString(idFromResponse);
                     } else if (typeArray.contains(PROVIDER_TAG)) {
                       provider = UUID.fromString(resultJson.getString(OWNER_ID));
                     } else if (typeArray.contains(RESOURCE_TAG)) {
@@ -86,10 +101,9 @@ public class CatalogueClient implements CatalogueClientInterface {
                   }
                   boolean isInfoFromCatInvalid =
                       id == null || provider == null || resServerUrl == null;
-                  if (isInfoFromCatInvalid) {
+                  if (isInfoFromCatInvalid && !isInvalidId) {
                     LOGGER.error("Something from catalogue is null. The resourceId is {}", id);
                     LOGGER.error("The ownerId is {}", provider);
-                    LOGGER.error("The resource server URL is {}", resServerUrl);
                     LOGGER.error("The resource server URL is {}", resServerUrl);
                     JsonObject failureMessage =
                         new JsonObject()
@@ -98,6 +112,15 @@ public class CatalogueClient implements CatalogueClientInterface {
                             .put(
                                 DETAIL,
                                 "Something went wrong while fetching resource info from Catalogue");
+                    promise.fail(failureMessage.encode());
+                  } else if (isProviderId || isResourceServerId) {
+                    LOGGER.error("isProviderId: {}", isProviderId);
+                    LOGGER.error("isResourceServerId: {}", isResourceServerId);
+                    JsonObject failureMessage =
+                        new JsonObject()
+                            .put(TYPE, BAD_REQUEST.getValue())
+                            .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getUrn())
+                            .put(DETAIL, "Given id is invalid");
                     promise.fail(failureMessage.encode());
                   } else {
                     ResourceObj resourceObj =

@@ -74,7 +74,7 @@ public class CreateNotification {
    * multiple checks
    *
    * @param notification request body for the POST Notification API with type JsonObject
-   * @param user         details of the consumer
+   * @param user details of the consumer
    * @return response as JsonObject with type Future
    */
   public Future<JsonObject> initiateCreateNotification(JsonObject notification, User user) {
@@ -156,11 +156,11 @@ public class CreateNotification {
   /**
    * Inserts provider information in the user_table if it is not already present
    *
-   * @param query      An insert query
+   * @param query An insert query
    * @param providerId id of the owner of the resource with type UUID
-   * @param firstName  First name of the provider
-   * @param lastName   Last name of the provider
-   * @param emailId    Email id of the provider
+   * @param firstName First name of the provider
+   * @param lastName Last name of the provider
+   * @param emailId Email id of the provider
    * @return True if the insertion is successfully done, failure if any
    */
   public Future<Boolean> addProviderInDb(
@@ -185,12 +185,12 @@ public class CreateNotification {
   /**
    * Adds resource in the database if the resource is not already present
    *
-   * @param query             An insert query
-   * @param resourceId        id of the resource with type UUID
-   * @param resourceGroupId   if present for the resource with type UUID or null
-   * @param providerId        id of the owner of the resource with type UUID
+   * @param query An insert query
+   * @param resourceId id of the resource with type UUID
+   * @param resourceGroupId if present for the resource with type UUID or null
+   * @param providerId id of the owner of the resource with type UUID
    * @param resourceServerUrl string containing resource-server-url of the item
-   * @param itemType          itemType of the item,can be either RESOURCE_GROUP or RESOURCE
+   * @param itemType itemType of the item,can be either RESOURCE_GROUP or RESOURCE
    * @return True, if the insertion is successful or Failure if there is any DB failure
    */
   public Future<Boolean> addResourceInDb(
@@ -244,7 +244,7 @@ public class CreateNotification {
             if (isPolicyAbsent) {
               promise.complete(false);
             } else
-              /* An active policy for the consumer is present */ {
+            /* An active policy for the consumer is present */ {
               JsonObject failureMessage =
                   new JsonObject()
                       .put(TYPE, HttpStatusCode.CONFLICT.getValue())
@@ -306,9 +306,9 @@ public class CreateNotification {
   /**
    * Creates notification for the consumer to access the given resource
    *
-   * @param query      Insert query to create notification
+   * @param query Insert query to create notification
    * @param resourceId id for which the consumer or consumer delegate wants access to with type UUID
-   * @param consumer   details of the consumer with type User
+   * @param consumer details of the consumer with type User
    * @param providerId id of the owner of the resource with type UUID
    * @return JsonObject response, if notification is created successfully, failure if any
    */
@@ -445,13 +445,13 @@ public class CreateNotification {
               } else {
                 if (handler.cause().getMessage().equalsIgnoreCase("Item is not found")
                     || handler
-                    .cause()
-                    .getMessage()
-                    .equalsIgnoreCase("Id/Ids does not present in CAT")
+                        .cause()
+                        .getMessage()
+                        .equalsIgnoreCase("Id/Ids does not present in CAT")
                     || handler
-                    .cause()
-                    .getMessage()
-                    .equalsIgnoreCase("Item id given is not present")) {
+                        .cause()
+                        .getMessage()
+                        .equalsIgnoreCase("Item id given is not present")) {
                   /*id not present in the catalogue*/
                   JsonObject failureMessage =
                       new JsonObject()
@@ -459,6 +459,8 @@ public class CreateNotification {
                           .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
                           .put(DETAIL, FAILURE_MESSAGE + ", as resource was not found");
                   promise.fail(failureMessage.encode());
+                } else if (handler.cause().getMessage().contains("Given id is invalid")) {
+                  promise.fail(handler.cause().getMessage());
                 } else {
                   /*something went wrong while fetching the item from catalogue*/
                   LOG.error(
@@ -478,8 +480,8 @@ public class CreateNotification {
   /**
    * Executes the query by getting the Pgpool instance from postgres
    *
-   * @param query   to be executes
-   * @param tuple   exchangeable values to be added in the query
+   * @param query to be executes
+   * @param tuple exchangeable values to be added in the query
    * @param handler AsyncResult JsonObject handler
    */
   public void executeQuery(String query, Tuple tuple, Handler<AsyncResult<JsonObject>> handler) {

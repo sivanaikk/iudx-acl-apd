@@ -76,10 +76,11 @@ public class TestCatalogueClient {
     resourceGroup.add("iudx:TransitManagement");
     resourceServerJsonArray.add("iudx:ResourceServer");
     jsonArray.add(new JsonObject().put("type", resourceGroup).put("id", resourceId));
-    jsonArray.add(new JsonObject().put("type", providerJsonArray).put("ownerUserId", ownerId));
+    jsonArray.add(new JsonObject().put("type", providerJsonArray).put("ownerUserId", ownerId).put(ID, Utility.generateRandomUuid()));
     jsonArray.add(
         new JsonObject()
             .put("type", resourceServerJsonArray)
+                .put(ID, Utility.generateRandomUuid())
             .put(RS_URL, "rs.iudx.io"));
     result.put(TYPE, CAT_SUCCESS_URN);
     result.put(RESULT, jsonArray);
