@@ -1014,7 +1014,7 @@ components:
       example:
         type: urn:dx:acl:resourceNotFound
         title: Not Found
-        detail: Access request not found
+        detail: 'Access request not found, for the server : dummy.server.io'
     createNotificationForbiddenResponse:
       title: Create notification forbidden
       type: object

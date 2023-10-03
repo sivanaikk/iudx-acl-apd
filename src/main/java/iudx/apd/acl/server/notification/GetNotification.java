@@ -75,7 +75,7 @@ public class GetNotification {
                     .put("firstName", user.getFirstName())
                     .put("lastName", user.getLastName()))
             .put("id", user.getUserId());
-    JsonObject userInfo = new JsonObject();
+    JsonObject userInfo = new JsonObject().put(RS_SERVER_URL, user.getResourceServerUrl());
     if (role.equals(Role.CONSUMER)) {
       userInfo.put("consumer", jsonObject);
     } else {
@@ -140,8 +140,13 @@ public class GetNotification {
                       new JsonObject()
                           .put(TYPE, HttpStatusCode.NOT_FOUND.getValue())
                           .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
-                          .put(DETAIL, "Access request not found");
-                  LOG.error("No Request found!");
+                          .put(
+                              DETAIL,
+                              "Access request not found, for the server : "
+                                  + information.getString(RS_SERVER_URL));
+                  LOG.error(
+                      "No Request found for the resource server: {}",
+                      information.getString(RS_SERVER_URL));
                   promise.fail(response.encode());
                 }
               } else {

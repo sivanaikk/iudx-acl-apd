@@ -225,7 +225,7 @@ public class TestGetNotifications {
                     new JsonObject()
                         .put(TYPE, HttpStatusCode.NOT_FOUND.getValue())
                         .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
-                        .put(DETAIL, "Access request not found");
+                        .put(DETAIL, "Access request not found, for the server : rs.iudx.io");
                 assertEquals(failureMessage.encode(), handler.cause().getMessage());
                 vertxTestContext.completeNow();
               }
