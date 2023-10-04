@@ -1927,9 +1927,6 @@ components:
         lastName:
           type: string
           minLength: 1
-      required:
-        - firstName
-        - lastName
 
 
     user:
@@ -1966,6 +1963,11 @@ components:
           pattern: >-
             ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
           minLength: 1
+      required:
+        - id
+        - name
+        - email
+
     item:
       type: object
       properties:
