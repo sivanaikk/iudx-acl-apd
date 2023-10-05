@@ -19,7 +19,7 @@ public class FailureHandler implements Handler<RoutingContext> {
   @Override
   public void handle(RoutingContext routingContext) {
     Throwable failure = routingContext.failure();
-
+    failure.printStackTrace();
     LOGGER.debug("Exception caught");
     if (failure instanceof DxRuntimeException) {
       DxRuntimeException exception = (DxRuntimeException) failure;

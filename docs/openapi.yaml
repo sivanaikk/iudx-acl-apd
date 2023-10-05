@@ -110,7 +110,7 @@ paths:
                   format: uuid
                   pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
                   minLength: 36
-                  maxLength: 36
+                   
               required:
                 - id
             examples:
@@ -276,7 +276,7 @@ paths:
                             pattern: >-
                               ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
                             minLength: 1
-                            maxLength: 36
+                             
                           itemId:
                             type: string
                             pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
@@ -632,7 +632,7 @@ paths:
                   format: uuid
                   pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
                   minLength: 36
-                  maxLength: 36
+                   
                 itemType:
                   enum:
                     - RESOURCE_GROUP
@@ -785,7 +785,7 @@ paths:
                   format: uuid
                   pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
                   minLength: 36
-                  maxLength: 36
+                   
                 status:
                   enum:
                     - granted
@@ -934,7 +934,7 @@ paths:
                   format: uuid
                   pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
                   minLength: 36
-                  maxLength: 36
+                   
               required:
                 - id
             examples:
