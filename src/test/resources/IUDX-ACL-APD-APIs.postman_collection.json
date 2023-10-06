@@ -2483,48 +2483,53 @@
 			]
 		},
 		{
-			"name": "Get token (via client-id, secret) Copy",
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "POST",
-				"header": [
-					{
-						"key": "clientId",
-						"value": "{{clientId}}",
-						"type": "text",
-						"description": "Client ID (UUID)"
-					},
-					{
-						"key": "clientSecret",
-						"value": "{{clientSecret}}",
-						"type": "text",
-						"description": "Client secret (40 chars in hexadecimal)"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"itemId\": \"rs.iudx.io\",\n    \"itemType\": \"resource_server\",\n    \"role\": \"provider\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "token",
+			"item": [
+				{
+					"name": "Get token (via client-id, secret)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "clientId",
+								"value": "{{clientId}}",
+								"type": "text",
+								"description": "Client ID (UUID)"
+							},
+							{
+								"key": "clientSecret",
+								"value": "{{clientSecret}}",
+								"type": "text",
+								"description": "Client secret (40 chars in hexadecimal)"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemId\": \"\",\n    \"itemType\": \"\",\n    \"role\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{authEndpoint}}/auth/v1/token",
+							"host": [
+								"{{authEndpoint}}"
+							],
+							"path": [
+								"auth",
+								"v1",
+								"token"
+							]
 						}
-					}
-				},
-				"url": {
-					"raw": "{{authEndpoint}}/auth/v1/token",
-					"host": [
-						"{{authEndpoint}}"
-					],
-					"path": [
-						"auth",
-						"v1",
-						"token"
-					]
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		}
 	],
 	"event": [
