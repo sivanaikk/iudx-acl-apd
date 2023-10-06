@@ -1012,7 +1012,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "someToken",
+								"value": "{{authToken}}",
 								"type": "text"
 							}
 						],
@@ -1677,7 +1677,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "someToken",
+								"value": "{{authToken}}",
 								"type": "text"
 							}
 						],
@@ -2324,12 +2324,6 @@
 								"key": "Authorization",
 								"value": "{{consumerTokenForbidden}}",
 								"type": "text"
-							},
-							{
-								"key": "",
-								"value": "",
-								"type": "text",
-								"disabled": true
 							}
 						],
 						"body": {
@@ -2511,7 +2505,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"itemId\": \"\",\n    \"itemType\": \"\",\n    \"role\": \"\"\n}",
+					"raw": "{\n    \"itemId\": \"rs.iudx.io\",\n    \"itemType\": \"resource_server\",\n    \"role\": \"provider\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
