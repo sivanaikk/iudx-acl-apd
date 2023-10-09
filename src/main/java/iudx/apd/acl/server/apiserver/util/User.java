@@ -24,9 +24,6 @@ public class User {
   private final String emailId;
   private final String firstName;
   private final String lastName;
-
-  //  private final boolean isDelegate;
-
   private final String resourceServerUrl;
 
   public User(JsonObject userDetails) {
@@ -36,7 +33,6 @@ public class User {
     this.firstName = userDetails.getString(FIRST_NAME);
     this.lastName = userDetails.getString(LAST_NAME);
     this.resourceServerUrl = userDetails.getString(RS_SERVER_URL);
-    //    this.isDelegate = userDetails.getBoolean("isDelegate");
 
     /* Converts JsonObject to User class object or dataObject conversion [Deserialization] */
     UserConverter.fromJson(userDetails, this);
@@ -72,10 +68,6 @@ public class User {
   public String getUserId() {
     return userId;
   }
-
-  //  public boolean isDelegate() {
-  //    return isDelegate;
-  //  }
 
   public String getResourceServerUrl() {
     return resourceServerUrl;
