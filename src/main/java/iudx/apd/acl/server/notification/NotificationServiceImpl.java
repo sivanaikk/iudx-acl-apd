@@ -91,7 +91,7 @@ public class NotificationServiceImpl implements NotificationService {
                 LOG.info("Successfully updated the notification");
                 promise.complete(handler.result());
               } else {
-                LOG.error("Failed to updated the notification");
+                LOG.error("Failed to update the notification");
                 promise.fail(handler.cause().getMessage());
               }
             });

@@ -316,8 +316,8 @@ public class UpdateNotification {
     Promise<Boolean> promise = Promise.promise();
     JsonObject constraints = null;
     try {
-      constraints = new JsonObject(notification.getString("constraints"));
-      LOG.debug("Constraints : {}",notification.getString("constraints"));
+      constraints = new JsonObject();
+      LOG.debug("Constraints : {}",String.valueOf(notification.getString("constraints")));
     } catch (Exception exception) {
       LOG.error("Error : {}", exception.getMessage());
       JsonObject failureMessage =
