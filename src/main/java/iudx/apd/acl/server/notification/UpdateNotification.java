@@ -317,6 +317,7 @@ public class UpdateNotification {
     JsonObject constraints = null;
     try {
       constraints = new JsonObject(notification.getString("constraints"));
+      LOG.debug("Constraints : {}",constraints);
     } catch (Exception exception) {
       LOG.error("Error : {}", exception.getMessage());
       JsonObject failureMessage =
