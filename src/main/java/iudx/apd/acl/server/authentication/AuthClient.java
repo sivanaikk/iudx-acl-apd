@@ -49,7 +49,6 @@ public class AuthClient implements AuthClientInterface {
     String userId = jsonObject.getString(USER_ID);
     String iudxRole = jsonObject.getString(ROLE).toLowerCase();
     String resourceServer = jsonObject.getString(AUD);
-    boolean isDelegate = jsonObject.getBoolean(IS_DELEGATE);
 
     Future<HttpResponse<Buffer>> responseFuture =
         client
