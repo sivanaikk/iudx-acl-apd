@@ -316,8 +316,13 @@ public class UpdateNotification {
     Promise<Boolean> promise = Promise.promise();
     JsonObject constraints = null;
     try {
-      LOG.debug("Constraints : {}",String.valueOf(notification.getString("constraints")));
-      constraints = new JsonObject(String.valueOf(notification.getString("constraints")));
+
+      constraints = notification.getJsonObject("constraints");
+      LOG.debug("constraints : {}", constraints);
+      if(constraints == null)
+      {
+        throw new NullPointerException("Invalid or null constraints in the request body");
+      }
     } catch (Exception exception) {
       LOG.error("Error : {}", exception.getMessage());
       JsonObject failureMessage =
