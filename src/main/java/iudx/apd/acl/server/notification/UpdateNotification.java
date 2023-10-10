@@ -143,7 +143,7 @@ public class UpdateNotification {
     LOG.trace("inside approveNotification method");
     Promise<JsonObject> promise = Promise.promise();
     UUID notificationId = UUID.fromString(notification.getString("requestId"));
-    JsonObject constraints = new JsonObject(notification.getString("constraints"));
+    JsonObject constraints = notification.getJsonObject("constraints");
 
     Tuple tuple = Tuple.of(getExpiryAt(), constraints, notificationId, getOwnerId());
     executeQuery(
@@ -316,8 +316,13 @@ public class UpdateNotification {
     Promise<Boolean> promise = Promise.promise();
     JsonObject constraints = null;
     try {
-      constraints = new JsonObject(notification.getString("constraints"));
-      LOG.debug("Constraints : {}",notification.getString("constraints"));
+
+      constraints = notification.getJsonObject("constraints");
+      LOG.debug("constraints : {}", constraints);
+      if(constraints == null)
+      {
+        throw new NullPointerException("Invalid or null constraints in the request body");
+      }
     } catch (Exception exception) {
       LOG.error("Error : {}", exception.getMessage());
       JsonObject failureMessage =
