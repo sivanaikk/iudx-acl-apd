@@ -823,7 +823,7 @@ public class TestUpdateNotifications {
         new JsonObject()
             .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
             .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
-            .put(DETAIL, "Failure while executing transaction");
+            .put(DETAIL, "Failure while executing query");
 
     JsonObject approveNotification =
         new JsonObject()
@@ -850,13 +850,14 @@ public class TestUpdateNotifications {
                       }
                     });
           } catch (Exception e) {
+            vertxTestContext.failNow("something went wrong");
             throw new RuntimeException(e);
           }
         });
   }
 
   @Test
-  @DisplayName("Test createPolicy method when the response from the DB is empty")
+  @DisplayName("Test createPolicy method when there is failure response from DB ")
   public void testCreatePolicy(VertxTestContext vertxTestContext) throws Exception {
     container.start();
     Utility utility = new Utility();
@@ -899,7 +900,8 @@ public class TestUpdateNotifications {
                       }
                     });
           } catch (Exception e) {
-            throw new RuntimeException(e);
+              vertxTestContext.failNow("something went wrong");
+              throw new RuntimeException(e);
           }
         });
   }
