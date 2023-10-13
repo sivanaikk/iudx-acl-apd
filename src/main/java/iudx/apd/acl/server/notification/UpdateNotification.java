@@ -10,6 +10,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
+import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.pgclient.PgPool;
@@ -147,6 +148,10 @@ public class UpdateNotification {
     UUID notificationId = UUID.fromString(notification.getString("requestId"));
     JsonObject constraints = notification.getJsonObject("constraints");
 
+      if(constraints != null)
+      {
+          throw new DecodeException("Oops something went wrong");
+      }
     Tuple tuple = Tuple.of(getExpiryAt(), constraints, notificationId, getOwnerId());
     executeQuery(
         sqlConnection,
