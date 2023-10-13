@@ -10,15 +10,15 @@ import static iudx.apd.acl.server.common.ResponseUrn.POLICY_ALREADY_EXIST_URN;
 import static iudx.apd.acl.server.notification.util.Constants.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import io.vertx.core.Future;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import io.vertx.pgclient.PgPool;
-import io.vertx.sqlclient.Tuple;
+import io.vertx.sqlclient.*;
 import iudx.apd.acl.server.Utility;
 import iudx.apd.acl.server.apiserver.util.User;
 import iudx.apd.acl.server.common.HttpStatusCode;
@@ -68,7 +68,7 @@ public class TestUpdateNotifications {
   private static String ownerLastName;
   private static LocalDateTime expiryAt;
 
-  @BeforeAll
+    @BeforeAll
   public static void setUp(VertxTestContext vertxTestContext) {
     utility = new Utility();
     container.start();
@@ -647,26 +647,28 @@ public class TestUpdateNotifications {
 
   @Test
   @DisplayName("Test createPolicy method with invalid constraints")
-  public void testCreatePolicyWithInvalidConstraint(VertxTestContext vertxTestContext) {
-    JsonObject approveNotification =
+  public void testCreatePolicyWithInvalidConstraint(VertxTestContext vertxTestContext) throws Exception {
+      SqlConnection sqlConnection = mock(SqlConnection.class);
+
+      JsonObject approveNotification =
         new JsonObject()
             .put("requestId", requestId)
             .put("status", "granted")
             .put("expiryAt", expiryTime)
             .put("constraints", "constraints");
     updateNotification
-        .createPolicy(approveNotification, CREATE_POLICY_QUERY)
+        .createPolicy(approveNotification, CREATE_POLICY_QUERY, sqlConnection)
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
                 vertxTestContext.failNow("Succeeded for invalid constraint");
               } else {
-                JsonObject failureMessage =
-                    new JsonObject()
-                        .put(TYPE, BAD_REQUEST.getValue())
-                        .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getUrn())
-                        .put(DETAIL, "Invalid or null constraints in the request body");
-                assertEquals(failureMessage.encode(), handler.cause().getMessage());
+                  JsonObject failure =
+                          new JsonObject()
+                                  .put(TYPE, BAD_REQUEST.getValue())
+                                  .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getUrn())
+                                  .put(DETAIL, "Invalid or null constraints in the request body");
+                assertEquals(failure.encode(), handler.cause().getMessage());
                 vertxTestContext.completeNow();
               }
             });
@@ -761,56 +763,271 @@ public class TestUpdateNotifications {
 
   @Test
   @DisplayName("Test insertInApprovedAccessRequest method when the response from the DB is empty")
-  public void testInsertInApprovedAccessRequest(VertxTestContext vertxTestContext) {
-    updateNotification.setPolicyId(UUID.randomUUID());
+  public void testInsertInApprovedAccessRequest(VertxTestContext vertxTestContext)
+      throws Exception {
+    container.start();
+    Utility utility = new Utility();
+    PostgresService postgresService = utility.setUp(container);
+    utility.testInsert();
+    UUID policyId = UUID.randomUUID();
+    UUID requestId = UUID.randomUUID();
+
+    JsonObject failureMessage =
+        new JsonObject()
+            .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
+            .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
+            .put(DETAIL, "Failure while executing transaction");
     JsonObject approveNotification =
         new JsonObject()
             .put("requestId", requestId)
             .put("status", "granted")
             .put("expiryAt", expiryTime)
             .put("constraints", "constraints");
-    updateNotification
-        .insertInApprovedAccessRequest(
-            approveNotification, INSERT_IN_APPROVED_ACCESS_REQUESTS_QUERY)
-        .onComplete(
-            handler -> {
-              if (handler.succeeded()) {
-                vertxTestContext.failNow(
-                    "Succeeded with invalid requestId and while Database throws an error");
-              } else {
-                JsonObject failureMessage =
-                    new JsonObject()
-                        .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
-                        .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
-                        .put(DETAIL, "Failure while executing query");
-                assertEquals(failureMessage.encode(), handler.cause().getMessage());
-                vertxTestContext.completeNow();
-              }
-            });
+
+    UpdateNotification updateNotification = new UpdateNotification(postgresService);
+
+    updateNotification.setPolicyId(policyId);
+
+    PgPool pool = postgresService.getPool();
+    pool.withTransaction(
+        sqlConnection -> {
+          try {
+            return updateNotification
+                .insertInApprovedAccessRequest(
+                    approveNotification, INSERT_IN_APPROVED_ACCESS_REQUESTS_QUERY, sqlConnection)
+                .onComplete(
+                    handler -> {
+                      if (handler.succeeded()) {
+                        vertxTestContext.failNow(
+                            "Succeeded with invalid requestId and while Database throws an error");
+                      } else {
+                        assertEquals(failureMessage.encode(), handler.cause().getMessage());
+                        vertxTestContext.completeNow();
+                      }
+                    });
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        });
   }
 
   @Test
   @DisplayName("Test approveNotification method when the response from the DB is empty")
-  public void testApproveNotification(VertxTestContext vertxTestContext) {
+  public void testApproveNotification(VertxTestContext vertxTestContext) throws Exception {
+    container.start();
+    Utility utility = new Utility();
+    PostgresService postgresService = utility.setUp(container);
+    utility.testInsert();
+    UUID requestId = UUID.randomUUID();
+    JsonObject failureMessage =
+        new JsonObject()
+            .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
+            .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
+            .put(DETAIL, "Failure while executing query");
+
     JsonObject approveNotification =
         new JsonObject()
-            .put("requestId", UUID.randomUUID())
+            .put("requestId", requestId)
             .put("status", "granted")
             .put("expiryAt", expiryTime)
             .put("constraints", constraints);
+    PgPool pool = postgresService.getPool();
+    UpdateNotification updateNotification = new UpdateNotification(postgresService);
+
+    pool.withTransaction(
+        sqlConnection -> {
+          try {
+            return updateNotification
+                .approveNotification(approveNotification, APPROVE_REQUEST_QUERY, sqlConnection)
+                .onComplete(
+                    handler -> {
+                      if (handler.succeeded()) {
+                        vertxTestContext.failNow(
+                            "Succeeded with invalid requestId and while Database throws an error");
+                      } else {
+                        assertEquals(failureMessage.encode(), handler.cause().getMessage());
+                        vertxTestContext.completeNow();
+                      }
+                    });
+          } catch (Exception e) {
+            vertxTestContext.failNow("something went wrong");
+            throw new RuntimeException(e);
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Test createPolicy method when there is failure response from DB ")
+  public void testCreatePolicy(VertxTestContext vertxTestContext) throws Exception {
+    container.start();
+    Utility utility = new Utility();
+    PostgresService postgresService = utility.setUp(container);
+    utility.testInsert();
+    UUID requestId = UUID.randomUUID();
+    JsonObject failureMessage =
+        new JsonObject()
+            .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
+            .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
+            .put(DETAIL, "Failure while executing transaction");
+    JsonObject createPolicyJson =
+        new JsonObject()
+            .put("requestId", requestId)
+            .put("status", "granted")
+            .put("expiryAt", expiryTime)
+            .put("constraints", constraints);
+
+    PgPool pool = postgresService.getPool();
+    UpdateNotification updateNotification = new UpdateNotification(postgresService);
+
+    updateNotification.setOwnerId(consumerId);
+
+    pool.withTransaction(
+        sqlConnection -> {
+          try {
+            return updateNotification
+                .createPolicy(createPolicyJson, CREATE_POLICY_QUERY, sqlConnection)
+                .onComplete(
+                    handler -> {
+                      if (handler.succeeded()) {
+                        vertxTestContext.failNow(
+                            "Succeeded with invalid ownerId and while Database throws an error");
+                      } else {
+
+                        assertNull(updateNotification.getConsumerEmailId());
+                        assertNull(updateNotification.getItemId());
+                        assertEquals(failureMessage.encode(), handler.cause().getMessage());
+                        vertxTestContext.completeNow();
+                      }
+                    });
+          } catch (Exception e) {
+              vertxTestContext.failNow("something went wrong");
+              throw new RuntimeException(e);
+          }
+        });
+  }
+
+  @Test
+  @DisplayName(
+      "Test initiateTransaction method when there is a failure while creating policy: Failure")
+  public void testInitiateTransactionFailure(VertxTestContext vertxTestContext) {
+    JsonObject failureMessage =
+        new JsonObject()
+            .put(TYPE, 500)
+            .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
+            .put(DETAIL, "Failure while executing transaction");
+      Utility util = new Utility();
+      container.start();
+    PostgresService postgresService = util.setUp(container);
+    UpdateNotification updateNotification = new UpdateNotification(postgresService);
+
     updateNotification
-        .approveNotification(approveNotification, APPROVE_REQUEST_QUERY)
+        .initiateTransactions(
+            new JsonObject()
+                .put("constraints", new JsonObject().put("something", "someDummyValue")))
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
                 vertxTestContext.failNow(
-                    "Succeeded with invalid requestId and while Database throws an error");
+                    "Succeeded when userEmailId given to create policy is null");
+
               } else {
-                JsonObject failureMessage =
-                    new JsonObject()
-                        .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
-                        .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
-                        .put(DETAIL, "Failure while executing query");
+                  assertNull(updateNotification.getConsumerEmailId());
+                  assertNull(updateNotification.getItemId());
+                  assertNull(updateNotification.getOwnerId());
+                  assertNull(updateNotification.getExpiryAt());
+
+               assertEquals(failureMessage.encode(),
+                 handler.cause().getMessage());
+                vertxTestContext.completeNow();
+              }
+            });
+  }
+
+  @Test
+  @DisplayName(
+      "Test initiateTransaction method when there is a failure inserting record in approved_access_request: Failure")
+  public void testWithFailedInsertionInApprovedAccessRequest(VertxTestContext vertxTestContext) {
+    UUID ownerId = utility.getOwnerId();
+    UUID itemId = utility.getResourceId();
+    String emailId = "someEmailId";
+
+    JsonObject failureMessage =
+        new JsonObject()
+            .put(TYPE, 500)
+            .put(TITLE, ResponseUrn.BACKING_SERVICE_FORMAT_URN.getUrn())
+            .put(DETAIL, "Something went wrong while approving access request");
+    JsonObject notification = new JsonObject();
+    updateNotification.setConsumerEmailId(emailId);
+    updateNotification.setItemId(itemId);
+    updateNotification.setOwnerId(ownerId);
+    updateNotification.setExpiryAt(LocalDateTime.of(2025, 3, 3, 3, 3, 3));
+    notification.put("constraints", new JsonObject().put("something", "someDummyValue"));
+
+    updateNotification
+        .initiateTransactions(notification)
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                vertxTestContext.failNow(
+                    "Succeeded when there was a failure when inserting a record in approved_access_request table");
+
+              } else {
+                /* check if the policy with given consumer emailId, resourceId and ownerId is present */
+                utility
+                    .executeQuery(
+                        Tuple.of(emailId, itemId, ownerId),
+                        "SELECT * FROM policy WHERE user_emailid = $1 AND item_id = $2 AND owner_id = $3")
+                    .onComplete(
+                        policyHandler -> {
+                          if (policyHandler.succeeded()) {
+                            JsonObject policyResponse =
+                                policyHandler.result().getJsonArray("response").getJsonObject(0);
+                            assertTrue(policyResponse.isEmpty());
+
+                            /* check if the policy with the given policyId set while executing the transaction is present  */
+                            utility
+                                .executeQuery(
+                                    Tuple.of(updateNotification.getPolicyId()),
+                                    "SELECT * FROM policy WHERE _id = $1")
+                                .onComplete(
+                                    policyPresenceHandler -> {
+                                      if (policyPresenceHandler.succeeded()) {
+                                        JsonArray jsonArray =
+                                            policyPresenceHandler.result().getJsonArray("response");
+                                        assertTrue(jsonArray.isEmpty());
+
+                                      } else {
+                                        LOG.error(
+                                            "Error : {}",
+                                            policyPresenceHandler.cause().getMessage());
+                                      }
+                                    });
+
+                            /* check if a record is inserted in approved access request with the policyId being the policyId set while executing the transaction */
+                            utility
+                                .executeQuery(
+                                    Tuple.of(updateNotification.getPolicyId()),
+                                    "SELECT * FROM approved_access_requests WHERE policy_id = $1::uuid")
+                                .onComplete(
+                                    approvedAccessRequestHandler -> {
+                                      if (approvedAccessRequestHandler.succeeded()) {
+                                        JsonArray response =
+                                            approvedAccessRequestHandler
+                                                .result()
+                                                .getJsonArray("response");
+                                        assertTrue(response.isEmpty());
+                                      } else {
+                                        LOG.error(
+                                            "Error : {}",
+                                            approvedAccessRequestHandler.cause().getMessage());
+                                      }
+                                    });
+
+                          } else {
+                            LOG.error("Error : {}", policyHandler.cause().getMessage());
+                          }
+                        });
+
                 assertEquals(failureMessage.encode(), handler.cause().getMessage());
                 vertxTestContext.completeNow();
               }
@@ -818,30 +1035,106 @@ public class TestUpdateNotifications {
   }
 
   @Test
-  @DisplayName("Test createPolicy method when the response from the DB is empty")
-  public void testCreatePolicy(VertxTestContext vertxTestContext) {
-    updateNotification.setOwnerId(consumerId);
-    JsonObject approveNotification =
+  @DisplayName(
+      "Test initiateTransaction method when there is a failure while updating notification: Failure")
+  public void testWithFailureInApprovingNotification(VertxTestContext vertxTestContext) {
+
+    container.start();
+    Utility utility = new Utility();
+    PostgresService postgresService = utility.setUp(container);
+    utility.testInsert();
+    UpdateNotification updateNotification = new UpdateNotification(postgresService);
+
+    UUID itemId = utility.getResourceId();
+    UUID somePolicyId = UUID.randomUUID();
+    UUID ownerId = utility.getOwnerId();
+    String requestId = utility.getRequestId().toString();
+
+    JsonObject failureMessage =
         new JsonObject()
-            .put("requestId", UUID.randomUUID())
-            .put("status", "granted")
-            .put("expiryAt", expiryTime)
-            .put("constraints", constraints);
+            .put(TYPE, 500)
+            .put(TITLE, ResponseUrn.BACKING_SERVICE_FORMAT_URN.getUrn())
+            .put(DETAIL, "Something went wrong while approving access request");
+    JsonObject notification = mock(JsonObject.class);
+    updateNotification.setConsumerEmailId("someEmailId");
+    updateNotification.setItemId(itemId);
+    updateNotification.setPolicyId(somePolicyId);
+    updateNotification.setOwnerId(ownerId);
+    updateNotification.setExpiryAt(LocalDateTime.of(2025, 3, 3, 3, 3, 3));
+    when(notification.getJsonObject("constraints"))
+        .thenReturn(new JsonObject().put("something", "someDummyValue"));
+    when(notification.getString("requestId")).thenReturn(requestId, "ksadjfskfdjg");
+
+
     updateNotification
-        .createPolicy(approveNotification, CREATE_POLICY_QUERY)
+        .initiateTransactions(notification)
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
                 vertxTestContext.failNow(
-                    "Succeeded with invalid ownerId and while Database throws an error");
+                    "Succeeded when there was a failure in approve notification");
+
               } else {
-                JsonObject failureMessage =
-                    new JsonObject()
-                        .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
-                        .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
-                        .put(DETAIL, "Failure while executing query");
-                assertEquals(failureMessage.encode(), handler.cause().getMessage());
-                vertxTestContext.completeNow();
+                /* check if the given access request is present and is in pending state */
+                utility
+                    .executeQuery(Tuple.of(requestId), "SELECT * FROM request WHERE _id = $1 ")
+                    .onComplete(
+                        requestHandler -> {
+                          if (requestHandler.succeeded()) {
+                            JsonObject response =
+                                requestHandler.result().getJsonArray("response").getJsonObject(0);
+                            assertEquals(requestId, response.getString("_id"));
+                            assertEquals(itemId.toString(), response.getString("item_id"));
+                            assertEquals("PENDING", response.getString("status"));
+                            assertEquals(ownerId.toString(), response.getString("owner_id"));
+
+                            /* check if the created policy is rolled back */
+                            utility
+                                .executeQuery(
+                                    Tuple.of(somePolicyId),
+                                    "SELECT * FROM policy WHERE _id = $1::uuid ")
+                                .onComplete(
+                                    policyHandler -> {
+                                      if (policyHandler.succeeded()) {
+                                        JsonArray policyResponse =
+                                            policyHandler.result().getJsonArray("response");
+                                        assertTrue(policyResponse.isEmpty());
+
+                                        /*check if no record is present in approved access request table*/
+                                        utility
+                                            .executeQuery(
+                                                Tuple.of(requestId),
+                                                "SELECT * FROM approved_access_requests WHERE request_id = $1 ")
+                                            .onComplete(
+                                                approvedAccessRequestHandler -> {
+                                                  if (approvedAccessRequestHandler.succeeded()) {
+                                                    JsonArray approvedAccessRequestResponse =
+                                                        approvedAccessRequestHandler
+                                                            .result()
+                                                            .getJsonArray("response");
+                                                    assertTrue(
+                                                        approvedAccessRequestResponse.isEmpty());
+
+                                                    assertEquals(
+                                                        failureMessage.encode(),
+                                                        handler.cause().getMessage());
+                                                    vertxTestContext.completeNow();
+
+                                                  } else {
+                                                    vertxTestContext.failNow(
+                                                        "Transaction was not rolled back, a record is inserted in approved_access_request table");
+                                                  }
+                                                });
+                                      } else {
+                                        vertxTestContext.failNow(
+                                            "Policy is created and transaction is not rolled back");
+                                      }
+                                    });
+                          } else {
+                            vertxTestContext.failNow(
+                                "Access request is either not present or not in pending state");
+                          }
+                        });
               }
             });
   }
