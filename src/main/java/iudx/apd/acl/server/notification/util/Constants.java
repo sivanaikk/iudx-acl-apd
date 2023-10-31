@@ -69,7 +69,7 @@ public class Constants {
           + "    <body>\n"
           + "        <p>Hello,</p>\n"
           + "        <p>\n"
-          + "            ${CONSUMER_FIRST_NAME} ${CONSUMER_LAST_NAME} email ${CONSUMER_EMAIL_ID} has"
+          + "            ${CONSUMER_FIRST_NAME} ${CONSUMER_LAST_NAME}, with email ${CONSUMER_EMAIL_ID} has"
           + " requested access to one of your datasets. Please visit ${PUBLISHER_PANEL_URL} "
           + "to approve/reject this request.\n"
           + "        </p>\n"
