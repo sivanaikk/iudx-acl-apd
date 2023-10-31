@@ -62,12 +62,25 @@ public class Constants {
           + "ON RE._id = R.item_id\n"
           + "WHERE R.owner_id=$1::uuid "
           + "AND RE.resource_server_url = $2;";
-  public static final String HTML_EMAIL_BODY = " <!DOCTYPE html> <html> <head> <title>Page Title</title></head>"
-          + " <body> <p>Hello!</p> <p>A consumer with details - <br>First name : ${CONSUMER_FIRST_NAME},"
-          + " <br>Last name :  ${CONSUMER_LAST_NAME}, <br>Email ID : ${CONSUMER_EMAIL_ID},"
-          + " <br>has requested access to one of your datasets. "
-          + "Please visit ${PUBLISHER_PANEL_URL} to approve/reject this request.</p><footer> "
-          + "<p>Regards,<br> ${SENDER'S_NAME}</p></footer> </body> </html>";
+  public static final String HTML_EMAIL_BODY =
+      "<!DOCTYPE html>\n"
+          + "<html>\n"
+          + "    <head> </head>\n"
+          + "    <body>\n"
+          + "        <p>Hello,</p>\n"
+          + "        <p>\n"
+          + "            ${CONSUMER_FIRST_NAME} ${CONSUMER_LAST_NAME} email ${CONSUMER_EMAIL_ID} has"
+          + " requested access to one of your datasets. Please visit ${PUBLISHER_PANEL_URL} "
+          + "to approve/reject this request.\n"
+          + "        </p>\n"
+          + "        <footer>\n"
+          + "            <p>\n"
+          + "                Regards,<br />\n"
+          + "                ${SENDER'S_NAME}\n"
+          + "            </p>\n"
+          + "        </footer>\n"
+          + "    </body>\n"
+          + "</html>\n";
   public static String GET_CONSUMER_NOTIFICATION_QUERY =
       "SELECT R._id AS \"requestId\", R.item_id AS \"itemId\",  \n"
           + "RE.item_type AS \"itemType\",\n"
