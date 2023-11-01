@@ -69,7 +69,6 @@ public class EmailNotification {
     if (!notifyByEmail) {
       return Future.succeededFuture(true);
     }
-    final String consumerId = consumer.getUserId();
     final String consumerFirstName = consumer.getFirstName();
     final String consumerLastName = consumer.getLastName();
     final String consumerEmailId = consumer.getEmailId();
@@ -104,9 +103,7 @@ public class EmailNotification {
         HTML_EMAIL_BODY
             .replace("${CONSUMER_FIRST_NAME}", consumerFirstName)
             .replace("${CONSUMER_LAST_NAME}", consumerLastName)
-            .replace("${CONSUMER_ID}", consumerId)
             .replace("${CONSUMER_EMAIL_ID}", consumerEmailId)
-            .replace("${ITEM_ID}", itemId)
             .replace("${PUBLISHER_PANEL_URL}", publisherPanelUrl)
             .replace("${SENDER'S_NAME}", senderName);
 
