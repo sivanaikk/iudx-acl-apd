@@ -68,7 +68,7 @@ public class TestUpdateNotifications {
   private static String ownerLastName;
   private static LocalDateTime expiryAt;
 
-    @BeforeAll
+  @BeforeAll
   public static void setUp(VertxTestContext vertxTestContext) {
     utility = new Utility();
     container.start();
@@ -406,9 +406,9 @@ public class TestUpdateNotifications {
   @DisplayName(
       "Test initiateUpdateNotification method by rejecting the requesting that isn't for the user")
   public void testRejectingRequestNotBelongingToOwner(VertxTestContext vertxTestContext) {
-      JsonObject rejectNotification = new JsonObject();
-      rejectNotification.put("requestId", utility.getRequestId());
-      rejectNotification.put("status", "rejected");
+    JsonObject rejectNotification = new JsonObject();
+    rejectNotification.put("requestId", utility.getRequestId());
+    rejectNotification.put("status", "rejected");
     updateNotification
         .initiateUpdateNotification(rejectNotification, consumer)
         .onComplete(
@@ -416,7 +416,7 @@ public class TestUpdateNotifications {
               if (handler.succeeded()) {
                 vertxTestContext.failNow("Request ownership check failed");
               } else {
-                  JsonObject failureMessage =
+                JsonObject failureMessage =
                     new JsonObject()
                         .put(TYPE, HttpStatusCode.FORBIDDEN.getValue())
                         .put(TITLE, ResponseUrn.FORBIDDEN_URN.getUrn())
@@ -647,10 +647,11 @@ public class TestUpdateNotifications {
 
   @Test
   @DisplayName("Test createPolicy method with invalid constraints")
-  public void testCreatePolicyWithInvalidConstraint(VertxTestContext vertxTestContext) throws Exception {
-      SqlConnection sqlConnection = mock(SqlConnection.class);
+  public void testCreatePolicyWithInvalidConstraint(VertxTestContext vertxTestContext)
+      throws Exception {
+    SqlConnection sqlConnection = mock(SqlConnection.class);
 
-      JsonObject approveNotification =
+    JsonObject approveNotification =
         new JsonObject()
             .put("requestId", requestId)
             .put("status", "granted")
@@ -663,11 +664,11 @@ public class TestUpdateNotifications {
               if (handler.succeeded()) {
                 vertxTestContext.failNow("Succeeded for invalid constraint");
               } else {
-                  JsonObject failure =
-                          new JsonObject()
-                                  .put(TYPE, BAD_REQUEST.getValue())
-                                  .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getUrn())
-                                  .put(DETAIL, "Invalid or null constraints in the request body");
+                JsonObject failure =
+                    new JsonObject()
+                        .put(TYPE, BAD_REQUEST.getValue())
+                        .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getUrn())
+                        .put(DETAIL, "Invalid or null constraints in the request body");
                 assertEquals(failure.encode(), handler.cause().getMessage());
                 vertxTestContext.completeNow();
               }
@@ -900,8 +901,8 @@ public class TestUpdateNotifications {
                       }
                     });
           } catch (Exception e) {
-              vertxTestContext.failNow("something went wrong");
-              throw new RuntimeException(e);
+            vertxTestContext.failNow("something went wrong");
+            throw new RuntimeException(e);
           }
         });
   }
@@ -915,8 +916,8 @@ public class TestUpdateNotifications {
             .put(TYPE, 500)
             .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
             .put(DETAIL, "Failure while executing transaction");
-      Utility util = new Utility();
-      container.start();
+    Utility util = new Utility();
+    container.start();
     PostgresService postgresService = util.setUp(container);
     UpdateNotification updateNotification = new UpdateNotification(postgresService);
 
@@ -931,13 +932,12 @@ public class TestUpdateNotifications {
                     "Succeeded when userEmailId given to create policy is null");
 
               } else {
-                  assertNull(updateNotification.getConsumerEmailId());
-                  assertNull(updateNotification.getItemId());
-                  assertNull(updateNotification.getOwnerId());
-                  assertNull(updateNotification.getExpiryAt());
+                assertNull(updateNotification.getConsumerEmailId());
+                assertNull(updateNotification.getItemId());
+                assertNull(updateNotification.getOwnerId());
+                assertNull(updateNotification.getExpiryAt());
 
-               assertEquals(failureMessage.encode(),
-                 handler.cause().getMessage());
+                assertEquals(failureMessage.encode(), handler.cause().getMessage());
                 vertxTestContext.completeNow();
               }
             });
@@ -1042,100 +1042,119 @@ public class TestUpdateNotifications {
     container.start();
     Utility utility = new Utility();
     PostgresService postgresService = utility.setUp(container);
-    utility.testInsert();
-    UpdateNotification updateNotification = new UpdateNotification(postgresService);
-
-    UUID itemId = utility.getResourceId();
-    UUID somePolicyId = UUID.randomUUID();
-    UUID ownerId = utility.getOwnerId();
-    String requestId = utility.getRequestId().toString();
-
-    JsonObject failureMessage =
-        new JsonObject()
-            .put(TYPE, 500)
-            .put(TITLE, ResponseUrn.BACKING_SERVICE_FORMAT_URN.getUrn())
-            .put(DETAIL, "Something went wrong while approving access request");
-    JsonObject notification = mock(JsonObject.class);
-    updateNotification.setConsumerEmailId("someEmailId");
-    updateNotification.setItemId(itemId);
-    updateNotification.setPolicyId(somePolicyId);
-    updateNotification.setOwnerId(ownerId);
-    updateNotification.setExpiryAt(LocalDateTime.of(2025, 3, 3, 3, 3, 3));
-    when(notification.getJsonObject("constraints"))
-        .thenReturn(new JsonObject().put("something", "someDummyValue"));
-    when(notification.getString("requestId")).thenReturn(requestId, "ksadjfskfdjg");
-
-
-    updateNotification
-        .initiateTransactions(notification)
+    utility
+        .testInsert()
         .onComplete(
-            handler -> {
-              if (handler.succeeded()) {
-                vertxTestContext.failNow(
-                    "Succeeded when there was a failure in approve notification");
+            vertxTestContext.succeeding(
+                successfulInsertion -> {
+                  UpdateNotification updateNotification = new UpdateNotification(postgresService);
 
-              } else {
-                /* check if the given access request is present and is in pending state */
-                utility
-                    .executeQuery(Tuple.of(requestId), "SELECT * FROM request WHERE _id = $1 ")
-                    .onComplete(
-                        requestHandler -> {
-                          if (requestHandler.succeeded()) {
-                            JsonObject response =
-                                requestHandler.result().getJsonArray("response").getJsonObject(0);
-                            assertEquals(requestId, response.getString("_id"));
-                            assertEquals(itemId.toString(), response.getString("item_id"));
-                            assertEquals("PENDING", response.getString("status"));
-                            assertEquals(ownerId.toString(), response.getString("owner_id"));
+                  UUID itemId = utility.getResourceId();
+                  UUID somePolicyId = UUID.randomUUID();
+                  UUID ownerId = utility.getOwnerId();
+                  String requestId = utility.getRequestId().toString();
 
-                            /* check if the created policy is rolled back */
-                            utility
-                                .executeQuery(
-                                    Tuple.of(somePolicyId),
-                                    "SELECT * FROM policy WHERE _id = $1::uuid ")
-                                .onComplete(
-                                    policyHandler -> {
-                                      if (policyHandler.succeeded()) {
-                                        JsonArray policyResponse =
-                                            policyHandler.result().getJsonArray("response");
-                                        assertTrue(policyResponse.isEmpty());
+                  JsonObject failureMessage =
+                      new JsonObject()
+                          .put(TYPE, 500)
+                          .put(TITLE, ResponseUrn.BACKING_SERVICE_FORMAT_URN.getUrn())
+                          .put(DETAIL, "Something went wrong while approving access request");
+                  JsonObject notification = mock(JsonObject.class);
+                  updateNotification.setConsumerEmailId("someEmailId");
+                  updateNotification.setItemId(itemId);
+                  updateNotification.setPolicyId(somePolicyId);
+                  updateNotification.setOwnerId(ownerId);
+                  updateNotification.setExpiryAt(LocalDateTime.of(2025, 3, 3, 3, 3, 3));
+                  when(notification.getJsonObject("constraints"))
+                      .thenReturn(new JsonObject().put("something", "someDummyValue"));
+                  when(notification.getString("requestId")).thenReturn(requestId, "ksadjfskfdjg");
 
-                                        /*check if no record is present in approved access request table*/
-                                        utility
-                                            .executeQuery(
-                                                Tuple.of(requestId),
-                                                "SELECT * FROM approved_access_requests WHERE request_id = $1 ")
-                                            .onComplete(
-                                                approvedAccessRequestHandler -> {
-                                                  if (approvedAccessRequestHandler.succeeded()) {
-                                                    JsonArray approvedAccessRequestResponse =
-                                                        approvedAccessRequestHandler
-                                                            .result()
-                                                            .getJsonArray("response");
-                                                    assertTrue(
-                                                        approvedAccessRequestResponse.isEmpty());
+                  updateNotification
+                      .initiateTransactions(notification)
+                      .onComplete(
+                          handler -> {
+                            if (handler.succeeded()) {
+                              vertxTestContext.failNow(
+                                  "Succeeded when there was a failure in approve notification");
 
-                                                    assertEquals(
-                                                        failureMessage.encode(),
-                                                        handler.cause().getMessage());
-                                                    vertxTestContext.completeNow();
+                            } else {
+                              /* check if the given access request is present and is in pending state */
+                              utility
+                                  .executeQuery(
+                                      Tuple.of(requestId), "SELECT * FROM request WHERE _id = $1 ")
+                                  .onComplete(
+                                      requestHandler -> {
+                                        if (requestHandler.succeeded()) {
+                                          JsonObject response =
+                                              requestHandler
+                                                  .result()
+                                                  .getJsonArray("response")
+                                                  .getJsonObject(0);
+                                          assertEquals(requestId, response.getString("_id"));
+                                          assertEquals(
+                                              itemId.toString(), response.getString("item_id"));
+                                          assertEquals("PENDING", response.getString("status"));
+                                          assertEquals(
+                                              ownerId.toString(), response.getString("owner_id"));
 
-                                                  } else {
-                                                    vertxTestContext.failNow(
-                                                        "Transaction was not rolled back, a record is inserted in approved_access_request table");
-                                                  }
-                                                });
-                                      } else {
-                                        vertxTestContext.failNow(
-                                            "Policy is created and transaction is not rolled back");
-                                      }
-                                    });
-                          } else {
-                            vertxTestContext.failNow(
-                                "Access request is either not present or not in pending state");
-                          }
-                        });
-              }
+                                          /* check if the created policy is rolled back */
+                                          utility
+                                              .executeQuery(
+                                                  Tuple.of(somePolicyId),
+                                                  "SELECT * FROM policy WHERE _id = $1::uuid ")
+                                              .onComplete(
+                                                  policyHandler -> {
+                                                    if (policyHandler.succeeded()) {
+                                                      JsonArray policyResponse =
+                                                          policyHandler
+                                                              .result()
+                                                              .getJsonArray("response");
+                                                      assertTrue(policyResponse.isEmpty());
+
+                                                      /*check if no record is present in approved access request table*/
+                                                      utility
+                                                          .executeQuery(
+                                                              Tuple.of(requestId),
+                                                              "SELECT * FROM approved_access_requests WHERE request_id = $1 ")
+                                                          .onComplete(
+                                                              approvedAccessRequestHandler -> {
+                                                                if (approvedAccessRequestHandler
+                                                                    .succeeded()) {
+                                                                  JsonArray
+                                                                      approvedAccessRequestResponse =
+                                                                          approvedAccessRequestHandler
+                                                                              .result()
+                                                                              .getJsonArray(
+                                                                                  "response");
+                                                                  assertTrue(
+                                                                      approvedAccessRequestResponse
+                                                                          .isEmpty());
+
+                                                                  assertEquals(
+                                                                      failureMessage.encode(),
+                                                                      handler.cause().getMessage());
+                                                                  vertxTestContext.completeNow();
+
+                                                                } else {
+                                                                  vertxTestContext.failNow(
+                                                                      "Transaction was not rolled back, a record is inserted in approved_access_request table");
+                                                                }
+                                                              });
+                                                    } else {
+                                                      vertxTestContext.failNow(
+                                                          "Policy is created and transaction is not rolled back");
+                                                    }
+                                                  });
+                                        } else {
+                                          vertxTestContext.failNow(
+                                              "Access request is either not present or not in pending state");
+                                        }
+                                      });
+                            }
+                          });
+                })).onFailure(failed -> {
+                    LOG.error("Failed during set up: {}",failed.getCause().getMessage());
+                    vertxTestContext.failNow("Failed during setup");
             });
   }
 }
