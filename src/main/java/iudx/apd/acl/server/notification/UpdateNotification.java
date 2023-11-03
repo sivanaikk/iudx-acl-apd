@@ -6,10 +6,7 @@ import static iudx.apd.acl.server.common.HttpStatusCode.*;
 import static iudx.apd.acl.server.common.ResponseUrn.RESOURCE_NOT_FOUND_URN;
 import static iudx.apd.acl.server.notification.util.Constants.*;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Promise;
+import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.pgclient.PgPool;
@@ -24,6 +21,7 @@ import iudx.apd.acl.server.policy.PostgresService;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collector;
@@ -119,6 +117,7 @@ public class UpdateNotification {
                   }
                   return Future.failedFuture(ownershipCheckFuture.cause().getMessage());
                 });
+        LOG.info("What is approvedRequestFuture : " + approvedRequestFuture);
         return approvedRequestFuture;
       default:
         JsonObject failureMessage =
@@ -140,44 +139,90 @@ public class UpdateNotification {
    * @param sqlConnection connection made to the DB to execute queries using transactions
    * @return Success response or Failure response as Future JsonObject
    */
+  /*public Future<JsonObject> approveNotification(
+    JsonObject notification, String query, SqlConnection sqlConnection) throws Exception {
+  LOG.trace("inside approveNotification method");
+  Promise<JsonObject> promise = Promise.promise();
+  UUID notificationId = UUID.fromString(notification.getString("requestId"));
+  JsonObject constraints = notification.getJsonObject("constraints");
+
+  Tuple tuple = Tuple.of(getExpiryAt(), constraints, notificationId, getOwnerId());
+  executeQuery(
+      sqlConnection,
+      query,
+      tuple,
+      handler -> {
+        if (handler.succeeded()) {
+          JsonArray result = handler.result().getJsonArray(RESULT);
+          boolean isResponseEmpty = result.isEmpty();
+          */
+  /* if the id is not returned back after execution, then record is not inserted*/
+  /*
+              if (isResponseEmpty) {
+                LOG.error("Could not update request table while approving the request");
+                JsonObject failureMessage =
+                    new JsonObject()
+                        .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
+                        .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
+                        .put(DETAIL, "Failure while executing query");
+                promise.fail(failureMessage.encode());
+              } else {
+                JsonObject successResponse =
+                    new JsonObject()
+                        .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
+                        .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
+                        .put(DETAIL, "Request updated successfully")
+                        .put(STATUS_CODE, SUCCESS.getValue());
+                promise.complete(successResponse);
+              }
+            } else {
+              promise.fail(handler.cause().getMessage());
+            }
+          });
+      return promise.future();
+    }
+  */
+
   public Future<JsonObject> approveNotification(
       JsonObject notification, String query, SqlConnection sqlConnection) throws Exception {
+    Collector<Row, ?, List<JsonObject>> rowListCollector =
+        Collectors.mapping(row -> row.toJson(), Collectors.toList());
     LOG.trace("inside approveNotification method");
     Promise<JsonObject> promise = Promise.promise();
     UUID notificationId = UUID.fromString(notification.getString("requestId"));
     JsonObject constraints = notification.getJsonObject("constraints");
-
-    Tuple tuple = Tuple.of(getExpiryAt(), constraints, notificationId, getOwnerId());
-    executeQuery(
-        sqlConnection,
-        query,
-        tuple,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonArray result = handler.result().getJsonArray(RESULT);
-            boolean isResponseEmpty = result.isEmpty();
-            /* if the id is not returned back after execution, then record is not inserted*/
-            if (isResponseEmpty) {
-              LOG.error("Could not update request table while approving the request");
-              JsonObject failureMessage =
-                  new JsonObject()
-                      .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
-                      .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
-                      .put(DETAIL, "Failure while executing query");
-              promise.fail(failureMessage.encode());
-            } else {
-              JsonObject successResponse =
-                  new JsonObject()
-                      .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
-                      .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
-                      .put(DETAIL, "Request updated successfully")
-                      .put(STATUS_CODE, SUCCESS.getValue());
-              promise.complete(successResponse);
-            }
-          } else {
-            promise.fail(handler.cause().getMessage());
-          }
-        });
+    final Tuple updateAccessRequestTuple =
+        Tuple.of(getExpiryAt(), constraints, notificationId, getOwnerId());
+    sqlConnection
+        .preparedQuery(APPROVE_REQUEST_QUERY)
+        .collecting(rowListCollector)
+        .execute(updateAccessRequestTuple)
+        .map(rows -> rows.value())
+        .onSuccess(
+            approveAccessRequestSuccess -> {
+              boolean isListEmpty = approveAccessRequestSuccess.isEmpty();
+              if (isListEmpty) {
+                LOG.error("list is empty while updating notification");
+                promise.fail("Something went wrong while approving access request");
+              } else {
+                LOG.debug(
+                    "Approving Notification successfully done : {}", approveAccessRequestSuccess);
+                JsonObject successResponse =
+                    new JsonObject()
+                        .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
+                        .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
+                        .put(DETAIL, "Request updated successfully")
+                        .put(STATUS_CODE, SUCCESS.getValue());
+                LOG.info("before promise is completed");
+                promise.complete(successResponse);
+                LOG.info("Success response is : " + successResponse.toString());
+              }
+            })
+        .onFailure(
+            updateNotificationFailure -> {
+              LOG.error("Error while updating notification: " + updateNotificationFailure);
+              promise.fail("Something went wrong while approving access request");
+            });
     return promise.future();
   }
 
@@ -191,7 +236,14 @@ public class UpdateNotification {
    * @param notification Request body from PUT notification API of type JsonObject
    * @return Final Success or Failure response to be presented to the user of type Future
    */
-  public Future<JsonObject> initiateTransactions(JsonObject notification) {
+
+  // TODO : refactor the initiateTransactions method by doing the following steps
+  // do not call any method
+  // use compose blocks
+  // do not return primary key from the query, make the primary key
+  // maybe even complete the transaction from here
+
+  /* public Future<JsonObject> initiateTransactions(JsonObject notification) {
     LOG.trace("inside initiateTransactions method");
     pool = postgresService.getPool();
     Future<JsonObject> transactionResponseFuture =
@@ -255,7 +307,595 @@ public class UpdateNotification {
               return approvedNotificationFuture;
             });
     return transactionResponseFuture;
+  }*/
+
+  //  public Future<JsonObject> initiateTransactions(JsonObject notification) {
+  //    Promise<JsonObject> promise = Promise.promise();
+  //    LOG.trace("inside initiateTransactions method");
+  //    Collector<Row, ?, List<JsonObject>> rowListCollector =
+  //        Collectors.mapping(row -> row.toJson(), Collectors.toList());
+  //
+  //    pool = postgresService.getPool();
+  //    Future<JsonObject> transactionResponseFuture =
+  //        pool.withTransaction(
+  //            sqlConnection -> {
+  //              JsonObject constraints = null;
+  //              try {
+  //
+  //                constraints = notification.getJsonObject("constraints");
+  //                LOG.debug("constraints : {}", constraints);
+  //                if (constraints == null) {
+  //                  throw new NullPointerException("Invalid or null constraints in the request
+  // body");
+  //                }
+  //              } catch (Exception exception) {
+  //                LOG.error("Error : {}", exception.getMessage());
+  //                failPromise(promise, "Invalid or null constraints in the request body");
+  //                return promise.future();
+  //              }
+  //              UUID policyId = UUID.randomUUID();
+  //              setPolicyId(policyId);
+  //
+  //              Tuple tuple =
+  //                  Tuple.of(
+  //                      policyId,
+  //                      getConsumerEmailId(),
+  //                      getItemId(),
+  //                      getOwnerId(),
+  //                      "ACTIVE",
+  //                      getExpiryAt(),
+  //                      constraints);
+  //
+  //              sqlConnection
+  //                  .preparedQuery(CREATE_POLICY_QUERY)
+  //                  .collecting(rowListCollector)
+  //                  .execute(tuple)
+  //                  .map(rows -> rows.value())
+  //                  .onSuccess(
+  //                      createPolicySuccess -> {
+  //                        boolean isListEmpty = createPolicySuccess.isEmpty();
+  //                        if (isListEmpty) {
+  //                          failPromise(promise, "Something went wrong while creating the
+  // policy");
+  //
+  //                        } else {
+  //                          LOG.debug("Create Policy successful : {}", createPolicySuccess);
+  //                          //                          promise.complete(new
+  // JsonObject().put(RESULT,
+  //                          // createPolicySuccess));
+  //                        }
+  //                      })
+  //                  .onFailure(
+  //                      createPolicyFailed -> {
+  //                        LOG.error("Error while creating policy : " + createPolicyFailed);
+  //                        failPromise(promise, "Something went wrong while creating the policy");
+  //                      })
+  //                  .compose(
+  //                      insertionHandler -> {
+  //                        Promise<JsonObject> promise2 = Promise.promise();
+  //                        final UUID notificationId =
+  //                            UUID.fromString(notification.getString("requestId"));
+  //                        UUID uuid = UUID.randomUUID();
+  //
+  //
+  //                        Tuple approvedAccessRequestInsertionTuple =
+  //                            Tuple.of(uuid, notificationId, getPolicyId());
+  //                        sqlConnection
+  //                            .preparedQuery(INSERT_IN_APPROVED_ACCESS_REQUESTS_QUERY)
+  //                            .collecting(rowListCollector)
+  //                            .execute(approvedAccessRequestInsertionTuple)
+  //                            .map(rows -> rows.value())
+  //                            .onSuccess(
+  //                                approvedAccessRequestInsertionSuccess -> {
+  //                                  boolean isListEmpty =
+  //                                      approvedAccessRequestInsertionSuccess.isEmpty();
+  //                                  if (isListEmpty) {
+  //                                    LOG.error(
+  //                                        "list is empty while inserting
+  // approved_access_request");
+  //                                    failPromise(
+  //                                        promise2,
+  //                                        "Something went wrong while approving the access
+  // request");
+  //                                  } else {
+  //                                    LOG.info(
+  //                                        "Insertion in approved_access_request successfully done
+  // : {}",
+  //                                        approvedAccessRequestInsertionSuccess);
+  //                                    //                                    promise.complete(new
+  //                                    //
+  // JsonObject().put(RESULT,approvedAccessRequestInsertionSuccess));
+  //                                  }
+  //                                })
+  //                            .onFailure(
+  //                                insertionFailed -> {
+  //                                  LOG.error(
+  //                                      "Error while inserting in approved_access_request : "
+  //                                          + insertionFailed);
+  //                                  failPromise(
+  //                                      promise2,
+  //                                      "Something went wrong while approving access request");
+  //                                })
+  //                            .compose(
+  //                                updateNotificationHandler -> {
+  //                                  Promise<JsonObject> promise3 = Promise.promise();
+  //                                  final JsonObject constraints1 =
+  //                                      notification.getJsonObject("constraints");
+  //
+  //                                  final Tuple updateAccessRequestTuple =
+  //                                      Tuple.of(
+  //                                          getExpiryAt(),
+  //                                          constraints1,
+  //                                          notificationId,
+  //                                          getOwnerId());
+  //
+  //                                  sqlConnection
+  //                                      .preparedQuery(APPROVE_REQUEST_QUERY)
+  //                                      .collecting(rowListCollector)
+  //                                      .execute(updateAccessRequestTuple)
+  //                                      .map(rows -> rows.value())
+  //                                      .onSuccess(
+  //                                          approveAccessRequestSuccess -> {
+  //                                            boolean isListEmpty =
+  //                                                approveAccessRequestSuccess.isEmpty();
+  //                                            if (isListEmpty) {
+  //                                              LOG.error(
+  //                                                  "list is empty while updating notification");
+  //                                              failPromise(
+  //                                                  promise3,
+  //                                                  "Something went wrong while approving access
+  // request");
+  //                                            } else {
+  //                                              LOG.debug(
+  //                                                  "Approving Notification successfully done :
+  // {}",
+  //                                                  approveAccessRequestSuccess);
+  //                                              JsonObject successResponse =
+  //                                                  new JsonObject()
+  //                                                      .put(TYPE,
+  // ResponseUrn.SUCCESS_URN.getUrn())
+  //                                                      .put(
+  //                                                          TITLE,
+  //                                                          ResponseUrn.SUCCESS_URN.getMessage())
+  //                                                      .put(DETAIL, "Request updated
+  // successfully")
+  //                                                      .put(STATUS_CODE, SUCCESS.getValue());
+  //                                              LOG.info("before promise is completed");
+  //                                               promise3.complete(successResponse);
+  //                                                LOG.info("Success response is : " +
+  // successResponse.toString());
+  //                                            }
+  //                                          })
+  //                                      .onFailure(
+  //                                          updateNotificationFailure -> {
+  //                                            LOG.error(
+  //                                                "Error while updating notification: "
+  //                                                    + updateNotificationFailure);
+  //                                            failPromise(
+  //                                                promise3,
+  //                                                "Something went wrong while approving access
+  // request");
+  //                                          });
+  //                                  LOG.info("this is the actual promise : promise3" );
+  //                                  return promise3.future();
+  //                                });
+  //                        LOG.info("this is 2nd promise");
+  //                        return promise2.future();
+  //                      });
+  //              LOG.info("promise is here");
+  //                 return promise.future(); // this future is being returned
+  //            });
+  //    LOG.info("it is not returned");
+  //    return transactionResponseFuture; // here
+  //  }
+
+  public Future<JsonObject> initiateTransactions(JsonObject notification) {
+    LOG.trace("inside initiateTransactions method");
+      Collector<Row, ?, List<JsonObject>> rowListCollector1 =
+              Collectors.mapping(row -> row.toJson(), Collectors.toList());
+      Collector<Row, ?, List<JsonObject>> rowListCollector2 =
+              Collectors.mapping(row -> row.toJson(), Collectors.toList());
+      Collector<Row, ?, List<JsonObject>> rowListCollector3 =
+              Collectors.mapping(row -> row.toJson(), Collectors.toList());
+    pool = postgresService.getPool();
+    Future<JsonObject> transactionResponseFuture =
+        pool.withTransaction(
+            sqlConnection -> {
+              //                    LOG.trace("inside createPolicy method");
+              Promise<Boolean> promise1 = Promise.promise();
+              JsonObject constraints = null;
+              try {
+
+                constraints = notification.getJsonObject("constraints");
+                LOG.debug("constraints : {}", constraints);
+                if (constraints == null) {
+                  throw new NullPointerException("Invalid or null constraints in the request body");
+                }
+              } catch (Exception exception) {
+                LOG.error("Error : {}", exception.getMessage());
+                JsonObject failureMessage =
+                    new JsonObject()
+                        .put(TYPE, BAD_REQUEST.getValue())
+                        .put(TITLE, BAD_REQUEST.getUrn())
+                        .put(DETAIL, "Invalid or null constraints in the request body");
+                return Future.failedFuture(failureMessage.encode());
+              }
+              UUID policyId = UUID.randomUUID();
+              setPolicyId(policyId);
+              //
+              Tuple tuple =
+                  Tuple.of(
+                      policyId,
+                      getConsumerEmailId(),
+                      getItemId(),
+                      getOwnerId(),
+                      "ACTIVE",
+                      getExpiryAt(),
+                      constraints);
+              //
+              //
+              //                    var one = sqlConnection
+              //                            .preparedQuery(CREATE_POLICY_QUERY)
+              //                            .collecting(rowListCollector)
+              //                            .execute(tuple)
+              //                            .map(rows -> rows.value())
+              //                            .onSuccess(
+              //                                    createPolicySuccess -> {
+              //                                        boolean isListEmpty =
+              // createPolicySuccess.isEmpty();
+              //                                        if (isListEmpty) {
+              //                                            promise1.fail("Something went wrong
+              // while creating the policy");
+              //
+              //                                        } else {
+              //                                            LOG.debug("Create Policy successful :
+              // {}", createPolicySuccess);
+              //                                            promise1.complete(true);
+              //                                        }
+              //                                    })
+              //                            .onFailure(
+              //                                    createPolicyFailed -> {
+              //                                        LOG.error("Error while creating policy : " +
+              // createPolicyFailed);
+              //                                        promise1.fail("Something went wrong while
+              // creating the policy");
+              //                                    });
+              //
+              //
+              //                    LOG.trace("inside insertInApprovedAccessRequest method");
+              UUID notificationId = UUID.fromString(notification.getString("requestId"));
+              tuple = Tuple.of(notificationId, getPolicyId());
+              //
+              UUID uuid = UUID.randomUUID();
+              Tuple approvedAccessRequestInsertionTuple =
+                  Tuple.of(uuid, notificationId, getPolicyId());
+              Promise<Boolean> promise2 = Promise.promise();
+              //
+              //                   var two =  sqlConnection
+              //                            .preparedQuery(INSERT_IN_APPROVED_ACCESS_REQUESTS_QUERY)
+              //                            .collecting(rowListCollector)
+              //                            .execute(approvedAccessRequestInsertionTuple)
+              //                            .map(rows -> rows.value())
+              //                            .onSuccess(
+              //                                    approvedAccessRequestInsertionSuccess -> {
+              //                                        boolean isListEmpty =
+              // approvedAccessRequestInsertionSuccess.isEmpty();
+              //                                        if (isListEmpty) {
+              //                                            LOG.error("list is empty while inserting
+              // approved_access_request");
+              //                                            promise2.fail("Something went wrong
+              // while approving the access request");
+              //                                        } else {
+              //                                            LOG.info(
+              //                                                    "Insertion in
+              // approved_access_request successfully done : {}",
+              //
+              // approvedAccessRequestInsertionSuccess);
+              //                                            promise2.complete(true);
+              //                                        }
+              //                                    })
+              //                            .onFailure(
+              //                                    insertionFailed -> {
+              //                                        LOG.error("Error while inserting in
+              // approved_access_request : " + insertionFailed);
+              //                                        promise2.fail("Something went wrong while
+              // approving access request");
+              //                                    });
+              //
+              //
+              Promise<JsonObject> promise3 = Promise.promise();
+              //                    LOG.trace("inside approveNotification method");
+              notificationId = UUID.fromString(notification.getString("requestId"));
+              constraints = notification.getJsonObject("constraints");
+              final Tuple updateAccessRequestTuple =
+                  Tuple.of(getExpiryAt(), constraints, notificationId, getOwnerId());
+              //                   var three =  sqlConnection
+              //                            .preparedQuery(APPROVE_REQUEST_QUERY)
+              //                            .collecting(rowListCollector)
+              //                            .execute(updateAccessRequestTuple)
+              //                            .map(rows -> rows.value())
+              //                            .onSuccess(
+              //                                    approveAccessRequestSuccess -> {
+              //                                        boolean isListEmpty =
+              // approveAccessRequestSuccess.isEmpty();
+              //                                        if (isListEmpty) {
+              //                                            LOG.error("list is empty while updating
+              // notification");
+              //                                            promise3.fail("Something went wrong
+              // while approving access request");
+              //                                        } else {
+              //                                            LOG.debug(
+              //                                                    "Approving Notification
+              // successfully done : {}", approveAccessRequestSuccess);
+              //                                            JsonObject successResponse =
+              //                                                    new JsonObject()
+              //                                                            .put(TYPE,
+              // ResponseUrn.SUCCESS_URN.getUrn())
+              //                                                            .put(TITLE,
+              // ResponseUrn.SUCCESS_URN.getMessage())
+              //                                                            .put(DETAIL, "Request
+              // updated successfully")
+              //                                                            .put(STATUS_CODE,
+              // SUCCESS.getValue());
+              //                                            LOG.info("before promise is completed");
+              //                                            promise3.complete(successResponse);
+              //                                            LOG.info("Success response is : " +
+              // successResponse.toString());
+              //                                        }
+              //                                    })
+              //                            .onFailure(
+              //                                    updateNotificationFailure -> {
+              //                                        LOG.error("Error while updating
+              // notification: " + updateNotificationFailure);
+              //                                        promise3.fail("Something went wrong while
+              // approving access request");
+              //                                    });
+              //                var four = CompositeFuture.all(one, two, three)
+              //                        .compose(response ->
+              //                        {
+              //                            sqlConnection.close();
+              //                           return promise3.future();
+              //                        }
+              //                        );
+              //
+              // _______________________________________________________________________________________
+
+              //                var five = sqlConnection
+              //                        .preparedQuery(APPROVE_REQUEST_QUERY)
+              //                        .collecting(rowListCollector)
+              //                        .execute(updateAccessRequestTuple)
+              //                        .map(rows -> rows.value())
+              //                        .compose(response1 -> {
+              //                            return sqlConnection
+              //                                    .preparedQuery(APPROVE_REQUEST_QUERY)
+              //                                    .collecting(rowListCollector)
+              //                                    .execute(updateAccessRequestTuple)
+              //                                    .map(rows -> rows.value())
+              //                                    .compose(response2 -> {
+              //                                        return sqlConnection
+              //
+              // .preparedQuery(APPROVE_REQUEST_QUERY)
+              //                                                .collecting(rowListCollector)
+              //                                                .execute(updateAccessRequestTuple)
+              //                                                .map(rows -> rows.value())
+              //                                                .onComplete(response3 -> {
+              //                                                    sqlConnection
+              //
+              // .preparedQuery(APPROVE_REQUEST_QUERY)
+              //
+              // .collecting(rowListCollector)
+              //
+              // .execute(updateAccessRequestTuple)
+              //                                                            .map(rows ->
+              // rows.value())
+              //                                                            .onComplete(handler -> {
+              //                                                                boolean
+              // isResponse1Valid = !(response1.isEmpty());
+              //                                                                boolean
+              // isResponse2Valid = !(response2.isEmpty());
+              //                                                                if(isResponse1Valid
+              // && isResponse2Valid && response3.succeeded())
+              //                                                                {
+              //
+              // sqlConnection.close();
+              //                                                                    JsonObject
+              // successResponse =
+              //                                                                            new
+              // JsonObject()
+              //
+              // .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
+              //
+              // .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
+              //
+              // .put(DETAIL, "Request updated successfully")
+              //
+              // .put(STATUS_CODE, SUCCESS.getValue());
+              //
+              // promise3.complete(successResponse);
+              //                                                                }
+              //                                                            });
+              //
+              //                                                });
+              //                                    });
+              //                        });
+
+              //
+              // -------------------------------------------------------------------------------------
+              //                var six = sqlConnection
+              //                        .preparedQuery(APPROVE_REQUEST_QUERY)
+              //                        .execute(updateAccessRequestTuple)
+              //                        .compose(response1 -> {
+              //                            return sqlConnection
+              //                                    .preparedQuery(APPROVE_REQUEST_QUERY)
+              //                                    .execute(updateAccessRequestTuple)
+              //                                    .compose(response2 -> {
+              //                                        return sqlConnection
+              //
+              // .preparedQuery(APPROVE_REQUEST_QUERY)
+              //                                                .execute(updateAccessRequestTuple)
+              //                                                .onComplete(response3 -> {
+              //                                                    sqlConnection
+              //
+              // .preparedQuery(APPROVE_REQUEST_QUERY)
+              //
+              // .execute(updateAccessRequestTuple)
+              //                                                            .onComplete(handler -> {
+              //
+              // if(response3.succeeded())
+              //                                                                {
+              //                                                                    JsonObject
+              // successResponse =
+              //                                                                            new
+              // JsonObject()
+              //
+              // .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
+              //
+              // .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
+              //
+              // .put(DETAIL, "Request updated successfully")
+              //
+              // .put(STATUS_CODE, SUCCESS.getValue());
+              //
+              // promise3.complete(successResponse);
+              //                                                                }
+              //                                                                else
+              //                                                                {
+              //
+              // LOG.error("Something went wrong : ", handler.cause());
+              //
+              // LOG.error("Failure : {}", handler.cause().getMessage());
+              //
+              // failPromise(promise3, "Something went wrong while updating access request");
+              //                                                                }
+              //                                                            });
+              //
+              //                                                });
+              //                                    });
+              //                        });
+
+              //
+              // --------------------------------------------------------------------------------------------
+
+//              var seven =
+//                  sqlConnection
+//                      .preparedQuery(CREATE_POLICY_QUERY)
+//                      .collecting(rowListCollector1)
+//                      .execute(tuple)
+//                      .map(row -> row.value())
+//                      .compose(
+//                          response1 -> {
+//                            LOG.info("Response 1 : {}", response1);
+//                            return sqlConnection
+//                                .preparedQuery(INSERT_IN_APPROVED_ACCESS_REQUESTS_QUERY)
+//                                .collecting(rowListCollector2)
+//                                .execute(approvedAccessRequestInsertionTuple)
+//                                .map(row -> row.value())
+//                                .compose(
+//                                    response2 -> {
+//                                      LOG.info("Response 2 : {}", response2);
+//                                      return sqlConnection
+//                                          .preparedQuery(APPROVE_REQUEST_QUERY)
+//                                          .collecting(rowListCollector2)
+//                                          .execute(updateAccessRequestTuple)
+//                                          .map(row -> row.value())
+//                                          .onComplete(
+//                                              response3 -> {
+//                                                sqlConnection
+//                                                    .preparedQuery(APPROVE_REQUEST_QUERY)
+//                                                    .collecting(rowListCollector3)
+//                                                    .execute(updateAccessRequestTuple)
+//                                                    .map(row -> row.value())
+//                                                    .onComplete(
+//                                                        handler -> {
+//                                                          if (response3.succeeded()) {
+//                                                            LOG.info(
+//                                                                "Response 3 : {}",
+//                                                                handler.result());
+//                                                            JsonObject successResponse =
+//                                                                new JsonObject()
+//                                                                    .put(
+//                                                                        TYPE,
+//                                                                        ResponseUrn.SUCCESS_URN
+//                                                                            .getUrn())
+//                                                                    .put(
+//                                                                        TITLE,
+//                                                                        ResponseUrn.SUCCESS_URN
+//                                                                            .getMessage())
+//                                                                    .put(
+//                                                                        DETAIL,
+//                                                                        "Request updated successfully")
+//                                                                    .put(
+//                                                                        STATUS_CODE,
+//                                                                        SUCCESS.getValue());
+//                                                            promise3.complete(successResponse);
+//                                                          } else {
+//                                                            LOG.error(
+//                                                                "Something went wrong : ",
+//                                                                handler.cause());
+//                                                            LOG.error(
+//                                                                "Failure : {}",
+//                                                                handler.cause().getMessage());
+//                                                            failPromise(
+//                                                                promise3,
+//                                                                "Something went wrong while updating access request");
+//                                                          }
+//                                                        });
+//                                              });
+//                                    });
+//                          });
+
+              var eight =
+                  sqlConnection
+                      .preparedQuery(CREATE_POLICY_QUERY)
+                      .collecting(rowListCollector1)
+                      .execute(tuple)
+                      .map(row -> row.value())
+                      .compose(
+                          response1 -> {
+                            LOG.info("Response 1 : {}", response1);
+                            return sqlConnection
+                                .preparedQuery(INSERT_IN_APPROVED_ACCESS_REQUESTS_QUERY)
+                                .collecting(rowListCollector2)
+                                .execute(approvedAccessRequestInsertionTuple)
+                                .map(row -> row.value())
+                                .compose(
+                                    response2 -> {
+                                      LOG.info("Response 2 : {}", response2);
+                                      return sqlConnection
+                                          .preparedQuery(APPROVE_REQUEST_QUERY)
+                                          .collecting(rowListCollector2)
+                                          .execute(updateAccessRequestTuple)
+                                          .map(row -> row.value())
+                                          .onComplete(
+                                              response3 -> {
+                                                LOG.info("Response 3 : {}", response3);
+                                                JsonObject successResponse =
+                                                    new JsonObject()
+                                                        .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
+                                                        .put(
+                                                            TITLE,
+                                                            ResponseUrn.SUCCESS_URN.getMessage())
+                                                        .put(DETAIL, "Request updated successfully")
+                                                        .put(STATUS_CODE, SUCCESS.getValue());
+                                                promise3.complete(successResponse);
+                                              });
+                                    });
+                          });
+
+              return promise3.future();
+              //                return four;
+            });
+    return transactionResponseFuture;
   }
+
+    private void failPromise(Promise<JsonObject> promise, String failureMessage) {
+        promise.fail(
+            getFailureMessage(
+                INTERNAL_SERVER_ERROR.getValue(),
+                ResponseUrn.BACKING_SERVICE_FORMAT_URN,
+                failureMessage));
+    }
+
 
   /**
    * Inserts a record in approved_access_request table by inserting the notificationId and policyId
@@ -267,22 +907,24 @@ public class UpdateNotification {
    * @param sqlConnection connection made to the DB to execute the query
    * @return True, if the record is successfully inserted, failure if any in the form of Future
    */
-  public Future<Boolean> insertInApprovedAccessRequest(
-      JsonObject notification, String query, SqlConnection sqlConnection) throws Exception {
-    LOG.trace("inside insertInApprovedAccessRequest method");
-    Promise<Boolean> promise = Promise.promise();
+  /*  public Future<Boolean> insertInApprovedAccessRequest(
+    JsonObject notification, String query, SqlConnection sqlConnection) throws Exception {
+  LOG.trace("inside insertInApprovedAccessRequest method");
+  Promise<Boolean> promise = Promise.promise();
 
-    UUID notificationId = UUID.fromString(notification.getString("requestId"));
-    Tuple tuple = Tuple.of(notificationId, getPolicyId());
-    executeQuery(
-        sqlConnection,
-        query,
-        tuple,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject result = handler.result().getJsonArray(RESULT).getJsonObject(0);
-            boolean isResponseEmpty = result.isEmpty();
-            /* if the id is not returned back after execution, then record is not inserted*/
+  UUID notificationId = UUID.fromString(notification.getString("requestId"));
+  Tuple tuple = Tuple.of(notificationId, getPolicyId());
+  executeQuery(
+      sqlConnection,
+      query,
+      tuple,
+      handler -> {
+        if (handler.succeeded()) {
+          JsonObject result = handler.result().getJsonArray(RESULT).getJsonObject(0);
+          boolean isResponseEmpty = result.isEmpty();
+          */
+  /* if the id is not returned back after execution, then record is not inserted*/
+  /*
             if (isResponseEmpty) {
               LOG.error("Could not insert in approved request access table");
               JsonObject failureMessage =
@@ -302,9 +944,49 @@ public class UpdateNotification {
           }
         });
     return promise.future();
+  }*/
+
+  public Future<Boolean> insertInApprovedAccessRequest(
+      JsonObject notification, String query, SqlConnection sqlConnection) throws Exception {
+    LOG.trace("inside insertInApprovedAccessRequest method");
+    Promise<Boolean> promise = Promise.promise();
+    Collector<Row, ?, List<JsonObject>> rowListCollector =
+        Collectors.mapping(row -> row.toJson(), Collectors.toList());
+    UUID notificationId = UUID.fromString(notification.getString("requestId"));
+    Tuple tuple = Tuple.of(notificationId, getPolicyId());
+
+    UUID uuid = UUID.randomUUID();
+    Tuple approvedAccessRequestInsertionTuple = Tuple.of(uuid, notificationId, getPolicyId());
+
+    sqlConnection
+        .preparedQuery(INSERT_IN_APPROVED_ACCESS_REQUESTS_QUERY)
+        .collecting(rowListCollector)
+        .execute(approvedAccessRequestInsertionTuple)
+        .map(rows -> rows.value())
+        .onSuccess(
+            approvedAccessRequestInsertionSuccess -> {
+              boolean isListEmpty = approvedAccessRequestInsertionSuccess.isEmpty();
+              if (isListEmpty) {
+                LOG.error("list is empty while inserting approved_access_request");
+                promise.fail("Something went wrong while approving the access request");
+              } else {
+                LOG.info(
+                    "Insertion in approved_access_request successfully done : {}",
+                    approvedAccessRequestInsertionSuccess);
+                promise.complete(true);
+                //                                    promise.complete(new
+                // JsonObject().put(RESULT,approvedAccessRequestInsertionSuccess));
+              }
+            })
+        .onFailure(
+            insertionFailed -> {
+              LOG.error("Error while inserting in approved_access_request : " + insertionFailed);
+              promise.fail("Something went wrong while approving access request");
+            });
+    return promise.future();
   }
 
-  /**
+    /**
    * Checks if the given user who is requesting to approve the notification of the consumer is
    * owning the resource
    *
@@ -352,7 +1034,7 @@ public class UpdateNotification {
    * @param sqlConnection object for executing the query by connecting to the DB
    * @return True, if a policy is successfully created, or failure if of type Future
    */
-  public Future<Boolean> createPolicy(
+/*  public Future<Boolean> createPolicy(
       JsonObject notification, String query, SqlConnection sqlConnection) throws Exception {
     LOG.trace("inside createPolicy method");
     Promise<Boolean> promise = Promise.promise();
@@ -385,9 +1067,9 @@ public class UpdateNotification {
         handler -> {
           if (handler.succeeded()) {
             JsonObject result = handler.result().getJsonArray(RESULT).getJsonObject(0);
-            /*policy is created successfully and the policy id is returned */
+            *//*policy is created successfully and the policy id is returned *//*
             if (!result.isEmpty()) {
-              /* set policyId */
+              *//* set policyId *//*
               UUID policyId = UUID.fromString(result.getString("_id"));
               setPolicyId(policyId);
               LOG.trace("Policy created successfully with policyId: {}", result.getString("_id"));
@@ -407,6 +1089,68 @@ public class UpdateNotification {
           }
         });
     return promise.future();
+  }*/
+
+  public Future<Boolean> createPolicy(
+          JsonObject notification, String query, SqlConnection sqlConnection) throws Exception {
+      Collector<Row, ?, List<JsonObject>> rowListCollector =
+              Collectors.mapping(row -> row.toJson(), Collectors.toList());
+
+      LOG.trace("inside createPolicy method");
+      Promise<Boolean> promise = Promise.promise();
+      JsonObject constraints = null;
+      try {
+
+          constraints = notification.getJsonObject("constraints");
+          LOG.debug("constraints : {}", constraints);
+          if (constraints == null) {
+              throw new NullPointerException("Invalid or null constraints in the request body");
+          }
+      } catch (Exception exception) {
+          LOG.error("Error : {}", exception.getMessage());
+          JsonObject failureMessage =
+                  new JsonObject()
+                          .put(TYPE, BAD_REQUEST.getValue())
+                          .put(TITLE, BAD_REQUEST.getUrn())
+                          .put(DETAIL, "Invalid or null constraints in the request body");
+          return Future.failedFuture(failureMessage.encode());
+      }
+      UUID policyId = UUID.randomUUID();
+      setPolicyId(policyId);
+
+      Tuple tuple =
+              Tuple.of(
+                      policyId,
+                      getConsumerEmailId(),
+                      getItemId(),
+                      getOwnerId(),
+                      "ACTIVE",
+                      getExpiryAt(),
+                      constraints);
+
+
+      sqlConnection
+              .preparedQuery(query)
+              .collecting(rowListCollector)
+              .execute(tuple)
+              .map(rows -> rows.value())
+              .onSuccess(
+                      createPolicySuccess -> {
+                          boolean isListEmpty = createPolicySuccess.isEmpty();
+                          if (isListEmpty) {
+                              promise.fail("Something went wrong while creating the policy");
+
+                          } else {
+                              LOG.debug("Create Policy successful : {}", createPolicySuccess);
+                              promise.complete(true);
+                          }
+                      })
+              .onFailure(
+                      createPolicyFailed -> {
+                          LOG.error("Error while creating policy : " + createPolicyFailed);
+                          promise.fail("Something went wrong while creating the policy");
+                      });
+      return promise.future();
   }
 
   /**
