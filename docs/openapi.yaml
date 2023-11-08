@@ -778,26 +778,41 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                requestId:
-                  type: string
-                  format: uuid
-                  pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
-                  minLength: 36
-                   
-                status:
-                  enum:
-                    - granted
-                    - rejected
-                  minLength: 1
-                expiryAt:
-                  type: string
-                constraints:
+              oneOf:
+                - title: approve access request
                   type: object
-              required:
-                - requestId
-                - status
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                      pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
+                    status:
+                      type: string
+                      default: granted
+                    expiryAt:
+                      type: string
+                    constraints:
+                      type: object
+                  required:
+                    - requestId
+                    - status
+                    - expiryAt
+                    - constraints
+
+                - title : reject access request
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                      pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
+                    status:
+                      type: string
+                      default: rejected
+                  required:
+                    - requestId
+                    - status
+
               x-examples:
                 example-1:
                   requestId: bca11712-f381-46a5-afa3-a29b00568ace
