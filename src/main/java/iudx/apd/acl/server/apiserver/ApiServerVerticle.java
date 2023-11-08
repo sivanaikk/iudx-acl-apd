@@ -164,7 +164,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
               routerBuilder.rootHandler(TimeoutHandler.create(100000, 408));
               configureCorsHandler(routerBuilder);
-              routerBuilder.rootHandler(BodyHandler.create());
+              routerBuilder.rootHandler(BodyHandler.create().setHandleFileUploads(false));
               router = routerBuilder.createRouter();
               putCommonResponseHeaders();
               configureErrorHandlers(router);
