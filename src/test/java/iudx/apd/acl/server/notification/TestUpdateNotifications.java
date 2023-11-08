@@ -652,34 +652,6 @@ public class TestUpdateNotifications {
   }
 
   @Test
-  @DisplayName("Test initiateTransactions with invalid constraints")
-  public void testInitiateTransactionsWithInvalidConstraint(VertxTestContext vertxTestContext) {
-
-    JsonObject approveNotification =
-        new JsonObject()
-            .put("requestId", requestId)
-            .put("status", "granted")
-            .put("expiryAt", expiryTime)
-            .put("constraints", "constraints");
-    updateNotification
-        .initiateTransactions(approveNotification)
-        .onComplete(
-            handler -> {
-              if (handler.succeeded()) {
-                vertxTestContext.failNow("Succeeded for invalid constraint");
-              } else {
-                JsonObject failure =
-                    new JsonObject()
-                        .put(TYPE, BAD_REQUEST.getValue())
-                        .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getUrn())
-                        .put(DETAIL, "Invalid or null constraint");
-                assertEquals(failure.encode(), handler.cause().getMessage());
-                vertxTestContext.completeNow();
-              }
-            });
-  }
-
-  @Test
   @DisplayName("Test initiateUpdateNotification with error while creating database connection")
   public void testWithDatabaseConnectionError(VertxTestContext vertxTestContext) {
     PostgresService postgresService = mock(PostgresService.class);

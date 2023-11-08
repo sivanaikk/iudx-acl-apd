@@ -147,7 +147,7 @@ public class UpdateNotification {
     Future<JsonObject> transactionResponseFuture =
         pool.withTransaction(
             sqlConnection -> {
-              JsonObject constraints = notification.getJsonObject("constraints");
+              JsonObject constraints = notification.getJsonObject("constraints", new JsonObject());
               UUID policyId = UUID.randomUUID();
               setPolicyId(policyId);
 
@@ -207,21 +207,11 @@ public class UpdateNotification {
             });
 
     transactionResponseFuture = transactionResponseFuture.recover(
-        /* some exception occurred while fetching constraints */
         failure -> {
-            LOG.error("Error : " + failure);
-            if(failure instanceof ClassCastException)
-            {
-                JsonObject failureMessage =
-                        new JsonObject()
-                                .put(TYPE, BAD_REQUEST.getValue())
-                                .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getUrn())
-                                .put(DETAIL, "Invalid or null constraint");
-                return Future.failedFuture(failureMessage.encode());
-            }
           /* something went wrong while creating a policy
                             or while inserting a record in approved access request
                             or while updating the notification*/
+            LOG.error("Failed : " + failure);
             JsonObject failureMessage =
                     new JsonObject()
                             .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
