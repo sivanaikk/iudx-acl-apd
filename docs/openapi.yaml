@@ -422,6 +422,8 @@ paths:
         - Verify API
       summary: Verify Policy
       description: |
+        `This API is not meant to be called by any user and is used by Data Exchange AAA server.`
+        <br>
         Verify the policy for a given item and owner. This endpoint checks if a policy exists for the specified item and owner in the APD server. It returns the policy constraints if a policy is found.
       operationId: get-auth-v1-verify
       parameters:
