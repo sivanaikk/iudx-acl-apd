@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "9793ef6c-19fc-42f1-a3c8-efa8614e5665",
 		"name": "IUDX-ACL-APD",
-		"description": "**IUDX-ACL-APD** **Collection**:  \nThe \"iudx-acl-apd\" collection is a comprehensive set of APIs that encompass three essential aspects of access management within a system:\n\n1. **Token Management (Token)**:\n    \n    - This component of the collection provides the means to acquire an Identity Access Token, which is a fundamental requirement for executing various functionalities within the system, including Policy and Access Request APIs.\n        \n2. **Policy Management (Policy)**:\n    \n    - The \"iudx-acl-apd\" collection includes APIs that streamline the creation, deletion, and retrieval of user-generated policies. These policies define access control rules and permissions, ensuring a structured approach to access management.\n3. **Access Request Management (Access Request)**:\n    \n    - Within this collection, users can initiate policy requests, obtain lists of generated access requests, delete specific requests, and manage requests by approving or rejecting them.",
+		"description": "**IUDX-ACL-APD** **Collection**:  \nThe \"iudx-acl-apd\" collection is a comprehensive set of APIs that encompass three essential aspects of access management within a system:\n\n1. **Token Management (Token)**:\n    - This component of the collection provides the means to acquire an Identity Access Token, which is a fundamental requirement for executing various functionalities within the system, including Policy and Access Request APIs.\n2. **Policy Management (Policy)**:\n    - The \"iudx-acl-apd\" collection includes APIs that streamline the creation, deletion, and retrieval of user-generated policies. These policies define access control rules and permissions, ensuring a structured approach to access management.\n3. **Access Request Management (Access Request)**:\n    - Within this collection, users can initiate policy requests, obtain lists of generated access requests, delete specific requests, and manage requests by approving or rejecting them.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "13012826",
 		"_collection_link": "https://red-equinox-800183.postman.co/workspace/a4779b5c-a647-44de-8082-d4b888bc27f2/collection/13012826-9793ef6c-19fc-42f1-a3c8-efa8614e5665?action=share&source=collection_link&creator=13012826"
@@ -46,7 +46,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"itemId\": \"\",\n    \"itemType\": \"\",\n    \"role\": \"\"\n}",
+							"raw": "{\n    \"itemId\": \"rs.example.com\",\n    \"itemType\": \"resource_server\",\n    \"role\": \"provider\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -103,7 +103,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"itemId\": \"\",\n    \"itemType\": \"\",\n    \"role\": \"\"\n}",
+							"raw": "{\n    \"itemId\": \"rs.example.com\",\n    \"itemType\": \"resource_server\",\n    \"role\": \"consumer\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -156,11 +156,17 @@
 								"value": "{{clientSecret}}",
 								"type": "text",
 								"description": "Client secret (40 chars in hexadecimal)"
+							},
+							{
+								"key": "delegationId",
+								"value": "",
+								"description": "The delegation ID determines which user + role + resource server the token request is being made on behalf by the delegate.It's the ID of the delegation that you can get using the GET delegates API on the auth server.",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"itemId\": \"\",\n    \"itemType\": \"\",\n    \"role\": \"\"\n}",
+							"raw": "{\n    \"itemId\": \"rs.example.com\",\n    \"itemType\": \"resource_server\",\n    \"role\": \"delegate\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -213,11 +219,17 @@
 								"value": "{{clientSecret}}",
 								"type": "text",
 								"description": "Client secret (40 chars in hexadecimal)"
+							},
+							{
+								"key": "delegationId",
+								"value": "",
+								"description": "The delegation ID determines which user + role + resource server the token request is being made on behalf by the delegate.It's the ID of the delegation that you can get using the GET delegates API on the auth server.",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"itemId\": \"\",\n    \"itemType\": \"\",\n    \"role\": \"\"\n}",
+							"raw": "{\n    \"itemId\": \"rs.example.com\",\n    \"itemType\": \"resource_server\",\n    \"role\": \"delegate\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
