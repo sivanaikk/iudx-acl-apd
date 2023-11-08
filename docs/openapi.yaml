@@ -520,7 +520,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          description: AAA issued token
+          description: AAA issued Identity token
           required: true
           schema:
             type: string
@@ -610,7 +610,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          description: AAA Issued token
+          description: AAA Issued Identity token
           required: true
           schema:
             type: string
@@ -760,7 +760,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          description: AAA Issued token
+          description: AAA Issued Identity token
           required: true
           schema:
             type: string
@@ -927,7 +927,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          description: AAA Issued token
+          description: AAA Issued Identity token
           required: true
           schema:
             type: string
