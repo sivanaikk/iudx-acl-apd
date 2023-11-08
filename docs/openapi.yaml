@@ -920,7 +920,7 @@ paths:
       description: |-
         A consumer may choose to withdraw access requests they have created, **as long as they are still in the pending state**. A withdrawn request  cannot be approved or rejected by the concerned provider.
 
-        Only users with `consumer` role can call this API.
+        Only users with consumer/consumer delegate role can call this API.
       operationId: delete-auth-v1-policies-requests
       parameters:
         - name: Authorization
@@ -942,13 +942,13 @@ paths:
           application/json:
             schema:
               type: object
+              additionalProperties: false
               properties:
                 id:
                   type: string
                   format: uuid
                   pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
-                  minLength: 36
-                   
+
               required:
                 - id
             examples:
@@ -967,7 +967,7 @@ paths:
           description: |-
             Bad Request
               - Errors or exceptions
-              - The ID is no longer in the `PENDING` status or has already been withdrawn earlier
+              - The access request is no longer in the `PENDING` status or has already been withdrawn earlier
           content:
             application/json:
               schema:
@@ -983,7 +983,7 @@ paths:
         '403':
           description: |-
             Forbidden
-            - User does not own the policy or is not a delegate to the owner of the policy
+            - User did not create the access request or is not a delegator to the consumer who created the access request
           content:
             application/json:
               schema:
