@@ -923,7 +923,7 @@ paths:
         - Access Request APIs
       summary: Withdraw Access Request
       description: |-
-        A consumer may choose to withdraw access requests they have created, **as long as they are still in the pending state**. A withdrawn request  cannot be approved or rejected by the concerned provider.
+        A consumer/consumer may choose to withdraw access requests they have created, **as long as they are still in the pending state**. A withdrawn request  cannot be approved or rejected by the concerned provider.
 
         Only users with consumer/consumer delegate role can call this API.
       operationId: delete-auth-v1-policies-requests
