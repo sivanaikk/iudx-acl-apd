@@ -9,21 +9,36 @@ info:
   license:
     name: MIT
 
+tags:
+  - name: Policies
+    x-displayName: "Policies"
+    description: |
+      The `Policies` collection includes APIs that allows the creation, deletion, and retrieval of user-generated policies.
+
+  - name: Verify
+    x-displayName: "Verify"
+    description: |
+      Verify the policy for a given resource item or group and owner.
+  - name: Access Request
+    x-displayName: "Access Request"
+    description: |
+      This collection allows users to initiate policy requests, retrieve lists of created access requests, delete specific requests, and manage requests by approving or rejecting them.
+
+
 paths:
   /dx/apd/acl/v1/policies:
     get:
       tags:
-        - Policies APIs
+        - Policies
       summary: Get Policies
       description: |
-        Get policies related to a particular user. The response depends on the roles the user has
-        - `provider` : returns all policies created by the provider/delegate of the provider.
-        - `delegate` : returns all policies set by the delegate for the provider or set for the consumer the delegate is acting on behalf off.
-        - `consumer` : returns the policies set for the consumer
-        <br>
-        <br>
+        Get policies associated with a specific user. The response is determined by the user's roles:
 
-        `Note:` The response displays the policies of / for a user with respect to a particular server.
+        - If the user is a `provider`, the response includes all policies created by the provider or their delegates.
+        - If the user is a `delegate`, the response comprises policies set by the delegate or set for the consumer on whose behalf the delegate is acting.
+        - If the user is a `consumer`, the response includes policies set for the consumer.
+
+        `Note`: Please note that the response displays the policies for a user concerning a specific server.
 
       operationId: get-auth-v1-policies
       parameters:
@@ -39,7 +54,7 @@ paths:
       responses:
         '200':
           description: |-
-            Successfully lists the policies
+            Policies have been successfully listed.
           content:
             application/json:
               schema:
@@ -52,7 +67,7 @@ paths:
                 type: string
               description: application/json
         '401':
-          description: '- Unauthorized - `token` invalid/expired'
+          description: 'Unauthorized - `token` invalid/expired'
           content:
             application/json:
               schema:
@@ -63,7 +78,7 @@ paths:
                 type: string
               description: application/json
         '404':
-          description: '- Not Found - Policy not found'
+          description: 'Not Found - Policy not found'
           content:
             application/json:
               schema:
@@ -79,13 +94,10 @@ paths:
 
     delete:
       tags:
-        - Policies APIs
-      summary: Delete Policies
+        - Policies
+      summary: Delete Policy
       description: |-
-        User policies can be deleted.
-        The request would contain `id`, i.e. the ID of the user policy or APD policy that the user wants to delete. The user can use the List Policy API to get the policy ID.
-        ## Delegate
-         - A delegate may use the API to view policies on behalf of their provider. The user info of the delegator must be present in the token issued by the Data Exchange AAA
+        A provider of the resource can delete the policy. An existing active policy can be deleted by the provider or provider delegate. The request would contain id, i.e. the ID of the policy that the user wants to delete. The user can use the GET Policy API to get the policy ID.
       operationId: delete-auth-v1-policies
       parameters:
         - name: Authorization
@@ -110,16 +122,16 @@ paths:
                   format: uuid
                   pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
                   minLength: 36
-                   
+
               required:
                 - id
             examples:
-              Delete Policies:
+              Request body for Delete Policy:
                 value:
                   id: 231f6eca-6276-4993-bfeb-53cbbbba6f06
       responses:
         '200':
-          description: Successfully deleted the User Policies
+          description: User Policy deleted successfully.
           content:
             application/json:
               schema:
@@ -132,8 +144,10 @@ paths:
         '400':
           description: |-
             Bad Request
-            - Error or exceptions
-            - id is not a valid a policyId
+            - Id is not a valid policyId
+            - Policy has expired
+            - Policy was previously deleted
+
           content:
             application/json:
               schema:
@@ -146,7 +160,7 @@ paths:
         '404':
           description: |-
             Not Found
-              - policy id does not exist
+              - Policy id does not exist
           content:
             application/json:
               schema:
@@ -169,67 +183,35 @@ paths:
               schema:
                 type: string
               description: application/json
-        '403':
-          description: |-
-            Forbidden
-            - User does not own the policy or is not a delegate to the owner of the policy
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/deletePolicyInvalidUserResponse'
-          headers:
-            Content-Type:
-              schema:
-                type: string
-              description: application/json
       security:
         - authorization: [ ]
 
 
     post:
       tags:
-        - Policies APIs
-      summary: Create Policies
-      description: >-
-        Allows users to create policies to allow a particular user to get token
-        for a resource.
+        - Policies
+      summary: Create Policy
+      description: |-
 
-        `providers` can create policy for any resource that they own.
+        The `Create Policy` API empowers both `providers` and their `delegates` to establish policies for resources owned by the `provider`. It enables `providers` to define policies for resources they own, and `delegates` can create policies on behalf of `providers` who own the resources.
 
-        `delegates` can create policy on behalf of a provider who owns the
-        resource.
+        ## User Policies
 
+          User policies, which are applicable to the `RESOURCE` and `RESOURCE_GROUP` item types, can be defined by a `provider` or its `delegate`. These policies regulate access to resources owned by the `provider` and apply to `consumers` accessing these resources.
 
-        ## Policies created by provider
+        ## Item Types
 
+        - `RESOURCE`: Policies can be applied to individual resources.
+        - `RESOURCE_GROUP`: Policies can be set for resource groups.
 
-        ### User Policies
+        By utilizing the `Create Policy` API, `providers` and their `delegates` can effectively manage access control and resource governance within the system.
 
-        - Valid item types - `RESOURCE`, `RESOURCE_GROUP`
-
-        - A `provider` can set **user policies** for a `consumer` for the
-        resources owned by the `provider`.
-
-
-
-        ## Policies created by delegate
-
-        - A delegate may use the API to view policies on behalf of their
-        provider. This is done by passing the userInfo of the delegator must be
-        present in the token issued by the AAA.
-
-
-        ### User Policies
-
-        - Valid item types - `RESOURCE`, `RESOURCE_GROUP`
-
-        - A `delegate` can set **user policies** for other `delegate` or
-        `consumer` for the resources owned by the `provider`
+        `Note`: Only one policy can be generated per request.
       operationId: post-auth-v1-policies
       parameters:
         - name: Authorization
           in: header
-          description: AAA issued token
+          description: AAA issued identity token
           required: true
           schema:
             type: string
@@ -238,23 +220,18 @@ paths:
             pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
       requestBody:
         description: >
-          Request body will be an JsonObject containing JsonArray of requests.
-          The requests can be either for user policies or APD policies.
+          **Request Body Details:**
 
-          ### User Policy Request :
+            The request body should be a JSON object containing a JSON array of request.
 
-          - `userEmail` : emailId of the user for whom policy is to be set.
+            ### User Policy Request:
 
-          - `itemId` : UUID value of the item for which policy is to be set
+            - `userEmail`: The email ID of the user for whom the policy is being defined.
+            - `itemId`: The UUID value of the item for which the policy is being established.
+            - `itemType`: An enum value representing the type of the item.
+            - `expiryTime`: An optional field, representing the policy's expiry time in ISO8601 format compatible with UTC (yyyy-MM-dd'T'HH:mm:ss). If not provided, a default expiry time is set for the policy.
+            - `constraints`: A JSON object containing constraints that the resource server can interpret.
 
-          - `itemType` : Enum value of the item type
-
-          - `expiryTime` : ISO8601 compatible time in
-          UTC(yyyy-MM-dd'T'HH:mm:ss). optional field, if not sent default expiry
-          is set for the policy
-
-          - `constraints` : JsonObject of the constraints that the resource
-          server can recognize.
         required: true
         content:
           application/json:
@@ -276,7 +253,7 @@ paths:
                             pattern: >-
                               ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
                             minLength: 1
-                             
+
                           itemId:
                             type: string
                             pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
@@ -315,7 +292,7 @@ paths:
                       expiryTime: '2023-08-30T21:10:06'
                       constraints: { }
             examples:
-              Single request for resource group user policy:
+              Request for resource group user policy:
                 value:
                   request:
                     - userEmail: abc@xyz.com
@@ -325,7 +302,7 @@ paths:
                       constraints:
                         access:
                           - sub
-              Single request for resource user policy:
+              Request for resource user policy:
                 value:
                   request:
                     - userEmail: abc@xyz.com
@@ -336,30 +313,10 @@ paths:
                         access:
                           - api
                           - sub
-              Multiple user policy requests:
-                value:
-                  request:
-                    - userEmail: xyz@abx.com
-                      itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
-                      itemType: RESOURCE_GROUP
-                      expiryTime: '2022-08-04T20:00:19'
-                      constraints: { }
-                    - userEmail: aaa@yun.com
-                      itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
-                      itemType: RESOURCE
-                      expiryTime: '2022-10-10T04:00:19'
-                      constraints:
-                        access:
-                          - api
-                          - sub
-          application/xml:
-            schema:
-              type: object
       responses:
         '200':
           description: >-
-            The policies have been created successfully.Must return the details
-            of the policy created like policy Id,ItemId etc.
+            The policy has been successfully created.
           content:
             application/json:
               schema:
@@ -391,11 +348,11 @@ paths:
               description: application/json
         '403':
           description: >-
-            - If the user trying to set a policy does not have an  `provider` or
-            `delegate` role
+            - If the user trying to set a policy does not have a  `provider` or
+            `delegate` role.
 
             - If the user is neither the owner of the resource item/group or a
-            delegate to the owner of the resource
+            delegate to the owner of the resource item/group.
           content:
             application/json:
               schema:
@@ -407,8 +364,7 @@ paths:
               description: application/json
         '409':
           description: |-
-
-            - If a valid policy already exists
+            - If a valid policy already exists.
           content:
             application/json:
               schema:
@@ -419,10 +375,12 @@ paths:
   /verify:
     post:
       tags:
-        - Verify API
+        - Verify
       summary: Verify Policy
       description: |
-        Verify the policy for a given item and owner. This endpoint checks if a policy exists for the specified item and owner in the APD server. It returns the policy constraints if a policy is found.
+        This endpoint checks if a policy exists for the specified item and owner in the APD server. It returns the policy constraints if a policy is found.
+
+        `Note` : This endpoint is exclusive for internal use. The DX authentication server will invoke it before issuing access tokens to ensure the presence of a valid policy for the consumer and the requested resource.
       operationId: get-auth-v1-verify
       parameters:
         - in: header
@@ -431,7 +389,7 @@ paths:
           schema:
             type: string
             minLength: 1
-            maxLength: 4000
+            maxLength: 512
             example: Bearer <JWT>
       requestBody:
         description: >-
@@ -445,7 +403,7 @@ paths:
             schema:
               $ref: '#/components/schemas/requestBodyForVerify'
             examples:
-              request-body:
+              Request body for Verify Policy:
                 value:
                   user:
                     id: b58da193-23d9-43eb-b98a-a103d4b6103c
@@ -488,21 +446,13 @@ paths:
                 type: urn:apd:Deny
                 title: Policy does not exist
                 detail: Invalid request format/Incorrect request
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              example:
-                type: urn:dx:acl:internalServerError
-                title: Internal Server Error
-                detail: DB error.
       security:
         - authorization: [ ]
 
   /dx/apd/acl/v1/policies/requests:
     get:
       tags:
-        - Access Request APIs
+        - Access Request
       summary: List Access Requests
       description: |-
         Lists all the access requests of the user calling the API. The response depends on the roles the user has
@@ -600,7 +550,7 @@ paths:
 
     post:
       tags:
-        - Access Request APIs
+        - Access Request
       summary: Create Access Request
       description: |-
         Access requests are made by consumers to request a provider to grant access to the provider's resources. Providers or their associated delegates may choose to approve or reject the request. On approval, a policy is written for the consumer for said resource. On rejection, no policy is written.
@@ -632,7 +582,7 @@ paths:
                   format: uuid
                   pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
                   minLength: 36
-                   
+
                 itemType:
                   enum:
                     - RESOURCE_GROUP
@@ -743,7 +693,7 @@ paths:
 
     put:
       tags:
-        - Access Request APIs
+        - Access Request
       summary: Update Access Request
       description: |
         Providers or delegates can choose to approve or reject **pending** access requests associated with their resources.
@@ -785,7 +735,7 @@ paths:
                   format: uuid
                   pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
                   minLength: 36
-                   
+
                 status:
                   enum:
                     - granted
@@ -901,7 +851,7 @@ paths:
 
     delete:
       tags:
-        - Access Request APIs
+        - Access Request
       summary: Withdraw Access Request
       description: |-
         A consumer may choose to withdraw access requests they have created, **as long as they are still in the pending state**. A withdrawn request  cannot be approved or rejected by the concerned provider.
@@ -934,7 +884,7 @@ paths:
                   format: uuid
                   pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
                   minLength: 36
-                   
+
               required:
                 - id
             examples:
@@ -1234,7 +1184,7 @@ components:
 
 
     getPolicySuccessResponseWithResourceType:
-      title: get policy for type resource
+      title: get policy for resource item type.
       required:
         - type
         - title
@@ -1314,9 +1264,6 @@ components:
                 type: string
               constraints:
                 type: object
-                properties:
-                  access:
-                    type: array
       example: { "type": "urn:dx:acl:success",
                  "title": "Success",
                  "results": [ { "policyId": "aaaaaaaa-1234-1234-1234-1234aaaa1234",
@@ -1336,7 +1283,7 @@ components:
                                               "id": "abcdcd4-4576-3455-5645-3565aaaa4255" } } ] }
 
     getPolicySuccessResponseWithResourceGroup:
-      title: get policy with for type resource-group
+      title: get policy for resource-group item type.
       required:
         - type
         - title
@@ -1416,9 +1363,6 @@ components:
                 type: string
               constraints:
                 type: object
-                properties:
-                  access:
-                    type: array
       example: { "type": "urn:dx:acl:success",
                  "title": "Success",
                  "results": [ { "policyId": "aaaaaaaa-6473-3546-5436-8758aaaa5897",
@@ -1578,8 +1522,8 @@ components:
         - detail
       example:
         type: urn:dx:acl:forbidden
-        title: Access Denied
-        detail: Policy could not be deleted, as user doesn't own the policy
+        title: Forbidden
+        detail: 'Access Denied: You do not have ownership rights for this policy.'
     getPolicyInvalidUserResponse:
       title: getPolicyInvalidUserResponse
       type: object
@@ -1661,7 +1605,7 @@ components:
       example:
         type: urn:dx:acl:badRequest
         title: Bad Request
-        detail: Policy could not be deleted, as it is not in active state or is expired
+        detail: Policy could not be deleted, as policy is not ACTIVE
     deletePolicyNotFoundErrorResponse:
       title: deletePolicyNotFoundErrorResponse
       type: object
@@ -1723,7 +1667,7 @@ components:
       example:
         type: urn:dx:acl:badRequest
         title: Bad Request
-        detail: Item id given is not present or Expiry time must be a future date/time
+        detail: Item id given is not present
     createPolicyForbidden:
       type: object
       properties:
@@ -1743,7 +1687,7 @@ components:
       example:
         type: urn:dx:acl:forbidden
         title: Forbidden
-        detail: Ownership Error.
+        detail: 'Access Denied: You do not have ownership rights for this resource.'
     createPolicySuccessResponse:
       title: complete
       type: object
@@ -1754,6 +1698,10 @@ components:
           type: string
         detail:
           type: string
+      required:
+        - type
+        - title
+        - detail
       example:
         type: 'urn:dx:acl:success'
         title: Success
@@ -1768,13 +1716,16 @@ components:
           type: string
         detail:
           type: string
+      required:
+        - type
+        - title
+        - detail
       example:
         type: 'urn:dx:acl:conflict'
         title: Conflict
         detail: >-
-          Policy already exist for some of the request objects
-          [bf9d8f85-b7b0-40bb-8197-0046725f1ca8,
-          2789fa93-565a-4ea8-97f9-b64fc4863021]
+          Policy already exist for the request object
+          [bf9d8f85-b7b0-40bb-8197-0046725f1ca8]
 
     generalBadRequest:
       properties:
