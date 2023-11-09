@@ -971,14 +971,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/deleteNotificationNotFound'
-        '403':
-          description: |-
-            Forbidden
-            - User did not create the access request or is not a delegator to the consumer who created the access request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/deleteNotificationForbiddenResponse'
         '401':
           description: |-
             Unauthorized

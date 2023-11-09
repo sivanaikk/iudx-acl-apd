@@ -2,8 +2,7 @@ package iudx.apd.acl.server.notification;
 
 import static iudx.apd.acl.server.Utility.*;
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
-import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
-import static iudx.apd.acl.server.common.HttpStatusCode.FORBIDDEN;
+import static iudx.apd.acl.server.common.HttpStatusCode.*;
 import static iudx.apd.acl.server.notification.util.Constants.GET_REQUEST;
 import static iudx.apd.acl.server.notification.util.Constants.WITHDRAW_REQUEST;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -123,10 +122,10 @@ public class TestDeleteNotifications {
             handler -> {
               if (handler.failed()) {
                 JsonObject result = new JsonObject(handler.cause().getMessage());
-                assertEquals(HttpStatusCode.FORBIDDEN.getValue(), result.getInteger(TYPE));
-                assertEquals(HttpStatusCode.FORBIDDEN.getUrn(), result.getString(TITLE));
+                assertEquals(HttpStatusCode.NOT_FOUND.getValue(), result.getInteger(TYPE));
+                assertEquals(ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn(), result.getString(TITLE));
                 assertEquals(
-                    "Access Denied: You do not have ownership rights for this resource.",
+                    "Request could not be withdrawn, as it is not found",
                     result.getString(DETAIL));
                 vertxTestContext.completeNow();
 
@@ -146,10 +145,10 @@ public class TestDeleteNotifications {
             handler -> {
               if (handler.failed()) {
                 JsonObject result = new JsonObject(handler.cause().getMessage());
-                assertEquals(HttpStatusCode.FORBIDDEN.getValue(), result.getInteger(TYPE));
-                assertEquals(HttpStatusCode.FORBIDDEN.getUrn(), result.getString(TITLE));
+                assertEquals(HttpStatusCode.NOT_FOUND.getValue(), result.getInteger(TYPE));
+                assertEquals(ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn(), result.getString(TITLE));
                 assertEquals(
-                    "Access Denied: You do not have ownership rights for this resource.",
+                    "Request could not be withdrawn, as it is not found",
                     result.getString(DETAIL));
                 vertxTestContext.completeNow();
 
@@ -215,10 +214,10 @@ public class TestDeleteNotifications {
                 vertxTestContext.failNow("Succeeded with an invalid user id");
               } else {
                 JsonObject result = new JsonObject(handler.cause().getMessage());
-                assertEquals(FORBIDDEN.getValue(), result.getInteger(TYPE));
-                assertEquals(FORBIDDEN.getUrn(), result.getString(TITLE));
+                assertEquals(NOT_FOUND.getValue(), result.getInteger(TYPE));
+                assertEquals(ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn(), result.getString(TITLE));
                 assertEquals(
-                    "Access Denied: You do not have ownership rights for this resource.",
+                    "Request could not be withdrawn, as it is not found",
                     result.getString(DETAIL));
                 vertxTestContext.completeNow();
               }

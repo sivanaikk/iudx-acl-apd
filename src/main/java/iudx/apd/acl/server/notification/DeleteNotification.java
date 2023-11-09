@@ -111,10 +111,10 @@ public class DeleteNotification {
                     promise.complete(true);
                   } else {
                     JsonObject failureResponse = new JsonObject();
-                    failureResponse.put(TYPE, FORBIDDEN.getValue());
-                    failureResponse.put(TITLE, FORBIDDEN.getUrn());
+                    failureResponse.put(TYPE, NOT_FOUND.getValue());
+                    failureResponse.put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn());
                     failureResponse.put(
-                        DETAIL, "Access Denied: You do not have ownership rights for this resource.");
+                        DETAIL, "Request could not be withdrawn, as it is not found");
                     promise.fail(failureResponse.encode());
                   }
                 } else {
@@ -127,10 +127,10 @@ public class DeleteNotification {
                 }
               } else {
                 JsonObject failureResponse = new JsonObject();
-                failureResponse.put(TYPE, FORBIDDEN.getValue());
-                failureResponse.put(TITLE, FORBIDDEN.getUrn());
+                failureResponse.put(TYPE, NOT_FOUND.getValue());
+                failureResponse.put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn());
                 failureResponse.put(
-                    DETAIL, "Access Denied: You do not have ownership rights for this resource.");
+                    DETAIL, "Request could not be withdrawn, as it is not found");
                 promise.fail(failureResponse.encode());
               }
             }

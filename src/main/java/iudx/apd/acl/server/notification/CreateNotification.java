@@ -427,7 +427,7 @@ public class CreateNotification {
                             .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
                             .put(
                                 DETAIL,
-                                "Access request could not be created, as resource is not found");
+                                "Access request could not be created, as resource was not found");
                     promise.fail(failureMessage.encode());
                   }
                 } else {
