@@ -420,7 +420,9 @@ public class CreateNotification {
                               }
                             });
                   } else {
-                      LOG.debug("user does not have access to create notification as they're belonging to a different server w.r.t to the resource");
+                    LOG.debug(
+                        "user does not have access to create notification as they're belonging "
+                            + "to a different server w.r.t to the resource");
                     JsonObject failureMessage =
                         new JsonObject()
                             .put(TYPE, HttpStatusCode.NOT_FOUND.getValue())
