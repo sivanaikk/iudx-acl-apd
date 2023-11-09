@@ -3,6 +3,10 @@ info:
   version: 1.0.0
   title: Data-Exchange-ACL-APD
   description: |
+    
+    # Introduction
+    
+    
       **Data Exchange (DX) Access Control layer (ACL) and Access Policy Domain (APD)** is meant to create and manage the
       policies created for consumer/consumer delegate so that a provider/provider delegate can regulate the access of their resources by consumers/ consumer delegates.
       API specification for ACL APD. These APIs requires valid identity token from **Data Exchange(DX) Authentication Authorization and Accounting (AAA) Server** for authentication.
