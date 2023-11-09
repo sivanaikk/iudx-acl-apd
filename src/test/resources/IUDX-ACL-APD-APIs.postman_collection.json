@@ -2289,66 +2289,6 @@
 					"response": []
 				},
 				{
-					"name": "403 Create Access Request: Forbidden",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 403 (Forbidden)\", function () {",
-									"    pm.response.to.have.status(403);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:forbidden\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Forbidden\");",
-									"    }",
-									");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{consumerTokenForbidden}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\"itemId\": \"83c2e5c2-3574-4e11-9530-2b1fbdfce832\",\n\"itemType\": \"RESOURCE\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies",
-								"requests"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "404 Create Access Request: Not Found",
 					"event": [
 						{

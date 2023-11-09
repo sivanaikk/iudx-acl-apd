@@ -294,11 +294,11 @@ public class TestCreateNotification {
               } else {
                 JsonObject failureMessage =
                     new JsonObject()
-                        .put(TYPE, HttpStatusCode.FORBIDDEN.getValue())
-                        .put(TITLE, ResponseUrn.FORBIDDEN_URN.getUrn())
+                        .put(TYPE, HttpStatusCode.NOT_FOUND.getValue())
+                        .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
                         .put(
                             DETAIL,
-                            "Access Denied: You do not have ownership rights for this resource");
+                            "Access request could not be created, as resource is not found");
                 assertEquals(failureMessage.encode(), handler.cause().getMessage());
                 vertxTestContext.completeNow();
               }

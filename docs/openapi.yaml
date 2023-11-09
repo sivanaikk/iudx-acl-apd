@@ -696,20 +696,6 @@ paths:
               schema:
                 type: string
               description: application/json
-        '403':
-          description: |-
-            Forbidden
-            - Resource being requested for is forbidden to access
-            - Consumer trying to access a resource not belonging to the same server
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/createNotificationForbiddenResponse'
-          headers:
-            Content-Type:
-              schema:
-                type: string
-              description: application/json
 
         '404':
           description: |-
