@@ -34,10 +34,10 @@ public class Constants {
   public static final String OWNERSHIP_CHECK_QUERY =
           "SELECT * FROM resource_entity WHERE _id = $1::uuid AND provider_id = $2::uuid";
   public static final String CREATE_POLICY_QUERY = "INSERT INTO policy"
-          + "(_id, user_emailid, item_id, owner_id, status, expiry_at, constraints)"
-          + " VALUES ($1, $2, $3, $4, $5,$6, $7) RETURNING _id;";
+          + "(user_emailid, item_id, owner_id, status, expiry_at, constraints)"
+          + " VALUES ($1, $2, $3, $4, $5,$6) RETURNING _id;";
   public static final String INSERT_IN_APPROVED_ACCESS_REQUESTS_QUERY =
-          "INSERT INTO approved_access_requests(_id, request_id, policy_id) VALUES ($1, $2, $3) RETURNING _id";
+          "INSERT INTO approved_access_requests(request_id, policy_id) VALUES ($1, $2) RETURNING _id";
   public static final String APPROVE_REQUEST_QUERY = "UPDATE request SET status = 'GRANTED', expiry_at = $1,"
           + "constraints = $2 WHERE _id = $3 AND owner_id = $4 RETURNING _id";
   public static final String INSERT_USER_INFO_QUERY = "INSERT INTO user_table (_id, email_id, first_name, last_name)"

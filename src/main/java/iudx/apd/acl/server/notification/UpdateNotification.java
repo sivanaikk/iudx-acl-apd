@@ -143,17 +143,16 @@ public class UpdateNotification {
    */
   public Future<JsonObject> initiateTransactions(JsonObject notification) {
     LOG.trace("inside initiateTransactions method");
+    Collector<Row, ?, List<JsonObject>> rowListCollector =
+        Collectors.mapping(row -> row.toJson(), Collectors.toList());
     pool = postgresService.getPool();
     Future<JsonObject> transactionResponseFuture =
         pool.withTransaction(
             sqlConnection -> {
               JsonObject constraints = notification.getJsonObject("constraints", new JsonObject());
-              UUID policyId = UUID.randomUUID();
-              setPolicyId(policyId);
 
               Tuple createPolicyTuple =
                   Tuple.of(
-                      policyId,
                       getConsumerEmailId(),
                       getItemId(),
                       getOwnerId(),
@@ -164,32 +163,39 @@ public class UpdateNotification {
               var response =
                   sqlConnection
                       .preparedQuery(CREATE_POLICY_QUERY)
+                      .collecting(rowListCollector)
                       .execute(createPolicyTuple)
+                      .map(row -> row.value())
                       .compose(
                           policyCreatedSuccessfully -> {
-                            LOG.info("Policy created successfully");
+                            UUID policyId = UUID.fromString(policyCreatedSuccessfully.get(0).getString(ID));
+                              setPolicyId(policyId);
+                              LOG.info("Policy created successfully with ID : {}", policyId);
                             UUID notificationId =
                                 UUID.fromString(notification.getString("requestId"));
-                            UUID uuid = UUID.randomUUID();
 
                             Tuple approvedAccessRequestInsertionTuple =
-                                Tuple.of(uuid, notificationId, getPolicyId());
+                                Tuple.of(notificationId, getPolicyId());
                             return sqlConnection
                                 .preparedQuery(INSERT_IN_APPROVED_ACCESS_REQUESTS_QUERY)
-                                .execute(approvedAccessRequestInsertionTuple);
+                                .collecting(rowListCollector)
+                                .execute(approvedAccessRequestInsertionTuple)
+                                .map(row -> row.value());
                           })
                       .compose(
                           approvedAccessRequestInsertion -> {
+                              UUID uuid = UUID.fromString(approvedAccessRequestInsertion.get(0).getString(ID));
                             LOG.info(
-                                "Inserted record successfully in approved access request : "
-                                    + notification.getString("requestId"));
+                                "Inserted record successfully in approved access request with ID  : {}", uuid);
                             UUID notificationId =
                                 UUID.fromString(notification.getString("requestId"));
                             Tuple updateAccessRequestTuple =
                                 Tuple.of(getExpiryAt(), constraints, notificationId, getOwnerId());
                             return sqlConnection
                                 .preparedQuery(APPROVE_REQUEST_QUERY)
-                                .execute(updateAccessRequestTuple);
+                                .collecting(rowListCollector)
+                                .execute(updateAccessRequestTuple)
+                                .map(row -> row.value());
                           })
                       .compose(
                           updatedNotificationSuccessful -> {
@@ -206,21 +212,21 @@ public class UpdateNotification {
               return response;
             });
 
-    transactionResponseFuture = transactionResponseFuture.recover(
-        failure -> {
-          /* something went wrong while creating a policy
-                            or while inserting a record in approved access request
-                            or while updating the notification*/
-            LOG.error("Failed : " + failure);
-            JsonObject failureMessage =
-                    new JsonObject()
-                            .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
-                            .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
-                            .put(DETAIL,
-                                    "Something went wrong while approving access request");
-            return Future.failedFuture(failureMessage.encode());
-        });
-      return transactionResponseFuture;
+    transactionResponseFuture =
+        transactionResponseFuture.recover(
+            failure -> {
+              /* something went wrong while creating a policy
+              or while inserting a record in approved access request
+              or while updating the notification*/
+              LOG.error("Failed : " + failure);
+              JsonObject failureMessage =
+                  new JsonObject()
+                      .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
+                      .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
+                      .put(DETAIL, "Something went wrong while approving access request");
+              return Future.failedFuture(failureMessage.encode());
+            });
+    return transactionResponseFuture;
   }
 
   /**
