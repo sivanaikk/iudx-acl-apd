@@ -545,6 +545,7 @@ paths:
                       - requestId: ea48d233-5d3b-4bdb-9545-691680c99cee
                         itemId: sf50d232-5d3y-rbds-4758-691680c99defa
                         itemType: RESOURCE
+                        resourceServerUrl: rs.iudx.io
                         status: PENDING
                         expiryAt: '2024-03-05T20:00:19'
                         constraints:
