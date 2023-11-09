@@ -219,7 +219,7 @@ public class UpdateNotification {
     transactionResponseFuture =
         transactionResponseFuture.recover(
             failure -> {
-                failure.printStackTrace();
+              failure.printStackTrace();
               /* something went wrong while creating a policy
               or while inserting a record in approved access request
               or while updating the notification*/
@@ -528,6 +528,7 @@ public class UpdateNotification {
               handler.handle(Future.failedFuture(response.encode()));
             });
   }
+
   public UUID getOwnerId() {
     return ownerId;
   }
