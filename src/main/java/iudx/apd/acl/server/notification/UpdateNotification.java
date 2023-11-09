@@ -168,9 +168,10 @@ public class UpdateNotification {
                       .map(row -> row.value())
                       .compose(
                           policyCreatedSuccessfully -> {
-                            UUID policyId = UUID.fromString(policyCreatedSuccessfully.get(0).getString(ID));
-                              setPolicyId(policyId);
-                              LOG.info("Policy created successfully with ID : {}", policyId);
+                            UUID policyId =
+                                UUID.fromString(policyCreatedSuccessfully.get(0).getString("_id"));
+                            setPolicyId(policyId);
+                            LOG.info("Policy created successfully with ID : {}", policyId);
                             UUID notificationId =
                                 UUID.fromString(notification.getString("requestId"));
 
@@ -184,9 +185,12 @@ public class UpdateNotification {
                           })
                       .compose(
                           approvedAccessRequestInsertion -> {
-                              UUID uuid = UUID.fromString(approvedAccessRequestInsertion.get(0).getString(ID));
+                            UUID uuid =
+                                UUID.fromString(
+                                    approvedAccessRequestInsertion.get(0).getString("_id"));
                             LOG.info(
-                                "Inserted record successfully in approved access request with ID  : {}", uuid);
+                                "Inserted record successfully in approved access request with ID  : {}",
+                                uuid);
                             UUID notificationId =
                                 UUID.fromString(notification.getString("requestId"));
                             Tuple updateAccessRequestTuple =
@@ -215,6 +219,7 @@ public class UpdateNotification {
     transactionResponseFuture =
         transactionResponseFuture.recover(
             failure -> {
+                failure.printStackTrace();
               /* something went wrong while creating a policy
               or while inserting a record in approved access request
               or while updating the notification*/
