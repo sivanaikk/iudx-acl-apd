@@ -2,7 +2,14 @@ openapi: 3.0.0
 info:
   version: 1.0.0
   title: Data-Exchange-ACL-APD
-  description: API specification for ACL APD. These APIs are used by users manage policy. These APIs requires valid token for authentication.
+  description: |
+    
+    # Introduction
+    
+    **Data Exchange (DX) Access Control Layer (ACL) and Access Policy Domain (APD)** are designed for creating and managing policies for consumers and consumer delegates.
+    This allows providers and provider delegates to control access to their resources by consumers and consumer delegates.
+    This API specification for ACL APD requires a valid identity token from the **Data Exchange (DX) Authentication Authorization and Accounting (AAA) Server** for authentication purposes.
+
   contact:
     name: For support contact IUDX Team at
     email: support@iudx.org.in
@@ -422,6 +429,8 @@ paths:
         - Verify API
       summary: Verify Policy
       description: |
+        `This API is not meant to be called by any user and is used by Data Exchange AAA server.`
+        <br>
         Verify the policy for a given item and owner. This endpoint checks if a policy exists for the specified item and owner in the APD server. It returns the policy constraints if a policy is found.
       operationId: get-auth-v1-verify
       parameters:
@@ -505,23 +514,20 @@ paths:
         - Access Request APIs
       summary: List Access Requests
       description: |-
-        Lists all the access requests of the user calling the API. The response depends on the roles the user has
+        Lists all the access requests of the user calling the API regardless of the state of the access requests. The response depends on the roles the user has
 
-        - `provider` : The requests that are present for the items owned by a provider are returned.
-        - `consumer` : The requests which are created by the consumer are returned.
+        - `provider` : The requests that are present for the items owned by a provider/provider delegate are returned.
+        - `consumer` : The requests which are created by the consumer/consumer delegate are returned.
         <br>
         <br>
 
         `Note:` The response displays the requests of / for a user with respect to a particular server.
 
-
-        ## Delegate
-        A delegate may use the API to view policies on behalf of their provider. The user info of the delegator must be present in the token issued by the Data Exchange AAA
       operationId: get-auth-v1-policies-requests
       parameters:
         - name: Authorization
           in: header
-          description: AAA issued token
+          description: AAA issued Identity token
           required: true
           schema:
             type: string
@@ -544,9 +550,10 @@ paths:
                     title: Success
                     results:
                       - requestId: ea48d233-5d3b-4bdb-9545-691680c99cee
-                        itemId: pune-env-flood-FWR056"
+                        itemId: sf50d232-5d3y-rbds-4758-691680c99defa
                         itemType: RESOURCE
-                        status: pending
+                        resourceServerUrl: rs.iudx.io
+                        status: PENDING
                         expiryAt: '2024-03-05T20:00:19'
                         constraints:
                           access:
@@ -603,14 +610,15 @@ paths:
         - Access Request APIs
       summary: Create Access Request
       description: |-
-        Access requests are made by consumers to request a provider to grant access to the provider's resources. Providers or their associated delegates may choose to approve or reject the request. On approval, a policy is written for the consumer for said resource. On rejection, no policy is written.
+        Access requests are made by consumer/consumer delegate to request a provider to grant access to the provider's resources. 
+        A provider will be notified whenever the consumer creates an access request.
 
-        Users with the `consumer` role can request access for a resource/resource group
+        Users with the consumer/consumer delegate  role can request access for a resource/resource group
       operationId: post-auth-v1-policies-requests
       parameters:
         - name: Authorization
           in: header
-          description: AAA Issued token
+          description: AAA Issued Identity token
           required: true
           schema:
             type: string
@@ -619,20 +627,20 @@ paths:
             pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
       requestBody:
         description: |
-          - `itemId` : The catalogue ID of the item for which the request is to be created.(UUID)
+          - `itemId` : The catalogue ID of the item for which the request is to be created
           - `itemType` : The type of the resource being requested for, it could be either RESOURCE or RESOURCE_GROUP
         required: true
         content:
           application/json:
             schema:
               type: object
+              additionalProperties: false
               properties:
                 itemId:
                   type: string
                   format: uuid
                   pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
-                  minLength: 36
-                   
+
                 itemType:
                   enum:
                     - RESOURCE_GROUP
@@ -695,20 +703,6 @@ paths:
               schema:
                 type: string
               description: application/json
-        '403':
-          description: |-
-            Forbidden
-            - Resource being requested for is forbidden to access
-            - Consumer trying to access a resource not belonging to the same server
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/createNotificationForbiddenResponse'
-          headers:
-            Content-Type:
-              schema:
-                type: string
-              description: application/json
 
         '404':
           description: |-
@@ -746,7 +740,7 @@ paths:
         - Access Request APIs
       summary: Update Access Request
       description: |
-        Providers or delegates can choose to approve or reject **pending** access requests associated with their resources.
+        Providers or provider delegates can choose to approve or reject **pending** access requests associated with their resources.
 
         If the request is approved
         - The request is modified to the `approved` state
@@ -755,13 +749,12 @@ paths:
         If the request is rejected
         - The request is modified to the `rejected` state
 
-        ## Delegate
-        A delegate may use the API to view policies on behalf of their provider. This is done by passing the userInfo of the delegator which must be present in the token issued by the AAA.
+
       operationId: put-auth-v1-policies-requests
       parameters:
         - name: Authorization
           in: header
-          description: AAA Issued token
+          description: AAA Issued Identity token
           required: true
           schema:
             type: string
@@ -770,34 +763,53 @@ paths:
             pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
       requestBody:
         description: |-
-          - `requestId` :  ID of the request. Can get this `id` by using the list policy API.
-          - `status` : The `provider` or `Auth delegate` can update the status to `granted` or `rejected`.
+          - `requestId` :  ID of the request. Can get this `id` by using the GET Access request API.
+          - `status` : The `provider` or `provider delegate` can update the status to `granted` or `rejected`.
           - `expiryAt` : expiration time stamp of the policy that will be created (Only present for the granted requests).
-          - `constraints` :  constraints for the policy if request is granted.
+          - `constraints` :  constraints for the access request if it is granted.
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                requestId:
-                  type: string
-                  format: uuid
-                  pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
-                  minLength: 36
-                   
-                status:
-                  enum:
-                    - granted
-                    - rejected
-                  minLength: 1
-                expiryAt:
-                  type: string
-                constraints:
+              oneOf:
+                - title: approve access request
+                  additionalProperties: false
                   type: object
-              required:
-                - requestId
-                - status
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                      pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
+                    status:
+                      type: string
+                      enum:
+                      - granted
+                    expiryAt:
+                      type: string
+                    constraints:
+                      type: object
+                  required:
+                    - requestId
+                    - status
+                    - expiryAt
+                    - constraints
+
+                - title : reject access request
+                  additionalProperties: false
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                      pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
+                    status:
+                      type: string
+                      enum:
+                      - rejected
+                  required:
+                    - requestId
+                    - status
+
               x-examples:
                 example-1:
                   requestId: bca11712-f381-46a5-afa3-a29b00568ace
@@ -877,7 +889,7 @@ paths:
         '403':
           description: |-
             Forbidden
-            - User does not own the policy or is not a delegate to the owner of the policy
+            - User does not own the resource for which a policy is to be created
           content:
             application/json:
               schema:
@@ -904,14 +916,14 @@ paths:
         - Access Request APIs
       summary: Withdraw Access Request
       description: |-
-        A consumer may choose to withdraw access requests they have created, **as long as they are still in the pending state**. A withdrawn request  cannot be approved or rejected by the concerned provider.
+        A consumer/consumer may choose to withdraw access requests they have created, **as long as they are still in the pending state**. A withdrawn request  cannot be approved or rejected by the concerned provider.
 
-        Only users with `consumer` role can call this API.
+        Only users with consumer/consumer delegate role can call this API.
       operationId: delete-auth-v1-policies-requests
       parameters:
         - name: Authorization
           in: header
-          description: AAA Issued token
+          description: AAA Issued Identity token
           required: true
           schema:
             type: string
@@ -928,13 +940,13 @@ paths:
           application/json:
             schema:
               type: object
+              additionalProperties: false
               properties:
                 id:
                   type: string
                   format: uuid
                   pattern: '^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$'
-                  minLength: 36
-                   
+
               required:
                 - id
             examples:
@@ -953,7 +965,7 @@ paths:
           description: |-
             Bad Request
               - Errors or exceptions
-              - The ID is no longer in the `PENDING` status or has already been withdrawn earlier
+              - The access request is no longer in the `PENDING` status or has already been withdrawn earlier
           content:
             application/json:
               schema:
@@ -966,14 +978,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/deleteNotificationNotFound'
-        '403':
-          description: |-
-            Forbidden
-            - User does not own the policy or is not a delegate to the owner of the policy
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/deleteNotificationForbiddenResponse'
         '401':
           description: |-
             Unauthorized
@@ -1056,7 +1060,8 @@ components:
       example:
         type: urn:dx:acl:forbidden
         title: Forbidden
-        detail: Request could not be updated, as it  doesn't belong to the user
+        detail: "Access Denied: You do not have ownership rights for this resource."
+
 
     updateNotificationNotFound:
       title: Update notification not found
@@ -1122,7 +1127,7 @@ components:
       example:
         type: urn:dx:acl:conflict
         title: Conflict
-        detail: Request could not be approved, as policy is already created
+        detail: Request could not be approved as, policy is already created
 
     UpdateAccessRequest:
       title: Delete notification forbidden
@@ -1208,7 +1213,7 @@ components:
       example:
         type: urn:dx:acl:resourceNotFound
         title: Not Found
-        detail: Request could not be created, as resource is not found
+        detail: Request could not be created, as resource was not found
 
     createNotificationConflictResponse:
       title: Create notification conflict response
@@ -1821,15 +1826,18 @@ components:
               itemType:
                 type: string
                 minLength: 1
+              resourceServerUrl:
+                type: string
+                minLength: 1
               status:
                 type: string
                 minLength: 1
-              expiryDuration:
+              expiryAt:
                 type: string
                 minLength: 1
               constraints:
                 type: object
-              user:
+              consumer:
                 type: object
                 properties:
                   id:
@@ -1854,7 +1862,7 @@ components:
                   - id
                   - email
                   - name
-              owner:
+              provider:
                 type: object
                 properties:
                   id:
@@ -1884,7 +1892,11 @@ components:
               - itemId
               - itemType
               - status
-              - expiryDuration
+              - expiryAt
+              - resourceServerUrl
+              - constraints
+              - consumer
+              - provider
       required:
         - type
         - title
