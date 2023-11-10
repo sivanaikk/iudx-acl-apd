@@ -5,8 +5,15 @@ import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.validation.BadRequestException;
+import io.vertx.ext.web.validation.BodyProcessorException;
+import io.vertx.ext.web.validation.ParameterProcessorException;
+import io.vertx.ext.web.validation.RequestPredicateException;
+import io.vertx.json.schema.ValidationException;
+import iudx.apd.acl.server.apiserver.response.ResponseUtil;
 import iudx.apd.acl.server.apiserver.response.RestResponse;
 import iudx.apd.acl.server.common.HttpStatusCode;
+import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.validation.exceptions.DxRuntimeException;
 import org.apache.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
@@ -40,7 +47,24 @@ public class FailureHandler implements Handler<RoutingContext> {
           .setStatusCode(exception.getStatusCode())
           .end(response.encode());
     }
-    //TODO: add statements to catch multiple types of failures
+    // TODO: add statements to catch multiple types of failures
+
+    /* exceptions from OpenAPI specification*/
+    if (failure instanceof ValidationException
+        || failure instanceof BodyProcessorException
+        || failure instanceof RequestPredicateException
+        || failure instanceof ParameterProcessorException) {
+      routingContext
+          .response()
+          .putHeader(CONTENT_TYPE, APPLICATION_JSON)
+          .setStatusCode(HttpStatus.SC_BAD_REQUEST)
+          .end(
+              ResponseUtil.generateResponse(
+                      HttpStatusCode.BAD_REQUEST,
+                      ResponseUrn.BAD_REQUEST_URN,
+                      "Missing or malformed request")
+                  .toString());
+    }
 
     if (failure instanceof RuntimeException) {
 

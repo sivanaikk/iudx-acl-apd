@@ -420,13 +420,16 @@ public class CreateNotification {
                               }
                             });
                   } else {
+                    LOG.debug(
+                        "user does not have access to create notification as they're belonging "
+                            + "to a different server w.r.t to the resource");
                     JsonObject failureMessage =
                         new JsonObject()
-                            .put(TYPE, HttpStatusCode.FORBIDDEN.getValue())
-                            .put(TITLE, ResponseUrn.FORBIDDEN_URN.getUrn())
+                            .put(TYPE, HttpStatusCode.NOT_FOUND.getValue())
+                            .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
                             .put(
                                 DETAIL,
-                                "Access Denied: You do not have ownership rights for this resource");
+                                "Access request could not be created, as resource was not found");
                     promise.fail(failureMessage.encode());
                   }
                 } else {

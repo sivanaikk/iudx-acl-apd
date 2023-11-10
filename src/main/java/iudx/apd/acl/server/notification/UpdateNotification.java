@@ -6,10 +6,7 @@ import static iudx.apd.acl.server.common.HttpStatusCode.*;
 import static iudx.apd.acl.server.common.ResponseUrn.RESOURCE_NOT_FOUND_URN;
 import static iudx.apd.acl.server.notification.util.Constants.*;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Promise;
+import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.pgclient.PgPool;
@@ -24,6 +21,7 @@ import iudx.apd.acl.server.policy.PostgresService;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collector;
@@ -119,6 +117,7 @@ public class UpdateNotification {
                   }
                   return Future.failedFuture(ownershipCheckFuture.cause().getMessage());
                 });
+
         return approvedRequestFuture;
       default:
         JsonObject failureMessage =
@@ -131,57 +130,6 @@ public class UpdateNotification {
   }
 
   /**
-   * Approves the notification or request by changing the status field to <b>GRANTED</b>, updating
-   * the constraints and expiry given <br>
-   * by the Provider or provider delegate
-   *
-   * @param notification Request body from PUT notification API of type JsonObject
-   * @param query UPDATE query
-   * @param sqlConnection connection made to the DB to execute queries using transactions
-   * @return Success response or Failure response as Future JsonObject
-   */
-  public Future<JsonObject> approveNotification(
-      JsonObject notification, String query, SqlConnection sqlConnection) throws Exception {
-    LOG.trace("inside approveNotification method");
-    Promise<JsonObject> promise = Promise.promise();
-    UUID notificationId = UUID.fromString(notification.getString("requestId"));
-    JsonObject constraints = notification.getJsonObject("constraints");
-
-    Tuple tuple = Tuple.of(getExpiryAt(), constraints, notificationId, getOwnerId());
-    executeQuery(
-        sqlConnection,
-        query,
-        tuple,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonArray result = handler.result().getJsonArray(RESULT);
-            boolean isResponseEmpty = result.isEmpty();
-            /* if the id is not returned back after execution, then record is not inserted*/
-            if (isResponseEmpty) {
-              LOG.error("Could not update request table while approving the request");
-              JsonObject failureMessage =
-                  new JsonObject()
-                      .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
-                      .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
-                      .put(DETAIL, "Failure while executing query");
-              promise.fail(failureMessage.encode());
-            } else {
-              JsonObject successResponse =
-                  new JsonObject()
-                      .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
-                      .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
-                      .put(DETAIL, "Request updated successfully")
-                      .put(STATUS_CODE, SUCCESS.getValue());
-              promise.complete(successResponse);
-            }
-          } else {
-            promise.fail(handler.cause().getMessage());
-          }
-        });
-    return promise.future();
-  }
-
-  /**
    * This method is used to initiate policy creation, inserting approved request and updating the
    * approved request <br>
    * one after the other and if there is any failure at any step, the whole transaction is rolled
@@ -189,119 +137,101 @@ public class UpdateNotification {
    * using vert.x pool.withTransaction method
    *
    * @param notification Request body from PUT notification API of type JsonObject
-   * @return Final Success or Failure response to be presented to the user of type Future
+   * @return Final Success or Failure response to be presented as Future of Boolean with it being
+   *     true when the transaction is successful and failure message in the Future if some failure
+   *     occurs
    */
   public Future<JsonObject> initiateTransactions(JsonObject notification) {
     LOG.trace("inside initiateTransactions method");
+    Collector<Row, ?, List<JsonObject>> rowListCollector =
+        Collectors.mapping(row -> row.toJson(), Collectors.toList());
     pool = postgresService.getPool();
     Future<JsonObject> transactionResponseFuture =
         pool.withTransaction(
             sqlConnection -> {
-              Future<Boolean> createPolicyFuture = null;
-              try {
-                createPolicyFuture = createPolicy(notification, CREATE_POLICY_QUERY, sqlConnection);
-              } catch (Exception e) {
-                LOG.error("Error while creating policy: {}", e.getMessage());
-                return Future.failedFuture(
-                    getFailureMessage(
-                        INTERNAL_SERVER_ERROR.getValue(),
-                        ResponseUrn.BACKING_SERVICE_FORMAT_URN,
-                        "Something went wrong while creating the policy"));
-              }
+              JsonObject constraints = notification.getJsonObject("constraints", new JsonObject());
 
-              Future<Boolean> finalCreatePolicyFuture = createPolicyFuture;
-              Future<Boolean> approvedAccessRequestsInsertionFuture =
-                  createPolicyFuture.compose(
-                      isPolicySuccessFullyCreated -> {
-                        if (isPolicySuccessFullyCreated) {
-                          try {
-                            return insertInApprovedAccessRequest(
-                                notification,
-                                INSERT_IN_APPROVED_ACCESS_REQUESTS_QUERY,
-                                sqlConnection);
-                          } catch (Exception e) {
-                            LOG.error(
-                                "Error while inserting record in approved access request: {}",
-                                e.getMessage());
-                            return Future.failedFuture(
-                                getFailureMessage(
-                                    INTERNAL_SERVER_ERROR.getValue(),
-                                    ResponseUrn.BACKING_SERVICE_FORMAT_URN,
-                                    "Something went wrong while approving access request"));
-                          }
-                        }
-                        return Future.failedFuture(finalCreatePolicyFuture.cause().getMessage());
-                      });
+              Tuple createPolicyTuple =
+                  Tuple.of(
+                      getConsumerEmailId(),
+                      getItemId(),
+                      getOwnerId(),
+                      "ACTIVE",
+                      getExpiryAt(),
+                      constraints);
 
-              Future<JsonObject> approvedNotificationFuture =
-                  approvedAccessRequestsInsertionFuture.compose(
-                      isSuccessFullyInserted -> {
-                        if (isSuccessFullyInserted) {
-                          try {
-                            return approveNotification(
-                                notification, APPROVE_REQUEST_QUERY, sqlConnection);
-                          } catch (Exception e) {
-                            LOG.error("Error while updating notification: {}", e.getMessage());
-                            return Future.failedFuture(
-                                getFailureMessage(
-                                    INTERNAL_SERVER_ERROR.getValue(),
-                                    ResponseUrn.BACKING_SERVICE_FORMAT_URN,
-                                    "Something went wrong while approving access request"));
-                          }
-                        }
-                        return Future.failedFuture(
-                            approvedAccessRequestsInsertionFuture.cause().getMessage());
-                      });
-              return approvedNotificationFuture;
+              var response =
+                  sqlConnection
+                      .preparedQuery(CREATE_POLICY_QUERY)
+                      .collecting(rowListCollector)
+                      .execute(createPolicyTuple)
+                      .map(row -> row.value())
+                      .compose(
+                          policyCreatedSuccessfully -> {
+                            UUID policyId =
+                                UUID.fromString(policyCreatedSuccessfully.get(0).getString("_id"));
+                            setPolicyId(policyId);
+                            LOG.info("Policy created successfully with ID : {}", policyId);
+                            UUID notificationId =
+                                UUID.fromString(notification.getString("requestId"));
+
+                            Tuple approvedAccessRequestInsertionTuple =
+                                Tuple.of(notificationId, getPolicyId());
+                            return sqlConnection
+                                .preparedQuery(INSERT_IN_APPROVED_ACCESS_REQUESTS_QUERY)
+                                .collecting(rowListCollector)
+                                .execute(approvedAccessRequestInsertionTuple)
+                                .map(row -> row.value());
+                          })
+                      .compose(
+                          approvedAccessRequestInsertion -> {
+                            UUID uuid =
+                                UUID.fromString(
+                                    approvedAccessRequestInsertion.get(0).getString("_id"));
+                            LOG.info(
+                                "Inserted record successfully in approved access request with ID  : {}",
+                                uuid);
+                            UUID notificationId =
+                                UUID.fromString(notification.getString("requestId"));
+                            Tuple updateAccessRequestTuple =
+                                Tuple.of(getExpiryAt(), constraints, notificationId, getOwnerId());
+                            return sqlConnection
+                                .preparedQuery(APPROVE_REQUEST_QUERY)
+                                .collecting(rowListCollector)
+                                .execute(updateAccessRequestTuple)
+                                .map(row -> row.value());
+                          })
+                      .compose(
+                          updatedNotificationSuccessful -> {
+                            LOG.info("Updated Notification successfully");
+                            JsonObject successResponse =
+                                new JsonObject()
+                                    .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
+                                    .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
+                                    .put(DETAIL, "Request updated successfully")
+                                    .put(STATUS_CODE, SUCCESS.getValue());
+                            return Future.succeededFuture(successResponse);
+                          });
+
+              return response;
             });
-    return transactionResponseFuture;
-  }
 
-  /**
-   * Inserts a record in approved_access_request table by inserting the notificationId and policyId
-   * <br>
-   * when the notification is successfully approved or granted by the provider or provider delegate
-   *
-   * @param notification Request body from PUT notification API of type JsonObject
-   * @param query Insertion query
-   * @param sqlConnection connection made to the DB to execute the query
-   * @return True, if the record is successfully inserted, failure if any in the form of Future
-   */
-  public Future<Boolean> insertInApprovedAccessRequest(
-      JsonObject notification, String query, SqlConnection sqlConnection) throws Exception {
-    LOG.trace("inside insertInApprovedAccessRequest method");
-    Promise<Boolean> promise = Promise.promise();
-
-    UUID notificationId = UUID.fromString(notification.getString("requestId"));
-    Tuple tuple = Tuple.of(notificationId, getPolicyId());
-    executeQuery(
-        sqlConnection,
-        query,
-        tuple,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject result = handler.result().getJsonArray(RESULT).getJsonObject(0);
-            boolean isResponseEmpty = result.isEmpty();
-            /* if the id is not returned back after execution, then record is not inserted*/
-            if (isResponseEmpty) {
-              LOG.error("Could not insert in approved request access table");
+    transactionResponseFuture =
+        transactionResponseFuture.recover(
+            failure -> {
+              failure.printStackTrace();
+              /* something went wrong while creating a policy
+              or while inserting a record in approved access request
+              or while updating the notification*/
+              LOG.error("Failed : " + failure);
               JsonObject failureMessage =
                   new JsonObject()
-                      .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
+                      .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
                       .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
-                      .put(DETAIL, "Failure while executing query");
-              promise.fail(failureMessage.encode());
-            } else {
-              LOG.debug(
-                  "Successfully inserted in approved_access_request with id {}",
-                  result.getString("_id"));
-              promise.complete(true);
-            }
-          } else {
-            promise.fail(handler.cause().getMessage());
-          }
-        });
-    return promise.future();
+                      .put(DETAIL, "Something went wrong while approving access request");
+              return Future.failedFuture(failureMessage.encode());
+            });
+    return transactionResponseFuture;
   }
 
   /**
@@ -335,72 +265,6 @@ public class UpdateNotification {
               promise.fail(failureMessage.encode());
             } else {
               promise.complete(true);
-            }
-          } else {
-            promise.fail(handler.cause().getMessage());
-          }
-        });
-    return promise.future();
-  }
-
-  /**
-   * Creates a policy by giving the information about consumer, owner, resource and expiry of the
-   * policy
-   *
-   * @param notification Request body as JsonObject
-   * @param query INSERT query to insert a new record for policy table
-   * @param sqlConnection object for executing the query by connecting to the DB
-   * @return True, if a policy is successfully created, or failure if of type Future
-   */
-  public Future<Boolean> createPolicy(
-      JsonObject notification, String query, SqlConnection sqlConnection) throws Exception {
-    LOG.trace("inside createPolicy method");
-    Promise<Boolean> promise = Promise.promise();
-    JsonObject constraints = null;
-    try {
-
-      constraints = notification.getJsonObject("constraints");
-      LOG.debug("constraints : {}", constraints);
-      if (constraints == null) {
-        throw new NullPointerException("Invalid or null constraints in the request body");
-      }
-    } catch (Exception exception) {
-      LOG.error("Error : {}", exception.getMessage());
-      JsonObject failureMessage =
-          new JsonObject()
-              .put(TYPE, BAD_REQUEST.getValue())
-              .put(TITLE, BAD_REQUEST.getUrn())
-              .put(DETAIL, "Invalid or null constraints in the request body");
-      return Future.failedFuture(failureMessage.encode());
-    }
-
-    Tuple tuple =
-        Tuple.of(
-            getConsumerEmailId(), getItemId(), getOwnerId(), "ACTIVE", getExpiryAt(), constraints);
-
-    executeQuery(
-        sqlConnection,
-        query,
-        tuple,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject result = handler.result().getJsonArray(RESULT).getJsonObject(0);
-            /*policy is created successfully and the policy id is returned */
-            if (!result.isEmpty()) {
-              /* set policyId */
-              UUID policyId = UUID.fromString(result.getString("_id"));
-              setPolicyId(policyId);
-              LOG.trace("Policy created successfully with policyId: {}", result.getString("_id"));
-              promise.complete(true);
-            } else {
-              LOG.error("Could not create policy : {}", handler.cause().getMessage());
-              JsonObject failureMessage =
-                  new JsonObject()
-                      .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
-                      .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
-                      .put(DETAIL, "Failure while executing query");
-
-              promise.fail(failureMessage.encode());
             }
           } else {
             promise.fail(handler.cause().getMessage());
@@ -663,59 +527,6 @@ public class UpdateNotification {
                       .put(DETAIL, "Failure while executing query");
               handler.handle(Future.failedFuture(response.encode()));
             });
-  }
-
-  /**
-   * If any of the query fails using this connection, <br>
-   * the transaction which gives the sql connection rolls back <br>
-   * to the original state
-   *
-   * @param query to be executes
-   * @param tuple exchangeable values to be added in the query
-   * @param handler AsyncResult JsonObject handler
-   * @param sqlConnection is a connection to the database to execute transaction using a single
-   *     connection <br>
-   */
-  public void executeQuery(
-      SqlConnection sqlConnection,
-      String query,
-      Tuple tuple,
-      Handler<AsyncResult<JsonObject>> handler) {
-    LOG.trace("inside executeQuery method");
-    Collector<Row, ?, List<JsonObject>> rowListCollector =
-        Collectors.mapping(row -> row.toJson(), Collectors.toList());
-    sqlConnection
-        .preparedQuery(query)
-        .collecting(rowListCollector)
-        .execute(tuple)
-        .map(rows -> rows.value())
-        .onSuccess(
-            successHandler -> {
-              JsonArray response = new JsonArray(successHandler);
-              JsonObject responseJson =
-                  new JsonObject()
-                      .put(TYPE, ResponseUrn.SUCCESS_URN.getUrn())
-                      .put(TITLE, ResponseUrn.SUCCESS_URN.getMessage())
-                      .put(RESULT, response);
-              handler.handle(Future.succeededFuture(responseJson));
-            })
-        .onFailure(
-            failureHandler -> {
-              LOG.error(
-                  "Failure while executing the transaction : {},{}",
-                  failureHandler.getMessage(),
-                  query);
-              JsonObject response =
-                  new JsonObject()
-                      .put(TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR.getValue())
-                      .put(TITLE, ResponseUrn.DB_ERROR_URN.getUrn())
-                      .put(DETAIL, "Failure while executing transaction");
-              handler.handle(Future.failedFuture(response.encode()));
-            });
-  }
-
-  public String getFailureMessage(int type, ResponseUrn title, String detail) {
-    return new JsonObject().put(TYPE, type).put(TITLE, title.getUrn()).put(DETAIL, detail).encode();
   }
 
   public UUID getOwnerId() {
