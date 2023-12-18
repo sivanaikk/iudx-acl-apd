@@ -50,6 +50,11 @@ public class AuthClient implements AuthClientInterface {
     String iudxRole = jsonObject.getString(ROLE).toLowerCase();
     String resourceServer = jsonObject.getString(AUD);
 
+    LOGGER.debug("JsonObject params : {}", jsonObject.encodePrettily());
+    LOGGER.debug("authHost : {}", authHost);
+    LOGGER.debug("authServerSearchPath : {}", authServerSearchPath);
+    LOGGER.debug("authPort: {}", authPort);
+
     Future<HttpResponse<Buffer>> responseFuture =
         client
             .get(authPort, authHost, authServerSearchPath)
@@ -63,6 +68,7 @@ public class AuthClient implements AuthClientInterface {
         authHandler -> {
           if (authHandler.succeeded()) {
             JsonObject authResult = authHandler.result().bodyAsJsonObject();
+            LOGGER.debug("authResult : {}", authResult.encodePrettily());
             if (authResult.getString("type").equals("urn:dx:as:Success")) {
               LOGGER.info("User found in auth.");
               JsonObject result = authResult.getJsonObject("results");
