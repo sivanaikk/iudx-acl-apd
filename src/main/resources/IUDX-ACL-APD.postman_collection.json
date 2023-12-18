@@ -1,11 +1,9 @@
 {
 	"info": {
-		"_postman_id": "9793ef6c-19fc-42f1-a3c8-efa8614e5665",
+		"_postman_id": "538c10e2-e4ef-4df2-a74d-0e766a7e6841",
 		"name": "IUDX-ACL-APD",
 		"description": "**IUDX-ACL-APD** **Collection**:  \nThe \"iudx-acl-apd\" collection is a comprehensive set of APIs that encompass three essential aspects of access management within a system:\n\n1. **Token Management (Token)**:\n    - This component of the collection provides the means to acquire an Identity Access Token, which is a fundamental requirement for executing various functionalities within the system, including Policy and Access Request APIs.\n2. **Policy Management (Policy)**:\n    - The \"iudx-acl-apd\" collection includes APIs that streamline the creation, deletion, and retrieval of user-generated policies. These policies define access control rules and permissions, ensuring a structured approach to access management.\n3. **Access Request Management (Access Request)**:\n    - Within this collection, users can initiate policy requests, obtain lists of generated access requests, delete specific requests, and manage requests by approving or rejecting them.",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "13012826",
-		"_collection_link": "https://red-equinox-800183.postman.co/workspace/a4779b5c-a647-44de-8082-d4b888bc27f2/collection/13012826-9793ef6c-19fc-42f1-a3c8-efa8614e5665?action=share&source=collection_link&creator=13012826"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
@@ -33,13 +31,13 @@
 						"header": [
 							{
 								"key": "clientId",
-								"value": "{{clientId}}",
+								"value": "{{providerClientId}}",
 								"type": "text",
 								"description": "Client ID (UUID)"
 							},
 							{
 								"key": "clientSecret",
-								"value": "{{clientSecret}}",
+								"value": "{{providerClientSecret}}",
 								"type": "text",
 								"description": "Client secret (40 chars in hexadecimal)"
 							}
@@ -90,13 +88,13 @@
 						"header": [
 							{
 								"key": "clientId",
-								"value": "{{clientId}}",
+								"value": "{{consumerClientId}}",
 								"type": "text",
 								"description": "Client ID (UUID)"
 							},
 							{
 								"key": "clientSecret",
-								"value": "{{clientSecret}}",
+								"value": "{{consumerClientSecret}}",
 								"type": "text",
 								"description": "Client secret (40 chars in hexadecimal)"
 							}
@@ -147,13 +145,13 @@
 						"header": [
 							{
 								"key": "clientId",
-								"value": "{{clientId}}",
+								"value": "{{providerDelegateClientId}}",
 								"type": "text",
 								"description": "Client ID (UUID)"
 							},
 							{
 								"key": "clientSecret",
-								"value": "{{clientSecret}}",
+								"value": "{{providerDelegateClientSecret}}",
 								"type": "text",
 								"description": "Client secret (40 chars in hexadecimal)"
 							},
@@ -210,13 +208,13 @@
 						"header": [
 							{
 								"key": "clientId",
-								"value": "{{clientId}}",
+								"value": "{{consumerDelegateClientId}}",
 								"type": "text",
 								"description": "Client ID (UUID)"
 							},
 							{
 								"key": "clientSecret",
-								"value": "{{clientSecret}}",
+								"value": "{{consumerDelegateClientSecret}}",
 								"type": "text",
 								"description": "Client secret (40 chars in hexadecimal)"
 							},
