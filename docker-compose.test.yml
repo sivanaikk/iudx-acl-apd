@@ -26,7 +26,7 @@ services:
     environment:
       - LOG_LEVEL=INFO
     volumes:
-      - /home/ubuntu/configs/apd-config-test.json:/usr/share/app/secrets/configs/config.json
+      - /home/ubuntu/configs/apd-config-dev.json:/usr/share/app/secrets/configs/config.json
       - /home/ubuntu/configs/keystore-file.jks:/usr/share/app/secrets/keystore-file.jks
     command: bash -c "exec java $$FS_JAVA_OPTS  -Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.Log4j2LogDelegateFactory -jar ./fatjar.jar  --host $$(hostname) -c secrets/configs/config.json"
     ports:
