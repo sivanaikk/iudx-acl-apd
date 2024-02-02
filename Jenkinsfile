@@ -75,7 +75,7 @@ pipeline {
         script{
           sh 'scp src/main/resources/IUDX-ACL-APD.postman_collection.json jenkins@jenkins-master:/var/lib/jenkins/iudx/acl-apd/Newman/'
           sh 'docker compose -f docker-compose.test.yml up -d integTest'
-          sh 'sleep 45'IUDX-ACL-APD.postman_collection.json
+          sh 'sleep 45'
         }
       }
       post{
