@@ -17,7 +17,6 @@
         <hazelcast.version>4.0.2</hazelcast.version>
         <micrometer.version>1.9.2</micrometer.version>
         <curator.version>5.3.0</curator.version>
-        <apache-commons-lang3.version>3.12.0</apache-commons-lang3.version>
         <junit-jupiter-engine.version>5.8.2</junit-jupiter-engine.version>
         <apache-log4j2.version>2.17.1</apache-log4j2.version>
         <lmax-disruptor.version>3.4.4</lmax-disruptor.version>
@@ -33,8 +32,6 @@
         <junit-jupiter.params>5.8.2</junit-jupiter.params>
         <testcontainer.params>1.17.3</testcontainer.params>
         <testcontainer-postgres.version>1.17.3</testcontainer-postgres.version>
-        <jts2geojson.version>0.17.0</jts2geojson.version>
-        <elasticsearch-rest-client.version>8.3.3</elasticsearch-rest-client.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <exec.mainClass>iudx.apd.acl.server.deploy.Deployer</exec.mainClass>
         <exec.mainClassDev>iudx.apd.acl.server.deploy.DeployerDev
@@ -95,17 +92,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.goterl</groupId>
-      <artifactId>lazysodium-java</artifactId>
-      <version>5.1.1</version>
-    </dependency>
-
-    <dependency>
-      <groupId>net.java.dev.jna</groupId>
-      <artifactId>jna</artifactId>
-      <version>5.12.1</version>
-    </dependency>
-    <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-core</artifactId>
     </dependency>
@@ -130,11 +116,6 @@
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-      <version>${apache-commons-lang3.version}</version>
-    </dependency>
 
 
     <dependency>
@@ -178,11 +159,7 @@
       <version>${testcontainer.params}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.ongres.scram</groupId>
-      <artifactId>client</artifactId>
-      <version>2.1</version>
-    </dependency>
+
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-unit</artifactId>
@@ -256,21 +233,10 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web-validation</artifactId>
     </dependency>
-    <!-- for validation of coordinates -->
-    <dependency>
-      <groupId>org.wololo</groupId>
-      <artifactId>jts2geojson</artifactId>
-      <version>${jts2geojson.version}</version>
-    </dependency>
+
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-json-schema</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.elasticsearch.client</groupId>
-      <artifactId>elasticsearch-rest-client</artifactId>
-      <version>${elasticsearch-rest-client.version}</version>
     </dependency>
 
     <dependency>
@@ -288,18 +254,7 @@
     </dependency>
 
 
-    <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-java-sdk-s3</artifactId>
-      <version>1.12.261</version>
-    </dependency>
 
-    <!--HLC transition dependency -->
-    <dependency>
-      <groupId>co.elastic.clients</groupId>
-      <artifactId>elasticsearch-java</artifactId>
-      <version>8.3.3</version>
-    </dependency>
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -380,6 +335,55 @@
         </configuration>
       </plugin>
 
+    <!--  Plugin for analyzing unused dependency -->
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.6.1</version>
+        <configuration>
+          <!-- adding following dependencies to not consider as unused dependency -->
+          <usedDependencies>
+            <dependency>
+              org.apache.logging.log4j:log4j-slf4j-impl
+            </dependency>
+            <dependency>
+              com.lmax:disruptor
+            </dependency>
+            <dependency>
+              com.fasterxml.jackson.core:jackson-databind
+            </dependency>
+            <dependency>
+              org.mockito:mockito-inline
+            </dependency>
+            <dependency>
+              org.apache.maven.plugins:maven-checkstyle-plugin
+            </dependency>
+            <!-- Adding all the vertx dependencies -->
+            <dependency>
+              io.vertx:vertx-auth-oauth2
+            </dependency>
+            <dependency>
+              io.vertx:vertx-service-discovery
+            </dependency>
+            <dependency>
+              org.testcontainers:testcontainers
+            </dependency>
+            <dependency>
+              io.vertx:vertx-unit
+            </dependency>
+            <dependency>
+              io.vertx:vertx-jdbc-client
+            </dependency>
+            <dependency>
+              org.junit.jupiter:junit-jupiter-engine
+            </dependency>
+            <!-- Adding postgres dependency -->
+            <dependency>
+              org.postgresql:postgresql
+            </dependency>
+
+          </usedDependencies>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
