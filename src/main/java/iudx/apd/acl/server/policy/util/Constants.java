@@ -25,13 +25,17 @@ public class Constants {
           + "U.first_name AS \"consumerFirstName\",\n"
           + "U.last_name AS \"consumerLastName\", U._id AS \"consumerId\",\n"
           + "P.status AS \"status\", P.expiry_at AS \"expiryAt\",\n"
-          + "P.constraints AS \"constraints\" FROM policy AS P \n"
+          + " P.constraints AS \"constraints\" "
+          + ", P.updated_at AS \"updatedAt\" "
+          + "FROM policy AS P \n"
           + "LEFT JOIN user_table AS U\n"
           + "ON P.user_emailid = U.email_id \n"
           + "INNER JOIN resource_entity AS RE\n"
           + "ON RE._id = P.item_id\n"
           + "AND P.owner_id = $1::uuid "
-          + "AND RE.resource_server_url = $2;";
+          + "AND RE.resource_server_url = $2 "
+          + " ORDER BY P.updated_at DESC";
+
   public static final String GET_POLICY_4_CONSUMER_QUERY =
       "SELECT P._id AS \"policyId\", P.item_id AS \"itemId\",\n"
           + "RE.item_type AS \"itemType\",\n"
@@ -40,13 +44,15 @@ public class Constants {
           + "U.last_name AS \"ownerLastName\", U.email_id AS \"ownerEmailId\",\n"
           + "U._id AS \"ownerId\", P.status as \"status\", P.expiry_at AS \"expiryAt\",\n"
           + "P.constraints AS \"constraints\" \n"
+          + ", P.updated_at AS \"updatedAt\" "
           + "FROM policy AS P \n"
           + "INNER JOIN user_table AS U\n"
           + "ON P.owner_id = U._id \n"
           + "INNER JOIN resource_entity AS RE\n"
           + "ON RE._id = P.item_id\n"
           + "AND P.user_emailid = $1 "
-          + "AND RE.resource_server_url = $2;";
+          + "AND RE.resource_server_url = $2 "
+          + " ORDER BY P.updated_at DESC";
   public static final String DELETE_POLICY_QUERY =
       "UPDATE policy SET status='DELETED' "
           + "WHERE _id = $1::uuid AND expiry_at > NOW() RETURNING _id";
