@@ -74,6 +74,7 @@ pipeline {
       steps{
         script{
           sh 'scp src/main/resources/IUDX-ACL-APD.postman_collection.json jenkins@jenkins-master:/var/lib/jenkins/iudx/acl-apd/Newman/'
+          sh 'mvn flyway:migrate -Dflyway.configFiles=/home/ubuntu/configs/acl-apd-flyway.conf'
           sh 'docker compose -f docker-compose.test.yml up -d integTest'
           sh 'sleep 45'
         }
@@ -81,8 +82,10 @@ pipeline {
       post{
         failure{
           script{
+            sh 'mvn flyway:clean -Dflyway.configFiles=/home/ubuntu/configs/acl-apd-flyway.conf'
             sh 'docker compose -f docker-compose.test.yml down --remove-orphans'
           }
+          cleanWs deleteDirs: true, disableDeferredWipeout: true
         }
       }
     }
