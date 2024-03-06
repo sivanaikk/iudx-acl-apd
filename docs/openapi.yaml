@@ -39,7 +39,7 @@ paths:
         - Policies
       summary: Get Policies
       description: |
-        Get policies associated with a specific user. The response is determined by the user's roles:
+        Get all latest policies associated with a specific user. The response is determined by the user's roles:
 
         - If the user is a `provider`, the response includes all policies created by the provider or their delegates.
         - If the user is a `delegate`, the response comprises policies set by the delegate or set for the consumer on whose behalf the delegate is acting.
@@ -462,7 +462,7 @@ paths:
         - Access Request
       summary: List Access Requests
       description: |-
-        Lists all the access requests of the user calling the API regardless of the state of the access requests. The response depends on the roles the user has
+        Lists all the latest access requests of the user calling the API regardless of the state of the access requests. The response depends on the roles the user has
 
         - `provider` : The requests that are present for the items owned by a provider/provider delegate are returned.
         - `consumer` : The requests which are created by the consumer/consumer delegate are returned.
@@ -508,18 +508,20 @@ paths:
                             - api
                             - sub
                             - file
-                        consumer:
-                          email: someone@example.com
-                          name:
-                            firstName: Someone
-                            lastName: Person
-                          id: a13eb955-c691-4fd3-b200-f18bc78810b5
+                        updatedAt: "2024-01-10T10:15:36.696228"
+                        createdAt: "2023-09-26T11:17:58.473452"
                         provider:
                           email: bob_provider@iisc.ac.in
                           name:
                             firstName: Bob
                             lastName: Provider
                           id: 844e251b-574b-46e6-9247-f76f1f70a637
+                        consumer:
+                          email: someone@example.com
+                          name:
+                            firstName: Someone
+                            lastName: Person
+                          id: a13eb955-c691-4fd3-b200-f18bc78810b5
           headers:
             Content-Type:
               schema:
@@ -1265,6 +1267,12 @@ components:
                 type: string
               constraints:
                 type: object
+              updatedAt:
+                type: string
+                minLength: 1
+              createdAt:
+                type: string
+                minLength: 1
       example: { "type": "urn:dx:acl:success",
                  "title": "Success",
                  "results": [ { "policyId": "aaaaaaaa-1234-1234-1234-1234aaaa1234",
@@ -1274,6 +1282,8 @@ components:
                                 "expiryAt": "2024-03-05T20:00:19",
                                 "constraints": { access: [ sub ] },
                                 "status": "ACTIVE",
+                                "updatedAt": "2023-11-07T09:12:44.144204",
+                                "createdAt": "2023-09-26T11:17:58.473452",
                                 "consumer": { "email": "dummyConsumer@example.com",
                                               "name": { "firstName": "Some",
                                                         "lastName": "Consumer" },
@@ -1364,6 +1374,12 @@ components:
                 type: string
               constraints:
                 type: object
+              updatedAt:
+                type: string
+                minLength: 1
+              createdAt:
+                type: string
+                minLength: 1
       example: { "type": "urn:dx:acl:success",
                  "title": "Success",
                  "results": [ { "policyId": "aaaaaaaa-6473-3546-5436-8758aaaa5897",
@@ -1373,6 +1389,8 @@ components:
                                 "expiryAt": "2024-09-05T20:00:19",
                                 "constraints": { access: [ sub ] },
                                 "status": "ACTIVE",
+                                "updatedAt": "2024-02-14T04:54:16.592540",
+                                "createdAt": "2023-10-26T11:17:58.473452",
                                 "consumer": { "email": "dummyConsumerAbcd@example.com",
                                               "name": { "firstName": "Dummy",
                                                         "lastName": "Consumer" },
@@ -1387,6 +1405,8 @@ components:
                      "expiryAt": "2024-08-05T20:00:29",
                      "constraints": { access: [ sub ] },
                      "status": "ACTIVE",
+                     "updatedAt": "2023-11-07T09:12:44.144204",
+                     "createdAt": "2023-09-26T11:17:58.473452",
                      "consumer": { "email": "dummyConsumer@example.com",
                                    "name": { "firstName": "Dummy",
                                              "lastName": "Consumer" },
@@ -1784,6 +1804,12 @@ components:
                 minLength: 1
               constraints:
                 type: object
+              updatedAt:
+                type: string
+                minLength: 1
+              createdAt:
+                type: string
+                minLength: 1
               consumer:
                 type: object
                 properties:
