@@ -55,13 +55,17 @@ public class Constants {
           + "R.constraints AS \"constraints\", R.user_id AS \"consumerId\",\n"
           + "R.owner_id AS \"ownerId\", U.first_name AS \"consumerFirstName\", \n"
           + "U.last_name AS \"consumerLastName\", U.email_id AS \"consumerEmailId\" \n"
+          + ", R.updated_at AS \"updatedAt\" "
+          + ", R.created_at AS \"createdAt\" "
           + "FROM request AS R \n"
           + "INNER JOIN user_table AS U \n"
           + "ON U._id = R.user_id \n"
           + "INNER JOIN resource_entity AS RE\n"
           + "ON RE._id = R.item_id\n"
           + "WHERE R.owner_id=$1::uuid "
-          + "AND RE.resource_server_url = $2;";
+          + "AND RE.resource_server_url = $2 "
+          + " ORDER BY R.updated_at DESC";
+
   public static final String HTML_EMAIL_BODY =
       "<!DOCTYPE html>\n"
           + "<html>\n"
@@ -90,13 +94,17 @@ public class Constants {
           + "R.user_id AS \"consumerId\", R.owner_id AS \"ownerId\",\n"
           + "U.first_name AS \"ownerFirstName\", \n"
           + "U.last_name AS \"ownerLastName\", U.email_id AS \"ownerEmailId\" \n"
+          + ", R.updated_at AS \"updatedAt\" "
+          + ", R.created_at AS \"createdAt\" "
           + "FROM request AS R \n"
           + "INNER JOIN user_table AS U \n"
           + "ON U._id = R.owner_id \n"
           + "INNER JOIN resource_entity AS RE\n"
           + "ON RE._id = R.item_id\n"
           + "WHERE R.user_id=$1::uuid "
-          + "AND RE.resource_server_url = $2;";
+          + "AND RE.resource_server_url = $2 "
+          + " ORDER BY R.updated_at DESC";
+
 
 
 }
