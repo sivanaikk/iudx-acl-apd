@@ -31,7 +31,6 @@
         <maven-surefire-report-plugin.version>3.0.0-M7</maven-surefire-report-plugin.version>
         <junit-jupiter.params>5.8.2</junit-jupiter.params>
         <testcontainer.params>1.17.3</testcontainer.params>
-        <testcontainer-postgres.version>1.17.3</testcontainer-postgres.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <exec.mainClass>iudx.apd.acl.server.deploy.Deployer</exec.mainClass>
         <exec.mainClassDev>iudx.apd.acl.server.deploy.DeployerDev
@@ -380,7 +379,12 @@
             <dependency>
               org.postgresql:postgresql
             </dependency>
-
+            <dependency>
+              org.apache.curator:curator-x-discovery
+            </dependency>
+            <dependency>
+              io.micrometer:micrometer-registry-prometheus
+            </dependency>
           </usedDependencies>
         </configuration>
       </plugin>
