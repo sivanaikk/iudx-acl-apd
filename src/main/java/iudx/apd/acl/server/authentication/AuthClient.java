@@ -6,7 +6,6 @@ import static iudx.apd.acl.server.apiserver.util.Constants.LAST_NAME;
 import static iudx.apd.acl.server.apiserver.util.Constants.RS_SERVER_URL;
 import static iudx.apd.acl.server.apiserver.util.Constants.USER_ROLE;
 import static iudx.apd.acl.server.authentication.Constants.AUD;
-import static iudx.apd.acl.server.authentication.Constants.IS_DELEGATE;
 import static iudx.apd.acl.server.authentication.Constants.ROLE;
 import static iudx.apd.acl.server.authentication.Constants.SEARCH_PATH;
 import static iudx.apd.acl.server.authentication.Constants.USER_ID;
@@ -14,12 +13,10 @@ import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
-import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
-import io.vertx.ext.web.client.WebClientOptions;
 import iudx.apd.acl.server.apiserver.util.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,7 +42,7 @@ public class AuthClient implements AuthClientInterface {
 
   @Override
   public Future<User> fetchUserInfo(JsonObject jsonObject) {
-    Promise<User> promise = Promise.promise();
+    final Promise<User> promise = Promise.promise();
     String userId = jsonObject.getString(USER_ID);
     String iudxRole = jsonObject.getString(ROLE).toLowerCase();
     String resourceServer = jsonObject.getString(AUD);
