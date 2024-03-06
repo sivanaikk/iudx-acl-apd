@@ -509,6 +509,7 @@ paths:
                             - sub
                             - file
                         updatedAt: "2024-01-10T10:15:36.696228"
+                        createdAt: "2023-09-26T11:17:58.473452"
                         provider:
                           email: bob_provider@iisc.ac.in
                           name:
@@ -1266,6 +1267,12 @@ components:
                 type: string
               constraints:
                 type: object
+              updatedAt:
+                type: string
+                minLength: 1
+              createdAt:
+                type: string
+                minLength: 1
       example: { "type": "urn:dx:acl:success",
                  "title": "Success",
                  "results": [ { "policyId": "aaaaaaaa-1234-1234-1234-1234aaaa1234",
@@ -1276,6 +1283,7 @@ components:
                                 "constraints": { access: [ sub ] },
                                 "status": "ACTIVE",
                                 "updatedAt": "2023-11-07T09:12:44.144204",
+                                "createdAt": "2023-09-26T11:17:58.473452",
                                 "consumer": { "email": "dummyConsumer@example.com",
                                               "name": { "firstName": "Some",
                                                         "lastName": "Consumer" },
@@ -1366,6 +1374,12 @@ components:
                 type: string
               constraints:
                 type: object
+              updatedAt:
+                type: string
+                minLength: 1
+              createdAt:
+                type: string
+                minLength: 1
       example: { "type": "urn:dx:acl:success",
                  "title": "Success",
                  "results": [ { "policyId": "aaaaaaaa-6473-3546-5436-8758aaaa5897",
@@ -1376,6 +1390,7 @@ components:
                                 "constraints": { access: [ sub ] },
                                 "status": "ACTIVE",
                                 "updatedAt": "2024-02-14T04:54:16.592540",
+                                "createdAt": "2023-10-26T11:17:58.473452",
                                 "consumer": { "email": "dummyConsumerAbcd@example.com",
                                               "name": { "firstName": "Dummy",
                                                         "lastName": "Consumer" },
@@ -1391,6 +1406,7 @@ components:
                      "constraints": { access: [ sub ] },
                      "status": "ACTIVE",
                      "updatedAt": "2023-11-07T09:12:44.144204",
+                     "createdAt": "2023-09-26T11:17:58.473452",
                      "consumer": { "email": "dummyConsumer@example.com",
                                    "name": { "firstName": "Dummy",
                                              "lastName": "Consumer" },
@@ -1788,6 +1804,12 @@ components:
                 minLength: 1
               constraints:
                 type: object
+              updatedAt:
+                type: string
+                minLength: 1
+              createdAt:
+                type: string
+                minLength: 1
               consumer:
                 type: object
                 properties:
