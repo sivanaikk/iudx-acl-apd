@@ -122,20 +122,68 @@ pipeline {
       }
     }
     
-    stage('Push Images') {
+    stage('Continuous Deployment') {
       when {
-        expression {
-          return env.GIT_BRANCH == 'origin/main';
+        allOf {
+          anyOf {
+            changeset "docker/**"
+            changeset "docs/**"
+            changeset "pom.xml"
+            changeset "src/main/**"
+            triggeredBy cause: 'UserIdCause'
+          }
+          expression {
+            return env.GIT_BRANCH == 'origin/main';
+          }
         }
       }
-      steps {
-        script {
-          docker.withRegistry( registryUri, registryCredential ) {
-            devImage.push("5.5.0-alpha-${env.GIT_HASH}")
-            deplImage.push("5.5.0-alpha-${env.GIT_HASH}")
+      stages {
+        stage('Push Images') {
+          steps {
+            script {
+              docker.withRegistry( registryUri, registryCredential ) {
+                devImage.push("5.5.0-alpha-${env.GIT_HASH}")
+                deplImage.push("5.5.0-alpha-${env.GIT_HASH}")
+              }
+            }
           }
+        }
+        stage('Docker Swarm deployment') {
+          steps {
+            script {
+              sh "ssh azureuser@docker-swarm 'docker service update acl-apd_acl-apd --image ghcr.io/datakaveri/acl-apd-depl:5.5.0-alpha-${env.GIT_HASH}'"
+              sh 'sleep 10'
+              sh '''#!/bin/bash 
+                response_code=$(curl -s -o /dev/null -w \'%{http_code}\\n\' --connect-timeout 5 --retry 5 --retry-connrefused -XGET https://acl-apd.iudx.io/apis)
+                code=$(echo $response_code | tr -d ' ' | tr -d \')
+                if [[ "$code" -ne "200" ]]
+                then
+                  echo "Health check failed"
+                  exit 1
+                else
+                  echo "Health check complete; Server is up."
+                  exit 0
+                fi
+              '''
+            }
+          }
+          post{
+            failure{
+              error "Failed to deploy image in Docker Swarm"
+            }
+          }  
         }
       }
     }
   }
+  post{
+    failure{
+      script{
+        if (env.GIT_BRANCH == 'origin/main')
+        emailext recipientProviders: [buildUser(), developers()], to: '$AAA_RECIPIENTS, $DEFAULT_RECIPIENTS', subject: '$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!', body: '''$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
+Check console output at $BUILD_URL to view the results.'''
+      }
+    }
+  }
+
 }
