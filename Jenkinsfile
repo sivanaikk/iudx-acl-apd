@@ -115,6 +115,7 @@ pipeline {
         }
         cleanup{
           script{
+            sh 'mvn flyway:clean -Dflyway.configFiles=/home/ubuntu/configs/acl-apd-flyway.conf'
             sh 'docker compose -f docker-compose.test.yml down --remove-orphans'
           } 
         }
