@@ -53,7 +53,7 @@ in te appropriate sections [here](SETUP.md)
 5. Start the server in production (prod) or development (dev) mode using docker-compose
    ` docker-compose up prod `
 ### Maven based
-1. Install java 13 and maven
+1. Install java 11 and maven
 2. Use the maven exec plugin based starter to start the server
    `mvn clean compile exec:java@acl-apd-server`
 
