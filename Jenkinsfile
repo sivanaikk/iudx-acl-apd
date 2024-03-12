@@ -155,6 +155,7 @@ pipeline {
               sh 'sleep 20'
               sh '''#!/bin/bash 
                 response_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 --retry 5 --retry-connrefused -XGET https://acl-apd.iudx.io/apis)
+                echo $response_code
                 if [[ "$response_code" -ne "200" ]]
                 then
                   echo "Health check failed"
