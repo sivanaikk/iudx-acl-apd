@@ -171,7 +171,7 @@ pipeline {
             failure{
               error "Failed to deploy image in Docker Swarm"
             }
-          }  
+          }
         }
       }
     }
