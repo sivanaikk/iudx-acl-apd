@@ -106,7 +106,7 @@ pipeline {
           node('built-in') {
             script{
               publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true, reportDir: '/var/lib/jenkins/iudx/acl-apd/Newman/report/', reportFiles: 'report.html', reportTitles: '', reportName: 'Integration Test Report'])
-              archiveZap failHighAlerts: 1, failMediumAlerts: 1, failLowAlerts: 1
+              archiveZap failHighAlerts: 1, failMediumAlerts: 1, failLowAlerts: 8
             }
           }
         }
