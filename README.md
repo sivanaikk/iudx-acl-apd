@@ -26,7 +26,7 @@ allow consumer, consumer delegates to access the resource.
 - Emails are sent asynchronously using Vert.x SMTP Mail Client
 - Integration with DX AAA Server for token introspection to serve data privately to the designated user
 - Uses Vert.x, Postgres to create scalable, service mesh architecture
-- Integration with auditing server using RabbitMQ databroker for metering purposes
+- Integration with auditing server for metering purposes
 
 
 ## API Docs
@@ -81,7 +81,7 @@ The JAR requires 3 runtime arguments when running:
 
 e.g. ```java -jar target/iudx.iudx.apd.acl.server-cluster-0.0.1-SNAPSHOT-fat.jar --host $(hostname)
 -c secrets/all-verticles-configs/config-dev.json -m iudx.apd.acl.server.authentication.AuthenticationVerticle, iudx.apd.acl.server.apiserver.ApiServerVerticle,
-iudx.apd.acl.server.policy.PolicyVerticle, iudx.apd.acl.server.notification.NotificationVerticle```
+iudx.apd.acl.server.policy.PolicyVerticle, iudx.apd.acl.server.notification.NotificationVerticle, iudx.apd.acl.server.auditing.AuditingVerticle```
 
 Use the `--help/-h` argument for more information. You may additionally append an `ACL_APD_JAVA_OPTS` environment
 variable containing any Java options to pass to the application.
