@@ -93,7 +93,7 @@ public class DeployerDev {
 
   public static void main(String[] args) {
     CLI cli =
-        CLI.create("IUDX Cat")
+        CLI.create("IUDX ACL APD Server")
             .setSummary("A CLI to deploy the acl-apd server")
             .addOption(
                 new Option()
