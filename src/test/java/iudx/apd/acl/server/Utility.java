@@ -28,7 +28,7 @@ public class Utility {
   public static final String INSERT_INTO_USER_TABLE =
       "INSERT INTO user_table(_id, email_id, first_name, last_name, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING _id;";
   public static final String INSERT_INTO_REQUEST_TABLE =
-      "INSERT INTO request(_id, user_id, item_id, owner_id, status, expiry_at, created_at, updated_at, constraints) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING _id;";
+      "INSERT INTO request(_id, user_id, item_id, owner_id, status, created_at, updated_at, constraints) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING _id;";
   private static final Logger LOG = LoggerFactory.getLogger(Utility.class);
   private PgPool pool;
   private String resourceType;
@@ -170,7 +170,6 @@ public class Utility {
             resourceId,
             ownerId,
             requestStatus,
-            expiryTime,
             createdAt,
             updatedAt,
             constraints);

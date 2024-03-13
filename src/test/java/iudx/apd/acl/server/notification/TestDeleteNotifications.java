@@ -255,25 +255,34 @@ public class TestDeleteNotifications {
             utility.getResourceId(),
             utility.getOwnerId(),
             "WITHDRAWN",
-            LocalDateTime.of(2030, 1, 1, 1, 1, 1, 1),
             LocalDateTime.of(2023, 1, 1, 1, 1, 1, 1),
             LocalDateTime.of(2024, 1, 1, 1, 1, 1, 1),
             utility.getConstraints());
-    utility.executeQuery(tuple, INSERT_INTO_REQUEST_TABLE);
-    deleteNotification
-        .initiateDeleteNotification(new JsonObject().put("id", requestId), consumer)
+    utility
+        .executeQuery(tuple, INSERT_INTO_REQUEST_TABLE)
         .onComplete(
-            handler -> {
-              if (handler.succeeded()) {
-                vertxTestContext.failNow("Succeeded for previously deleted notification");
+            insertionHandler -> {
+              if (insertionHandler.succeeded()) {
+                deleteNotification
+                    .initiateDeleteNotification(new JsonObject().put("id", requestId), consumer)
+                    .onComplete(
+                        handler -> {
+                          if (handler.succeeded()) {
+                            vertxTestContext.failNow(
+                                "Succeeded for previously deleted notification");
+                          } else {
+                            JsonObject result = new JsonObject(handler.cause().getMessage());
+                            assertEquals(BAD_REQUEST.getValue(), result.getInteger(TYPE));
+                            assertEquals(
+                                ResponseUrn.BAD_REQUEST_URN.getUrn(), result.getString(TITLE));
+                            assertEquals(
+                                "Request could not be withdrawn, as it is not in pending status",
+                                result.getString(DETAIL));
+                            vertxTestContext.completeNow();
+                          }
+                        });
               } else {
-                JsonObject result = new JsonObject(handler.cause().getMessage());
-                assertEquals(BAD_REQUEST.getValue(), result.getInteger(TYPE));
-                assertEquals(ResponseUrn.BAD_REQUEST_URN.getUrn(), result.getString(TITLE));
-                assertEquals(
-                    "Request could not be withdrawn, as it is not in pending status",
-                    result.getString(DETAIL));
-                vertxTestContext.completeNow();
+                vertxTestContext.failNow(insertionHandler.cause().getMessage());
               }
             });
   }

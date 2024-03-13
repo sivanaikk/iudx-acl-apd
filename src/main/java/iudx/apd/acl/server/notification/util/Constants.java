@@ -24,7 +24,7 @@ public class Constants {
   public static final String REJECT_NOTIFICATION =
           "UPDATE request SET status='REJECTED' WHERE "
           +
-          "_id=$1::uuid AND expiry_at>NOW() OR expiry_at IS NULL RETURNING _id";
+          "_id=$1::uuid AND expiry_at IS NULL RETURNING _id";
 
   public static final String GET_CONSUMER_EMAIL_QUERY =
           "SELECT email_id FROM user_table WHERE _id = $1::uuid;";
