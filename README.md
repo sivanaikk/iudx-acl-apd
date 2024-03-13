@@ -75,7 +75,7 @@ The JAR requires 3 runtime arguments when running:
 * --modules/-m : comma separated list of module names to deploy
 
 e.g. ```java -jar target/iudx.iudx.apd.acl.server-cluster-0.0.1-SNAPSHOT-fat.jar --host $(hostname) 
--c configs/config.json -m iudx.apd.acl.server.authentication.AuthenticationVerticle, iudx.apd.acl.server.apiserver.ApiServerVerticle,
+-c secrets/all-verticles-configs/config-dev.json -m iudx.apd.acl.server.authentication.AuthenticationVerticle, iudx.apd.acl.server.apiserver.ApiServerVerticle,
 iudx.apd.acl.server.policy.PolicyVerticle, iudx.apd.acl.server.notification.NotificationVerticle```
 
 Use the `--help/-h` argument for more information. You may additionally append an `ACL_APD_JAVA_OPTS` environment
@@ -94,7 +94,7 @@ The JAR requires 1 runtime argument when running
 
 * --config/-c : path to the config file
 
-e.g. `java -Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.Log4j2LogDelegateFactory -jar target/iudx.iudx.apd.acl.server-cluster-0.0.1-SNAPSHOT-fat.jar -c configs/config.json`
+e.g. `java -Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.Log4j2LogDelegateFactory -jar target/iudx.iudx.apd.acl.server-cluster-0.0.1-SNAPSHOT-fat.jar -c secrets/all-verticles-configs/config-dev.json`
 
 Use the `--help/-h` argument for more information. You may additionally append an `RS_JAVA_OPTS` environment variable containing any Java options to pass to the application.
 
@@ -118,6 +118,4 @@ We follow Git Merge based workflow
 
 
 
-## License
-[MIT](./LICENSE.txt)
 
