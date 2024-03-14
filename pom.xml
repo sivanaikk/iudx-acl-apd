@@ -2,64 +2,60 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-    <groupId>datakaveri.org</groupId>
-    <artifactId>iudx.acl-apd.server</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+  <groupId>datakaveri.org</groupId>
+  <artifactId>iudx.acl-apd.server</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
 
 
-    <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <vertx.version>4.3.2</vertx.version>
-        <openjdk.version>11</openjdk.version>
-        <hazelcast.version>4.0.2</hazelcast.version>
-        <micrometer.version>1.9.2</micrometer.version>
-        <curator.version>5.3.0</curator.version>
-        <apache-commons-lang3.version>3.12.0</apache-commons-lang3.version>
-        <junit-jupiter-engine.version>5.8.2</junit-jupiter-engine.version>
-        <apache-log4j2.version>2.17.1</apache-log4j2.version>
-        <lmax-disruptor.version>3.4.4</lmax-disruptor.version>
-        <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
-        <checkstyle.version>10.5.0</checkstyle.version>
-        <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
-        <maven-shade-plugin.version>3.3.0</maven-shade-plugin.version>
-        <maven-javadoc-plugin.version>3.4.0</maven-javadoc-plugin.version>
-        <exec-maven-plugin.version>3.1.0</exec-maven-plugin.version>
-        <maven-pmd-plugin.version>3.17.0</maven-pmd-plugin.version>
-        <maven-checkstyle-plugin-google.version>3.1.2</maven-checkstyle-plugin-google.version>
-        <maven-surefire-report-plugin.version>3.0.0-M7</maven-surefire-report-plugin.version>
-        <junit-jupiter.params>5.8.2</junit-jupiter.params>
-        <testcontainer.params>1.17.3</testcontainer.params>
-        <testcontainer-postgres.version>1.17.3</testcontainer-postgres.version>
-        <jts2geojson.version>0.17.0</jts2geojson.version>
-        <elasticsearch-rest-client.version>8.3.3</elasticsearch-rest-client.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <exec.mainClass>iudx.apd.acl.server.deploy.Deployer</exec.mainClass>
-        <exec.mainClassDev>iudx.apd.acl.server.deploy.DeployerDev
-        </exec.mainClassDev>
-    </properties>
+  <properties>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <vertx.version>4.5.4</vertx.version>
+    <openjdk.version>11</openjdk.version>
+    <hazelcast.version>4.0.2</hazelcast.version>
+    <micrometer.version>1.12.3</micrometer.version>
+    <curator.version>5.6.0</curator.version>
+    <junit-jupiter-engine.version>5.10.2</junit-jupiter-engine.version>
+    <apache-log4j2.version>2.23.0</apache-log4j2.version>
+    <lmax-disruptor.version>4.0.0</lmax-disruptor.version>
+    <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
+    <checkstyle.version>10.14.0</checkstyle.version>
+    <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
+    <maven-shade-plugin.version>3.5.2</maven-shade-plugin.version>
+    <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
+    <exec-maven-plugin.version>3.2.0</exec-maven-plugin.version>
+    <maven-pmd-plugin.version>3.21.2</maven-pmd-plugin.version>
+    <maven-checkstyle-plugin-google.version>3.3.1</maven-checkstyle-plugin-google.version>
+    <maven-surefire-report-plugin.version>3.2.5</maven-surefire-report-plugin.version>
+    <junit-jupiter.params>5.10.2</junit-jupiter.params>
+    <testcontainer.params>1.19.7</testcontainer.params>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <exec.mainClass>iudx.apd.acl.server.deploy.Deployer</exec.mainClass>
+    <exec.mainClassDev>iudx.apd.acl.server.deploy.DeployerDev
+    </exec.mainClassDev>
+  </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>io.vertx</groupId>
-                <artifactId>vertx-stack-depchain</artifactId>
-                <version>${vertx.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <!--  log4j2 bom to keep org.apache.logging.log4j artifacts version in sync -->
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-bom</artifactId>
-                <version>${apache-log4j2.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.vertx</groupId>
+        <artifactId>vertx-stack-depchain</artifactId>
+        <version>${vertx.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!--  log4j2 bom to keep org.apache.logging.log4j artifacts version in sync -->
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-bom</artifactId>
+        <version>${apache-log4j2.version}</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -72,7 +68,7 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>42.4.3</version>
+      <version>42.7.2</version>
     </dependency>
 
     <dependency>
@@ -95,17 +91,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.goterl</groupId>
-      <artifactId>lazysodium-java</artifactId>
-      <version>5.1.1</version>
-    </dependency>
-
-    <dependency>
-      <groupId>net.java.dev.jna</groupId>
-      <artifactId>jna</artifactId>
-      <version>5.12.1</version>
-    </dependency>
-    <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-core</artifactId>
     </dependency>
@@ -123,19 +108,19 @@
       <artifactId>maven-checkstyle-plugin</artifactId>
       <version>${maven-checkstyle-plugin-google.version}</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>33.0.0-jre</version>
+    </dependency>
+
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
-      <version>9.21.0</version>
+      <version>9.22.3</version>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-      <version>${apache-commons-lang3.version}</version>
-    </dependency>
-
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -178,22 +163,24 @@
       <version>${testcontainer.params}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.ongres.scram</groupId>
-      <artifactId>client</artifactId>
-      <version>2.1</version>
-    </dependency>
+
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-unit</artifactId>
       <scope>test</scope>
     </dependency>
 
-  <!--    Vertx Mail Client dependency -->
+    <!--    Vertx Mail Client dependency -->
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-mail-client</artifactId>
-      <version>4.4.4</version>
+      <version>4.5.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.ongres.scram</groupId>
+      <artifactId>client</artifactId>
+      <version>2.1</version>
     </dependency>
 
     <dependency>
@@ -205,16 +192,20 @@
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
+      <version>${apache-log4j2.version}</version>
+      <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
+      <version>${apache-log4j2.version}</version>
     </dependency>
     <!-- slf4j to log4j2 bridge adapter, needed for 'io.netty' logs -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
+      <artifactId>log4j-slf4j2-impl</artifactId>
+      <version>${apache-log4j2.version}</version>
     </dependency>
     <!--LMAX Disruptor for enabling Asynchronous log4j2 Logging  -->
     <dependency>
@@ -256,54 +247,31 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web-validation</artifactId>
     </dependency>
-    <!-- for validation of coordinates -->
-    <dependency>
-      <groupId>org.wololo</groupId>
-      <artifactId>jts2geojson</artifactId>
-      <version>${jts2geojson.version}</version>
-    </dependency>
+
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-json-schema</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.elasticsearch.client</groupId>
-      <artifactId>elasticsearch-rest-client</artifactId>
-      <version>${elasticsearch-rest-client.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-inline</artifactId>
-      <version>3.11.1</version>
+      <version>5.2.0</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-junit-jupiter</artifactId>
-      <version>3.11.1</version>
+      <version>5.11.0</version>
       <scope>test</scope>
     </dependency>
 
 
     <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-java-sdk-s3</artifactId>
-      <version>1.12.261</version>
-    </dependency>
-
-    <!--HLC transition dependency -->
-    <dependency>
-      <groupId>co.elastic.clients</groupId>
-      <artifactId>elasticsearch-java</artifactId>
-      <version>8.3.3</version>
-    </dependency>
-
-    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
+      <version>2.16.1</version>
     </dependency>
 
     <dependency>
@@ -326,7 +294,7 @@
       <plugin>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-maven-plugin</artifactId>
-        <version>8.5.13</version>
+        <version>9.22.3</version>
       </plugin>
 
       <plugin>
@@ -361,14 +329,14 @@
         </executions>
         <configuration>
           <excludes>
-          <!-- excluding classes from JaCoCo test coverage -->
+            <!-- excluding classes from JaCoCo test coverage -->
             <exclude>**/*VertxEBProxy.class</exclude>
             <exclude>**/*VertxProxyHandler.class</exclude>
             <exclude>**/*Verticle.class</exclude>
             <exclude>**/*Service.class</exclude>
 
             <!--auto-generated class is excluded in unit tests-->
-<!--            <exclude>**/*JwtDataConverter.class</exclude>-->
+            <!--            <exclude>**/*JwtDataConverter.class</exclude>-->
 
             <exclude>iudx/apd/acl/server/deploy/*</exclude>
             <exclude>**/*Constants.class</exclude>
@@ -380,6 +348,61 @@
         </configuration>
       </plugin>
 
+      <!--  Plugin for analyzing unused dependency -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.6.1</version>
+        <configuration>
+          <!-- adding following dependencies to not consider as unused dependency -->
+          <usedDependencies>
+            <dependency>
+              org.apache.logging.log4j:log4j-slf4j2-impl
+            </dependency>
+            <dependency>
+              com.lmax:disruptor
+            </dependency>
+            <dependency>
+              com.fasterxml.jackson.core:jackson-databind
+            </dependency>
+            <dependency>
+              org.mockito:mockito-inline
+            </dependency>
+            <dependency>
+              org.apache.maven.plugins:maven-checkstyle-plugin
+            </dependency>
+            <!-- Adding all the vertx dependencies -->
+            <dependency>
+              io.vertx:vertx-auth-oauth2
+            </dependency>
+            <dependency>
+              io.vertx:vertx-service-discovery
+            </dependency>
+            <dependency>
+              org.testcontainers:testcontainers
+            </dependency>
+            <dependency>
+              io.vertx:vertx-unit
+            </dependency>
+            <dependency>
+              io.vertx:vertx-jdbc-client
+            </dependency>
+            <dependency>
+              org.junit.jupiter:junit-jupiter-engine
+            </dependency>
+            <!-- Adding postgres dependency -->
+            <dependency>
+              org.postgresql:postgresql
+            </dependency>
+            <dependency>
+              org.apache.curator:curator-x-discovery
+            </dependency>
+            <dependency>
+              io.micrometer:micrometer-registry-prometheus
+            </dependency>
+          </usedDependencies>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
@@ -443,13 +466,13 @@
               </filters>
               <transformers>
                 <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <manifestEntries>
                     <Main-Class>${exec.mainClassDev}</Main-Class>
                   </manifestEntries>
                 </transformer>
                 <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                   <resource>META-INF/services/io.vertx.core.spi.VerticleFactory
                   </resource>
                   <resource>META-INF/services/io.vertx.core.spi.VertxServiceProvider
@@ -481,13 +504,13 @@
               </filters>
               <transformers>
                 <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <manifestEntries>
                     <Main-Class>${exec.mainClass}</Main-Class>
                   </manifestEntries>
                 </transformer>
                 <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                   <resource>META-INF/services/io.vertx.core.spi.VerticleFactory
                   </resource>
                   <resource>META-INF/services/io.vertx.core.spi.VertxServiceProvider
@@ -601,13 +624,13 @@
               </filters>
               <transformers>
                 <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <manifestEntries>
                     <Main-Class>${exec.mainClassDev}</Main-Class>
                   </manifestEntries>
                 </transformer>
                 <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                   <resource>META-INF/services/io.vertx.core.spi.VerticleFactory
                   </resource>
                   <resource>META-INF/services/io.vertx.core.spi.VertxServiceProvider
@@ -639,13 +662,13 @@
               </filters>
               <transformers>
                 <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <manifestEntries>
                     <Main-Class>${exec.mainClass}</Main-Class>
                   </manifestEntries>
                 </transformer>
                 <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                   <resource>META-INF/services/io.vertx.core.spi.VerticleFactory
                   </resource>
                   <resource>META-INF/services/io.vertx.core.spi.VertxServiceProvider
