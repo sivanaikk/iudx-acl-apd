@@ -152,7 +152,7 @@ pipeline {
           steps {
             script {
               sh "ssh azureuser@docker-swarm 'docker service update acl-apd_acl-apd --image ghcr.io/datakaveri/acl-apd-depl:5.5.0-alpha-${env.GIT_HASH}'"
-              sh 'sleep 20'
+              sh 'sleep 40'
               sh '''#!/bin/bash 
                 response_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 --retry 5 --retry-connrefused -XGET https://acl-apd.iudx.io/apis)
                 echo $response_code
