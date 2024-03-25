@@ -56,7 +56,6 @@ paths:
           schema:
             type: string
             minLength: 1
-            maxLength: 512
             pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
       responses:
         '200':
@@ -114,7 +113,6 @@ paths:
           schema:
             type: string
             minLength: 1
-            maxLength: 512
             pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
       requestBody:
         description: Request body is a JsonObject containing ID whose value is the policy ID.
@@ -223,7 +221,6 @@ paths:
           schema:
             type: string
             minLength: 1
-            maxLength: 512
             pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
       requestBody:
         description: >
@@ -396,7 +393,6 @@ paths:
           schema:
             type: string
             minLength: 1
-            maxLength: 512
             example: Bearer <JWT>
       requestBody:
         description: >-
@@ -480,7 +476,6 @@ paths:
           schema:
             type: string
             minLength: 1
-            maxLength: 512
             pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
       responses:
         '200':
@@ -573,7 +568,6 @@ paths:
           schema:
             type: string
             minLength: 1
-            maxLength: 512
             pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
       requestBody:
         description: |
@@ -708,7 +702,6 @@ paths:
           schema:
             type: string
             minLength: 1
-            maxLength: 512
             pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
       requestBody:
         description: |-
@@ -878,7 +871,6 @@ paths:
             type: string
             pattern: '^[a-zA-Z0-9_*\-*\.\/]+$'
             minLength: 1
-            maxLength: 512
       requestBody:
         description: |-
           - `id` : the UUID of the request that is to be deleted.
