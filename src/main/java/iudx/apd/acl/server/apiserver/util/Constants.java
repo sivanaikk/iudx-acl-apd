@@ -10,6 +10,9 @@ public class Constants {
 
   // Header params
   public static final String HEADER_AUTHORIZATION = "Authorization";
+  public static final String HEADER_X_CONTENT_TYPE_OPTIONS = "X-Content-Type-Options";
+  public static final String X_CONTENT_TYPE_OPTIONS_NOSNIFF = "nosniff";
+
   public static final String HEADER_TOKEN = "token";
   public static final String HEADER_HOST = "Host";
   public static final String HEADER_ACCEPT = "Accept";
