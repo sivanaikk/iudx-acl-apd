@@ -40,7 +40,7 @@ The DX ACL-APD Server connects with various external dependencies namely:
 - RabbitMQ
 
 Find the installation of the above along with the configurations to modify the database url, port, and associated credentials
-in te appropriate sections [here](SETUP.md)
+in the appropriate sections [here](SETUP.md)
 
 ## Get Started
 
