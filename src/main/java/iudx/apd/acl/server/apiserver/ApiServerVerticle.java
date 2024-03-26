@@ -472,6 +472,7 @@ public class ApiServerVerticle extends AbstractVerticle {
    * @param result respective result returned from the service
    */
   private void handleSuccessResponse(HttpServerResponse response, int statusCode, String result) {
+    response.putHeader(HEADER_X_CONTENT_TYPE_OPTIONS, X_CONTENT_TYPE_OPTIONS_NOSNIFF);
     response.putHeader(CONTENT_TYPE, APPLICATION_JSON).setStatusCode(statusCode).end(result);
   }
 
