@@ -30,7 +30,7 @@ allow consumer, consumer delegates to access the resource.
 
 
 ## API Docs
-API docs are available here : [link](https://acl-apd.iudx.io/apis)
+API docs are available [here](https://acl-apd.iudx.io/apis)
 
 ## Prerequisites
 ### External Dependencies Installation
