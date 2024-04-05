@@ -8,10 +8,10 @@ services:
     environment:
       - LOG_LEVEL=INFO
     volumes:
-      - /home/ubuntu/configs/apd-config-test.json:/usr/share/app/secrets/all-verticles-configs/config-dev.json
-      - /home/ubuntu/configs/keystore-file.jks:/usr/share/app/secrets/keystore-file.jks
+      - /home/ubuntu/configs/5.5.0/apd-config-test.json:/usr/share/app/secrets/all-verticles-configs/5.5.0/config-dev.json
+      - /home/ubuntu/configs/5.5.0/keystore-file.jks:/usr/share/app/secrets/keystore-file.jks
       - ./docker/runTests.sh:/usr/share/app/docker/runTests.sh
-      - ./example-configs/:/usr/share/app/example-configs
+      - ./example-configs/5.5.0/:/usr/share/app/example-configs
       - ./src/:/usr/share/app/src
       - ${WORKSPACE}:/tmp/test
       - $PWD:$PWD -w $PWD
@@ -26,9 +26,9 @@ services:
     environment:
       - LOG_LEVEL=INFO
     volumes:
-      - /home/ubuntu/configs/apd-config-dev.json:/usr/share/app/secrets/configs/config.json
-      - /home/ubuntu/configs/keystore-file.jks:/usr/share/app/secrets/keystore-file.jks
-    command: bash -c "exec java $$FS_JAVA_OPTS  -Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.Log4j2LogDelegateFactory -jar ./fatjar.jar  --host $$(hostname) -c secrets/configs/config.json"
+      - /home/ubuntu/configs/5.5.0/apd-config-dev.json:/usr/share/app/secrets/configs/5.5.0/config.json
+      - /home/ubuntu/configs/5.5.0/keystore-file.jks:/usr/share/app/secrets/keystore-file.jks
+    command: bash -c "exec java $$FS_JAVA_OPTS  -Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.Log4j2LogDelegateFactory -jar ./fatjar.jar  --host $$(hostname) -c secrets/configs/5.5.0/config.json"
     ports:
       - "8080:8080"
     networks:
