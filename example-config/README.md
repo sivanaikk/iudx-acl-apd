@@ -23,7 +23,7 @@
   <tr>
     <td class="tg-0lax"><span style="font-weight:400;font-style:normal;text-decoration:none;color:#000;background-color:transparent">catServerHost</span></td>
     <td class="tg-0lax"><span style="font-weight:400;font-style:normal;text-decoration:none;color:#000;background-color:transparent">Host name of DX Catalogue server for fetching the information of resources, resource groups</span></td>
-    <td class="tg-0lax" rowspan="2"></td>
+    <td class="tg-0lax" rowspan="2"><span style="font-weight:400;font-style:normal;text-decoration:none;color:#000;background-color:transparent">In order to connect to the DX Catalogue server, required information such as catServerHost, catServerPort, dxCatalogueBasePath etc., should be updated in commonConfig module</span></td>
   </tr>
   <tr>
     <td class="tg-0lax"><span style="font-weight:400;font-style:normal;text-decoration:none;color:#000;background-color:transparent">catServerPort</span></td>
@@ -32,7 +32,7 @@
   <tr>
     <td class="tg-0lax"><span style="font-weight:400;font-style:normal;text-decoration:none;color:#000;background-color:transparent">authPort</span></td>
     <td class="tg-0lax"><span style="font-weight:400;font-style:normal;text-decoration:none;color:#000;background-color:transparent">Port number to access HTTPS APIs of Auth server</span><br><span style="font-weight:400;font-style:normal;text-decoration:none;color:#000;background-color:transparent">Default : 443</span></td>
-    <td class="tg-0lax" rowspan="2"></td>
+    <td class="tg-0lax" rowspan="2"><span style="font-weight:400;font-style:normal;text-decoration:none;color:#000;background-color:transparent">In order to connect with DX Authentication server, required information like authServerHost, authPort, dxAuthBasePath etc., should be updated in commonConfig, AuthenticationVerticle module</span></td>
   </tr>
   <tr>
     <td class="tg-0lax"><span style="font-weight:400;font-style:normal;text-decoration:none;color:#000;background-color:transparent">authHost</span></td>
@@ -80,7 +80,7 @@
   <tr>
     <td class="tg-0lax"><span style="font-weight:400;font-style:normal;text-decoration:none;color:#000;background-color:transparent">id</span></td>
     <td class="tg-0lax"><span style="font-weight:400;font-style:normal;text-decoration:none;color:#000;background-color:transparent">Address of the verticle</span></td>
-    <td class="tg-0lax"><span style="font-weight:400;font-style:normal;text-decoration:none;color:#000;background-color:transparent">Example : `iudx.apd.acl.server.apiserver.ApiServerVerticle` , `iudx.apd.acl.server.policy.PolicyVerticle`</span></td>
+    <td class="tg-0lax"><span style="font-weight:400;font-style:normal;text-decoration:none;color:#000;background-color:transparent">Example : iudx.apd.acl.server.apiserver.ApiServerVerticle , iudx.apd.acl.server.policy.PolicyVerticle</span></td>
   </tr>
   <tr>
     <td class="tg-0lax"><span style="font-weight:400;font-style:normal;text-decoration:none;color:#000;background-color:transparent">isWorkerVerticle</span></td>
