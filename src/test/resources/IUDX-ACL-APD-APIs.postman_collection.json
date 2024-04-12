@@ -6,6 +6,366 @@
 	},
 	"item": [
 		{
+			"name": "token",
+			"item": [
+				{
+					"name": "Get Provider token (via client-id, secret)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"providerToken\", jsonData.results.accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "clientId",
+								"value": "{{providerClientId}}",
+								"type": "text",
+								"description": "Client ID (UUID)"
+							},
+							{
+								"key": "clientSecret",
+								"value": "{{providerClientSecret}}",
+								"type": "text",
+								"description": "Client secret (40 chars in hexadecimal)"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemId\": \"{{resourceServerUrl}}\",\n    \"itemType\": \"{{itemType}}\",\n    \"role\": \"{{providerRole}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{authEndpoint}}{{authBasePath}}/token",
+							"host": [
+								"{{authEndpoint}}{{authBasePath}}"
+							],
+							"path": [
+								"token"
+							]
+						},
+						"description": "This API supplies the provider token."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Consumer token (via client-id, secret)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"consumerToken\", jsonData.results.accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "clientId",
+								"value": "{{consumerClientId}}",
+								"type": "text",
+								"description": "Client ID (UUID)"
+							},
+							{
+								"key": "clientSecret",
+								"value": "{{consumerClientSecret}}",
+								"type": "text",
+								"description": "Client secret (40 chars in hexadecimal)"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemId\": \"{{resourceServerUrl}}\",\n    \"itemType\": \"{{itemType}}\",\n    \"role\": \"{{consumerRole}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{authEndpoint}}{{authBasePath}}/token",
+							"host": [
+								"{{authEndpoint}}{{authBasePath}}"
+							],
+							"path": [
+								"token"
+							]
+						},
+						"description": "This API supplies the consumer token."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Provider Delegate token (via client-id, secret)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"providerDelegateToken\", jsonData.results.accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "clientId",
+								"value": "{{providerDelegateClientId}}",
+								"type": "text",
+								"description": "Client ID (UUID)"
+							},
+							{
+								"key": "clientSecret",
+								"value": "{{providerDelegateClientSecret}}",
+								"type": "text",
+								"description": "Client secret (40 chars in hexadecimal)"
+							},
+							{
+								"key": "delegationId",
+								"value": "{{providerDelegationId}}",
+								"description": "The delegation ID determines which user + role + resource server the token request is being made on behalf by the delegate.It's the ID of the delegation that you can get using the GET delegates API on the auth server.",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemId\": \"{{resourceServerUrl}}\",\n    \"itemType\": \"{{itemType}}\",\n    \"role\": \"{{delegateRole}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{authEndpoint}}{{authBasePath}}/token",
+							"host": [
+								"{{authEndpoint}}{{authBasePath}}"
+							],
+							"path": [
+								"token"
+							]
+						},
+						"description": "This API supplies the provider delegate token."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Provider Delegate token (For Forbidden condition)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"providerDelegateTokenForbidden\", jsonData.results.accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "clientId",
+								"value": "{{providerDelegateClientId}}",
+								"type": "text",
+								"description": "Client ID (UUID)"
+							},
+							{
+								"key": "clientSecret",
+								"value": "{{providerDelegateClientSecret}}",
+								"type": "text",
+								"description": "Client secret (40 chars in hexadecimal)"
+							},
+							{
+								"key": "delegationId",
+								"value": "{{forbiddenProviderDelegationId}}",
+								"description": "The delegation ID determines which user + role + resource server the token request is being made on behalf by the delegate.It's the ID of the delegation that you can get using the GET delegates API on the auth server.",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemId\": \"{{rsUrlForForbiddenResponse}}\",\n    \"itemType\": \"{{itemType}}\",\n    \"role\": \"{{delegateRole}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{authEndpoint}}{{authBasePath}}/token",
+							"host": [
+								"{{authEndpoint}}{{authBasePath}}"
+							],
+							"path": [
+								"token"
+							]
+						},
+						"description": "This API supplies the provider delegate token."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Consumer Delegate token (via client-id, secret)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"consumerDelegateToken\", jsonData.results.accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "clientId",
+								"value": "{{consumerDelegateClientId}}",
+								"type": "text",
+								"description": "Client ID (UUID)"
+							},
+							{
+								"key": "clientSecret",
+								"value": "{{consumerDelegateClientSecret}}",
+								"type": "text",
+								"description": "Client secret (40 chars in hexadecimal)"
+							},
+							{
+								"key": "delegationId",
+								"value": "{{consumerDelegationId}}",
+								"description": "The delegation ID determines which user + role + resource server the token request is being made on behalf by the delegate.It's the ID of the delegation that you can get using the GET delegates API on the auth server.",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemId\": \"{{resourceServerUrl}}\",\n    \"itemType\": \"{{itemType}}\",\n    \"role\": \"{{delegateRole}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{authEndpoint}}{{authBasePath}}/token",
+							"host": [
+								"{{authEndpoint}}{{authBasePath}}"
+							],
+							"path": [
+								"token"
+							]
+						},
+						"description": "This API supplies the consumer delegate token."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Consumer Delegate token (For Forbidden response)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"consumerDelegateTokenForbidden\", jsonData.results.accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "clientId",
+								"value": "{{consumerDelegateClientId}}",
+								"type": "text",
+								"description": "Client ID (UUID)"
+							},
+							{
+								"key": "clientSecret",
+								"value": "{{consumerDelegateClientSecret}}",
+								"type": "text",
+								"description": "Client secret (40 chars in hexadecimal)"
+							},
+							{
+								"key": "delegationId",
+								"value": "{{forbiddenConsumerDelegationId}}",
+								"description": "The delegation ID determines which user + role + resource server the token request is being made on behalf by the delegate.It's the ID of the delegation that you can get using the GET delegates API on the auth server.",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemId\": \"{{rsUrlForForbiddenResponse}}\",\n    \"itemType\": \"{{itemType}}\",\n    \"role\": \"{{delegateRole}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{authEndpoint}}{{authBasePath}}/token",
+							"host": [
+								"{{authEndpoint}}{{authBasePath}}"
+							],
+							"path": [
+								"token"
+							]
+						},
+						"description": "This API supplies the consumer delegate token."
+					},
+					"response": []
+				}
+			],
+			"description": "The collection comprises APIs that provide the Identity Access Token, which is essential for executing Policy and Access Request APIs."
+		},
+		{
 			"name": "policy",
 			"item": [
 				{
@@ -15,18 +375,20 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const isPipeline = pm.environment.get('isIntegrationTestBeingRunInPipeline') == 'true';",
+									"",
 									"// Test the response code",
-									"pm.test(\"response is 200 (OK)\", function () {",
+									"(isPipeline ? pm.test.skip : pm.test)(\"response is 200 (OK)\", function () {",
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
 									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
+									"(isPipeline ? pm.test.skip : pm.test)(\"Check response header\", function () {",
 									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
 									"});",
 									"",
 									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
+									"(isPipeline ? pm.test.skip : pm.test)(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
 									"    pm.expect(body).to.have.property(\"type\", \"urn:apd:Allow\");",
 									"    }",
@@ -73,18 +435,20 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const isPipeline = pm.environment.get('isIntegrationTestBeingRunInPipeline') == 'true';",
+									"",
 									"// Test the response code",
-									"pm.test(\"response is 403 (Forbidden)\", function () {",
+									"(isPipeline ? pm.test.skip : pm.test)(\"response is 403 (Forbidden)\", function () {",
 									"    pm.response.to.have.status(403);",
 									"});",
 									"",
 									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
+									"(isPipeline ? pm.test.skip : pm.test)(\"Check response header\", function () {",
 									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
 									"});",
 									"",
 									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
+									"(isPipeline ? pm.test.skip : pm.test)(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
 									"    pm.expect(body).to.have.property(\"type\", \"urn:apd:Deny\");",
 									"    pm.expect(body).to.have.property(\"title\", \"Forbidden\");",
@@ -133,18 +497,19 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const isPipeline = pm.environment.get('isIntegrationTestBeingRunInPipeline') == 'true';",
 									"// Test the response code",
-									"pm.test(\"response is 400 (Bad Request)\", function () {",
+									"(isPipeline ? pm.test.skip : pm.test)(\"response is 400 (Bad Request)\", function () {",
 									"    pm.response.to.have.status(400);",
 									"});",
 									"",
 									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
+									"(isPipeline ? pm.test.skip : pm.test)(\"Check response header\", function () {",
 									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
 									"});",
 									"",
 									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
+									"(isPipeline ? pm.test.skip : pm.test)(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
 									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:backend\");",
 									"    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",
@@ -187,7 +552,7 @@
 					"response": []
 				},
 				{
-					"name": "200 Create Policy : Success",
+					"name": "200 Create Policy: Success (For Verify Policy)",
 					"event": [
 						{
 							"listen": "test",
@@ -221,18 +586,18 @@
 							{
 								"key": "Authorization",
 								"value": "{{providerToken}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							},
 							{
 								"key": "Authorization",
 								"value": "{{providerDelegateToken}}",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"vasanth.rajaraman@datakaveri.org\",\n      \"itemId\": \"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"{{consumerEmailIdForVerifyPolicy}}\",\n      \"itemId\": \"{{itemIdForVerify}}\",\n      \"itemType\": \"RESOURCE\",\n      \"expiryTime\": \"3000-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -247,7 +612,274 @@
 							"path": [
 								"policies"
 							]
+						},
+						"description": "This API allows users to create new policies. Users can define and configure policies based on their specific requirements using this endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Policy check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"consumerToken\", jsonData.results.accessToken);"
+								],
+								"type": "text/javascript"
+							}
 						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "clientId",
+								"value": "{{consumerClientId}}",
+								"type": "text",
+								"description": "Client ID (UUID)"
+							},
+							{
+								"key": "clientSecret",
+								"value": "{{consumerClientSecret}}",
+								"type": "text",
+								"description": "Client secret (40 chars in hexadecimal)"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemId\": \"{{itemIdForVerify}}\",\n    \"itemType\": \"{{itemTypeForVerify}}\",\n    \"role\": \"{{consumerRole}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{authEndpoint}}{{authBasePath}}/token",
+							"host": [
+								"{{authEndpoint}}{{authBasePath}}"
+							],
+							"path": [
+								"token"
+							]
+						},
+						"description": "This API supplies the consumer token."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Policy: Success (Get the policy ID to delete the verified policy)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonResult = JSON.parse(responseBody).results",
+									"for(const props of jsonResult){",
+									"if(props.status=='ACTIVE')",
+									"    {",
+									"        console.log(props.policyId)",
+									"        postman.setEnvironmentVariable(\"policyId\", props.policyId);",
+									"        break",
+									"    }",
+									"}",
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						},
+						"description": "Users can use this API to retrieve a list of policies that have been previously created. It provides a way to view and access the details of existing policies in the system."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Policy : Success (Delete the Successfully verified policy)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"id\": \"{{policyId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						},
+						"description": "With the Delete Policy API, users can remove policies that are no longer required."
+					},
+					"response": []
+				},
+				{
+					"name": "200 Create Policy: Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"consumer@dummyId.com\",\n      \"itemId\": \"{{item_id}}\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"3000-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						},
+						"description": "This API allows users to create new policies. Users can define and configure policies based on their specific requirements using this endpoint."
 					},
 					"response": []
 				},
@@ -554,7 +1186,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"vasanth.rajaraman@datakaveri.org\",\n      \"itemId\": \"a347c5b6-5281-4749-9eab-89784d8f8f9a\",\n      \"itemType\": \"RESOURCE\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"consumer@dummyId.com\",\n      \"itemId\": \"{{item_id}}\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"3000-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -574,12 +1206,21 @@
 					"response": []
 				},
 				{
-					"name": "200 Delete Policy: Success",
+					"name": "200 Get Policy: Success",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const jsonResult = JSON.parse(responseBody).results",
+									"for(const props of jsonResult){",
+									"if(props.status=='ACTIVE')",
+									"    {",
+									"        console.log(props.policyId)",
+									"        postman.setEnvironmentVariable(\"policyId\", props.policyId);",
+									"        break",
+									"    }",
+									"}",
 									"// Test the response code",
 									"pm.test(\"response is 200 (OK)\", function () {",
 									"    pm.response.to.have.status(200);",
@@ -594,6 +1235,7 @@
 									"pm.test(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
 									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
 									"    }",
 									");"
 								],
@@ -601,33 +1243,32 @@
 							}
 						}
 					],
-					"protocolProfileBehavior": {
-						"disabledSystemHeaders": {
-							"content-type": true
-						}
-					},
 					"request": {
-						"method": "DELETE",
+						"method": "GET",
 						"header": [
 							{
-								"key": "Content-Type",
-								"value": "application/json"
+								"key": "Authorization",
+								"value": "{{providerToken}}"
 							},
 							{
 								"key": "Authorization",
-								"value": "{{providerToken}}",
+								"value": "{{consumerToken}}",
+								"type": "text",
 								"disabled": true
 							},
 							{
 								"key": "Authorization",
 								"value": "{{providerDelegateToken}}",
-								"type": "text"
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\"id\": \"ecefcebc-2949-4b01-b3d8-1f488dc4ca45\"\n}"
-						},
 						"url": {
 							"raw": "{{baseUrl}}{{basePath}}/policies",
 							"host": [
@@ -636,81 +1277,13 @@
 							"path": [
 								"policies"
 							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "400 Delete Policy: Bad Request [Policy not active, expired, or withdrawn]",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 400 (Bad Request)\", function () {",
-									"    pm.response.to.have.status(400);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:badRequest\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Policy could not be deleted, as policy is not ACTIVE\");",
-									"    }",
-									");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disabledSystemHeaders": {
-							"content-type": true
-						}
-					},
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{providerToken}}",
-								"disabled": true
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerDelegateToken}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\"id\": \"ecefcebc-2949-4b01-b3d8-1f488dc4ca45\"\n}"
 						},
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies"
-							]
-						}
+						"description": "Users can use this API to retrieve a list of policies that have been previously created. It provides a way to view and access the details of existing policies in the system."
 					},
 					"response": []
 				},
 				{
-					"name": "401 Delete Policy : Unauthorized",
+					"name": "401 Get Policy: Unauthorized",
 					"event": [
 						{
 							"listen": "test",
@@ -739,23 +1312,97 @@
 						}
 					],
 					"request": {
-						"method": "DELETE",
+						"method": "GET",
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{consumerToken}}",
+								"value": "skdfjksdfjg",
 								"type": "text"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\"id\": \"b5dd534d-231c-4674-8167-2e39467d0643\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "404 Get Policy: Not Found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 404 (Not Found)\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:resourceNotFound\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Not Found\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Policy not found\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
 							}
 						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateTokenForbidden}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}{{basePath}}/policies",
 							"host": [
@@ -823,7 +1470,203 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"ecefcebc-2949-4b01-b3d8-1f488dc4ca45\"\n}",
+							"raw": "{\n\"id\": \"{{policyId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "200 Delete Policy : Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"id\": \"{{policyId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						},
+						"description": "With the Delete Policy API, users can remove policies that are no longer required."
+					},
+					"response": []
+				},
+				{
+					"name": "400 Delete Policy: Bad Request [Policy not active, expired, or withdrawn]",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 400 (Bad Request)\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:badRequest\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Policy could not be deleted, as policy is not ACTIVE\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"id\": \"{{policyId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "401 Delete Policy : Unauthorized",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 401 (Not Authorized)\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:invalidAuthorizationToken\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Not Authorized\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Not Authorized\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"id\": \"b5dd534d-231c-4674-8167-2e39467d0643\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -910,677 +1753,388 @@
 						}
 					},
 					"response": []
-				},
+				}
+			]
+		},
+		{
+			"name": "Get Active Tokens for Access Request",
+			"item": [
 				{
-					"name": "200 Get Policy : Success",
+					"name": "Get Provider token (via client-id, secret)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 200 (OK)\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
-									"    }",
-									");"
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"providerToken\", jsonData.results.accessToken);"
 								],
 								"type": "text/javascript"
 							}
 						}
 					],
 					"request": {
-						"method": "GET",
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
 						"header": [
 							{
-								"key": "Authorization",
-								"value": "{{providerToken}}",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerToken}}",
+								"key": "clientId",
+								"value": "{{providerClientId}}",
 								"type": "text",
-								"disabled": true
+								"description": "Client ID (UUID)"
 							},
 							{
-								"key": "Authorization",
-								"value": "{{providerDelegateToken}}",
-								"type": "text"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerDelegateToken}}",
+								"key": "clientSecret",
+								"value": "{{providerClientSecret}}",
 								"type": "text",
-								"disabled": true
+								"description": "Client secret (40 chars in hexadecimal)"
 							}
 						],
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "401 Get Policy: Unauthorized",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 401 (Not Authorized)\", function () {",
-									"    pm.response.to.have.status(401);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:invalidAuthorizationToken\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Not Authorized\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Not Authorized\");",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{authToken}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "404 Get Policy: Not Found",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 404 (Not Found)\", function () {",
-									"    pm.response.to.have.status(404);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:resourceNotFound\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Not Found\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Policy not found\");",
-									"    }",
-									");"
-								],
-								"type": "text/javascript"
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemId\": \"{{resourceServerUrl}}\",\n    \"itemType\": \"{{itemType}}\",\n    \"role\": \"{{providerRole}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
 							}
 						},
+						"url": {
+							"raw": "{{authEndpoint}}{{authBasePath}}/token",
+							"host": [
+								"{{authEndpoint}}{{authBasePath}}"
+							],
+							"path": [
+								"token"
+							]
+						},
+						"description": "This API supplies the provider token."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Consumer token (via client-id, secret)",
+					"event": [
 						{
-							"listen": "prerequest",
+							"listen": "test",
 							"script": {
 								"exec": [
-									""
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"consumerToken\", jsonData.results.accessToken);"
 								],
 								"type": "text/javascript"
 							}
 						}
 					],
 					"request": {
-						"method": "GET",
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
 						"header": [
 							{
-								"key": "Authorization",
-								"value": "{{providerToken}}",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerToken}}",
+								"key": "clientId",
+								"value": "{{consumerClientId}}",
 								"type": "text",
-								"disabled": true
+								"description": "Client ID (UUID)"
 							},
 							{
-								"key": "Authorization",
-								"value": "{{providerDelegateToken}}",
+								"key": "clientSecret",
+								"value": "{{consumerClientSecret}}",
 								"type": "text",
-								"disabled": true
-							},
+								"description": "Client secret (40 chars in hexadecimal)"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemId\": \"{{resourceServerUrl}}\",\n    \"itemType\": \"{{itemType}}\",\n    \"role\": \"{{consumerRole}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{authEndpoint}}{{authBasePath}}/token",
+							"host": [
+								"{{authEndpoint}}{{authBasePath}}"
+							],
+							"path": [
+								"token"
+							]
+						},
+						"description": "This API supplies the consumer token."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Provider Delegate token (via client-id, secret)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"providerDelegateToken\", jsonData.results.accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
 							{
-								"key": "Authorization",
-								"value": "{{consumerDelegateToken}}",
+								"key": "clientId",
+								"value": "{{providerDelegateClientId}}",
 								"type": "text",
-								"disabled": true
+								"description": "Client ID (UUID)"
 							},
 							{
-								"key": "Authorization",
-								"value": "{{consumerTokenForbidden}}",
+								"key": "clientSecret",
+								"value": "{{providerDelegateClientSecret}}",
+								"type": "text",
+								"description": "Client secret (40 chars in hexadecimal)"
+							},
+							{
+								"key": "delegationId",
+								"value": "{{providerDelegationId}}",
+								"description": "The delegation ID determines which user + role + resource server the token request is being made on behalf by the delegate.It's the ID of the delegation that you can get using the GET delegates API on the auth server.",
 								"type": "text"
 							}
 						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemId\": \"{{resourceServerUrl}}\",\n    \"itemType\": \"{{itemType}}\",\n    \"role\": \"{{delegateRole}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"raw": "{{authEndpoint}}{{authBasePath}}/token",
 							"host": [
-								"{{baseUrl}}{{basePath}}"
+								"{{authEndpoint}}{{authBasePath}}"
 							],
 							"path": [
-								"policies"
+								"token"
 							]
+						},
+						"description": "This API supplies the provider delegate token."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Provider Delegate token (For Forbidden condition)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"providerDelegateTokenForbidden\", jsonData.results.accessToken);"
+								],
+								"type": "text/javascript"
+							}
 						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "clientId",
+								"value": "{{providerDelegateClientId}}",
+								"type": "text",
+								"description": "Client ID (UUID)"
+							},
+							{
+								"key": "clientSecret",
+								"value": "{{providerDelegateClientSecret}}",
+								"type": "text",
+								"description": "Client secret (40 chars in hexadecimal)"
+							},
+							{
+								"key": "delegationId",
+								"value": "{{forbiddenProviderDelegationId}}",
+								"description": "The delegation ID determines which user + role + resource server the token request is being made on behalf by the delegate.It's the ID of the delegation that you can get using the GET delegates API on the auth server.",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemId\": \"{{rsUrlForForbiddenResponse}}\",\n    \"itemType\": \"{{itemType}}\",\n    \"role\": \"{{delegateRole}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{authEndpoint}}{{authBasePath}}/token",
+							"host": [
+								"{{authEndpoint}}{{authBasePath}}"
+							],
+							"path": [
+								"token"
+							]
+						},
+						"description": "This API supplies the provider delegate token."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Consumer Delegate token (via client-id, secret)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"consumerDelegateToken\", jsonData.results.accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "clientId",
+								"value": "{{consumerDelegateClientId}}",
+								"type": "text",
+								"description": "Client ID (UUID)"
+							},
+							{
+								"key": "clientSecret",
+								"value": "{{consumerDelegateClientSecret}}",
+								"type": "text",
+								"description": "Client secret (40 chars in hexadecimal)"
+							},
+							{
+								"key": "delegationId",
+								"value": "{{consumerDelegationId}}",
+								"description": "The delegation ID determines which user + role + resource server the token request is being made on behalf by the delegate.It's the ID of the delegation that you can get using the GET delegates API on the auth server.",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemId\": \"{{resourceServerUrl}}\",\n    \"itemType\": \"{{itemType}}\",\n    \"role\": \"{{delegateRole}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{authEndpoint}}{{authBasePath}}/token",
+							"host": [
+								"{{authEndpoint}}{{authBasePath}}"
+							],
+							"path": [
+								"token"
+							]
+						},
+						"description": "This API supplies the consumer delegate token."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Consumer Delegate token (For Forbidden response)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"consumerDelegateTokenForbidden\", jsonData.results.accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "clientId",
+								"value": "{{consumerDelegateClientId}}",
+								"type": "text",
+								"description": "Client ID (UUID)"
+							},
+							{
+								"key": "clientSecret",
+								"value": "{{consumerDelegateClientSecret}}",
+								"type": "text",
+								"description": "Client secret (40 chars in hexadecimal)"
+							},
+							{
+								"key": "delegationId",
+								"value": "{{forbiddenConsumerDelegationId}}",
+								"description": "The delegation ID determines which user + role + resource server the token request is being made on behalf by the delegate.It's the ID of the delegation that you can get using the GET delegates API on the auth server.",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemId\": \"{{rsUrlForForbiddenResponse}}\",\n    \"itemType\": \"{{itemType}}\",\n    \"role\": \"{{delegateRole}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{authEndpoint}}{{authBasePath}}/token",
+							"host": [
+								"{{authEndpoint}}{{authBasePath}}"
+							],
+							"path": [
+								"token"
+							]
+						},
+						"description": "This API supplies the consumer delegate token."
 					},
 					"response": []
 				}
-			]
+			],
+			"description": "The collection comprises APIs that provide the Identity Access Token, which is essential for executing Policy and Access Request APIs."
 		},
 		{
 			"name": "access request",
 			"item": [
 				{
-					"name": "200 Put Access Request: Success [Approve]",
+					"name": "Get Policy: Success (To get active policy)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 200 (OK)\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"const jsonResult = JSON.parse(responseBody).results",
+									"for(const props of jsonResult){",
+									"if(props.status=='ACTIVE')",
+									"    {",
+									"        console.log(props.policyId)",
+									"        postman.setEnvironmentVariable(\"policyId\", props.policyId);",
+									"        break",
 									"    }",
-									");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{providerToken}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerDelegateToken}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"requestId\": \"b6123b79-8cd1-4385-bb91-f4e2bb77ef99\",\n  \"status\": \"granted\",\n  \"expiryAt\": \"2024-03-05T20:00:19\",\n  \"constraints\": {\n    \"access\": [\n      \"api\",\n      \"sub\",\n      \"file\"\n    ]\n  }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies",
-								"requests"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "200 Put Access Request: Success [Reject]",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 200 (OK)\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
-									"    }",
-									");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{providerToken}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerDelegateToken}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"80e5f127-2446-406a-8ff2-cfe7be4ea422\",\n    \"status\": \"rejected\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies",
-								"requests"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "400 Put Access Request: Bad Request",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 400 (Bad Request)\", function () {",
-									"    pm.response.to.have.status(400);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:badRequest\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",
-									"    }",
-									");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{providerToken}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerDelegateToken}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"b6123b79-8cd1-4385-bb91-f4e2bb77ef99\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2020-03-05T20:00:19\",\n    \"constraints\": {\n        \"access\": [\n            \"api\",\n            \"sub\",\n            \"file\"\n        ]\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies",
-								"requests"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "401 Put Access Request: Unauthorized",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 401 (Not Authorized)\", function () {",
-									"    pm.response.to.have.status(401);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:invalidAuthorizationToken\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Not Authorized\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Not Authorized\");",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{consumerToken}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"d9e85db7-c4b7-4471-a95d-75b4e39f4b50\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies",
-								"requests"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "403 Put Access Request: Forbidden",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 403 (Forbidden)\", function () {",
-									"    pm.response.to.have.status(403);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:forbidden\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Forbidden\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Access Denied: You do not have ownership rights for this resource.\");",
-									"    }",
-									");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{providerToken}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerDelegateTokenForbidden}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"b6123b79-8cd1-4385-bb91-f4e2bb77ef99\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\n        \"access\": [\n            \"api\",\n            \"sub\",\n            \"file\"\n        ]\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies",
-								"requests"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "404 Put Access Request: Not Found",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 404 (Not Found)\", function () {",
-									"    pm.response.to.have.status(404);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:resourceNotFound\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Not Found\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Request could not be updated, as it is not found\");",
-									"    }",
-									");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{providerToken}}",
-								"type": "text"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"d9e86db7-c4b7-4471-a95d-75b4e39f4b51\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies",
-								"requests"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "409 Put Access Request: Conflict [Policy already created]",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 409 (Conflict)\", function () {",
-									"    pm.response.to.have.status(409);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:conflict\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Conflict\");",
-									"    }",
-									");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{providerToken}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerDelegateToken}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"requestId\": \"da5781d1-5479-4a93-a658-ee793362de1f\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies",
-								"requests"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "200 Get Access Request: Success",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
+									"}",
 									"// Test the response code",
 									"pm.test(\"response is 200 (OK)\", function () {",
 									"    pm.response.to.have.status(200);",
@@ -1608,130 +2162,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{providerToken}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerToken}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerDelegateToken}}",
-								"type": "text"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerDelegateToken}}",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies",
-								"requests"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "401 Get Access Request: Unauthorized",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 401 (Not Authorized)\", function () {",
-									"    pm.response.to.have.status(401);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:invalidAuthorizationToken\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Not Authorized\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Not Authorized\");",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{authToken}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies",
-								"requests"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "404 Get Access Request: Not Found",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 404 (Not Found)\", function () {",
-									"    pm.response.to.have.status(404);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:resourceNotFound\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Not Found\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Access request not found\");",
-									"    }",
-									");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{providerToken}}",
-								"type": "text",
-								"disabled": true
+								"value": "{{providerToken}}"
 							},
 							{
 								"key": "Authorization",
@@ -1750,28 +2181,23 @@
 								"value": "{{consumerDelegateToken}}",
 								"type": "text",
 								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerTokenForbidden}}",
-								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"raw": "{{baseUrl}}{{basePath}}/policies",
 							"host": [
 								"{{baseUrl}}{{basePath}}"
 							],
 							"path": [
-								"policies",
-								"requests"
+								"policies"
 							]
-						}
+						},
+						"description": "Users can use this API to retrieve a list of policies that have been previously created. It provides a way to view and access the details of existing policies in the system."
 					},
 					"response": []
 				},
 				{
-					"name": "200 Delete Access Request: Success",
+					"name": "Delete Policy : Success (To Delete ACTIVE policy)",
 					"event": [
 						{
 							"listen": "test",
@@ -1791,7 +2217,6 @@
 									"pm.test(\"Check response body\", function () {    ",
 									"    const body = pm.response.json();",
 									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
 									"    }",
 									");"
 								],
@@ -1799,238 +2224,48 @@
 							}
 						}
 					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
 					"request": {
 						"method": "DELETE",
 						"header": [
 							{
-								"key": "Authorization",
-								"value": "{{consumerToken}}",
-								"type": "text"
+								"key": "Content-Type",
+								"value": "application/json"
 							},
 							{
 								"key": "Authorization",
-								"value": "{{consumerDelegateToken}}",
+								"value": "{{providerToken}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
 								"type": "text",
 								"disabled": true
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"id\": \"da5781d1-5479-4a93-a658-ee793362de1f\"\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
+							"raw": "{\n\"id\": \"{{policyId}}\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"raw": "{{baseUrl}}{{basePath}}/policies",
 							"host": [
 								"{{baseUrl}}{{basePath}}"
 							],
 							"path": [
-								"policies",
-								"requests"
+								"policies"
 							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "400 Delete Access Request: Bad Request",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 400 (Bad Request)\", function () {",
-									"    pm.response.to.have.status(400);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:badRequest\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",
-									"    }",
-									");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{consumerToken}}",
-								"type": "text"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerDelegateToken}}",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\"id\": \"da5781d1-5479-4a93-a658-ee793362de1f\"\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
 						},
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies",
-								"requests"
-							]
-						}
+						"description": "With the Delete Policy API, users can remove policies that are no longer required."
 					},
 					"response": []
 				},
 				{
-					"name": "401 Delete Access Request: Unauthorized",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 401 (Not Authorized)\", function () {",
-									"    pm.response.to.have.status(401);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:invalidAuthorizationToken\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Not Authorized\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Not Authorized\");",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{providerToken}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\"id\": \"e9a329aa-352a-417e-82c0-0f68f08e0d13\"\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies",
-								"requests"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "404 Delete Access Request: Not Found",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 404 (Not Found)\", function () {",
-									"    pm.response.to.have.status(404);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:resourceNotFound\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Not Found\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Request could not be withdrawn, as it is not found\");",
-									"    }",
-									");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{consumerToken}}",
-								"type": "text"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerDelegateToken}}",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\"id\": \"e9a329aa-352a-417e-82c0-0f68f08e0d11\"\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies",
-								"requests"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "200 Create Access Request: Success",
+					"name": "200 Create Access Request for Delete: Success",
 					"event": [
 						{
 							"listen": "test",
@@ -2075,7 +2310,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"itemId\": \"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\n\"itemType\": \"RESOURCE_GROUP\"\n}",
+							"raw": "{\n\"itemId\": \"{{item_id}}\",\n\"itemType\": \"RESOURCE_GROUP\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2091,7 +2326,8 @@
 								"policies",
 								"requests"
 							]
-						}
+						},
+						"description": "This API allows users to create a new policy request. Users can submit their requests for specific policies using this endpoint."
 					},
 					"response": []
 				},
@@ -2333,7 +2569,1731 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"itemId\": \"83c2e5c2-3574-4e11-9530-2b1fbdfce832\",\n\"itemType\": \"RESOURCE\"\n}",
+							"raw": "{\n\"itemId\": \"{{item_id}}\",\n\"itemType\": \"RESOURCE_GROUP\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "200 Get Access Request: Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonResult = JSON.parse(responseBody).results",
+									"for(const props of jsonResult){",
+									"if(props.status=='PENDING')",
+									"    {",
+									"        console.log(props.requestId)",
+									"        postman.setEnvironmentVariable(\"requestId\", props.requestId);",
+									"        break;",
+									"    }",
+									"}",
+									"",
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						},
+						"description": "Users can utilize this API to retrieve a list of all the policy requests they have generated or retrieve a list of all the policy requests which are generated for them. It provides an overview of the existing requests."
+					},
+					"response": []
+				},
+				{
+					"name": "401 Get Access Request: Unauthorized",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 401 (Not Authorized)\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:invalidAuthorizationToken\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Not Authorized\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Not Authorized\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "sdfsfgsfg",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "404 Get Access Request: Not Found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 404 (Not Found)\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:resourceNotFound\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Not Found\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Access request not found, for the server : iudx-rs-onem2m.iiit.ac.in\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateTokenForbidden}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "200 Delete Access Request: Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"id\": \"{{requestId}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						},
+						"description": "With this API, users can delete a specific policy request they no longer need or wish to process."
+					},
+					"response": []
+				},
+				{
+					"name": "400 Delete Access Request: Bad Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 400 (Bad Request)\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:badRequest\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"id\": \"{{requestId}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "401 Delete Access Request: Unauthorized",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 401 (Not Authorized)\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:invalidAuthorizationToken\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Not Authorized\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Not Authorized\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"id\": \"e9a329aa-352a-417e-82c0-0f68f08e0d13\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "404 Delete Access Request: Not Found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 404 (Not Found)\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:resourceNotFound\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Not Found\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Request could not be withdrawn, as it is not found\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"id\": \"e9a329aa-352a-417e-82c0-0f68f08e0d11\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Access Request for Put",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"itemId\": \"{{item_id}}\",\n\"itemType\": \"RESOURCE_GROUP\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						},
+						"description": "This API allows users to create a new policy request. Users can submit their requests for specific policies using this endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Access Request for Put",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonResult = JSON.parse(responseBody).results",
+									"for(const props of jsonResult){",
+									"if(props.status=='PENDING')",
+									"    {",
+									"        console.log(props.requestId)",
+									"        postman.setEnvironmentVariable(\"requestId\", props.requestId);",
+									"        break;",
+									"    }",
+									"}",
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						},
+						"description": "Users can utilize this API to retrieve a list of all the policy requests they have generated or retrieve a list of all the policy requests which are generated for them. It provides an overview of the existing requests."
+					},
+					"response": []
+				},
+				{
+					"name": "200 Put Access Request: Success [Reject]",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestId\": \"{{requestId}}\",\n    \"status\": \"rejected\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Access Request for Put (For Rejecting the new request)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"itemId\": \"{{item_id}}\",\n\"itemType\": \"RESOURCE_GROUP\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						},
+						"description": "This API allows users to create a new policy request. Users can submit their requests for specific policies using this endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Access Request for Put (For Fetching the new request)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonResult = JSON.parse(responseBody).results",
+									"for(const props of jsonResult){",
+									"if(props.status=='PENDING')",
+									"    {",
+									"        console.log(props.requestId)",
+									"        postman.setEnvironmentVariable(\"requestId\", props.requestId);",
+									"        break;",
+									"    }",
+									"}",
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						},
+						"description": "Users can utilize this API to retrieve a list of all the policy requests they have generated or retrieve a list of all the policy requests which are generated for them. It provides an overview of the existing requests."
+					},
+					"response": []
+				},
+				{
+					"name": "403 Put Access Request: Forbidden",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 403 (Forbidden)\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:forbidden\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Forbidden\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Access Denied: You do not have ownership rights for this resource.\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateTokenForbidden}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestId\": \"{{requestId}}\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\n        \"access\": [\n            \"api\",\n            \"sub\",\n            \"file\"\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "200 Put Access Request: Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"requestId\": \"{{requestId}}\",\n  \"status\": \"granted\",\n  \"expiryAt\": \"3000-03-05T20:00:19\",\n  \"constraints\": {\n    \"access\": [\n      \"api\",\n      \"sub\",\n      \"file\"\n    ]\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						},
+						"description": "This API provides the capability to grant or reject policy requests. Users can use this endpoint to make decisions on the submitted requests, thereby managing policy access."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Access Request for Delete: Success (For 409 Update Notification response)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"itemId\": \"{{itemIdForVerify}}\",\n\"itemType\": \"RESOURCE\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						},
+						"description": "This API allows users to create a new policy request. Users can submit their requests for specific policies using this endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Access Request: Success (To get requestId for 409 Update Notification)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonResult = JSON.parse(responseBody).results",
+									"for(const props of jsonResult){",
+									"if(props.status=='PENDING')",
+									"    {",
+									"        console.log(props.requestId)",
+									"        postman.setEnvironmentVariable(\"requestId\", props.requestId);",
+									"        break;",
+									"    }",
+									"}",
+									"",
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						},
+						"description": "Users can utilize this API to retrieve a list of all the policy requests they have generated or retrieve a list of all the policy requests which are generated for them. It provides an overview of the existing requests."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Policy: Success (For 409 Update Notification Response)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"{{consumerEmailIdForVerifyPolicy}}\",\n      \"itemId\": \"{{itemIdForVerify}}\",\n      \"itemType\": \"RESOURCE\",\n      \"expiryTime\": \"3000-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						},
+						"description": "This API allows users to create new policies. Users can define and configure policies based on their specific requirements using this endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "409 Put Access Request: Conflict [Policy already created]",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"",
+									"// Test the response code",
+									"pm.test(\"response is 409 (Conflict)\", function () {",
+									"    pm.response.to.have.status(409);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:conflict\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Conflict\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestId\": \"{{requestId}}\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"3000-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Access Request: Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonResult = JSON.parse(responseBody).results",
+									"for(const props of jsonResult){",
+									"if(props.status=='PENDING')",
+									"    {",
+									"        console.log(props.requestId)",
+									"        postman.setEnvironmentVariable(\"requestId\", props.requestId);",
+									"        break;",
+									"    }",
+									"}",
+									"",
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						},
+						"description": "Users can utilize this API to retrieve a list of all the policy requests they have generated or retrieve a list of all the policy requests which are generated for them. It provides an overview of the existing requests."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Access Request: Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"id\": \"{{requestId}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						},
+						"description": "With this API, users can delete a specific policy request they no longer need or wish to process."
+					},
+					"response": []
+				},
+				{
+					"name": "200 Get Policy: Success (Get the policy ID to delete the verified policy)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonResult = JSON.parse(responseBody).results",
+									"for(const props of jsonResult){",
+									"if(props.status=='ACTIVE')",
+									"    {",
+									"        console.log(props.policyId)",
+									"        postman.setEnvironmentVariable(\"policyId\", props.policyId);",
+									"        break",
+									"    }",
+									"}",
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						},
+						"description": "Users can use this API to retrieve a list of policies that have been previously created. It provides a way to view and access the details of existing policies in the system."
+					},
+					"response": []
+				},
+				{
+					"name": "200 Delete Policy : Success (Delete the Successfully verified policy)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"id\": \"{{policyId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						},
+						"description": "With the Delete Policy API, users can remove policies that are no longer required."
+					},
+					"response": []
+				},
+				{
+					"name": "400 Put Access Request: Bad Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 400 (Bad Request)\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:badRequest\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Bad Request\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestId\": \"{{requestId}}\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2020-03-05T20:00:19\",\n    \"constraints\": {\n        \"access\": [\n            \"api\",\n            \"sub\",\n            \"file\"\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "401 Put Access Request: Unauthorized",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 401 (Not Authorized)\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:invalidAuthorizationToken\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Not Authorized\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Not Authorized\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestId\": \"d9e85db7-c4b7-4471-a95d-75b4e39f4b50\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "404 Put Access Request: Not Found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 404 (Not Found)\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:resourceNotFound\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Not Found\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Request could not be updated, as it is not found\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestId\": \"d9e86db7-c4b7-4471-a95d-75b4e39f4b51\",\n    \"status\": \"granted\",\n    \"expiryAt\": \"2024-03-05T20:00:19\",\n    \"constraints\": {\"access\": [\"api\",\"sub\",\"file\"]}\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2353,56 +4313,8 @@
 					},
 					"response": []
 				}
-			]
-		},
-		{
-			"name": "token",
-			"item": [
-				{
-					"name": "Get token (via client-id, secret)",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "clientId",
-								"value": "{{clientId}}",
-								"type": "text",
-								"description": "Client ID (UUID)"
-							},
-							{
-								"key": "clientSecret",
-								"value": "{{clientSecret}}",
-								"type": "text",
-								"description": "Client secret (40 chars in hexadecimal)"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"itemId\": \"\",\n    \"itemType\": \"\",\n    \"role\": \"\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{authEndpoint}}/auth/v1/token",
-							"host": [
-								"{{authEndpoint}}"
-							],
-							"path": [
-								"auth",
-								"v1",
-								"token"
-							]
-						}
-					},
-					"response": []
-				}
-			]
+			],
+			"description": "This collection enables users to initiate policy requests, retrieve a list of generated requests, remove policy requests, and offers functionality to either approve or reject these requests."
 		}
 	],
 	"event": [
