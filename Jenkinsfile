@@ -74,7 +74,7 @@ pipeline {
       steps{
         script{
           sh 'scp scp src/test/resources/IUDX-ACL-APD-APIs.postman_collection.json jenkins@jenkins-master:/var/lib/jenkins/iudx/acl-apd/Newman/'
-          sh 'mvn flyway:migrate -Dflyway.configFiles=/home/ubuntu/configs/acl-apd-flyway.conf'
+          sh 'mvn flyway:migrate -Dflyway.configFiles=/home/ubuntu/configs/5.5.0/acl-apd-flyway.conf'
           sh 'docker compose -f docker-compose.test.yml up -d integTest'
           sh 'sleep 45'
         }
@@ -82,7 +82,7 @@ pipeline {
       post{
         failure{
           script{
-            sh 'mvn flyway:clean -Dflyway.configFiles=/home/ubuntu/configs/acl-apd-flyway.conf'
+            sh 'mvn flyway:clean -Dflyway.configFiles=/home/ubuntu/configs/5.5.0/acl-apd-flyway.conf'
             sh 'docker compose -f docker-compose.test.yml down --remove-orphans'
           }
           cleanWs deleteDirs: true, disableDeferredWipeout: true
@@ -96,7 +96,7 @@ pipeline {
           script{
             startZap ([host: 'localhost', port: 8090, zapHome: '/var/lib/jenkins/tools/com.cloudbees.jenkins.plugins.customtools.CustomTool/OWASP_ZAP/ZAP_2.11.0'])
             sh 'curl http://127.0.0.1:8090/JSON/pscan/action/disableScanners/?ids=10096'
-            sh 'HTTP_PROXY=\'127.0.0.1:8090\' newman run /var/lib/jenkins/iudx/acl-apd/Newman/IUDX-ACL-APD.postman_collection.json -e /home/ubuntu/configs/acl-apd-postman-env.json --insecure -r htmlextra --reporter-htmlextra-export /var/lib/jenkins/iudx/acl-apd/Newman/report/report.html --reporter-htmlextra-skipSensitiveData'
+            sh 'HTTP_PROXY=\'127.0.0.1:8090\' newman run /var/lib/jenkins/iudx/acl-apd/Newman/IUDX-ACL-APD.postman_collection.json -e /home/ubuntu/configs/5.5.0/acl-apd-postman-env.json --insecure -r htmlextra --reporter-htmlextra-export /var/lib/jenkins/iudx/acl-apd/Newman/report/report.html --reporter-htmlextra-skipSensitiveData'
             runZapAttack()
           }
         }
@@ -115,14 +115,14 @@ pipeline {
         }
         cleanup{
           script{
-            sh 'mvn flyway:clean -Dflyway.configFiles=/home/ubuntu/configs/acl-apd-flyway.conf'
+            sh 'mvn flyway:clean -Dflyway.configFiles=/home/ubuntu/configs/5.5.0/acl-apd-flyway.conf'
             sh 'docker compose -f docker-compose.test.yml down --remove-orphans'
           } 
         }
       }
     }
     
-    stage('Continuous Deployment') {
+    stage('Push Images') {
       when {
         allOf {
           anyOf {
@@ -133,53 +133,25 @@ pipeline {
             triggeredBy cause: 'UserIdCause'
           }
           expression {
-            return env.GIT_BRANCH == 'origin/main';
+            return env.GIT_BRANCH == 'origin/1.0.1';
           }
         }
       }
-      stages {
-        stage('Push Images') {
-          steps {
-            script {
-              docker.withRegistry( registryUri, registryCredential ) {
-                devImage.push("5.5.0-alpha-${env.GIT_HASH}")
-                deplImage.push("5.5.0-alpha-${env.GIT_HASH}")
-              }
-            }
+      steps {
+        script {
+          docker.withRegistry( registryUri, registryCredential ) {
+            devImage.push("1.0.1-${env.GIT_HASH}")
+            deplImage.push("1.0.1-${env.GIT_HASH}")
           }
-        }
-        stage('Docker Swarm deployment') {
-          steps {
-            script {
-              sh "ssh azureuser@docker-swarm 'docker service update acl-apd_acl-apd --image ghcr.io/datakaveri/acl-apd-depl:5.5.0-alpha-${env.GIT_HASH}'"
-              sh 'sleep 40'
-              sh '''#!/bin/bash 
-                response_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 --retry 5 --retry-connrefused -XGET https://acl-apd.iudx.io/apis)
-                echo $response_code
-                if [[ "$response_code" -ne "200" ]]
-                then
-                  echo "Health check failed"
-                  exit 1
-                else
-                  echo "Health check complete; Server is up."
-                  exit 0
-                fi
-              '''
-            }
-          }
-          post{
-            failure{
-              error "Failed to deploy image in Docker Swarm"
-            }
-          }  
         }
       }
     }
+
   }
   post{
     failure{
       script{
-        if (env.GIT_BRANCH == 'origin/main')
+        if (env.GIT_BRANCH == 'origin/1.0.1')
         emailext recipientProviders: [buildUser(), developers()], to: '$AAA_RECIPIENTS, $DEFAULT_RECIPIENTS', subject: '$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!', body: '''$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
 Check console output at $BUILD_URL to view the results.'''
       }

@@ -298,6 +298,7 @@ public class TestDeletePolicy {
           }
         });
   }
+
   @Test
   @DisplayName("Fail: Test initiateDeletePolicy method for invalid resource server url")
   public void testInitiateDeletePolicy4InvalidResourceServerUrl(VertxTestContext vertxTestContext) {
@@ -324,21 +325,30 @@ public class TestDeletePolicy {
             "{}",
             LocalDateTime.of(2023, 1, 1, 1, 1, 1, 1),
             LocalDateTime.of(2024, 1, 1, 1, 1, 1, 1));
-    utility.executeQuery(tuple, INSERT_INTO_POLICY_TABLE);
-    deletePolicy
-        .initiateDeletePolicy(new JsonObject().put("id", policy), new User(jsonObject))
+    utility
+        .executeQuery(tuple, INSERT_INTO_POLICY_TABLE)
         .onComplete(
-            handler -> {
-              if (handler.succeeded()) {
-                vertxTestContext.failNow("Succeeded for previously deleted policy");
+            insertionHandler -> {
+              if (insertionHandler.succeeded()) {
+                deletePolicy
+                    .initiateDeletePolicy(new JsonObject().put("id", policy), new User(jsonObject))
+                    .onComplete(
+                        handler -> {
+                          if (handler.succeeded()) {
+                            vertxTestContext.failNow("Succeeded for previously deleted policy");
+                          } else {
+                            JsonObject result = new JsonObject(handler.cause().getMessage());
+                            assertEquals(403, result.getInteger(TYPE));
+                            assertEquals(
+                                ResponseUrn.FORBIDDEN_URN.getUrn(), result.getString(TITLE));
+                            assertEquals(
+                                "Access Denied: You do not have ownership rights for this policy.",
+                                result.getString(DETAIL));
+                            vertxTestContext.completeNow();
+                          }
+                        });
               } else {
-                JsonObject result = new JsonObject(handler.cause().getMessage());
-                assertEquals(403, result.getInteger(TYPE));
-                assertEquals(ResponseUrn.FORBIDDEN_URN.getUrn(), result.getString(TITLE));
-                assertEquals(
-                    "Access Denied: You do not have ownership rights for this policy.",
-                    result.getString(DETAIL));
-                vertxTestContext.completeNow();
+                vertxTestContext.failNow("Failed to insert");
               }
             });
   }
