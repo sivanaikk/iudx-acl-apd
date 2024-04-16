@@ -11,7 +11,7 @@ services:
       - /home/ubuntu/configs/5.5.0/apd-config-test.json:/usr/share/app/secrets/all-verticles-configs/5.5.0/config-dev.json
       - /home/ubuntu/configs/5.5.0/keystore-file.jks:/usr/share/app/secrets/keystore-file.jks
       - ./docker/runTests.sh:/usr/share/app/docker/runTests.sh
-      - ./example-configs/5.5.0/:/usr/share/app/example-configs
+      - ./example-configs/:/usr/share/app/example-configs
       - ./src/:/usr/share/app/src
       - ${WORKSPACE}:/tmp/test
       - $PWD:$PWD -w $PWD
