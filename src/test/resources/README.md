@@ -6,7 +6,5 @@
 - To know more about Postman environments, refer : [postman environments](https://learning.postman.com/docs/sending-requests/managing-environments/)
 - The **CURRENT VALUE** of the variable could be changed
 
-### While running the integration tests manually
-- The policies that are `ACTIVE` could be deleted using the GET /policies and DELETE /policies API
-so that the access requests would not throw 4xx response
+
 
