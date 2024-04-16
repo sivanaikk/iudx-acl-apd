@@ -73,7 +73,7 @@ pipeline {
     stage('Start acl-apd-Server for Integration Testing'){
       steps{
         script{
-          sh 'scp src/main/resources/IUDX-ACL-APD.postman_collection.json jenkins@jenkins-master:/var/lib/jenkins/iudx/acl-apd/Newman/'
+          sh 'scp src/main/resources/IUDX-ACL-APD-APIs.postman_collection.json jenkins@jenkins-master:/var/lib/jenkins/iudx/acl-apd/Newman/'
           sh 'mvn flyway:migrate -Dflyway.configFiles=/home/ubuntu/configs/5.5.0/acl-apd-flyway.conf'
           sh 'docker compose -f docker-compose.test.yml up -d integTest'
           sh 'sleep 45'
@@ -96,7 +96,7 @@ pipeline {
           script{
             startZap ([host: 'localhost', port: 8090, zapHome: '/var/lib/jenkins/tools/com.cloudbees.jenkins.plugins.customtools.CustomTool/OWASP_ZAP/ZAP_2.11.0'])
             sh 'curl http://127.0.0.1:8090/JSON/pscan/action/disableScanners/?ids=10096'
-            sh 'HTTP_PROXY=\'127.0.0.1:8090\' newman run /var/lib/jenkins/iudx/acl-apd/Newman/IUDX-ACL-APD.postman_collection.json -e /home/ubuntu/configs/5.5.0/acl-apd-postman-env.json --insecure -r htmlextra --reporter-htmlextra-export /var/lib/jenkins/iudx/acl-apd/Newman/report/report.html --reporter-htmlextra-skipSensitiveData'
+            sh 'HTTP_PROXY=\'127.0.0.1:8090\' newman run /var/lib/jenkins/iudx/acl-apd/Newman/IUDX-ACL-APD-APIs.postman_collection.json -e /home/ubuntu/configs/5.5.0/acl-apd-postman-env.json --insecure -r htmlextra --reporter-htmlextra-export /var/lib/jenkins/iudx/acl-apd/Newman/report/report.html --reporter-htmlextra-skipSensitiveData'
             runZapAttack()
           }
         }
