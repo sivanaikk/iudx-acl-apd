@@ -96,6 +96,6 @@ ACL-APD user could have write permission as it publishes audit data
 ## Setting up Auditing for DX ACL-APD Server
 
 - Auditing is done using Immudb and Postgres DB
-- To Setup immuclient for immudb please refere [here](link-to-iudx-deployment-repo-to-setup-immuclient) #TODO
+- To Setup immuclient for immudb please refer [here](https://github.com/datakaveri/iudx-deployment/tree/master/docs/immudb-setup) 
 - Schema for PostgreSQL table is present [here](https://github.com/datakaveri/iudx-resource-server/blob/master/src/main/resources/db/migration/V5_2__create-auditing-acl-apd-table.sql)
-- Schema for Immudb table, index for the table is present [here](link-to-iudx-auditing-server-repo-immudb-schema-sql-file) #TODO
+- Schema for Immudb table, index for the table is present [here](https://github.com/datakaveri/auditing-server/tree/main/src/main/resources/immudb/migration)

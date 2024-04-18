@@ -624,8 +624,24 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"var jsonData = JSON.parse(responseBody);",
-									"postman.setEnvironmentVariable(\"consumerToken\", jsonData.results.accessToken);"
+									"const isPipelineForDev = pm.environment.get('isIntegrationTestBeingRunInCiPipelineForDev') == 'true';",
+									"// Test the response code",
+									"(isPipelineForDev ? pm.test.skip : pm.test)(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"(isPipelineForDev ? pm.test.skip : pm.test)(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"(isPipelineForDev ? pm.test.skip : pm.test)(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:as:Success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Token created\");",
+									"    }",
+									");"
 								],
 								"type": "text/javascript"
 							}
@@ -2119,151 +2135,6 @@
 		{
 			"name": "access request",
 			"item": [
-				{
-					"name": "Get Policy: Success (To get active policy)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const jsonResult = JSON.parse(responseBody).results",
-									"for(const props of jsonResult){",
-									"if(props.status=='ACTIVE')",
-									"    {",
-									"        console.log(props.policyId)",
-									"        postman.setEnvironmentVariable(\"policyId\", props.policyId);",
-									"        break",
-									"    }",
-									"}",
-									"// Test the response code",
-									"pm.test(\"response is 200 (OK)\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
-									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
-									"    }",
-									");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{providerToken}}"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerToken}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{consumerDelegateToken}}",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies"
-							]
-						},
-						"description": "Users can use this API to retrieve a list of policies that have been previously created. It provides a way to view and access the details of existing policies in the system."
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Policy : Success (To Delete ACTIVE policy)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Test the response code",
-									"pm.test(\"response is 200 (OK)\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"// Test the response header",
-									"pm.test(\"Check response header\", function () {",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
-									"});",
-									"",
-									"// Test the response",
-									"pm.test(\"Check response body\", function () {    ",
-									"    const body = pm.response.json();",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
-									"    }",
-									");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disabledSystemHeaders": {
-							"content-type": true
-						}
-					},
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerToken}}"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{providerDelegateToken}}",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\"id\": \"{{policyId}}\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}{{basePath}}/policies",
-							"host": [
-								"{{baseUrl}}{{basePath}}"
-							],
-							"path": [
-								"policies"
-							]
-						},
-						"description": "With the Delete Policy API, users can remove policies that are no longer required."
-					},
-					"response": []
-				},
 				{
 					"name": "200 Create Access Request for Delete: Success",
 					"event": [
@@ -4310,6 +4181,151 @@
 								"requests"
 							]
 						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Policy: Success (Get the policy ID to delete the verified policy)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonResult = JSON.parse(responseBody).results",
+									"for(const props of jsonResult){",
+									"if(props.status=='ACTIVE')",
+									"    {",
+									"        console.log(props.policyId)",
+									"        postman.setEnvironmentVariable(\"policyId\", props.policyId);",
+									"        break",
+									"    }",
+									"}",
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						},
+						"description": "Users can use this API to retrieve a list of policies that have been previously created. It provides a way to view and access the details of existing policies in the system."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Policy : Success (Delete the Successfully verified policy)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"id\": \"{{policyId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						},
+						"description": "With the Delete Policy API, users can remove policies that are no longer required."
 					},
 					"response": []
 				}
