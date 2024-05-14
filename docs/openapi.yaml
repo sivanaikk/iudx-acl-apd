@@ -14,7 +14,7 @@ info:
     name: For support contact IUDX Team at
     email: support@iudx.org.in
   license:
-    name: MIT
+    name: Apache 2.0
 
 tags:
   - name: Policies
