@@ -176,7 +176,7 @@ public class TestCreatePolicy {
     List<ResourceObj> resourceObjList = new ArrayList<>();
 
     ResourceObj resourceObj =
-        new ResourceObj(mockResourceId, utility.getOwnerId(), null, "rs.iudx.io", false, "acl-apd.iudx.io");
+        new ResourceObj(mockResourceId, utility.getOwnerId(), null, "rs.iudx.io", false);
     resourceObjList.add(resourceObj);
     when(catalogueClient.fetchItems(mockUUIDList))
         .thenReturn(Future.succeededFuture(resourceObjList));

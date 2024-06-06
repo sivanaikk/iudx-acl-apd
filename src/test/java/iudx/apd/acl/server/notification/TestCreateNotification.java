@@ -123,7 +123,7 @@ public class TestCreateNotification {
     when(emailNotification.sendEmail(any(User.class), any(User.class), anyString(), anyString()))
         .thenReturn(Future.succeededFuture(true));
     createNotification =
-        new CreateNotification(pgService, catClient, emailNotification, authClient, "acl-apd.iudx.io");
+        new CreateNotification(pgService, catClient, emailNotification, authClient);
     when(catClient.fetchItems(any())).thenReturn(resourceInfo);
 
     AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
@@ -159,7 +159,6 @@ public class TestCreateNotification {
     when(resourceObj.getResourceGroupId()).thenReturn(UUID.randomUUID());
     when(resourceObj.getProviderId()).thenReturn(utility.getOwnerId());
     when(resourceObj.getItemType()).thenReturn(ItemType.RESOURCE);
-    when(resourceObj.getApdUrl()).thenReturn("acl-apd.iudx.io");
     createNotification
         .initiateCreateNotification(notification, consumer)
         .onComplete(
@@ -192,55 +191,6 @@ public class TestCreateNotification {
             });
   }
 
-    @Test
-    @DisplayName("Test initiateCreateNotification when apdURL of the resource is different than the current APD URL: Failure")
-    public void testInitiateCreateNotificationWithApdUrlMismatch(VertxTestContext vertxTestContext) {
-        catClient = mock(CatalogueClient.class);
-        EmailNotification emailNotification = mock(EmailNotification.class);
-        List<ResourceObj> resourceObjList = mock(List.class);
-        authClient = mock(AuthClient.class);
-
-        createNotification =
-                new CreateNotification(pgService, catClient, emailNotification, authClient, "acl-apd.iudx.io");
-        when(catClient.fetchItems(any())).thenReturn(resourceInfo);
-
-        AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
-
-        AsyncResult<User> authHandler = mock(AsyncResult.class);
-        doAnswer(
-                new Answer<AsyncResult<List<ResourceObj>>>() {
-                    @Override
-                    public AsyncResult<List<ResourceObj>> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<List<ResourceObj>>>) arg0.getArgument(0)).handle(asyncResult);
-                        return null;
-                    }
-                })
-                .when(resourceInfo)
-                .onComplete(any());
-        when(asyncResult.succeeded()).thenReturn(true);
-        when(asyncResult.result()).thenReturn(resourceObjList);
-        when(resourceObjList.get(anyInt())).thenReturn(resourceObj);
-        when(resourceObj.getResourceServerUrl()).thenReturn("rs.iudx.io");
-        when(resourceObj.getResourceGroupId()).thenReturn(UUID.randomUUID());
-        when(resourceObj.getProviderId()).thenReturn(utility.getOwnerId());
-        when(resourceObj.getApdUrl()).thenReturn("dmp-apd.iudx.io");
-        createNotification
-                .initiateCreateNotification(notification, consumer)
-                .onComplete(
-                        handler -> {
-                            if (handler.failed()) {
-                                JsonObject failureJson = new JsonObject(handler.cause().getMessage());
-                               assertEquals(HttpStatusCode.FORBIDDEN.getValue(), failureJson.getInteger(TYPE));
-                               assertEquals(FORBIDDEN_URN.getUrn(), failureJson.getString(TITLE));
-                               assertEquals("Access request could not be created, as resource belongs to a different APD",
-                                       failureJson.getString(DETAIL));
-                               vertxTestContext.completeNow();
-                            } else {
-                                vertxTestContext.failNow("Succeeded when APD URLs are not same");
-                            }
-                        });
-    }
-
   @Test
   @DisplayName("Test initiateCreateNotification when provider information could not be fetched")
   public void testInitiateCreateNotificationWithAuthFailure(VertxTestContext vertxTestContext) {
@@ -250,7 +200,7 @@ public class TestCreateNotification {
     List<ResourceObj> resourceObjList = mock(List.class);
 
     createNotification =
-        new CreateNotification(pgService, catClient, emailNotification, authClient, "acl-apd.iudx.io");
+        new CreateNotification(pgService, catClient, emailNotification, authClient);
     when(catClient.fetchItems(any())).thenReturn(resourceInfo);
     when(authClient.fetchUserInfo(any())).thenReturn(userFuture);
 
@@ -286,7 +236,6 @@ public class TestCreateNotification {
     when(resourceObj.getResourceServerUrl()).thenReturn("rs.iudx.io");
     when(resourceObj.getResourceGroupId()).thenReturn(UUID.randomUUID());
     when(resourceObj.getProviderId()).thenReturn(utility.getOwnerId());
-    when(resourceObj.getApdUrl()).thenReturn("acl-apd.iudx.io");
     createNotification
         .initiateCreateNotification(notification, consumer)
         .onComplete(
@@ -315,7 +264,7 @@ public class TestCreateNotification {
     EmailNotification emailNotification = mock(EmailNotification.class);
     List<ResourceObj> resourceObjList = mock(List.class);
     createNotification =
-        new CreateNotification(pgService, catClient, emailNotification, authClient, "acl-apd.iudx.io");
+        new CreateNotification(pgService, catClient, emailNotification, authClient);
     when(catClient.fetchItems(any())).thenReturn(resourceInfo);
     AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
     doAnswer(
@@ -335,7 +284,6 @@ public class TestCreateNotification {
     when(resourceObj.getResourceServerUrl()).thenReturn("rs.adex.io");
     when(resourceObj.getResourceGroupId()).thenReturn(UUID.randomUUID());
     when(resourceObj.getProviderId()).thenReturn(utility.getOwnerId());
-    when(resourceObj.getApdUrl()).thenReturn("acl-apd.iudx.io");
     createNotification
         .initiateCreateNotification(notification, consumer)
         .onComplete(
@@ -367,7 +315,7 @@ public class TestCreateNotification {
         EmailNotification emailNotification = mock(EmailNotification.class);
         List<ResourceObj> resourceObjList = mock(List.class);
         createNotification =
-                new CreateNotification(pgService, catClient, emailNotification, authClient, "acl-apd.iudx.io");
+                new CreateNotification(pgService, catClient, emailNotification, authClient);
         when(catClient.fetchItems(any())).thenReturn(resourceInfo);
         AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
         doAnswer(
@@ -387,7 +335,6 @@ public class TestCreateNotification {
         when(resourceObj.getResourceServerUrl()).thenReturn("rs.iudx.io");
         when(resourceObj.getResourceGroupId()).thenReturn(UUID.randomUUID());
         when(resourceObj.getProviderId()).thenReturn(utility.getOwnerId());
-        when(resourceObj.getApdUrl()).thenReturn("acl-apd.iudx.io");
         createNotification
                 .initiateCreateNotification(notification, consumer)
                 .onComplete(
@@ -474,7 +421,6 @@ public class TestCreateNotification {
     when(resourceObj.getProviderId()).thenReturn(utility.getOwnerId());
     when(resourceObj.getItemType()).thenReturn(ItemType.RESOURCE);
     when(resourceObj.getResourceServerUrl()).thenReturn("rs.iudx.io");
-    when(resourceObj.getApdUrl()).thenReturn("acl-apd.iudx.io");
     JsonObject notification =
         new JsonObject().put("itemId", resourceId).put("itemType", TYPE_RESOURCE);
 
@@ -493,7 +439,7 @@ public class TestCreateNotification {
 
                             CreateNotification createNotification =
                                 new CreateNotification(
-                                    pgService, catClient, emailNotification, authClient, "acl-apd.iudx.io");
+                                    pgService, catClient, emailNotification, authClient);
                             createNotification
                                 .initiateCreateNotification(notification, consumer)
                                 .onComplete(
@@ -538,7 +484,7 @@ public class TestCreateNotification {
     UUID itemIdValue = UUID.randomUUID();
 
     createNotification =
-        new CreateNotification(pgService, catClient, emailNotification, authClient, "acl-apd.iudx.io");
+        new CreateNotification(pgService, catClient, emailNotification, authClient);
     when(catClient.fetchItems(any())).thenReturn(resourceInfo);
     JsonObject notification =
         new JsonObject().put("itemId", itemIdValue).put("itemType", ItemType.RESOURCE_GROUP);
@@ -575,7 +521,6 @@ public class TestCreateNotification {
     when(resourceObj.getProviderId()).thenReturn(utility.getOwnerId());
     when(resourceObj.getItemType()).thenReturn(ItemType.RESOURCE_GROUP);
     when(resourceObj.getResourceServerUrl()).thenReturn("rs.iudx.io");
-    when(resourceObj.getApdUrl()).thenReturn("acl-apd.iudx.io");
     createNotification
         .initiateCreateNotification(notification, consumer)
         .onComplete(
@@ -622,7 +567,7 @@ public class TestCreateNotification {
     EmailNotification emailNotification = mock(EmailNotification.class);
     authClient = mock(AuthClient.class);
     createNotification =
-        new CreateNotification(pgService, catClient, emailNotification, authClient,"acl-apd.iudx.io");
+        new CreateNotification(pgService, catClient, emailNotification, authClient);
     when(catClient.fetchItems(any())).thenReturn(resourceInfo);
 
     AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
@@ -668,7 +613,7 @@ public class TestCreateNotification {
     EmailNotification emailNotification = mock(EmailNotification.class);
     authClient = mock(AuthClient.class);
     createNotification =
-        new CreateNotification(pgService, catClient, emailNotification, authClient, "acl-apd.iudx.io");
+        new CreateNotification(pgService, catClient, emailNotification, authClient);
     when(catClient.fetchItems(any())).thenReturn(resourceInfo);
 
     AsyncResult<List<ResourceObj>> asyncResult = mock(AsyncResult.class);
@@ -715,7 +660,7 @@ public class TestCreateNotification {
     when(postgresService.getPool()).thenReturn(pool);
     when(pool.withConnection(any())).thenReturn(Future.failedFuture("Something went wrong :("));
     CreateNotification createNotification =
-        new CreateNotification(postgresService, catalogueClient, emailNotification, authClient, "acl-apd.iudx.io");
+        new CreateNotification(postgresService, catalogueClient, emailNotification, authClient);
 
     createNotification
         .createNotification(CREATE_NOTIFICATION_QUERY, resourceId, consumer, utility.getOwnerId())
@@ -743,7 +688,7 @@ public class TestCreateNotification {
     when(postgresService.getPool()).thenReturn(pool);
     when(pool.withConnection(any())).thenReturn(Future.succeededFuture(List.of()));
     CreateNotification createNotification =
-        new CreateNotification(postgresService, catalogueClient, emailNotification, authClient, "acl-apd.iudx.io");
+        new CreateNotification(postgresService, catalogueClient, emailNotification, authClient);
 
     createNotification
         .createNotification(CREATE_NOTIFICATION_QUERY, resourceId, consumer, utility.getOwnerId())

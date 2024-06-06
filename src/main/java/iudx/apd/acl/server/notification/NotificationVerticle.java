@@ -1,6 +1,5 @@
 package iudx.apd.acl.server.notification;
 
-import static iudx.apd.acl.server.apiserver.util.Constants.APD_URL;
 import static iudx.apd.acl.server.common.Constants.NOTIFICATION_SERVICE_ADDRESS;
 
 import io.vertx.core.AbstractVerticle;
@@ -37,9 +36,8 @@ public class NotificationVerticle extends AbstractVerticle {
     authClient = new AuthClient(config(), webClient);
 
     emailNotification = new EmailNotification(vertx, config(), getDelegateEmailIds);
-    String apdURL = config().getString(APD_URL);
     createNotification =
-        new CreateNotification(postgresService, catalogueClient, emailNotification, authClient, apdURL);
+        new CreateNotification(postgresService, catalogueClient, emailNotification, authClient);
     deleteNotification = new DeleteNotification(postgresService);
     updateNotification = new UpdateNotification(postgresService);
     getNotification = new GetNotification(postgresService);

@@ -107,7 +107,6 @@ public class Constants {
   public static final String KEY_RESOURCE_SERVER_URL = "resourceServerURL";
   public static final String RS_URL = "resourceServerRegURL";
   public static final String RESOURCE_SERVER_TAG = "iudx:ResourceServer";
-  public static final String RESOURCE_ITEM_TAG = "iudx:Resource";
 
   public static final String FIRST_NAME = "firstName";
   public static final String LAST_NAME = "lastName";
@@ -115,6 +114,5 @@ public class Constants {
   public static final String RS_SERVER_URL = "resourceServerUrl";
   public static final String USER_ROLE = "userRole";
 
-  public static final String APD_URL = "apdURL";
 
 }
