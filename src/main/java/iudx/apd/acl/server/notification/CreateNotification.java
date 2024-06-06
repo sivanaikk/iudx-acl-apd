@@ -57,16 +57,19 @@ public class CreateNotification {
   private String resourceServerUrl;
   private AuthClient authClient;
   private String consumerRsUrl;
+  private String apdUrl;
 
   public CreateNotification(
       PostgresService postgresService,
       CatalogueClient catalogueClient,
       EmailNotification emailNotification,
-      AuthClient authClient) {
+      AuthClient authClient,
+      String apdUrl) {
     this.postgresService = postgresService;
     this.catalogueClient = catalogueClient;
     this.emailNotification = emailNotification;
     this.authClient = authClient;
+    this.apdUrl = apdUrl;
   }
 
   /**
@@ -379,72 +382,89 @@ public class CreateNotification {
                 final UUID ownerId = result.getProviderId();
                 UUID resourceGroupIdValue = result.getResourceGroupId();
                 String url = result.getResourceServerUrl();
+                boolean isApdUrlTheSame = result.getApdUrl().equals(apdUrl);
+                boolean isItemOnResourceLevel = !result.getIsGroupLevelResource();
+                if (isItemOnResourceLevel && isApdUrlTheSame) {
+                  boolean isItemTypeMatching = itemType.equals(result.getItemType().toString());
+                  if (isItemTypeMatching) {
+                    setResourceType(result.getItemType());
+                    /* set provider id, resourceGroupId, resourceType, resource server url */
+                    setResourceServerUrl(url);
+                    /* set provider id, resourceGroupId, resourceType */
+                    setResourceGroupId(resourceGroupIdValue);
 
-                boolean isItemTypeMatching = itemType.equals(result.getItemType().toString());
-                if (isItemTypeMatching) {
-                  setResourceType(result.getItemType());
-                  /* set provider id, resourceGroupId, resourceType, resource server url */
-                  setResourceServerUrl(url);
-                  /* set provider id, resourceGroupId, resourceType */
-                  setResourceGroupId(resourceGroupIdValue);
+                    /* get information about the provider of the resource from Auth*/
+                    JsonObject provider =
+                        new JsonObject()
+                            .put(USER_ID, ownerId)
+                            .put(ROLE, "provider")
+                            .put(AUD, url)
+                            .put(IS_DELEGATE, false);
 
-                  /* get information about the provider of the resource from Auth*/
-                  JsonObject provider =
-                      new JsonObject()
-                          .put(USER_ID, ownerId)
-                          .put(ROLE, "provider")
-                          .put(AUD, url)
-                          .put(IS_DELEGATE, false);
-
-                  /* check if the resource server url of the user matches with the resource */
-                  boolean isConsumerBelongingToSameServerAsItem = url.equals(getConsumerRsUrl());
-                  if (isConsumerBelongingToSameServerAsItem) {
-                    authClient
-                        .fetchUserInfo(provider)
-                        .onComplete(
-                            authHandler -> {
-                              if (authHandler.succeeded()) {
-                                User providerInfo = authHandler.result();
-                                setProviderInfo(providerInfo);
-                                promise.complete(true);
-                              } else {
-                                LOG.debug(
-                                    "Something went wrong while fetching provider information from Auth {}",
-                                    authHandler.cause().getMessage());
-                                JsonObject failureMessage =
-                                    new JsonObject()
-                                        .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
-                                        .put(TITLE, ResponseUrn.INTERNAL_SERVER_ERROR.getUrn())
-                                        .put(DETAIL, FAILURE_MESSAGE);
-                                promise.fail(failureMessage.encode());
-                              }
-                            });
+                    /* check if the resource server url of the user matches with the resource */
+                    boolean isConsumerBelongingToSameServerAsItem = url.equals(getConsumerRsUrl());
+                    if (isConsumerBelongingToSameServerAsItem) {
+                      authClient
+                          .fetchUserInfo(provider)
+                          .onComplete(
+                              authHandler -> {
+                                if (authHandler.succeeded()) {
+                                  User providerInfo = authHandler.result();
+                                  setProviderInfo(providerInfo);
+                                  promise.complete(true);
+                                } else {
+                                  LOG.debug(
+                                      "Something went wrong while fetching provider information from Auth {}",
+                                      authHandler.cause().getMessage());
+                                  JsonObject failureMessage =
+                                      new JsonObject()
+                                          .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
+                                          .put(TITLE, ResponseUrn.INTERNAL_SERVER_ERROR.getUrn())
+                                          .put(DETAIL, FAILURE_MESSAGE);
+                                  promise.fail(failureMessage.encode());
+                                }
+                              });
+                    } else {
+                      LOG.debug(
+                          "user does not have access to create notification as they're belonging "
+                              + "to a different server w.r.t to the resource");
+                      JsonObject failureMessage =
+                          new JsonObject()
+                              .put(TYPE, HttpStatusCode.NOT_FOUND.getValue())
+                              .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
+                              .put(
+                                  DETAIL,
+                                  "Access request could not be created, as resource was not found");
+                      promise.fail(failureMessage.encode());
+                    }
                   } else {
+                    /*item type in the request body does not match the item type from the catalogue*/
                     LOG.debug(
-                        "user does not have access to create notification as they're belonging "
-                            + "to a different server w.r.t to the resource");
+                        "Item type in the request body is {} and item type from catalogue is {}",
+                        itemType,
+                        result.getItemType().toString());
                     JsonObject failureMessage =
                         new JsonObject()
-                            .put(TYPE, HttpStatusCode.NOT_FOUND.getValue())
-                            .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
-                            .put(
-                                DETAIL,
-                                "Access request could not be created, as resource was not found");
+                            .put(TYPE, BAD_REQUEST.getValue())
+                            .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getUrn())
+                            .put(DETAIL, FAILURE_MESSAGE + ", as the item type is invalid");
                     promise.fail(failureMessage.encode());
                   }
                 } else {
-                  /*item type in the request body does not match the item type from the catalogue*/
-                  LOG.debug(
-                      "Item type in the request body is {} and item type from catalogue is {}",
-                      itemType,
-                      result.getItemType().toString());
+                  LOG.error(
+                      "The APD URL of the resource is : {}, and the APD URL of the current APD is {}",
+                      result.getApdUrl(),
+                      apdUrl);
                   JsonObject failureMessage =
                       new JsonObject()
-                          .put(TYPE, BAD_REQUEST.getValue())
-                          .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getUrn())
-                          .put(DETAIL, FAILURE_MESSAGE + ", as the item type is invalid");
+                          .put(TYPE, HttpStatusCode.FORBIDDEN.getValue())
+                          .put(TITLE, ResponseUrn.FORBIDDEN_URN.getUrn())
+                          .put(
+                              DETAIL,
+                              "Access request could not be created, as resource belongs to a different APD");
                   promise.fail(failureMessage.encode());
                 }
+
               } else {
                 if (handler.cause().getMessage().equalsIgnoreCase("Item is not found")
                     || handler

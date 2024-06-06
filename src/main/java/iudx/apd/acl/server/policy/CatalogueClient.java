@@ -71,6 +71,7 @@ public class CatalogueClient implements CatalogueClientInterface {
                   boolean isProviderId = false;
                   boolean isResourceServerId = false;
                   boolean isInvalidId = false;
+                  String apdUrl = "";
 
                   for (JsonObject resultJson : resultJsonList) {
                     String type = resultJson.getString(TYPE);
@@ -99,6 +100,9 @@ public class CatalogueClient implements CatalogueClientInterface {
                       provider = UUID.fromString(resultJson.getString(OWNER_ID));
                     } else if (typeArray.contains(RESOURCE_TAG)) {
                       resServerUrl = resultJson.getString(RS_URL);
+                    } else if (typeArray.contains(RESOURCE_ITEM_TAG))
+                    {
+                      apdUrl = resultJson.getString(APD_URL);
                     }
                   }
                   boolean isInfoFromCatInvalid =
@@ -127,7 +131,7 @@ public class CatalogueClient implements CatalogueClientInterface {
                   } else {
                     ResourceObj resourceObj =
                         new ResourceObj(
-                            id, provider, resourceGroup, resServerUrl, isItemGroupLevelResource);
+                            id, provider, resourceGroup, resServerUrl, isItemGroupLevelResource, apdUrl);
                     resourceObjList.add(resourceObj);
                     promise.complete(resourceObjList);
                   }

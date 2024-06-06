@@ -161,7 +161,7 @@ public class TestVerifyPolicy {
             utility.getOwnerId(),
             utility.getResourceId(),
             "resourceServerURL",
-            false);
+            false, "acl-apd.iudx.io");
     resourceObjList.add(resourceObj);
     when(catalogueClient.fetchItems(mockUUIDList))
         .thenReturn(Future.succeededFuture(resourceObjList));
@@ -233,7 +233,7 @@ public class TestVerifyPolicy {
             utility.getOwnerId(),
             Utility.generateRandomUuid(),
             Utility.generateRandomUrl(),
-            false);
+            false, "acl-apd.iudx.io");
     resourceObjList.add(resourceObj);
 
     when(catalogueClient.fetchItems(mockUUIDList))

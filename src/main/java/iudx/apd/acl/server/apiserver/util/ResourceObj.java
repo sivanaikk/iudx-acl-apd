@@ -15,6 +15,7 @@ public class ResourceObj {
   private final String resourceServerUrl;
   private final ItemType itemType;
   private final boolean isGroupLevelResource;
+  private final String apdUrl;
 
   /**
    * Constructs a new ResourceObj with the given item ID, provider ID, and resource group ID. If the
@@ -32,13 +33,15 @@ public class ResourceObj {
       UUID providerId,
       UUID resourceGroupId,
       String resourceServerUrl,
-      boolean isGroupLevelResource) {
+      boolean isGroupLevelResource,
+      String apdUrl) {
     this.itemId = itemId;
     this.providerId = providerId;
     this.resourceGroupId = isGroupLevelResource ? null : resourceGroupId;
     this.resourceServerUrl = resourceServerUrl;
     this.isGroupLevelResource = isGroupLevelResource;
     this.itemType = isGroupLevelResource ? ItemType.RESOURCE_GROUP : ItemType.RESOURCE;
+    this.apdUrl = apdUrl;
   }
 
   /**
@@ -96,23 +99,21 @@ public class ResourceObj {
     return isGroupLevelResource;
   }
 
+  /**
+   * get APD URL under which the resource is registered
+   * */
+  public String getApdUrl(){return apdUrl;}
+
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof ResourceObj)) {
-      return false;
-    }
-    ResourceObj that = (ResourceObj) o;
-    return Objects.equals(itemId, that.itemId)
-        && Objects.equals(providerId, that.providerId)
-        && Objects.equals(resourceGroupId, that.resourceGroupId)
-        && Objects.equals(resourceServerUrl, that.resourceServerUrl);
+  public boolean equals(Object object) {
+    if (this == object) return true;
+    if (!(object instanceof ResourceObj)) return false;
+    ResourceObj that = (ResourceObj) object;
+    return isGroupLevelResource == that.isGroupLevelResource && Objects.equals(itemId, that.itemId) && Objects.equals(providerId, that.providerId) && Objects.equals(resourceGroupId, that.resourceGroupId) && Objects.equals(resourceServerUrl, that.resourceServerUrl) && itemType == that.itemType && Objects.equals(apdUrl, that.apdUrl);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(itemId, providerId, resourceGroupId, resourceServerUrl);
+    return Objects.hash(itemId, providerId, resourceGroupId, resourceServerUrl, itemType, isGroupLevelResource, apdUrl);
   }
 }
