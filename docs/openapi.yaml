@@ -1188,7 +1188,7 @@ components:
       example:
         type: urn:dx:acl:forbidden
         title: Forbidden
-        detail: Resource is forbidden to access, as the APD URL for the resource is different than the current APD
+        detail: 'Resource is forbidden to access, as the APD URL for the resource : dmp-apd.iudx.io is different than the current APD : acl-apd.iudx.io'
     createNotificationConflictResponse:
       title: Create notification conflict response
       type: object
