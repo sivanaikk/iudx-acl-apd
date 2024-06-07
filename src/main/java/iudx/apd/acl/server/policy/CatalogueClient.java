@@ -149,7 +149,7 @@ public class CatalogueClient implements CatalogueClientInterface {
                                     new JsonObject()
                                             .put(TYPE, FORBIDDEN.getValue())
                                             .put(TITLE, ResponseUrn.FORBIDDEN_URN.getUrn())
-                                            .put(DETAIL, "Resource is forbidden to access, as the APD URL for the resource is different than the current APD");
+                                            .put(DETAIL, "Resource is forbidden to access, as the APD URL for the resource : " + apdUrlOfResource + " is different than the current APD : " + apdURL);
                             promise.fail(failureMessage.encode());
                           }
                           else {
