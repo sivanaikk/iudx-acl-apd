@@ -52,6 +52,8 @@ public class Utility {
   private UUID requestId;
   private String requestStatus;
   private boolean hasFailed;
+  private UUID resourceGroupId;
+  private Tuple resourceGroupInsertionTuple;
 
   public static UUID generateRandomUuid() {
     return UUID.randomUUID();
@@ -126,12 +128,22 @@ public class Utility {
     constraints = new JsonObject();
     resourceId = generateRandomUuid();
     ownerId = generateRandomUuid();
+    resourceGroupId = generateRandomUuid();
 
     LocalDateTime createdAt = LocalDateTime.now();
     LocalDateTime updatedAt = LocalDateTime.of(2023, 12, 10, 3, 20, 10, 9);
 
     resourceInsertionTuple =
         Tuple.of(resourceId, ownerId, null, "rs.iudx.io", createdAt, updatedAt, ItemType.RESOURCE);
+    resourceGroupInsertionTuple =
+        Tuple.of(
+            resourceGroupId,
+            ownerId,
+            null,
+            "rs.iudx.io",
+            createdAt,
+            updatedAt,
+            ItemType.RESOURCE_GROUP);
 
     consumerId = generateRandomUuid();
     consumerEmailId = generateRandomEmailId();
@@ -186,23 +198,36 @@ public class Utility {
                     .onComplete(
                         resourceHandler -> {
                           if (resourceHandler.succeeded()) {
-                            executeQuery(requestInsertionTuple, INSERT_INTO_REQUEST_TABLE)
+                            executeQuery(
+                                    resourceGroupInsertionTuple, INSERT_INTO_RESOURCE_ENTITY_TABLE)
                                 .onComplete(
-                                    requestInsertionHandler -> {
-                                      if (requestInsertionHandler.succeeded()) {
-                                        executeQuery(policyInsertionTuple, INSERT_INTO_POLICY_TABLE)
+                                    resourceGroupHandler -> {
+                                      if (resourceGroupHandler.succeeded()) {
+                                        executeQuery(
+                                                requestInsertionTuple, INSERT_INTO_REQUEST_TABLE)
                                             .onComplete(
-                                                policyHandler -> {
-                                                  if (policyHandler.succeeded()) {
-                                                    LOG.info(
-                                                        "Succeeded in inserting all the queries");
-                                                    LOG.info(
-                                                        "Result from the insertion : {}, {}, {}, {}",
-                                                        handler.result(),
-                                                        resourceHandler.result(),
-                                                        policyHandler.result(),
-                                                        requestInsertionHandler.result());
-                                                    promise.complete(true);
+                                                requestInsertionHandler -> {
+                                                  if (requestInsertionHandler.succeeded()) {
+                                                    executeQuery(
+                                                            policyInsertionTuple,
+                                                            INSERT_INTO_POLICY_TABLE)
+                                                        .onComplete(
+                                                            policyHandler -> {
+                                                              if (policyHandler.succeeded()) {
+                                                                LOG.info(
+                                                                    "Succeeded in inserting all the queries");
+                                                                LOG.info(
+                                                                    "Result from the insertion : {}, {}, {}, {}",
+                                                                    handler.result(),
+                                                                    resourceHandler.result(),
+                                                                    policyHandler.result(),
+                                                                    requestInsertionHandler
+                                                                        .result());
+                                                                promise.complete(true);
+                                                              } else {
+                                                                hasFailed = true;
+                                                              }
+                                                            });
                                                   } else {
                                                     hasFailed = true;
                                                   }
@@ -211,6 +236,7 @@ public class Utility {
                                         hasFailed = true;
                                       }
                                     });
+
                           } else {
                             hasFailed = true;
                           }
@@ -334,5 +360,9 @@ public class Utility {
 
   public String getRequestStatus() {
     return requestStatus;
+  }
+
+  public UUID getResourceGroupId() {
+    return this.resourceGroupId;
   }
 }

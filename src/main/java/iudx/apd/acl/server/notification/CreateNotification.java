@@ -462,7 +462,7 @@ public class CreateNotification {
                           .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
                           .put(DETAIL, FAILURE_MESSAGE + ", as resource was not found");
                   promise.fail(failureMessage.encode());
-                } else if (handler.cause().getMessage().contains("Given id is invalid")) {
+                } else if (handler.cause().getMessage().contains("Given id is invalid") || handler.cause().getMessage().contains("Resource is forbidden to access")) {
                   promise.fail(handler.cause().getMessage());
                 } else {
                   /*something went wrong while fetching the item from catalogue*/

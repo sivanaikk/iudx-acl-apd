@@ -99,6 +99,7 @@ public class Constants {
   public static final String UPDATE_NOTIFICATIONS_API = "put-auth-v1-policies-requests";
   public static final String DELETE_NOTIFICATIONS_API = "delete-auth-v1-policies-requests";
   public static final String VERIFY_API = "get-auth-v1-verify";
+  public static final String RESOURCE_ITEM_TAG = "iudx:Resource";
 
   public static final String RESOURCE_GROUP_TAG = "iudx:ResourceGroup";
   public static final String PROVIDER_TAG = "iudx:Provider";
@@ -113,6 +114,6 @@ public class Constants {
   public static final String EMAIL_ID = "emailId";
   public static final String RS_SERVER_URL = "resourceServerUrl";
   public static final String USER_ROLE = "userRole";
-
+  public static final String APD_URL = "apdURL";
 
 }

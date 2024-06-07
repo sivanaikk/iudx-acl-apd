@@ -60,6 +60,12 @@ public class CreatePolicy {
               .map(CreatePolicyRequest::getItemType)
               .collect(Collectors.toSet());
 
+      if(itemType.contains(ItemType.RESOURCE_GROUP))
+      {
+          LOGGER.debug("Contains resource group");
+          return Future.failedFuture(generateErrorResponse(BAD_REQUEST, "Policy creation for resource group is restricted"));
+      }
+
       Future<Set<UUID>> checkIfItemPresent = checkForItemsInDb(itemIdList, itemType, user);
       Future<Boolean> isPolicyAlreadyExist =
           checkIfItemPresent.compose(
@@ -176,6 +182,12 @@ public class CreatePolicy {
                                           "insertItemInDbFail "
                                               + insertItemsFailureHandler.getLocalizedMessage());
 
+                                      if(insertItemsFailureHandler.getMessage().
+                                              contains("APD URL for the resource is different than the current APD"))
+                                      {
+                                          promise.fail(insertItemsFailureHandler.getMessage());
+                                          return;
+                                      }
                                       promise.fail(
                                           insertItemsFailureHandler
                                                   .getLocalizedMessage()
