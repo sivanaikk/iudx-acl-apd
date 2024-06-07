@@ -60,10 +60,10 @@ public class CreatePolicy {
               .map(CreatePolicyRequest::getItemType)
               .collect(Collectors.toSet());
 
-      if(itemType.contains(ItemType.RESOURCE_GROUP))
-      {
-          LOGGER.debug("Contains resource group");
-          return Future.failedFuture(generateErrorResponse(BAD_REQUEST, "Policy creation for resource group is restricted"));
+      if (itemType.contains(ItemType.RESOURCE_GROUP)) {
+        LOGGER.debug("Contains resource group");
+        return Future.failedFuture(
+            generateErrorResponse(BAD_REQUEST, "Policy creation for resource group is restricted"));
       }
 
       Future<Set<UUID>> checkIfItemPresent = checkForItemsInDb(itemIdList, itemType, user);
@@ -150,26 +150,38 @@ public class CreatePolicy {
                             Future<List<ResourceObj>> resourceObjList =
                                 catalogueClient.fetchItems(itemIdList);
                             Future<Set<UUID>> providerIdsFromCat =
-                                resourceObjList.compose(
-                                    success -> {
-                                      Set<ItemType> itemTypeCat =
-                                          success.stream()
-                                              .map(ResourceObj::getItemType)
-                                              .collect(Collectors.toSet());
-                                      Set<String> rsServerUrlCat =
-                                          success.stream()
-                                              .map(ResourceObj::getResourceServerUrl)
-                                              .collect(Collectors.toSet());
-                                      if (!itemTypeRequest.containsAll(itemTypeCat)) {
-                                        return Future.failedFuture("Invalid item type.");
-                                      } else if (!rsServerUrlCat.contains(
-                                          user.getResourceServerUrl())) {
-                                        return Future.failedFuture(
-                                            "Access Denied: You do not have ownership rights for this resource.");
-                                      } else {
-                                        return insertItemsIntoDb(success);
-                                      }
-                                    });
+                                resourceObjList
+                                    .compose(
+                                        success -> {
+                                          Set<ItemType> itemTypeCat =
+                                              success.stream()
+                                                  .map(ResourceObj::getItemType)
+                                                  .collect(Collectors.toSet());
+                                          Set<String> rsServerUrlCat =
+                                              success.stream()
+                                                  .map(ResourceObj::getResourceServerUrl)
+                                                  .collect(Collectors.toSet());
+                                          if (!itemTypeRequest.containsAll(itemTypeCat)) {
+                                            return Future.failedFuture("Invalid item type.");
+                                          } else if (!rsServerUrlCat.contains(
+                                              user.getResourceServerUrl())) {
+                                            return Future.failedFuture(
+                                                "Access Denied: You do not have ownership rights for this resource.");
+                                          } else {
+                                            return insertItemsIntoDb(success);
+                                          }
+                                        })
+                                    .onFailure(
+                                        failureHandler -> {
+                                          String failureMessage = failureHandler.getMessage();
+                                          if (failureMessage.contains(TYPE)
+                                              && failureMessage.contains(TITLE)) {
+                                            promise.fail(failureHandler.getMessage());
+                                          } else {
+                                            promise.fail(
+                                                generateErrorResponse(BAD_REQUEST, failureMessage));
+                                          }
+                                        });
                             providerIdsFromCat
                                 .onSuccess(
                                     insertItemsSuccessHandler -> {
@@ -182,13 +194,7 @@ public class CreatePolicy {
                                           "insertItemInDbFail "
                                               + insertItemsFailureHandler.getLocalizedMessage());
 
-                                      if(insertItemsFailureHandler.getMessage().
-                                              contains("APD URL for the resource is different than the current APD"))
-                                      {
-                                          promise.fail(insertItemsFailureHandler.getMessage());
-                                          return;
-                                      }
-                                      promise.fail(
+                                      promise.tryFail(
                                           insertItemsFailureHandler
                                                   .getLocalizedMessage()
                                                   .equalsIgnoreCase(
