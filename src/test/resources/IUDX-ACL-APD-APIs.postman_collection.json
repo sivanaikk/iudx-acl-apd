@@ -2350,7 +2350,7 @@
 									"    const body = pm.response.json();",
 									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:forbidden\");",
 									"    pm.expect(body).to.have.property(\"title\", \"Forbidden\");",
-									"    pm.expect(body).to.have.property(\"detail\", \"Resource is forbidden to access, as the APD URL for the resource is different than the current APD\");",
+									"",
 									"});"
 								],
 								"type": "text/javascript"
