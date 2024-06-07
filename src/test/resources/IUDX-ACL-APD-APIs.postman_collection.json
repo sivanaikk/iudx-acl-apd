@@ -879,7 +879,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"consumer@dummyId.com\",\n      \"itemId\": \"{{item_id}}\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"3000-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"consumer@dummyId.com\",\n      \"itemId\": \"{{item_id}}\",\n      \"itemType\": \"RESOURCE\",\n      \"expiryTime\": \"3000-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -946,7 +946,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"abd311111112c@xyz.com\",\n      \"itemId\": \"d67a19d5-0a26-5d7c-b0e7-58e7f3b222e3\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"abd311111112c@xyz.com\",\n      \"itemId\": \"d67a19d5-0a26-5d7c-b0e7-58e7f3b222e3\",\n      \"itemType\": \"RESOURCE\",\n      \"expiryTime\": \"2024-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1202,7 +1202,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"consumer@dummyId.com\",\n      \"itemId\": \"{{item_id}}\",\n      \"itemType\": \"RESOURCE_GROUP\",\n      \"expiryTime\": \"3000-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"consumer@dummyId.com\",\n      \"itemId\": \"{{item_id}}\",\n      \"itemType\": \"RESOURCE\",\n      \"expiryTime\": \"3000-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2181,7 +2181,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"itemId\": \"{{item_id}}\",\n\"itemType\": \"RESOURCE_GROUP\"\n}",
+							"raw": "{\n\"itemId\": \"{{item_id}}\",\n\"itemType\": \"RESOURCE\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2329,6 +2329,66 @@
 					"response": []
 				},
 				{
+					"name": "403 Create Access Request: Forbidden",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 403 (Forbidden)\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:forbidden\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Forbidden\");",
+									"    pm.expect(body).to.have.property(\"detail\", \"Resource is forbidden to access, as the APD URL for the resource is different than the current APD\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"itemId\": \"{{itemIdForForbiddenResponse}}\",\n\"itemType\": \"RESOURCE\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies/requests",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies",
+								"requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "404 Create Access Request: Not Found",
 					"event": [
 						{
@@ -2440,7 +2500,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"itemId\": \"{{item_id}}\",\n\"itemType\": \"RESOURCE_GROUP\"\n}",
+							"raw": "{\n\"itemId\": \"{{item_id}}\",\n\"itemType\": \"RESOURCE\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2973,7 +3033,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"itemId\": \"{{item_id}}\",\n\"itemType\": \"RESOURCE_GROUP\"\n}",
+							"raw": "{\n\"itemId\": \"{{item_id}}\",\n\"itemType\": \"RESOURCE\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3185,7 +3245,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"itemId\": \"{{item_id}}\",\n\"itemType\": \"RESOURCE_GROUP\"\n}",
+							"raw": "{\n\"itemId\": \"{{item_id}}\",\n\"itemType\": \"RESOURCE\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3416,6 +3476,151 @@
 							]
 						},
 						"description": "This API provides the capability to grant or reject policy requests. Users can use this endpoint to make decisions on the submitted requests, thereby managing policy access."
+					},
+					"response": []
+				},
+				{
+					"name": "200 Get Policy: Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonResult = JSON.parse(responseBody).results",
+									"for(const props of jsonResult){",
+									"if(props.status=='ACTIVE')",
+									"    {",
+									"        console.log(props.policyId)",
+									"        postman.setEnvironmentVariable(\"policyId\", props.policyId);",
+									"        break",
+									"    }",
+									"}",
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{consumerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						},
+						"description": "Users can use this API to retrieve a list of policies that have been previously created. It provides a way to view and access the details of existing policies in the system."
+					},
+					"response": []
+				},
+				{
+					"name": "200 Delete Policy : Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"id\": \"{{policyId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						},
+						"description": "With the Delete Policy API, users can remove policies that are no longer required."
 					},
 					"response": []
 				},
@@ -4181,6 +4386,72 @@
 								"requests"
 							]
 						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Policy: Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 200 (OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:acl:success\");",
+									"    pm.expect(body).to.have.property(\"title\", \"Success\");",
+									"    }",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{providerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{providerDelegateToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"request\": [\n    {\n      \"userEmail\": \"{{consumerEmailIdForVerifyPolicy}}\",\n      \"itemId\": \"{{itemIdForVerify}}\",\n      \"itemType\": \"RESOURCE\",\n      \"expiryTime\": \"3000-08-04T20:00:19\",\n      \"constraints\": {\n        \"access\": [\n          \"sub\"\n        ]\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}{{basePath}}/policies",
+							"host": [
+								"{{baseUrl}}{{basePath}}"
+							],
+							"path": [
+								"policies"
+							]
+						},
+						"description": "This API allows users to create new policies. Users can define and configure policies based on their specific requirements using this endpoint."
 					},
 					"response": []
 				},
