@@ -2,8 +2,7 @@ package iudx.apd.acl.server.policy;
 
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -24,6 +23,9 @@ import iudx.apd.acl.server.Utility;
 import iudx.apd.acl.server.apiserver.util.ResourceObj;
 import java.util.Set;
 import java.util.UUID;
+
+import iudx.apd.acl.server.common.HttpStatusCode;
+import iudx.apd.acl.server.common.ResponseUrn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,9 +64,11 @@ public class TestCatalogueClient {
         new JsonObject()
             .put("catServerHost", "someCatServerHost")
             .put("catServerPort", 433)
+            .put(APD_URL, "someDummyUrl")
             .put("dxCatalogueBasePath", "someBasePath");
     resourceId = "b2c27f3f-2524-4a84-816e-91f9ab23f837";
     ownerId = Utility.generateRandomUuid().toString();
+
 
     result = new JsonObject();
     jsonArray = new JsonArray();
@@ -75,7 +79,7 @@ public class TestCatalogueClient {
     resourceGroup.add("iudx:ResourceGroup");
     resourceGroup.add("iudx:TransitManagement");
     resourceServerJsonArray.add("iudx:ResourceServer");
-    jsonArray.add(new JsonObject().put("type", resourceGroup).put("id", resourceId));
+    jsonArray.add(new JsonObject().put("type", resourceGroup).put("id", Utility.generateRandomUuid()));
     jsonArray.add(new JsonObject().put("type", providerJsonArray).put("ownerUserId", ownerId).put(ID, Utility.generateRandomUuid()));
     jsonArray.add(
         new JsonObject()
@@ -115,27 +119,51 @@ public class TestCatalogueClient {
   }
 
   @Test
-  @DisplayName("Test fetchItems : Success")
-  public void testFetchItems(VertxTestContext vertxTestContext) {
+  @DisplayName("Test fetchItems with group level resource: Failure")
+  public void testFetchItemsWithGroupLevelResource(VertxTestContext vertxTestContext) {
+    jsonArray.add(new JsonObject().put("type", resourceGroup).put("id", resourceId));
     catalogueClient
         .fetchItems(uuidSet)
         .onComplete(
             handler -> {
-              if (handler.succeeded()) {
-                LOGGER.info("RESULT "+handler.result().get(0).getItemId());
-                ResourceObj result = handler.result().get(0);
-                assertEquals(resourceId, result.getItemId().toString());
-                assertEquals(ownerId, result.getProviderId().toString());
-                assertEquals("rs.iudx.io", result.getResourceServerUrl());
-                assertTrue(result.getIsGroupLevelResource());
+              if (handler.failed()) {
+                JsonObject response = new JsonObject(handler.cause().getMessage());
+                assertEquals(HttpStatusCode.BAD_REQUEST.getValue(), response.getInteger(TYPE));
+                assertEquals(ResponseUrn.BAD_REQUEST_URN.getUrn(), response.getString(TITLE));
+                assertEquals("Given id is invalid - it is group level resource", response.getString(DETAIL));
                 vertxTestContext.completeNow();
 
               } else {
-                vertxTestContext.failNow(handler.cause().getMessage());
+                vertxTestContext.failNow("Succeeded when the resource passed is of group level");
               }
             });
   }
 
+  @Test
+  @DisplayName("Test fetchItems : Success")
+  public void testFetchItems(VertxTestContext vertxTestContext) {
+    JsonArray resourceJsonArray = new JsonArray()
+            .add("iudx:Resource");
+    jsonArray.add(new JsonObject().put("type", resourceJsonArray).put(APD_URL, "someDummyUrl"));
+
+    catalogueClient
+            .fetchItems(uuidSet)
+            .onComplete(
+                    handler -> {
+                      if (handler.succeeded()) {
+                        LOGGER.info("RESULT "+handler.result().get(0).getItemId());
+                        ResourceObj result = handler.result().get(0);
+                        assertEquals(resourceId, result.getItemId().toString());
+                        assertEquals(ownerId, result.getProviderId().toString());
+                        assertEquals("rs.iudx.io", result.getResourceServerUrl());
+                        assertFalse(result.getIsGroupLevelResource());
+                        vertxTestContext.completeNow();
+
+                      } else {
+                        vertxTestContext.failNow(handler.cause().getMessage());
+                      }
+                    });
+  }
   @Test
   @DisplayName("Test fetchItems : Failure")
   public void testFetchItemsFailure(VertxTestContext vertxTestContext) {
