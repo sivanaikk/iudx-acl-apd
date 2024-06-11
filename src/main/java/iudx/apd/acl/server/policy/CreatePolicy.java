@@ -165,8 +165,9 @@ public class CreatePolicy {
                                             return Future.failedFuture("Invalid item type.");
                                           } else if (!rsServerUrlCat.contains(
                                               user.getResourceServerUrl())) {
-                                            return Future.failedFuture(
-                                                "Access Denied: You do not have ownership rights for this resource.");
+                                            return Future.failedFuture( generateErrorResponse(
+                                                    FORBIDDEN,
+                                                    "Access Denied: You do not have ownership rights for this resource."));
                                           } else {
                                             return insertItemsIntoDb(success);
                                           }

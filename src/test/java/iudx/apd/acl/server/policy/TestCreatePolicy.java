@@ -269,26 +269,27 @@ public class TestCreatePolicy {
             });
   }
 
-    @Test
-    @DisplayName("Test initiateCreatePolicy with resource group in request: Failure")
-    public void testInitiateCreatePolicyWithResourceGroup(VertxTestContext vertxTestContext) {
-        JsonObject request = getRequest(Utility.generateRandomEmailId(), utility.getResourceGroupId());
-        request.getJsonArray("request").getJsonObject(0).put("itemType", ItemType.RESOURCE_GROUP);
-        createPolicy
-                .initiateCreatePolicy(request, owner)
-                .onComplete(
-                        handler -> {
-                            if (handler.succeeded()) {
-                                vertxTestContext.failNow("Succeeded by creating a policy");
-                            } else {
-                                JsonObject result = new JsonObject(handler.cause().getMessage());
-                                assertEquals(BAD_REQUEST.getValue(), result.getInteger(TYPE));
-                                assertEquals(BAD_REQUEST.getUrn(), result.getString(TITLE));
-                                assertEquals("Policy creation for resource group is restricted", result.getString("detail"));
-                                vertxTestContext.completeNow();
-                            }
-                        });
-    }
+  @Test
+  @DisplayName("Test initiateCreatePolicy with resource group in request: Failure")
+  public void testInitiateCreatePolicyWithResourceGroup(VertxTestContext vertxTestContext) {
+    JsonObject request = getRequest(Utility.generateRandomEmailId(), utility.getResourceGroupId());
+    request.getJsonArray("request").getJsonObject(0).put("itemType", ItemType.RESOURCE_GROUP);
+    createPolicy
+        .initiateCreatePolicy(request, owner)
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                vertxTestContext.failNow("Succeeded by creating a policy");
+              } else {
+                JsonObject result = new JsonObject(handler.cause().getMessage());
+                assertEquals(BAD_REQUEST.getValue(), result.getInteger(TYPE));
+                assertEquals(BAD_REQUEST.getUrn(), result.getString(TITLE));
+                assertEquals(
+                    "Policy creation for resource group is restricted", result.getString("detail"));
+                vertxTestContext.completeNow();
+              }
+            });
+  }
 
   @Test
   @DisplayName("Test initiateCreatePolicy where Invalid resource server url: Fail")
