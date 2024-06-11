@@ -3,7 +3,8 @@ package iudx.apd.acl.server.policy;
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
 import static iudx.apd.acl.server.common.HttpStatusCode.FORBIDDEN;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import io.vertx.core.Future;
@@ -33,6 +34,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
 @Testcontainers
 @ExtendWith({MockitoExtension.class, VertxExtension.class})
 public class TestCreatePolicy {
@@ -155,8 +157,8 @@ public class TestCreatePolicy {
                 JsonObject result = new JsonObject(handler.cause().getMessage());
                 assertEquals(FORBIDDEN.getValue(), result.getInteger(TYPE));
                 assertEquals(FORBIDDEN.getUrn(), result.getString(TITLE));
-                assertNotNull(
-
+                assertEquals(
+                    "Access Denied: You do not have ownership rights for this resource.",
                     result.getString("detail"));
                 vertxTestContext.completeNow();
               }
@@ -267,26 +269,27 @@ public class TestCreatePolicy {
             });
   }
 
-    @Test
-    @DisplayName("Test initiateCreatePolicy with resource group in request: Failure")
-    public void testInitiateCreatePolicyWithResourceGroup(VertxTestContext vertxTestContext) {
-        JsonObject request = getRequest(Utility.generateRandomEmailId(), utility.getResourceGroupId());
-        request.getJsonArray("request").getJsonObject(0).put("itemType", ItemType.RESOURCE_GROUP);
-        createPolicy
-                .initiateCreatePolicy(request, owner)
-                .onComplete(
-                        handler -> {
-                            if (handler.succeeded()) {
-                                vertxTestContext.failNow("Succeeded by creating a policy");
-                            } else {
-                                JsonObject result = new JsonObject(handler.cause().getMessage());
-                                assertEquals(BAD_REQUEST.getValue(), result.getInteger(TYPE));
-                                assertEquals(BAD_REQUEST.getUrn(), result.getString(TITLE));
-                                assertEquals("Policy creation for resource group is restricted", result.getString("detail"));
-                                vertxTestContext.completeNow();
-                            }
-                        });
-    }
+  @Test
+  @DisplayName("Test initiateCreatePolicy with resource group in request: Failure")
+  public void testInitiateCreatePolicyWithResourceGroup(VertxTestContext vertxTestContext) {
+    JsonObject request = getRequest(Utility.generateRandomEmailId(), utility.getResourceGroupId());
+    request.getJsonArray("request").getJsonObject(0).put("itemType", ItemType.RESOURCE_GROUP);
+    createPolicy
+        .initiateCreatePolicy(request, owner)
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                vertxTestContext.failNow("Succeeded by creating a policy");
+              } else {
+                JsonObject result = new JsonObject(handler.cause().getMessage());
+                assertEquals(BAD_REQUEST.getValue(), result.getInteger(TYPE));
+                assertEquals(BAD_REQUEST.getUrn(), result.getString(TITLE));
+                assertEquals(
+                    "Policy creation for resource group is restricted", result.getString("detail"));
+                vertxTestContext.completeNow();
+              }
+            });
+  }
 
   @Test
   @DisplayName("Test initiateCreatePolicy where Invalid resource server url: Fail")
@@ -313,8 +316,8 @@ public class TestCreatePolicy {
                 JsonObject result = new JsonObject(handler.cause().getMessage());
                 assertEquals(FORBIDDEN.getValue(), result.getInteger(TYPE));
                 assertEquals(FORBIDDEN.getUrn(), result.getString(TITLE));
-                assertNotNull(
-
+                assertEquals(
+                    "Access Denied: You do not have ownership rights for this resource.",
                     result.getString("detail"));
                 vertxTestContext.completeNow();
               }

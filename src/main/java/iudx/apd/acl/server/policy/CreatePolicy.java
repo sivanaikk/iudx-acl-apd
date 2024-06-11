@@ -161,13 +161,13 @@ public class CreatePolicy {
                                               success.stream()
                                                   .map(ResourceObj::getResourceServerUrl)
                                                   .collect(Collectors.toSet());
-                                          LOGGER.info("hereeeee : " + rsServerUrlCat + " | " + user.getResourceServerUrl());
                                           if (!itemTypeRequest.containsAll(itemTypeCat)) {
                                             return Future.failedFuture("Invalid item type.");
                                           } else if (!rsServerUrlCat.contains(
                                               user.getResourceServerUrl())) {
-                                            return Future.failedFuture(
-                                                    "hereeeee : " + rsServerUrlCat + " | " + user.getResourceServerUrl());
+                                            return Future.failedFuture( generateErrorResponse(
+                                                    FORBIDDEN,
+                                                    "Access Denied: You do not have ownership rights for this resource."));
                                           } else {
                                             return insertItemsIntoDb(success);
                                           }
@@ -213,11 +213,10 @@ public class CreatePolicy {
                               promise.fail(
                                   generateErrorResponse(BAD_REQUEST, "Invalid item type."));
                             } else if (!rsServerUrlSetDb.contains(user.getResourceServerUrl())) {
-                                LOGGER.error("Resource Server URL don't match");
                               promise.fail(
                                   generateErrorResponse(
                                       FORBIDDEN,
-                                      "This is test detail 2222"));
+                                      "Access Denied: You do not have ownership rights for this resource."));
                             } else {
                               promise.complete(providerIdSet);
                             }
