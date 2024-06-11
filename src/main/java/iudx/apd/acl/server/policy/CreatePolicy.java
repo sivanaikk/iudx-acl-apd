@@ -161,12 +161,13 @@ public class CreatePolicy {
                                               success.stream()
                                                   .map(ResourceObj::getResourceServerUrl)
                                                   .collect(Collectors.toSet());
+                                          LOGGER.info("hereeeee : " + rsServerUrlCat + " | " + user.getResourceServerUrl());
                                           if (!itemTypeRequest.containsAll(itemTypeCat)) {
                                             return Future.failedFuture("Invalid item type.");
                                           } else if (!rsServerUrlCat.contains(
                                               user.getResourceServerUrl())) {
                                             return Future.failedFuture(
-                                                "This is a test detail.");
+                                                    "hereeeee : " + rsServerUrlCat + " | " + user.getResourceServerUrl());
                                           } else {
                                             return insertItemsIntoDb(success);
                                           }
