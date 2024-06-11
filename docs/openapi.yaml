@@ -647,7 +647,19 @@ paths:
               schema:
                 type: string
               description: application/json
-
+        '403':
+          description: |-
+            Forbidden
+            - APD URL of the current APD is different that of the resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createNotificationForbidden'
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: application/json
         '404':
           description: |-
             Not Found
@@ -1156,6 +1168,27 @@ components:
         title: Not Found
         detail: Request could not be created, as resource was not found
 
+    createNotificationForbidden:
+      title: Creating notification is forbidden
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        detail:
+          type: string
+          minLength: 1
+      required:
+        - type
+        - title
+        - detail
+      example:
+        type: urn:dx:acl:forbidden
+        title: Forbidden
+        detail: 'Resource is forbidden to access, as the APD URL for the resource : dmp-apd.iudx.io is different than the current APD : acl-apd.iudx.io'
     createNotificationConflictResponse:
       title: Create notification conflict response
       type: object

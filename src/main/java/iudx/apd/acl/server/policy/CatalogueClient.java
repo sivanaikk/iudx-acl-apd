@@ -1,8 +1,7 @@
 package iudx.apd.acl.server.policy;
 
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
-import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
-import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
+import static iudx.apd.acl.server.common.HttpStatusCode.*;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -13,12 +12,15 @@ import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import iudx.apd.acl.server.apiserver.util.ResourceObj;
 import iudx.apd.acl.server.apiserver.util.Util;
+import iudx.apd.acl.server.common.HttpStatusCode;
 import iudx.apd.acl.server.common.ResponseUrn;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import iudx.apd.acl.server.validation.exceptions.DxRuntimeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,6 +30,7 @@ public class CatalogueClient implements CatalogueClientInterface {
   private final String catHost;
   private final Integer catPort;
   private final String catRelationShipPath;
+  private final String apdURL;
   WebClient client;
 
   public CatalogueClient(JsonObject options) {
@@ -36,6 +39,7 @@ public class CatalogueClient implements CatalogueClientInterface {
     if (this.client == null) {
       this.client = WebClient.create(Vertx.vertx(), clientOptions);
     }
+    this.apdURL = options.getString(APD_URL);
     this.catHost = options.getString("catServerHost");
     this.catPort = options.getInteger("catServerPort");
     this.catRelationShipPath = options.getString("dxCatalogueBasePath") + RELATIONSHIP_PATH;
@@ -59,6 +63,7 @@ public class CatalogueClient implements CatalogueClientInterface {
           .onSuccess(
               catSuccessResponse -> {
                 JsonObject resultBody = catSuccessResponse.bodyAsJsonObject();
+                LOGGER.info(resultBody.encodePrettily());
                 if (resultBody.getString(TYPE).equals(CAT_SUCCESS_URN)) {
                   List<JsonObject> resultJsonList =
                       resultBody.getJsonArray(RESULTS).stream()
@@ -71,6 +76,7 @@ public class CatalogueClient implements CatalogueClientInterface {
                   boolean isProviderId = false;
                   boolean isResourceServerId = false;
                   boolean isInvalidId = false;
+                  String apdUrlOfResource = "";
 
                   for (JsonObject resultJson : resultJsonList) {
                     String type = resultJson.getString(TYPE);
@@ -99,6 +105,8 @@ public class CatalogueClient implements CatalogueClientInterface {
                       provider = UUID.fromString(resultJson.getString(OWNER_ID));
                     } else if (typeArray.contains(RESOURCE_TAG)) {
                       resServerUrl = resultJson.getString(RS_URL);
+                    } else if (typeArray.contains(RESOURCE_ITEM_TAG)) {
+                      apdUrlOfResource = resultJson.getString(APD_URL);
                     }
                   }
                   boolean isInfoFromCatInvalid =
@@ -107,23 +115,43 @@ public class CatalogueClient implements CatalogueClientInterface {
                     LOGGER.error("Something from catalogue is null. The resourceId is {}", id);
                     LOGGER.error("The ownerId is {}", provider);
                     LOGGER.error("The resource server URL is {}", resServerUrl);
-                    JsonObject failureMessage =
-                        new JsonObject()
-                            .put(TYPE, INTERNAL_SERVER_ERROR.getValue())
-                            .put(TITLE, ResponseUrn.INTERNAL_SERVER_ERROR.getUrn())
-                            .put(
-                                DETAIL,
-                                "Something went wrong while fetching resource info from Catalogue");
-                    promise.fail(failureMessage.encode());
+                    String failureMessage =
+                        generateFailureMessage(
+                            INTERNAL_SERVER_ERROR,
+                            ResponseUrn.INTERNAL_SERVER_ERROR,
+                            "Something went wrong while fetching resource info from Catalogue");
+
+                    promise.fail(failureMessage);
                   } else if (isProviderId || isResourceServerId) {
                     LOGGER.error("isProviderId: {}", isProviderId);
                     LOGGER.error("isResourceServerId: {}", isResourceServerId);
-                    JsonObject failureMessage =
-                        new JsonObject()
-                            .put(TYPE, BAD_REQUEST.getValue())
-                            .put(TITLE, ResponseUrn.BAD_REQUEST_URN.getUrn())
-                            .put(DETAIL, "Given id is invalid");
-                    promise.fail(failureMessage.encode());
+                    String failureMessage =
+                        generateFailureMessage(
+                            BAD_REQUEST,
+                            ResponseUrn.BAD_REQUEST_URN,
+                            "Given id is invalid - it is a provider or resource server id");
+
+                    promise.fail(failureMessage);
+                  } else if (isItemGroupLevelResource) {
+
+                    String failureMessage =
+                        generateFailureMessage(
+                            BAD_REQUEST,
+                            ResponseUrn.BAD_REQUEST_URN,
+                            "Given id is invalid - it is group level resource");
+                    promise.fail(failureMessage);
+                  }
+                  /* if the resource has an APD URL that is not equal to the current APD URL*/
+                  else if (!isItemGroupLevelResource && !apdURL.equals(apdUrlOfResource)) {
+                    String failureMessage =
+                        generateFailureMessage(
+                            FORBIDDEN,
+                            ResponseUrn.FORBIDDEN_URN,
+                            "Resource is forbidden to access, as the APD URL for the resource : "
+                                + apdUrlOfResource
+                                + " is different than the current APD : "
+                                + apdURL);
+                    promise.fail(failureMessage);
                   } else {
                     ResourceObj resourceObj =
                         new ResourceObj(
@@ -137,5 +165,14 @@ public class CatalogueClient implements CatalogueClientInterface {
               });
     }
     return promise.future();
+  }
+
+  public String generateFailureMessage(
+      HttpStatusCode httpStatusCode, ResponseUrn responseUrn, String detail) {
+    return new JsonObject()
+        .put(TYPE, httpStatusCode.getValue())
+        .put(TITLE, responseUrn.getUrn())
+        .put(DETAIL, detail)
+        .encode();
   }
 }
