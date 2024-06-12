@@ -20,7 +20,8 @@
     "databasePassword": "<database-password>",
     "clientId": "<acl-apd-trustee-client-id>",
     "clientSecret": "<acl-apd-trustee-client-secret>",
-    "poolSize": 25
+    "poolSize": 25,
+    "apdURL": "<acl-apd-url>"
   },
   "host": "acl-apd.iudx.io",
   "modules": [
@@ -60,7 +61,6 @@
       "isWorkerVerticle": false,
       "verticleInstances": 1,
       "issuer": "<issuer-url>",
-      "apdURL": "<acl-apd-url>",
       "authServerHost": "<auth-server-url>",
       "jwtIgnoreExpiry": false
     },
