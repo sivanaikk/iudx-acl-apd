@@ -11,12 +11,9 @@ import static iudx.apd.acl.server.authentication.Constants.AUD;
 import static iudx.apd.acl.server.authentication.Constants.IS_DELEGATE;
 import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
 import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
+import static iudx.apd.acl.server.common.ResponseUrn.BAD_REQUEST_URN;
 import static iudx.apd.acl.server.common.ResponseUrn.POLICY_ALREADY_EXIST_URN;
-import static iudx.apd.acl.server.notification.util.Constants.CREATE_NOTIFICATION_QUERY;
-import static iudx.apd.acl.server.notification.util.Constants.GET_ACTIVE_CONSUMER_POLICY;
-import static iudx.apd.acl.server.notification.util.Constants.GET_VALID_NOTIFICATION;
-import static iudx.apd.acl.server.notification.util.Constants.INSERT_RESOURCE_INFO_QUERY;
-import static iudx.apd.acl.server.notification.util.Constants.INSERT_USER_INFO_QUERY;
+import static iudx.apd.acl.server.notification.util.Constants.*;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -35,9 +32,7 @@ import iudx.apd.acl.server.common.ResponseUrn;
 import iudx.apd.acl.server.policy.CatalogueClient;
 import iudx.apd.acl.server.policy.PostgresService;
 import iudx.apd.acl.server.policy.util.ItemType;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -80,6 +75,27 @@ public class CreateNotification {
   public Future<JsonObject> initiateCreateNotification(JsonObject notification, User user) {
     resourceId = UUID.fromString(notification.getString("itemId"));
     String itemType = notification.getString("itemType");
+    boolean isAdditionalInfoPresent = notification.containsKey("additionalInfo");
+    JsonObject additionalInfo;
+    String createNotificationQuery;
+    if (isAdditionalInfoPresent) {
+      boolean isAnyValueNull =
+          notification.getJsonObject("additionalInfo").getMap().values().stream()
+              .anyMatch(Objects::isNull);
+      if (isAnyValueNull) {
+        JsonObject failureMessage =
+            new JsonObject()
+                .put(TYPE, BAD_REQUEST.getValue())
+                .put(TITLE, BAD_REQUEST_URN.getUrn())
+                .put(DETAIL, FAILURE_MESSAGE + ", as additionalInfo contains a null value");
+        return Future.failedFuture(failureMessage.encode());
+      }
+      additionalInfo = notification.getJsonObject("additionalInfo");
+      createNotificationQuery = CREATE_NOTIFICATION_WITH_ADDITIONAL_INFO_QUERY;
+    } else {
+      additionalInfo = null;
+      createNotificationQuery = CREATE_NOTIFICATION_QUERY;
+    }
     setConsumerRsUrl(user.getResourceServerUrl());
 
     /* check if the resource exists in CAT */
@@ -143,11 +159,13 @@ public class CreateNotification {
               if (isValidNotificationExisting) {
                 return Future.failedFuture(validNotificationExistsFuture.cause().getMessage());
               }
+
               return createNotification(
-                  CREATE_NOTIFICATION_QUERY,
+                  createNotificationQuery,
                   resourceId,
                   user,
-                  UUID.fromString(getProviderInfo().getUserId()));
+                  UUID.fromString(getProviderInfo().getUserId()),
+                  additionalInfo);
             });
 
     return createNotificationFuture;
@@ -310,14 +328,20 @@ public class CreateNotification {
    * @param resourceId id for which the consumer or consumer delegate wants access to with type UUID
    * @param consumer details of the consumer with type User
    * @param providerId id of the owner of the resource with type UUID
+   * @param additionalInfo details of the data consumer if resource is being used for non-commercial
+   *     purposes
    * @return JsonObject response, if notification is created successfully, failure if any
    */
   public Future<JsonObject> createNotification(
-      String query, UUID resourceId, User consumer, UUID providerId) {
+      String query, UUID resourceId, User consumer, UUID providerId, JsonObject additionalInfo) {
     Promise<JsonObject> promise = Promise.promise();
     LOG.trace("inside createNotification method");
     UUID consumerId = UUID.fromString(consumer.getUserId());
     Tuple tuple = Tuple.of(consumerId, resourceId, providerId);
+    if (additionalInfo != null) {
+      tuple.addJsonObject(additionalInfo);
+    }
+
     executeQuery(
         query,
         tuple,
@@ -462,7 +486,8 @@ public class CreateNotification {
                           .put(TITLE, ResponseUrn.RESOURCE_NOT_FOUND_URN.getUrn())
                           .put(DETAIL, FAILURE_MESSAGE + ", as resource was not found");
                   promise.fail(failureMessage.encode());
-                } else if (handler.cause().getMessage().contains("Given id is invalid") || handler.cause().getMessage().contains("Resource is forbidden to access")) {
+                } else if (handler.cause().getMessage().contains("Given id is invalid")
+                    || handler.cause().getMessage().contains("Resource is forbidden to access")) {
                   promise.fail(handler.cause().getMessage());
                 } else {
                   /*something went wrong while fetching the item from catalogue*/

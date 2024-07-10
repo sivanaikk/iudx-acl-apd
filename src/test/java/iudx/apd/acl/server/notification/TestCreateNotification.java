@@ -2,7 +2,6 @@ package iudx.apd.acl.server.notification;
 
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
-import static iudx.apd.acl.server.common.ResponseUrn.FORBIDDEN_URN;
 import static iudx.apd.acl.server.common.ResponseUrn.POLICY_ALREADY_EXIST_URN;
 import static iudx.apd.acl.server.notification.util.Constants.CREATE_NOTIFICATION_QUERY;
 import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
@@ -663,7 +662,7 @@ public class TestCreateNotification {
         new CreateNotification(postgresService, catalogueClient, emailNotification, authClient);
 
     createNotification
-        .createNotification(CREATE_NOTIFICATION_QUERY, resourceId, consumer, utility.getOwnerId())
+        .createNotification(CREATE_NOTIFICATION_QUERY, resourceId, consumer, utility.getOwnerId(), null)
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
@@ -691,7 +690,8 @@ public class TestCreateNotification {
         new CreateNotification(postgresService, catalogueClient, emailNotification, authClient);
 
     createNotification
-        .createNotification(CREATE_NOTIFICATION_QUERY, resourceId, consumer, utility.getOwnerId())
+        .createNotification(
+            CREATE_NOTIFICATION_QUERY, resourceId, consumer, utility.getOwnerId(), new JsonObject().put("someKey", "someValue"))
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
