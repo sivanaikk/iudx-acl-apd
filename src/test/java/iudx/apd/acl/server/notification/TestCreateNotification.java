@@ -2,10 +2,9 @@ package iudx.apd.acl.server.notification;
 
 import static iudx.apd.acl.server.apiserver.util.Constants.*;
 import static iudx.apd.acl.server.common.HttpStatusCode.BAD_REQUEST;
-import static iudx.apd.acl.server.common.ResponseUrn.FORBIDDEN_URN;
 import static iudx.apd.acl.server.common.ResponseUrn.POLICY_ALREADY_EXIST_URN;
-import static iudx.apd.acl.server.notification.util.Constants.CREATE_NOTIFICATION_QUERY;
 import static iudx.apd.acl.server.common.HttpStatusCode.INTERNAL_SERVER_ERROR;
+import static iudx.apd.acl.server.notification.util.Constants.CREATE_NOTIFICATION_WITH_ADDITIONAL_INFO_QUERY;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -663,7 +662,7 @@ public class TestCreateNotification {
         new CreateNotification(postgresService, catalogueClient, emailNotification, authClient);
 
     createNotification
-        .createNotification(CREATE_NOTIFICATION_QUERY, resourceId, consumer, utility.getOwnerId())
+        .createNotification(CREATE_NOTIFICATION_WITH_ADDITIONAL_INFO_QUERY, resourceId, consumer, utility.getOwnerId(), null)
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
@@ -691,7 +690,8 @@ public class TestCreateNotification {
         new CreateNotification(postgresService, catalogueClient, emailNotification, authClient);
 
     createNotification
-        .createNotification(CREATE_NOTIFICATION_QUERY, resourceId, consumer, utility.getOwnerId())
+        .createNotification(
+            CREATE_NOTIFICATION_WITH_ADDITIONAL_INFO_QUERY, resourceId, consumer, utility.getOwnerId(), new JsonObject().put("someKey", "someValue"))
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
@@ -706,4 +706,32 @@ public class TestCreateNotification {
               }
             });
   }
+
+    @Test
+    @DisplayName("Test initiateCreateNotification with null in additionalInfo: Failure")
+    public void testInitiateCreateNotificationWithAdditionalInfo(VertxTestContext vertxTestContext) {
+        catClient = mock(CatalogueClient.class);
+        EmailNotification emailNotification = mock(EmailNotification.class);
+        authClient = mock(AuthClient.class);
+        createNotification =
+                new CreateNotification(pgService, catClient, emailNotification, authClient);
+
+        JsonObject notificationWithAdditionalInfo = new JsonObject(notification.encode());
+        notificationWithAdditionalInfo.put("additionalInfo", new JsonObject().put("name", "Miles Davis").put("email", "someEmail@gmail.com").put("purpose", null).put("description", "abcd"));
+        createNotification
+                .initiateCreateNotification(notificationWithAdditionalInfo, consumer)
+                .onComplete(
+                        handler -> {
+                            if (handler.failed()) {
+                                JsonObject result = new JsonObject(handler.cause().getMessage());
+                                assertEquals(HttpStatusCode.BAD_REQUEST.getValue(), result.getInteger(TYPE));
+                                assertEquals(
+                                        ResponseUrn.BAD_REQUEST_URN.getUrn(), result.getString(TITLE));
+                                assertEquals("Request could not be created, as additionalInfo contains a null value", result.getString(DETAIL));
+                                vertxTestContext.completeNow();
+                            } else {
+                                vertxTestContext.failNow("Succeeded when additionalInfo contains null");
+                            }
+                        });
+    }
 }
