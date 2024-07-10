@@ -706,4 +706,32 @@ public class TestCreateNotification {
               }
             });
   }
+
+    @Test
+    @DisplayName("Test initiateCreateNotification with null in additionalInfo: Failure")
+    public void testInitiateCreateNotificationWithAdditionalInfo(VertxTestContext vertxTestContext) {
+        catClient = mock(CatalogueClient.class);
+        EmailNotification emailNotification = mock(EmailNotification.class);
+        authClient = mock(AuthClient.class);
+        createNotification =
+                new CreateNotification(pgService, catClient, emailNotification, authClient);
+
+        JsonObject notificationWithAdditionalInfo = new JsonObject(notification.encode());
+        notificationWithAdditionalInfo.put("additionalInfo", new JsonObject().put("name", "Miles Davis").put("email", "someEmail@gmail.com").put("purpose", null).put("description", "abcd"));
+        createNotification
+                .initiateCreateNotification(notificationWithAdditionalInfo, consumer)
+                .onComplete(
+                        handler -> {
+                            if (handler.failed()) {
+                                JsonObject result = new JsonObject(handler.cause().getMessage());
+                                assertEquals(HttpStatusCode.BAD_REQUEST.getValue(), result.getInteger(TYPE));
+                                assertEquals(
+                                        ResponseUrn.BAD_REQUEST_URN.getUrn(), result.getString(TITLE));
+                                assertEquals("Request could not be created, as additionalInfo contains a null value", result.getString(DETAIL));
+                                vertxTestContext.completeNow();
+                            } else {
+                                vertxTestContext.failNow("Succeeded when additionalInfo contains null");
+                            }
+                        });
+    }
 }
