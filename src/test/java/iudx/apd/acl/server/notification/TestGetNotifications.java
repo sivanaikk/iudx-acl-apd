@@ -95,7 +95,6 @@ public class TestGetNotifications {
               if (handler.succeeded()) {
                 JsonObject result =
                     handler.result().getJsonObject(RESULT).getJsonArray(RESULT).getJsonObject(0);
-
                 assertEquals(utility.getRequestId().toString(), result.getString("requestId"));
                 assertEquals(utility.getResourceId().toString(), result.getString("itemId"));
                 assertEquals(utility.getRequestStatus(), result.getString("status"));
@@ -126,6 +125,8 @@ public class TestGetNotifications {
                     result.getJsonObject("provider").getJsonObject("name").getString("lastName"));
                 assertEquals(
                     utility.getOwnerEmailId(), result.getJsonObject("provider").getString("email"));
+                assertEquals(new JsonObject(), result.getJsonObject("additionalInfo"));
+                assertEquals(new JsonObject(), result.getJsonObject("constraints"));
 
                 assertEquals(
                     HttpStatusCode.SUCCESS.getValue(),

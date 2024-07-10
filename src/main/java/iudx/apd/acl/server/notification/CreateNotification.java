@@ -285,7 +285,7 @@ public class CreateNotification {
    * @param query A SELECT query to fetch details about the notification
    * @param resourceId id of the resource with type UUID
    * @param user consumer details with type User
-   * @return false if the notification was not previously created, failure response if the
+   * @return False if the notification was not previously created, failure response if the
    *     notification was previously created
    */
   public Future<Boolean> checkIfValidNotificationExists(String query, UUID resourceId, User user) {
