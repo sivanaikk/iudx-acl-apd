@@ -590,6 +590,11 @@ paths:
                     - RESOURCE_GROUP
                     - RESOURCE
                   minLength: 1
+                additionalInfo:
+                  description: Used to define additional information to access data for educational, research or testing, non-commercial, academia purposes
+                  type: object
+                  minProperties: 1
+                  maxProperties: 10
               required:
                 - itemId
                 - itemType
@@ -598,10 +603,22 @@ paths:
                   itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
                   itemType: RESOURCE
             examples:
-              Create:
+              Create Access Request:
                 value:
                   itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
                   itemType: RESOURCE
+              Create Access Request with additionalInfo:
+                value:
+                  itemId: b34eb955-c691-4fd3-b200-f18bc78810a2
+                  itemType: RESOURCE
+                  additionalInfo:
+                    name: Miles Davis
+                    email: miles@davis.org
+                    phone: 987654321
+                    purpose: testing
+                    description: The resource would be used for testing the abcd application in which services are offered free of cost for public welfare
+
+
       responses:
         '200':
           description: OK
