@@ -52,6 +52,7 @@ public class CreateNotification {
   private String resourceServerUrl;
   private AuthClient authClient;
   private String consumerRsUrl;
+  private JsonObject additionalInfo = new JsonObject();
 
   public CreateNotification(
       PostgresService postgresService,
@@ -76,8 +77,6 @@ public class CreateNotification {
     resourceId = UUID.fromString(notification.getString("itemId"));
     String itemType = notification.getString("itemType");
     boolean isAdditionalInfoPresent = notification.containsKey("additionalInfo");
-    JsonObject additionalInfo;
-    String createNotificationQuery;
     if (isAdditionalInfoPresent) {
       boolean isAnyValueNull =
           notification.getJsonObject("additionalInfo").getMap().values().stream()
@@ -91,10 +90,6 @@ public class CreateNotification {
         return Future.failedFuture(failureMessage.encode());
       }
       additionalInfo = notification.getJsonObject("additionalInfo");
-      createNotificationQuery = CREATE_NOTIFICATION_WITH_ADDITIONAL_INFO_QUERY;
-    } else {
-      additionalInfo = null;
-      createNotificationQuery = CREATE_NOTIFICATION_QUERY;
     }
     setConsumerRsUrl(user.getResourceServerUrl());
 
@@ -161,7 +156,7 @@ public class CreateNotification {
               }
 
               return createNotification(
-                  createNotificationQuery,
+                  CREATE_NOTIFICATION_WITH_ADDITIONAL_INFO_QUERY,
                   resourceId,
                   user,
                   UUID.fromString(getProviderInfo().getUserId()),
