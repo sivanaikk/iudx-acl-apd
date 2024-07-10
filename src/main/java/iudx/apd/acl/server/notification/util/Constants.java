@@ -16,10 +16,6 @@ public class Constants {
 
   public static final String GET_VALID_NOTIFICATION =
           "SELECT * FROM request WHERE user_id = $1::uuid AND item_id = $2::uuid AND status = 'PENDING';";
-  public static final String CREATE_NOTIFICATION_QUERY =
-          "INSERT INTO request"
-                  + "(user_id, item_id,owner_id, status, expiry_at, constraints)"
-                  + " VALUES ($1::uuid, $2::uuid,$3::uuid, 'PENDING', NULL, NULL) RETURNING _id;";
   public static final String CREATE_NOTIFICATION_WITH_ADDITIONAL_INFO_QUERY =
           "INSERT INTO request"
                   + "(user_id, item_id,owner_id, status, expiry_at, constraints, additional_info)"

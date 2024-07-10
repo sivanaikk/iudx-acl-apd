@@ -2181,7 +2181,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"itemId\": \"{{item_id}}\",\n\"itemType\": \"RESOURCE\"\n}",
+							"raw": "{\n    \"itemId\": \"{{item_id}}\",\n    \"itemType\": \"RESOURCE\",\n    \"additionalInfo\": {\n        \"name\": \"Test consumer\",\n        \"email\": \"testConsumer@testCorp.org\",\n        \"phoneNo\": 9123456780,\n        \"purpose\": \"research\",\n        \"description\": \"This a description of how the data from the resource would be used\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
