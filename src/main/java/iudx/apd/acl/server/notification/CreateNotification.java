@@ -332,10 +332,7 @@ public class CreateNotification {
     Promise<JsonObject> promise = Promise.promise();
     LOG.trace("inside createNotification method");
     UUID consumerId = UUID.fromString(consumer.getUserId());
-    Tuple tuple = Tuple.of(consumerId, resourceId, providerId);
-    if (additionalInfo != null) {
-      tuple.addJsonObject(additionalInfo);
-    }
+    Tuple tuple = Tuple.of(consumerId, resourceId, providerId, additionalInfo);
 
     executeQuery(
         query,
