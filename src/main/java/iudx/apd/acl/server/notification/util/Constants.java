@@ -57,7 +57,9 @@ public class Constants {
           + "RE.item_type AS \"itemType\",\n"
           + "RE.resource_server_url AS \"resourceServerUrl\",\n"
           + "R.status AS \"status\", R.expiry_at AS \"expiryAt\", \n"
-          + "R.constraints AS \"constraints\", R.user_id AS \"consumerId\",\n"
+          + "R.constraints AS \"constraints\","
+          + " R.additional_info AS \"additionalInfo\", "
+          + " R.user_id AS \"consumerId\",\n"
           + "R.owner_id AS \"ownerId\", U.first_name AS \"consumerFirstName\", \n"
           + "U.last_name AS \"consumerLastName\", U.email_id AS \"consumerEmailId\" \n"
           + ", R.updated_at AS \"updatedAt\" "
@@ -96,6 +98,7 @@ public class Constants {
           + "RE.resource_server_url AS \"resourceServerUrl\",\n"
           + "R.status AS \"status\", R.expiry_at AS \"expiryAt\", \n"
           + "R.constraints AS \"constraints\",\n"
+          + " R.additional_info AS \"additionalInfo\", "
           + "R.user_id AS \"consumerId\", R.owner_id AS \"ownerId\",\n"
           + "U.first_name AS \"ownerFirstName\", \n"
           + "U.last_name AS \"ownerLastName\", U.email_id AS \"ownerEmailId\" \n"
@@ -109,7 +112,4 @@ public class Constants {
           + "WHERE R.user_id=$1::uuid "
           + "AND RE.resource_server_url = $2 "
           + " ORDER BY R.updated_at DESC";
-
-
-
 }
