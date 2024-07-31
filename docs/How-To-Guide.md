@@ -1,13 +1,27 @@
 ![IUDX](./iudx.png)
 
-
-# DX-ACL-APD-Server
 # How To Guide
 
-#Deployment
-#Configuration
-#Dependencies
-##External
-##Prerequisites <Database and Schema related explanations>
-#Testing
-#Logging and Monitoring
+## Deployment
+### Using Maven
+### Using JAR
+### Using Docker
+
+## Logging and Monitoring
+
+## Configuration
+### Vertical-1
+### Vertical-2
+### Vertical-3
+
+## Dependencies
+### External
+### Prerequisites
+
+## Testing
+### Unit Testing
+### Code Coverage Testing
+### Integration Testing
+### Performance Testing
+### Security Testing
+
