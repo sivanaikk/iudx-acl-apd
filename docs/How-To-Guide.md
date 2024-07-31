@@ -1,4 +1,4 @@
-![IUDX](./docs/iudx.png)
+![IUDX](./iudx.png)
 
 
 # DX-ACL-APD-Server
