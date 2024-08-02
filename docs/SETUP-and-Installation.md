@@ -269,10 +269,6 @@ $ java ACL_APD_JAVA_OPTS -jar target/iudx.iudx.apd.acl.server-cluster-0.0.1-SNAP
 3. Jacoco reports are stored in `./target/
 
 
-### Code Coverage Testing
-
-Number of lines covered during unit testing or coverage is brought up to 90%
-
 ### Integration Testing
 
 Integration tests are through Postman/Newman whose script can be found from [here](https://github.com/datakaveri/iudx-acl-apd/tree/main/src/test/resources).

@@ -35,6 +35,7 @@ allow consumer, consumer delegates to access the resource.
 <img src="./docs/users-and-roles.png" alt="Users and Roles" width="600" height="400"/>
 </div>
 
+- Tokens for a user could be created using DX Auth Server API : [link to the API docs](https://authorization.iudx.org.in/apis#tag/Token-APIs/operation/post-auth-v1-token) 
 - Provider, Consumers and delegates of provider and consumers are allowed to access the APIs
 - Provider / provider delegate specific APIs : Create Policy, Update access request, Delete Policy
 - Consumer / consumer delegate specific APIs : Create Access Request, Withdraw access request
@@ -47,7 +48,7 @@ allow consumer, consumer delegates to access the resource.
 
 
 ## API Docs
-API docs are available [here](https://acl-apd.iudx.io/apis)
+API docs are available [here](https://acl-apd.iudx.org.in/apis)
 
 ## How To Guide
 -> Provide the link here #TODO
