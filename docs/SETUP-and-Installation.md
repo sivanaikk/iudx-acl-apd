@@ -284,8 +284,8 @@ Integration tests are through Postman/Newman whose script can be found from [her
 
 ### Performance Testing
 
-Explaing how to execute tests. #TODO
+Explain how to execute tests. #TODO
 
 ### Security Testing
 
-Explaing how to execute tests. #TODO
+Explain how to execute tests. #TODO

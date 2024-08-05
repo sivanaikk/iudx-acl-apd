@@ -9,7 +9,7 @@
 
 
 # DX-ACL-APD-Server
-Data Exchange (DX) Access Control Layer (ACL) and Access Policy Domain (APD)
+The Data Exchange (DX) Access Control List (ACL) based Access Policy Domain (APD)
 is used for creating, requesting and managing policy. Provider, provider delegates could
 allow the consumer, consumer delegates to access their resources by writing a policy against it.
 Policies are verified by Data Exchange (DX) Authentication Authorization and Accounting Server (AAA) Server to
