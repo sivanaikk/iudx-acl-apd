@@ -22,7 +22,22 @@ The Data Broker is used by the API Server to log information related to successf
 The authentication service interacts with the DX AAA Server to validate tokens provided by a consumer of a protected resource and to fetch information about the user.
 
 ## Policy Service
-The policy service is used to create, delete or list policies, for the resources owned by the provider. Delegates of the provider could manage policies on behalf of the provider. They could provide user specific constraints while creating a policy for a certain consumer for a given resource. DX AAA Server checks if any policy is present for the given resource by using the verify policy API. The policy related information is stored in the database.
+The policy service is used to create, delete or list policies, for the resources owned by the provider
+. Delegates of the provider could manage policies on behalf of the provider.
+They could provide user specific constraints while creating a policy for a certain consumer for a given resource.
+While creating a policy, the owner of the resource or provider delegate, provides ID of the resource, consumer email ID, constraints like subscription, file, async etc., along with policy expiry time in `yyyy-MM-dd'T'HH:mm:ss` format for consumer to access the resource.
+By default the policy would expire in 12 days (if the expiry time is not provided).
+The provider or delegate of the provider can also withdraw an active policy by providing the policy ID.
+After the policy is successfully created, owner, consumer, delegates can view all the information related to the user policies.
+DX AAA Server checks if any policy is present for the given resource by using the verify policy API.
+Verify policy returns the constraints to access the resource for the active policy.
 
 ## Notification Service
-Consumer or consumer delegates could request the provider to access the resource by using create access request API. An email is sent to the provider to approve the request for the resource on behalf of the consumer. Additional information like the purpose of accessing the resource (like academia, research, non-commercial) could be listed down to access the resource to help the provider take an informed decision while approving the request. Notification related information is stored in the database.
+Consumer or consumer delegates could request the provider to access the resource by providing information of the resource like it's ID
+and additional information related to the purpose for which the resource is being accessed.
+Academia, research, non-commercial could be listed down to access the resource to help the provider take an informed decision while approving the request.
+An email is sent to the provider and provider delegates to approve or reject the request by visiting the provider panel.
+While approving the access request, information like access constraints, ID of the access request, expiry time in `yyyy-MM-dd'T'HH:mm:ss` format to access the resource when the policy is created could be provided.  
+If the consumer or consumer delegate no longer wants to create the access request or if an active policy for the given access request is present,
+the consumer could withdraw the pending access request by providing it's ID.
+After the access request is created, all the information regarding access request could be viewed by the user.
