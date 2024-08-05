@@ -30,8 +30,8 @@ could be updated in configs
 | commonConfig.dxAuthBasePath      |     String     | /auth/v1                             | API base path for DX AAA server. Reference : [link](https://swagger.io/docs/specification/2-0/api-host-and-base-path/)       |
 | commonConfig.catServerHost       |     String     | api.cat-test.iudx.io                 | Host name of DX Catalogue server for fetching the information of resources, resource groups                                  |
 | commonConfig.catServerPort       |    integer     | 443                                  | Port number to access HTTPS APIs of Catalogue Server                                                                         |
-| commonConfig.authHost            |     String     | authvertx.iudx.io                    | Host name of Auth Server                                                                                                     |
-| commonConfig.authPort            |    integer     | 443                                  | Port number to access HTTPS APIs of Auth server Default                                                                      |
+| commonConfig.authHost            |     String     | authvertx.iudx.io                    | Host name of DX AAA Server                                                                                                   |
+| commonConfig.authPort            |    integer     | 443                                  | Port number to access HTTPS APIs of DX AAA server Default                                                                    |
 | commonConfig.databaseIP          |     String     | localhost                            | Database IP address                                                                                                          |
 | commonConfig.databasePort        |    integer     | 5433                                 | Port number                                                                                                                  |
 | commonConfig.databaseSchema      |     String     | acl_apd_schema                       | Database schema                                                                                                              |
@@ -102,19 +102,19 @@ could be updated in configs
 
 ## Dependencies
 ### External
-| Software Name     | Purpose                                                                                                                        | 
-| :---------------- |:-------------------------------------------------------------------------------------------------------------------------------|
-| PostgreSQL      | For storing information related to policy, access Request based CRUD operations, approved access requests, resources and users |
-| RabbitMQ    | To publish auditing related data to auditing server via RMQ exchange                                                           |
+| Software Name | Purpose                                                                                                                        | 
+|:--------------|:-------------------------------------------------------------------------------------------------------------------------------|
+| PostgreSQL    | For storing information related to policy, access Request based CRUD operations, approved access requests, resources and users |
+| RabbitMQ      | To publish auditing related data to auditing server via RMQ exchange                                                           |
 
 Find the installation of the above along with the configurations to modify the database url, port, and associated credentials
 in the appropriate sections [here](SETUP.md)
 
 ### Other Dependencies
-| Software Name     | Purpose                                                               | 
-| :---------------- |:----------------------------------------------------------------------|
-| Authentication Authorization and Accounting (AAA) Server      | used to download certificate for JWT token decoding, to get user info |
-| Catalogue Server    | used to fetch the list of resource and provider related information   |
+| Software Name                                              | Purpose                                                               | 
+|:-----------------------------------------------------------|:----------------------------------------------------------------------|
+| Authentication Authorization and Accounting (AAA) Server   | used to download certificate for JWT token decoding, to get user info |
+| Catalogue Server                                           | used to fetch the list of resource and provider related information   |
 
 ### Prerequisites
 ### Keycloak registration for DX ACL-APD as trustee and APD

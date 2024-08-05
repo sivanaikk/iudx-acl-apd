@@ -1,7 +1,7 @@
 # Frequently Asked Questions (FAQs)
 
 1. Which kind of token is required to make HTTP requests to the ACL-APD Server?
-- Identity token from DX Auth Server. [Link to the API docs of DX Auth server](https://cos.iudx.org.in/auth/apis#tag/Token-APIs/operation/post-auth-v1-token)
+- Identity token from DX AAA Server. [Link to the API docs of DX AAA server](https://cos.iudx.org.in/auth/apis#tag/Token-APIs/operation/post-auth-v1-token)
 
 2. What do we do when there is any error during flyway migration?
 - We could run this command `mvn flyway:repair` and do the flyway migration again

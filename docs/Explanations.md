@@ -22,7 +22,7 @@ The Data Broker is used by the API Server to log information related to successf
 The authentication service interacts with the DX AAA Server to validate tokens provided by a consumer of a protected resource and to fetch information about the user.
 
 ## Policy Service
-The policy service is used to create, delete or list policies, for the resources owned by the provider. Delegates of the provider could manage policies on behalf of the provider. They could provide user specific constraints while creating a policy for a certain consumer for a given resource. DX Auth Server checks if any policy is present for the given resource by using the verify policy API. The policy related information is stored in the database.
+The policy service is used to create, delete or list policies, for the resources owned by the provider. Delegates of the provider could manage policies on behalf of the provider. They could provide user specific constraints while creating a policy for a certain consumer for a given resource. DX AAA Server checks if any policy is present for the given resource by using the verify policy API. The policy related information is stored in the database.
 
 ## Notification Service
 Consumer or consumer delegates could request the provider to access the resource by using create access request API. An email is sent to the provider to approve the request for the resource on behalf of the consumer. Additional information like the purpose of accessing the resource (like academia, research, non-commercial) could be listed down to access the resource to help the provider take an informed decision while approving the request. Notification related information is stored in the database.

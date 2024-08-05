@@ -35,13 +35,13 @@ allow consumer, consumer delegates to access the resource.
 <img src="./docs/users-and-roles.png" alt="Users and Roles" width="600" height="400"/>
 </div>
 
-- Tokens for a user could be created using DX Auth Server API : [link to the API docs](https://authorization.iudx.org.in/apis#tag/Token-APIs/operation/post-auth-v1-token) 
+- Tokens for a user could be created using DX AAA Server API : [link to the API docs](https://authorization.iudx.org.in/apis#tag/Token-APIs/operation/post-auth-v1-token) 
 - Provider, Consumers and delegates of provider and consumers are allowed to access the APIs
 - Provider / provider delegate specific APIs : Create Policy, Update access request, Delete Policy
 - Consumer / consumer delegate specific APIs : Create Access Request, Withdraw access request
 - Commonly accessible APIs for both the users : List Access Request,  Get Policies
 - How is the user considered as a consumer, provider or delegate?
-   - If the **role** in token fetched from Auth Server is **provider**, **consumer**
+   - If the **role** in token fetched from DX AAA Server is **provider**, **consumer**
    - A user is considered as a delegate of the consumer if **role** is **delegate** and **drl** is **consumer**
    - A user is considered as a delegate of the provider if **role** is **delegate** and **drl** is **provider**
 
