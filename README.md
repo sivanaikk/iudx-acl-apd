@@ -48,6 +48,7 @@ allow consumer, consumer delegates to access the resource.
 - Constraints: (or capabilities) Are different methods in which information related to resource can be fetched
 - Policy Status : Policy could be in either of these states - active, deleted or expired
 - Notification Status: Notification could be in either of these states - pending, granted, rejected, withdrawn
+- Delegate : Consumer or provider appointed user who could act on behalf of the delegator
 
 ## Features
 - Allows provider, provider delegates to create, fetch, manage policies over their resources
