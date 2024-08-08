@@ -32,10 +32,11 @@ jobs:
           echo "Removing old documentation..."
           rm -rf wiki/*
 
-      - name: Copy README.md and Docs to Wiki
+      - name: Rename README.md and Copy Files to Wiki
         run: |
-          echo "Copying README.md and docs folder..."
-          cp README.md wiki/
+          echo "Renaming README.md to Introduction.md and copying files..."
+          mv README.md Introduction.md
+          cp Introduction.md wiki/
           cp -r docs/* wiki/
           ls -la wiki  # List files to verify copying
 
@@ -46,8 +47,8 @@ jobs:
             if ! grep -q "## Home" wiki/_Sidebar.md; then
               echo "## Home" >> wiki/_Sidebar.md
             fi
-            if ! grep -q "* [Home](README.md)" wiki/_Sidebar.md; then
-              echo "* [Home](README.md)" >> wiki/_Sidebar.md
+            if ! grep -q "* [Home](Introduction.md)" wiki/_Sidebar.md; then
+              echo "* [Home](Introduction.md)" >> wiki/_Sidebar.md
             fi
             cat wiki/_Sidebar.md  # Output the updated _Sidebar.md
           else
@@ -58,7 +59,7 @@ jobs:
         run: |
           cd wiki
           git add .
-          git commit -m "Update wiki with README.md and docs" || echo "No changes to commit"
+          git commit -m "Update wiki with Introduction.md as home page and docs" || echo "No changes to commit"
           git push
         continue-on-error: true
 
