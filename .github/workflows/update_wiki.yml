@@ -1,0 +1,65 @@
+name: Update Wiki
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-wiki:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Git
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Clone Wiki Repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git wiki
+        continue-on-error: true
+
+      - name: List files in wiki directory before copying
+        run: ls -la wiki
+
+      - name: Remove Old Documentation from Wiki
+        run: |
+          echo "Removing old documentation..."
+          rm -rf wiki/*
+
+      - name: Copy README.md to Wiki
+        run: |
+          echo "Copying README.md..."
+          cp README.md wiki/
+          ls -la wiki  # List files to verify copying
+
+      - name: Update Sidebar
+        run: |
+          echo "Updating _Sidebar.md..."
+          if [ -f "wiki/_Sidebar.md" ]; then
+            if ! grep -q "## Home" wiki/_Sidebar.md; then
+              echo "## Home" >> wiki/_Sidebar.md
+            fi
+            if ! grep -q "* [Home](README.md)" wiki/_Sidebar.md; then
+              echo "* [Home](README.md)" >> wiki/_Sidebar.md
+            fi
+            cat wiki/_Sidebar.md  # Output the updated _Sidebar.md
+          else
+            echo "_Sidebar.md not found. No changes made."
+          fi
+
+      - name: Commit and Push Changes to Wiki
+        run: |
+          cd wiki
+          git add .
+          git commit -m "Update wiki with README.md as home page" || echo "No changes to commit"
+          git push
+        continue-on-error: true
+
+      - name: List files in wiki directory after push
+        run: ls -la wiki
