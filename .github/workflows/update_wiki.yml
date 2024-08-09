@@ -24,26 +24,22 @@ jobs:
           git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git wiki
         continue-on-error: true
 
-      - name: List files in wiki directory before copying
-        run: ls -la wiki
-
-      - name: Remove Old Documentation from Wiki
+      - name: Remove Old Wiki Content
         run: |
-          echo "Removing old documentation..."
+          echo "Removing old wiki content..."
           rm -rf wiki/*
 
-      - name: Rename README.md and Copy Files to Wiki
+      - name: Rename README.md to Introduction.md and Copy Files to Wiki
         run: |
-          echo "Renaming README.md to Introduction.md and copying files..."
-          mv README.md Introduction.md
-          cp Introduction.md wiki/
+          echo "copying files..."
           cp -r docs/* wiki/
           ls -la wiki  # List files to verify copying
 
-      - name: Update Sidebar
+      - name: Create New Home Page in Wiki
         run: |
-          echo "Updating _Sidebar.md..."
+          echo "Setting Introduction.md as the home page..."
           if [ -f "wiki/_Sidebar.md" ]; then
+            echo "Updating _Sidebar.md to include Introduction.md..."
             if ! grep -q "## Home" wiki/_Sidebar.md; then
               echo "## Home" >> wiki/_Sidebar.md
             fi
