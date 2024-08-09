@@ -29,9 +29,9 @@ jobs:
           echo "Removing old wiki content..."
           rm -rf wiki/*
 
-      - name: Rename README.md to Introduction.md and Copy Files to Wiki
+      - name: Copy Files to Wiki
         run: |
-          echo "copying files..."
+          echo "Copying files..."
           cp -r docs/* wiki/
           ls -la wiki  # List files to verify copying
 
