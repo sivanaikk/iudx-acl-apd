@@ -1,68 +1,65 @@
-# This github workflow will automatically update docker image tags of acl-apd-depl in the datakaveri/iudx-deployment repository files, whenever docker image is pushed to ghcr.io/datakaveri/acl-apd-depl  .Based on tag it will update the master/latest branch (if its 1.0.2-alpha-) 
+# This github workflow will automatically update docker image tags of acl-apd-depl in the datakaveri/iudx-deployment repository files, whenever docker image is pushed to ghcr.io/datakaveri/acl-apd-depl .Based on tag it will update the master/latest branch (if its 1.1.0-alpha-) 
 
-name: Update ACL APD docker image tags (main)
+  name: Update ACL APD docker image tags (main)
 
-# This trigger will run the workflow whenever a new package is published to the registry
-on:
-  registry_package:
-    types: [published]
-
-permissions:
-  packages: read
-
-jobs:
-  update-master:
-    runs-on: ubuntu-20.04
-
-    steps:
-    - uses: actions/checkout@v3
-      with:
-       repository: datakaveri/iudx-deployment
-       repository: datakaveri/iudx-deployment
-        # Jenkins token to perform git operations
-        repository: datakaveri/iudx-deployment
-        # Jenkins token to perform git operations
-        token: "${{ secrets.JENKINS_UPDATE }}"
-        fetch-depth: 0
-
-    - name: Update ACL APD docker image tags (master/main)
-      env: 
-        GH_TOKEN: ${{ secrets.JENKINS_UPDATE}}
-      run: | 
-        # Get the latest version of 1.0.2-alpha tag from the container registry using GitHub API
-        export newtag1_0_2=`(head -n 1 <(curl -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/orgs/datakaveri/packages/container/acl-apd-depl/versions | jq ' .[].metadata.container.tags[0]'  | grep 1.0.2-alpha | sed -e 's/^"//' -e 's/"$//'))`
-        
-        # Get the old tag from the YAML file
-        export oldtag1_0_2=`yq -r .services.acl-apd.image Docker-Swarm-deployment/single-node/acl-apd/acl-apd-stack.yaml | cut -d : -f 2`
-        
-        git checkout master
-        
-        # Set Git user
-        git config --global user.name 'jenkins-datakaveri'
-        git config --global user.email "96175780+jenkins-datakaveri@users.noreply.github.com"
-
-        # Update the YAML files and create a new branch for the tag update
-        if [ "$newtag1_0_2" != "$oldtag1_0_2" ]
-        then
-         git checkout -b cat-automatic-updates/$newtag1_0_2
-
-         sed -i s/$oldtag1_0_2/$newtag1_0_2/g Docker-Swarm-deployment/single-node/acl-apd/acl-apd-stack.yaml
-
-         # Update the application version
-         export oldappversion=`yq -r .version K8s-deployment/Charts/acl-apd/Chart.yaml`
-         export newappversion=`yq -r .version K8s-deployment/Charts/acl-apd/Chart.yaml | awk -F. -v OFS=. 'NF==1{print ++$NF}; NF>1{if(length($NF+1)>length($NF))$(NF-1)++; $NF=sprintf("%0*d", length($NF), ($NF+1)%(10^length($NF))); print}' `
-         
-         
-         # Uses sed to find and replace $oldappversion with $newappversion in K8s-deployment/Charts/acl-apd/Chart.yaml and K8s-deployment/Charts/acl-apd/values.yaml files
-
-         # Uses sed to find and replace $oldappversion with $newappversion in K8s-deployment/Charts/acl-apd/Chart.yaml and K8s-deployment/Charts/acl-apd/values.yaml files
-         sed -i s/$oldappversion/$newappversion/g K8s-deployment/Charts/acl-apd/Chart.yaml
-         sed -i s/$oldtag1_0_2/$newtag1_0_2/g K8s-deployment/Charts/acl-apd/values.yaml
-
-         git add Docker-Swarm-deployment/single-node/acl-apd/acl-apd-stack.yaml K8s-deployment/Charts/acl-apd/values.yaml K8s-deployment/Charts/acl-apd/Chart.yaml
-         git commit --allow-empty -m "updated ACL APD docker image tag to $newtag1_0_2"
-         git push --set-upstream origin cat-automatic-updates/$newtag1_0_2
-         
-         # Create a new pull request on the datakaveri/iudx-deployment repository with the base branch master
-         gh pr create -R datakaveri/iudx-deployment --base master --fill 
-        fi
+  # This trigger will run the workflow whenever a new package is published to the registry
+  on:
+    registry_package:
+      types: [published]
+  
+  permissions:
+    packages: read
+  
+  jobs:
+    update-master:
+      runs-on: ubuntu-20.04
+  
+      steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: datakaveri/iudx-deployment
+          # Jenkins token to perform git operations
+          token: "${{ secrets.JENKINS_UPDATE }}"
+          fetch-depth: 0
+  
+      - name: Update ACL APD docker image tags (master/main)
+        env: 
+          GH_TOKEN: ${{ secrets.JENKINS_UPDATE}}
+        run: | 
+          # Get the latest version of 1.1.0-alpha tag from the container registry using GitHub API
+          export newtag1_1_0=`(head -n 1 <(curl -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/orgs/datakaveri/packages/container/acl-apd-depl/versions | jq ' .[].metadata.container.tags[0]'  | grep 1.1.0-alpha | sed -e 's/^"//' -e 's/"$//'))`
+          
+          # Get the old tag from the YAML file
+          export oldtag1_1_0=`yq -r .services.acl-apd.image Docker-Swarm-deployment/single-node/acl-apd/acl-apd-stack.yaml | cut -d : -f 2`
+          
+          git checkout master
+          
+          # Set Git user
+          git config --global user.name 'jenkins-datakaveri'
+          git config --global user.email "96175780+jenkins-datakaveri@users.noreply.github.com"
+  
+          # Update the YAML files and create a new branch for the tag update
+          if [ "$newtag1_1_0" != "$oldtag1_1_0" ]
+          then
+           git checkout -b cat-automatic-updates/$newtag1_1_0
+  
+           sed -i s/$oldtag1_1_0/$newtag1_1_0/g Docker-Swarm-deployment/single-node/acl-apd/acl-apd-stack.yaml
+  
+           # Update the application version
+           export oldappversion=`yq -r .version K8s-deployment/Charts/acl-apd/Chart.yaml`
+           export newappversion=`yq -r .version K8s-deployment/Charts/acl-apd/Chart.yaml | awk -F. -v OFS=. 'NF==1{print ++$NF}; NF>1{if(length($NF+1)>length($NF))$(NF-1)++; $NF=sprintf("%0*d", length($NF), ($NF+1)%(10^length($NF))); print}' `
+           
+           
+           # Uses sed to find and replace $oldappversion with $newappversion in K8s-deployment/Charts/acl-apd/Chart.yaml and K8s-deployment/Charts/acl-apd/values.yaml files
+  
+           sed -i s/$oldappversion/$newappversion/g K8s-deployment/Charts/acl-apd/Chart.yaml
+           sed -i s/$oldtag1_1_0/$newtag1_1_0/g K8s-deployment/Charts/acl-apd/values.yaml
+  
+           git add Docker-Swarm-deployment/single-node/acl-apd/acl-apd-stack.yaml K8s-deployment/Charts/acl-apd/values.yaml K8s-deployment/Charts/acl-apd/Chart.yaml
+           git commit --allow-empty -m "updated ACL APD docker image tag to $newtag1_1_0"
+           git push --set-upstream origin cat-automatic-updates/$newtag1_1_0
+           
+           # Create a new pull request on the datakaveri/iudx-deployment repository with the base branch master
+           gh pr create -R datakaveri/iudx-deployment --base master --fill 
+          fi
+  
